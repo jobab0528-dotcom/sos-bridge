@@ -1,0 +1,17 @@
+{
+  "name": "SOS Bridge",
+  "short_name": "SOS Bridge",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#062a60",
+  "description": "Travel emergency medical guidance app",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
