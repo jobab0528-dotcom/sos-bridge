@@ -130,29 +130,29 @@
           </div>
         </div>
         <p id="chooseDesc" class="desc" style="margin-top:24px">
-          사용자 언어, 여행 국가, 현지 전달 언어를 따로 설정하세요.
+          SOS Bridge는 한국인이 해외여행 중 갑자기 아프거나 다쳤을 때, 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 도와주는 해외여행 응급 의료 도우미입니다.
         </p>
 
         <div class="notice teal" style="margin-top:18px">
-          예: 일본인이 스페인을 여행한다면 <strong>사용자 언어=일본어</strong>, <strong>여행 국가=스페인</strong>, <strong>현지 전달 언어=스페인어</strong>로 설정합니다.
+          앱 화면과 AI Care 결과는 <strong>한국어</strong>로 제공되고, 의료진·약사·주변 사람에게 보여줄 문장은 <strong>선택한 여행 국가의 현지 언어</strong>로 제공됩니다.
         </div>
 
         <div id="homeMedicalDisclaimer" class="notice amber" style="margin-top:12px">⚠️ 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
 
         <div class="grid" style="margin-top:16px">
-          <label class="small" style="font-weight:950;color:var(--navy)">1. 사용자 언어 · 앱을 읽을 언어</label>
-          <select id="userLangSelect" class="input"></select>
+          <select id="userLangSelect" class="input" style="display:none"></select>
 
-          <label class="small" style="font-weight:950;color:var(--navy)">2. 여행 국가 · 응급번호와 병원/약국 기준</label>
+          <label class="small" style="font-weight:950;color:var(--navy)">1. 여행 국가 · 응급번호와 병원/약국 기준</label>
           <select id="tripCountrySelect" class="input"></select>
 
+          <label class="small" style="font-weight:950;color:var(--navy)">2. 여행 도시/지역 · 병원/약국 검색 기준</label>
           <div class="two">
-            <input id="initialTravelCountry" class="input" placeholder="여행 국가 직접 입력 예: 스페인" />
-            <input id="initialTravelCity" class="input" placeholder="여행 도시/지역 입력 예: 바르셀로나" />
+            <input id="initialTravelCountry" class="input" placeholder="여행 국가 직접 입력 예: 미국, 일본, 베트남" />
+            <input id="initialTravelCity" class="input" placeholder="여행 도시/지역 입력 예: 뉴욕, 도쿄, 다낭" />
           </div>
 
-          <label class="small" style="font-weight:950;color:var(--navy)">3. 현지 전달 언어 · 현지인/약사/의료진에게 보여줄 언어</label>
-          <select id="localLangSelect" class="input"></select>
+          <select id="localLangSelect" class="input" style="display:none"></select>
+          <div class="notice teal">현지어 도움 문장은 여행 국가에 따라 자동 설정됩니다. 예: 미국은 영어, 일본은 일본어, 베트남은 베트남어.</div>
         </div>
 
         <div class="selected-box">
@@ -160,19 +160,19 @@
             <div id="selectedFlag" class="flag">🇰🇷</div>
             <div>
               <div id="currentLangLabel" class="small muted">현재 설정</div>
-              <h3 id="selectedNative" style="margin:2px 0">한국어 사용자 · 대한민국 여행</h3>
-              <div id="selectedCountry" class="small muted">현지 전달 언어: 한국어 · 응급번호 119</div>
+              <h3 id="selectedNative" style="margin:2px 0">대한민국 여행 준비</h3>
+              <div id="selectedCountry" class="small muted">현지어 도움 문장: 한국어 · 응급번호 119</div>
             </div>
           </div>
         </div>
 
-        <button id="startBtn" class="btn primary w-full" type="button">설정 완료하고 시작하기 ›</button>
+        <button id="startBtn" class="btn primary w-full" type="button">여행 국가 설정하고 시작하기 ›</button>
       </div>
 
       <div class="card">
         <div class="search">
           <span>🔎</span>
-          <input id="languageSearch" placeholder="TOP30 여행 국가 검색" />
+          <input id="languageSearch" placeholder="여행 국가 검색" />
         </div>
         <div id="languageGrid" class="language-grid"></div>
       </div>
@@ -190,14 +190,13 @@
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button id="changeLangBtn" class="btn outline" type="button"><span id="topFlag">🇰🇷</span><span id="topNative">한국어</span></button>
+          <button id="changeLangBtn" class="btn outline" type="button"><span id="topFlag">🇰🇷</span><span id="topNative">여행 국가 변경</span></button>
         </div>
       </header>
     </div>
 
     <section class="container grid">
       <div id="sampleNotice" class="notice amber">⚠️ 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
-      <div id="travelContextBox" class="notice teal"></div>
       <div id="travelContextBox" class="notice teal"></div>
 
       <section id="serviceSection" class="card">
@@ -210,8 +209,8 @@
 
       <section id="localPhraseCard" class="card hidden">
         <p class="eyebrow">Local Help Phrase</p>
-        <h2 id="localPhraseTitle">현지 도움 문장</h2>
-        <p class="small muted" id="localPhraseDesc">현지인이나 의료진에게 보여줄 문장을 현지 전달 언어로 제공합니다.</p>
+        <h2 id="localPhraseTitle">현지어 도움 문장</h2>
+        <p class="small muted" id="localPhraseDesc">의료진·약사·주변 사람에게 보여줄 문장을 여행 국가의 현지 언어로 제공합니다.</p>
         <div id="localPhraseList" class="grid" style="margin-top:14px"></div>
       </section>
 
@@ -253,7 +252,13 @@
         <p class="eyebrow">Guide</p>
         <h2>이용 안내</h2>
         <div class="notice amber">⚠️ 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
-        <div class="notice teal">SOS Bridge는 해외여행 중 갑작스러운 증상이나 응급 상황에서 사용자가 빠르게 대처할 수 있도록 돕는 참고 안내 서비스입니다. 증상 입력 결과는 의료진의 판단을 대신하지 않으며, 심각한 증상이나 사고가 의심되면 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문해야 합니다.</div>
+        <div class="notice teal">SOS Bridge는 한국인 해외여행자를 위한 응급 의료 도우미 앱입니다. 앱 화면과 AI Care 결과는 한국어로 제공되며, 현지 의료진·약사·주변 사람에게 보여줄 문장은 여행 국가의 언어로 제공됩니다.</div>
+        <div class="grid" style="margin-top:12px">
+          <div class="step"><span class="check">✓</span><span>AI Care는 의료진의 진단을 대체하지 않는 <strong>AI 응급도 참고 안내</strong> 기능입니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>응급 상황에서는 반드시 현지 응급번호로 연락하거나 가까운 의료기관을 방문해야 합니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>위치 정보는 병원과 약국 검색을 위해 사용됩니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>사용자의 증상 입력은 AI 응급도 참고 안내를 제공하기 위해 처리될 수 있습니다.</span></div>
+        </div>
       </section>
 
       
@@ -277,7 +282,7 @@
       <section id="resultSection" class="card">
         <h2 id="resultTitle">AI 응급도 참고 안내 결과</h2>
         <div id="aiResultDisclaimer" class="notice amber">⚠️ 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
-        <div id="triageEmpty" class="notice teal">증상을 입력하거나 음성으로 말하면 AI Care가 결과를 표시합니다.</div>
+        <div id="triageEmpty" class="notice teal">증상을 입력하거나 음성으로 말하면 AI 응급도 참고 안내 결과를 표시합니다.</div>
         <div id="triageResult" class="hidden">
           <div id="triageSummary" class="result-box"></div>
           <div id="triageSteps" class="grid" style="margin-top:12px"></div>
@@ -319,11 +324,11 @@
   <div id="emergencyModal" class="modal hidden">
     <div class="modal-box">
       <div style="font-size:52px;margin-bottom:12px">🚑</div>
-      <h2 id="consentTitle">구급차 호출에 동의하시겠습니까?</h2>
-      <p id="consentDesc" class="muted">이 앱은 샘플이므로 실제로 전화하지 않고, 호출하는 척만 합니다.</p>
+      <h2 id="consentTitle">현지 응급번호를 확인하시겠습니까?</h2>
+      <p id="consentDesc" class="muted">이 앱은 실제 전화를 대신 걸지 않습니다. 응급 상황이면 사용자의 전화 앱으로 현지 응급번호에 직접 연락하세요.</p>
       <div id="emergencyNumberBox" class="notice red">현지 구급차 번호 샘플: 119</div>
       <div class="grid">
-        <button id="agreeEmergencyBtn" class="btn danger w-full" type="button">🚑 동의하고 호출하는 척하기</button>
+        <button id="agreeEmergencyBtn" class="btn danger w-full" type="button">🚑 응급번호 확인하기</button>
         <button id="cancelEmergencyBtn" class="btn outline w-full" type="button">취소</button>
       </div>
     </div>
@@ -608,44 +613,44 @@ const languageOptions = [
 
 const i18n = {
   "ko": {
-    "localPhrase":"현지 도움 문장",
-    "localPhraseDesc":"현지인·의료진에게 보여줄 문장을 현지 전달 언어로 제공합니다.",
+    "localPhrase":"현지어 도움 문장",
+    "localPhraseDesc":"의료진·약사·주변 사람에게 보여줄 문장을 여행 국가의 현지어로 제공합니다.",
     "medicalCard":"여행자 의료카드",
-    "medicalCardDesc":"알레르기, 복용약, 보호자 연락처를 의료진에게 보여줍니다.",
+    "medicalCardDesc":"한국어 입력 정보를 현지어 카드로 함께 보여줍니다.",
     "emergencyInfo":"국가별 응급번호",
     "emergencyInfoDesc":"여행 국가 기준 응급번호와 신고 문장을 확인합니다.",
     "pharmacyPhrase":"약국 상담 문장",
     "pharmacyPhraseDesc":"약국에서 보여줄 현지어 상담 문장을 제공합니다.",
     "home": "서비스",
-    "choose": "언어를 선택하세요",
+    "choose": "여행 국가를 선택하세요",
     "subtitle": "여행 중 응급 상황에서도 빠르게 의료 정보를 확인하세요.",
     "continue": "시작하기",
     "searchPlaceholder": "국가 또는 언어 검색",
-    "appTag": "해외에서도, 빠르고 안전하게",
+    "appTag": "한국인을 위한 해외여행 응급 의료 도우미",
     "serviceSelect": "서비스 선택",
     "hospital": "병원 찾기",
-    "hospitalDesc": "GPS 또는 여행지 이름 기준 가까운 순 반경의 병원·의원을 찾습니다.",
+    "hospitalDesc": "현재 위치 또는 입력한 여행지 기준으로 병원·의원을 찾습니다.",
     "pharmacy": "약국 찾기",
-    "pharmacyDesc": "GPS 또는 여행지 이름 기준 가까운 순 반경의 약국을 찾습니다.",
+    "pharmacyDesc": "현재 위치 또는 입력한 여행지 기준으로 약국을 찾습니다.",
     "emergency": "응급 신고",
-    "emergencyDesc": "현지 구급차 호출 샘플",
+    "emergencyDesc": "여행 국가 기준 응급번호 확인",
     "symptom": "AI 응급도 참고 안내",
     "symptomDesc": "증상에 맞는 응급 대처 참고 안내",
-    "info": "국가별 의료 정보",
-    "infoDesc": "비용, 보험, 의료 시스템 안내",
+    "info": "이용 안내",
+    "infoDesc": "서비스 사용법과 안전 고지 확인",
     "symptomTitle": "증상 입력",
     "symptomInput": "예: 칼에 찔렸어요 / 트럭에 치였어요 / 숨쉬기 힘들어요 / 복통과 열이 있어요",
     "analyze": "AI 응급도 참고 안내 받기",
     "resultTitle": "AI 응급도 참고 안내 결과",
-    "currentLang": "현재 선택 언어",
-    "change": "언어 변경",
+    "currentLang": "현재 여행 국가",
+    "change": "여행 국가 변경",
     "sampleNotice": "본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.",
     "selfCare": "자가 대처 가능",
     "hospitalCare": "병원 방문 권장",
     "emergencyCare": "응급 대응 필요",
-    "consentTitle": "구급차 호출에 동의하시겠습니까?",
-    "consentDesc": "이 앱은 샘플이므로 실제로 전화하지 않고, 호출하는 척만 합니다.",
-    "agree": "동의하고 호출하는 척하기",
+    "consentTitle": "현지 응급번호를 확인하시겠습니까?",
+    "consentDesc": "이 앱은 실제 전화를 대신 걸지 않습니다. 응급 상황이면 사용자의 전화 앱으로 현지 응급번호에 직접 연락하세요.",
+    "agree": "응급번호 확인하기",
     "cancel": "취소",
     "directions": "가는 길 보기",
     "routeHint": "카드를 누르면 Google Maps 길찾기가 열립니다.",
@@ -667,7 +672,7 @@ const i18n = {
     "address": "주소",
     "openingHours": "운영 시간",
     "phone": "전화",
-    "emergencyNumberSample": "현지 구급차 번호 샘플"
+    "emergencyNumberSample": "현지 응급번호"
   },
   "en": {
     "localPhrase":"Local help phrases",
@@ -691,7 +696,7 @@ const i18n = {
     "pharmacyDesc": "Find pharmacies within nearest available using GPS or travel-place search.",
     "emergency": "Emergency call",
     "emergencyDesc": "Sample local ambulance call",
-    "symptom": "AI symptom guide",
+    "symptom": "AI emergency guidance",
     "symptomDesc": "Immediate guidance based on symptoms",
     "info": "Country medical info",
     "infoDesc": "Costs, insurance, and healthcare overview",
@@ -701,7 +706,7 @@ const i18n = {
     "resultTitle": "AI guidance result",
     "currentLang": "Selected language",
     "change": "Change language",
-    "sampleNotice": "This is a sample app. It does not provide real diagnosis, dispatch, or phone calls.",
+    "sampleNotice": "This is a sample app. It does not replace medical professionals or make real emergency calls.",
     "selfCare": "Self-care possible",
     "hospitalCare": "Hospital visit recommended",
     "emergencyCare": "Emergency response needed",
@@ -745,7 +750,7 @@ const i18n = {
     "pharmacyDesc": "Find pharmacies within nearest available using GPS or travel-place search.",
     "emergency": "Emergency call",
     "emergencyDesc": "Sample local ambulance call",
-    "symptom": "AI symptom guide",
+    "symptom": "AI emergency guidance",
     "symptomDesc": "Immediate guidance based on symptoms",
     "info": "Country medical info",
     "infoDesc": "Costs, insurance, and healthcare overview",
@@ -755,7 +760,7 @@ const i18n = {
     "resultTitle": "AI guidance result",
     "currentLang": "Selected language",
     "change": "Change language",
-    "sampleNotice": "This is a sample app. It does not provide real diagnosis, dispatch, or phone calls.",
+    "sampleNotice": "This is a sample app. It does not replace medical professionals or make real emergency calls.",
     "selfCare": "Self-care possible",
     "hospitalCare": "Hospital visit recommended",
     "emergencyCare": "Emergency response needed",
@@ -799,7 +804,7 @@ const i18n = {
     "pharmacyDesc": "Find pharmacies within nearest available using GPS or travel-place search.",
     "emergency": "Emergency call",
     "emergencyDesc": "Sample local ambulance call",
-    "symptom": "AI symptom guide",
+    "symptom": "AI emergency guidance",
     "symptomDesc": "Immediate guidance based on symptoms",
     "info": "Country medical info",
     "infoDesc": "Costs, insurance, and healthcare overview",
@@ -809,7 +814,7 @@ const i18n = {
     "resultTitle": "AI guidance result",
     "currentLang": "Selected language",
     "change": "Change language",
-    "sampleNotice": "This is a sample app. It does not provide real diagnosis, dispatch, or phone calls.",
+    "sampleNotice": "This is a sample app. It does not replace medical professionals or make real emergency calls.",
     "selfCare": "Self-care possible",
     "hospitalCare": "Hospital visit recommended",
     "emergencyCare": "Emergency response needed",
@@ -853,7 +858,7 @@ const i18n = {
     "pharmacyDesc": "Find pharmacies within nearest available using GPS or travel-place search.",
     "emergency": "Emergency call",
     "emergencyDesc": "Sample local ambulance call",
-    "symptom": "AI symptom guide",
+    "symptom": "AI emergency guidance",
     "symptomDesc": "Immediate guidance based on symptoms",
     "info": "Country medical info",
     "infoDesc": "Costs, insurance, and healthcare overview",
@@ -863,7 +868,7 @@ const i18n = {
     "resultTitle": "AI guidance result",
     "currentLang": "Selected language / Langue sélectionnée",
     "change": "Change language",
-    "sampleNotice": "This is a sample app. It does not provide real diagnosis, dispatch, or phone calls.",
+    "sampleNotice": "This is a sample app. It does not replace medical professionals or make real emergency calls.",
     "selfCare": "Self-care possible",
     "hospitalCare": "Hospital visit recommended",
     "emergencyCare": "Emergency response needed",
@@ -907,7 +912,7 @@ const i18n = {
     "pharmacyDesc": "Find pharmacies within nearest available using GPS or travel-place search.",
     "emergency": "Emergency call",
     "emergencyDesc": "Sample local ambulance call",
-    "symptom": "AI symptom guide",
+    "symptom": "AI emergency guidance",
     "symptomDesc": "Immediate guidance based on symptoms",
     "info": "Country medical info",
     "infoDesc": "Costs, insurance, and healthcare overview",
@@ -917,7 +922,7 @@ const i18n = {
     "resultTitle": "AI guidance result",
     "currentLang": "Selected language",
     "change": "Change language",
-    "sampleNotice": "This is a sample app. It does not provide real diagnosis, dispatch, or phone calls.",
+    "sampleNotice": "This is a sample app. It does not replace medical professionals or make real emergency calls.",
     "selfCare": "Self-care possible",
     "hospitalCare": "Hospital visit recommended",
     "emergencyCare": "Emergency response needed",
@@ -961,7 +966,7 @@ const i18n = {
     "pharmacyDesc": "Find pharmacies within nearest available using GPS or travel-place search.",
     "emergency": "Emergency call",
     "emergencyDesc": "Sample local ambulance call",
-    "symptom": "AI symptom guide",
+    "symptom": "AI emergency guidance",
     "symptomDesc": "Immediate guidance based on symptoms",
     "info": "Country medical info",
     "infoDesc": "Costs, insurance, and healthcare overview",
@@ -971,7 +976,7 @@ const i18n = {
     "resultTitle": "AI guidance result",
     "currentLang": "Selected language",
     "change": "Change language",
-    "sampleNotice": "This is a sample app. It does not provide real diagnosis, dispatch, or phone calls.",
+    "sampleNotice": "This is a sample app. It does not replace medical professionals or make real emergency calls.",
     "selfCare": "Self-care possible",
     "hospitalCare": "Hospital visit recommended",
     "emergencyCare": "Emergency response needed",
@@ -1673,7 +1678,7 @@ const i18n = {
     "resultTitle": "Keputusan AI",
     "currentLang": "Bahasa dipilih",
     "change": "Tukar bahasa",
-    "sampleNotice": "Ini aplikasi contoh. Tiada diagnosis, panggilan atau penghantaran sebenar.",
+    "sampleNotice": "Ini aplikasi contoh. Tidak menggantikan tenaga medis atau panggilan darurat nyata.",
     "selfCare": "Boleh rawat sendiri",
     "hospitalCare": "Disaran ke hospital",
     "emergencyCare": "Perlu kecemasan",
@@ -2105,7 +2110,7 @@ const i18n = {
     "resultTitle": "Hasil AI",
     "currentLang": "Bahasa dipilih",
     "change": "Ganti bahasa",
-    "sampleNotice": "Ini aplikasi contoh. Tidak memberi diagnosis, panggilan, atau ambulans nyata.",
+    "sampleNotice": "Ini aplikasi contoh. Tidak menggantikan tenaga medis atau panggilan darurat nyata.",
     "selfCare": "Bisa perawatan mandiri",
     "hospitalCare": "Disarankan ke rumah sakit",
     "emergencyCare": "Butuh darurat",
@@ -2396,8 +2401,8 @@ let googleMap = null;
 const $ = id => document.getElementById(id);
 const safe = (fn) => { try { fn(); } catch(e) { showDebug(e); } };
 const on = (id, event, handler) => { const el=$(id); if(el) el.addEventListener(event, e => safe(() => handler(e)), {passive:false}); };
-const t = () => Object.assign({}, i18n.en, i18n[selected] || {});
-const selectedOption = () => languageOptions.find(x => x.id === selected) || languageOptions[19];
+const t = () => Object.assign({}, i18n.en, i18n.ko || {});
+const selectedOption = () => languageOptions.find(x => x.id === "ko") || languageOptions[19];
 const getSelectedCountryName = () => {
   const opt = selectedOption();
   return opt ? (opt.countryKo || opt.country || "") : "";
@@ -2443,21 +2448,24 @@ function applyTripCountrySelectionFromInput(){
   const raw = countryInput && countryInput.value.trim() ? countryInput.value.trim() : tripCountryName;
   const matched = findCountryOptionByText(raw);
   if(matched){
-    selected = matched.id;
+    selected = "ko";
+    tripCountryId = matched.id;
+    localLangId = matched.id;
     tripCountryName = matched.countryKo || matched.country || raw;
     if(countryInput) countryInput.value = tripCountryName;
     return matched;
   }
-  tripCountryName = raw || getSelectedCountryName();
-  return selectedOption();
+  selected = "ko";
+  tripCountryName = raw || getTripOption().countryKo || getTripOption().country || "";
+  return getTripOption();
 }
 function getTripEmergencyNumber(){
-  const matched = findCountryOptionByText(tripCountryName) || selectedOption();
-  return getEmergencyNumber(matched.id || selected);
+  const matched = findCountryOptionByText(tripCountryName) || getTripOption();
+  return getEmergencyNumber((matched && matched.id) || tripCountryId || "ko");
 }
 function getTripLanguageLabel(){
-  const matched = findCountryOptionByText(tripCountryName) || selectedOption();
-  return matched.native || selectedOption().native;
+  const matched = findCountryOptionByText(tripCountryName) || getTripOption();
+  return matched.native || getLocalOption().native;
 }
 function saveTripInputs(){
   const countryInput = $("initialTravelCountry");
@@ -2466,18 +2474,21 @@ function saveTripInputs(){
   const userSelect = $("userLangSelect");
   const localSelect = $("localLangSelect");
 
-  selected = userSelect && userSelect.value ? userSelect.value : selected;
+  selected = "ko";
   tripCountryId = tripSelect && tripSelect.value ? tripSelect.value : tripCountryId;
-  localLangId = localSelect && localSelect.value ? localSelect.value : localLangId;
+  localLangId = tripCountryId;
 
   const matched = findCountryOptionByText(countryInput && countryInput.value.trim() ? countryInput.value.trim() : "");
   if(matched){
     tripCountryId = matched.id;
+    localLangId = matched.id;
     if(tripSelect) tripSelect.value = matched.id;
+    if(localSelect) localSelect.value = matched.id;
     tripCountryName = matched.countryKo || matched.country || "";
   }else{
     const opt=getTripOption();
     tripCountryName = countryInput && countryInput.value.trim() ? countryInput.value.trim() : (opt.countryKo || opt.country || "");
+    localLangId = tripCountryId;
   }
 
   tripCityName = cityInput && cityInput.value.trim() ? cityInput.value.trim() : "";
@@ -2571,7 +2582,7 @@ function renderLanguageList(){
     : languageOptions;
 
   $("languageGrid").innerHTML =
-    '<div class="notice teal" style="margin:0 0 8px">TOP30 여행 국가 전체 목록입니다. 국가를 누르면 여행 국가와 현지 전달 언어가 함께 바뀝니다.</div>' +
+    '<div class="notice teal" style="margin:0 0 8px">TOP30 여행 국가 전체 목록입니다. 국가를 누르면 여행 국가와 현지어 도움 문장이 함께 바뀝니다.</div>' +
     list.map(item => '<button class="lang-btn '+(item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span class="small" style="font-weight:950;color:var(--teal)">TOP '+String(item.rank).padStart(2,"0")+'</span><span style="display:block;font-weight:950;color:var(--navy)">'+item.countryKo+'</span><span class="small muted">'+item.native+' · '+item.languageKo+'</span></span></button>').join("");
 
   document.querySelectorAll("[data-trip-country]").forEach(btn => btn.addEventListener("click", () => safe(() => {
@@ -2599,14 +2610,15 @@ function renderLanguageList(){
   })));
 }
 function renderLanguagePage(){
-  const userOpt=getUserOption(), tripOpt=getTripOption(), localOpt=getLocalOption();
-  $("chooseTitle").textContent="여행 설정";
-  $("chooseDesc").textContent="사용자 언어, 여행 국가, 현지 전달 언어를 따로 설정하세요.";
-  $("currentLangLabel").textContent="현재 설정";
+  selected = "ko";
+  const tripOpt=getTripOption(), localOpt=getLocalOption();
+  $("chooseTitle").textContent="여행 국가 설정";
+  $("chooseDesc").textContent="SOS Bridge는 한국인이 해외여행 중 갑자기 아프거나 다쳤을 때, 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 도와주는 해외여행 응급 의료 도우미입니다.";
+  $("currentLangLabel").textContent="현재 여행 설정";
   $("selectedFlag").textContent=tripOpt.flag;
-  $("selectedNative").textContent=(userOpt.native+" 사용자 · "+tripOpt.countryKo+" 여행");
-  $("selectedCountry").textContent="현지 전달 언어: "+localOpt.native+" · 응급번호 "+getTripEmergencyNumber();
-  $("startBtn").innerHTML="설정 완료하고 시작하기 ›";
+  $("selectedNative").textContent=(tripOpt.countryKo+" 여행");
+  $("selectedCountry").textContent="현지어 도움 문장: "+localOpt.native+" · 응급번호 "+getTripEmergencyNumber();
+  $("startBtn").innerHTML="여행 국가 설정하고 시작하기 ›";
   $("languageSearch").placeholder="TOP30 여행 국가 검색";
   renderSetupSelects();
   syncInitialTripInputs(false);
@@ -2623,7 +2635,7 @@ function renderServices(){
     { selector:'[data-nav="serviceSection"]', icon:'🏠', label:tx.home || tx.serviceSelect },
     { selector:'[data-action="hospital"]', icon:'🏥', label:tx.hospital },
     { selector:'[data-action="pharmacy"]', icon:'💊', label:tx.pharmacy },
-    { selector:'[data-nav="aiCarePanel"]', icon:'🤖', label:'AI' },
+    { selector:'[data-nav="aiCarePanel"]', icon:'🤖', label:'AI 안내' },
     { selector:'[data-action="emergency"]', icon:'🚑', label:tx.emergency }
   ];
   navItems.forEach(item => {
@@ -2632,18 +2644,19 @@ function renderServices(){
   });
 }
 function renderApp(){
+  selected = "ko";
   const tx=t(), userOpt=getUserOption(), tripOpt=getTripOption(), localOpt=getLocalOption();
   $("appTag").textContent=tx.appTag;
-  $("topFlag").textContent=userOpt.flag;
-  $("topNative").textContent=userOpt.native;
+  $("topFlag").textContent=tripOpt.flag;
+  $("topNative").textContent="여행 국가 변경";
   $("sampleNotice").textContent="⚠️ "+tx.sampleNotice;
 
   if($("travelContextBox")){
     const cityPart = tripCityName ? " · "+escapeHtml(tripCityName) : "";
     $("travelContextBox").innerHTML =
-      "<strong>👤 사용자 언어:</strong> "+escapeHtml(userOpt.native)+
+      "<strong>🇰🇷 앱 화면:</strong> 한국어"+
       " · <strong>✈️ 여행 국가:</strong> "+escapeHtml(tripCountryName || tripOpt.countryKo)+cityPart+
-      " · <strong>🗣️ 현지 전달:</strong> "+escapeHtml(localOpt.native)+
+      " · <strong>🗣️ 현지어 문장:</strong> "+escapeHtml(localOpt.native)+
       " · <strong>🚑 응급번호:</strong> "+escapeHtml(String(getTripEmergencyNumber()));
   }
 
@@ -3078,15 +3091,20 @@ function renderFacilityList(){
 function escapeHtml(v){ return String(v||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 
+function phraseTitleKo(key){
+  const labels={help:"도움 요청", ambulance:"구급차 요청", hospital:"병원 요청", pharmacy:"약국 요청", pain:"통증 설명", allergy:"알레르기", medication:"복용약", fever:"발열", stomach:"복통", stabbed:"찔림/상처", accident:"교통사고", pharmacyQ:"일반의약품 상담", dosage:"복용 방법", prescription:"처방전 확인"};
+  return labels[key] || key;
+}
 function phraseBox(title, localText, userText){
-  return '<div class="step"><span class="check">🗣️</span><span><strong>'+escapeHtml(title)+'</strong><br><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span><br><span class="small muted">'+escapeHtml(userText || "")+'</span></span></div>';
+  return '<div class="step"><span class="check">🗣️</span><span><strong>'+escapeHtml(phraseTitleKo(title))+'</strong><br><span class="small muted">아래 문장을 현지인에게 보여주세요.</span><br><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span><br><span class="small muted">한국어 뜻: '+escapeHtml(userText || "")+'</span></span></div>';
 }
 function renderLocalPhraseCard(){
   if(!$("localPhraseList")) return;
   const pack=getPhrasePack(localLangId);
-  const userPack=getPhrasePack(selected);
+  const userPack=getPhrasePack("ko");
   const localOpt=getLocalOption();
-  $("localPhraseTitle").textContent="현지 도움 문장 · "+localOpt.native;
+  $("localPhraseTitle").textContent="현지어 도움 문장 · "+localOpt.native;
+  if($("localPhraseDesc")) $("localPhraseDesc").textContent="아래 문장을 현지 의료진·약사·주변 사람에게 보여주세요. 설명은 한국어, 보여줄 문장은 여행 국가의 현지어로 표시됩니다.";
   const situation = triage && triage.category ? triage.category : "general";
   let keys=["help","ambulance","hospital","pain"];
   if(situation.includes("penetrating") || situation.includes("stab")) keys=["stabbed","ambulance","hospital","pain"];
@@ -3094,7 +3112,7 @@ function renderLocalPhraseCard(){
   else if(situation.includes("fever")) keys=["fever","hospital","pharmacy","help"];
   else if(situation.includes("abdominal")) keys=["stomach","hospital","pain","help"];
   else if(triage && triage.recommended==="pharmacy") keys=["pharmacy","pharmacyQ","fever","dosage"];
-  $("localPhraseList").innerHTML = keys.map(k => phraseBox(k, pack[k] || phrasePacks.en[k], userPack[k] || phrasePacks.en[k])).join("");
+  $("localPhraseList").innerHTML = '<div class="notice teal">한국어로 상황을 확인한 뒤, 필요한 문장을 현지인에게 보여주세요.</div>' + keys.map(k => phraseBox(k, pack[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
 }
 function medicalFields(){
   return [
@@ -3144,29 +3162,22 @@ function renderMedicalCardPreview(){
   const localOpt=getLocalOption();
   const tripOpt=getTripOption();
   const localLabels=getMedicalLabels(localLangId);
-  const userLabels=getMedicalLabels(selected);
-  const enLabels=getMedicalLabels("en");
+  const koLabels=getMedicalLabels("ko");
 
-  const rows=medicalFields().map(([id,key,en,ko])=>{
+  const makeRows=(labels, badge)=> medicalFields().map(([id,key,en,ko])=>{
     const val=($(id) && $(id).value.trim()) || data[id] || "-";
-    const localLabel = localLabels[key] || en;
-    const englishLabel = enLabels[key] || en;
-    const userLabel = userLabels[key] || ko;
-    return '<div class="step"><span class="check">✓</span><span>'+
-      '<strong style="font-size:17px;color:var(--navy)">'+escapeHtml(localLabel)+'</strong>'+
-      '<br><span class="small muted">English: '+escapeHtml(englishLabel)+'</span>'+
-      '<br><span class="small muted">User: '+escapeHtml(userLabel)+'</span>'+
-      '<br><span style="font-size:17px;font-weight:950">'+escapeHtml(val)+'</span>'+
-      '</span></div>';
+    const label = labels[key] || ko || en;
+    return '<div class="step"><span class="check">'+badge+'</span><span>'+ '<strong style="font-size:17px;color:var(--navy)">'+escapeHtml(label)+'</strong>'+ '<br><span style="font-size:17px;font-weight:950">'+escapeHtml(val)+'</span>'+ '</span></div>';
   }).join("");
 
   $("medicalCardPreview").innerHTML =
     '<div class="result-box mild">'+
-      '<p style="font-size:18px;margin-bottom:6px">Emergency Medical Card</p>'+
-      '<p class="small">For medical staff · Local language: '+escapeHtml(localOpt.native)+' · Travel country: '+escapeHtml(tripCountryName || tripOpt.countryKo)+'</p>'+
-      '<p class="small muted" style="margin-top:8px">의료진에게 먼저 보이는 항목명은 여행 국가/현지 전달 언어 기준으로 표시됩니다. 영어와 사용자 언어 표기도 함께 제공합니다.</p>'+
-    '</div>'+
-    rows+
+      '<p style="font-size:18px;margin-bottom:6px">여행자 의료카드</p>'+
+      '<p class="small">한국어로 입력하고, 현지 의료진에게는 현지어 보기 화면을 보여줄 수 있습니다.</p>'+ 
+      '<p class="small muted" style="margin-top:8px">여행 국가: '+escapeHtml(tripCountryName || tripOpt.countryKo)+' · 현지어: '+escapeHtml(localOpt.native)+'</p>'+ 
+    '</div>'+ 
+    '<div class="notice teal" style="font-weight:950">🇰🇷 한국어 보기 · 사용자 확인용</div>'+makeRows(koLabels,"KO")+
+    '<div class="notice teal" style="font-weight:950;margin-top:12px">🗣️ 현지어 보기 · 의료진에게 보여주세요</div>'+makeRows(localLabels,"현지")+
     '<div class="notice amber small">민감한 정보가 포함될 수 있어 서버 저장 없이 이 브라우저에만 저장되는 샘플 기능입니다.</div>';
 }
 function renderEmergencyInfoCard(){
@@ -3218,7 +3229,7 @@ function openService(key){
     $("localPhraseCard").classList.remove("hidden");
     renderLocalPhraseCard();
     scrollToId("localPhraseCard");
-    setStatus("현지 전달 언어("+getLocalOption().native+")로 도움 문장을 표시합니다.");
+    setStatus("현지어("+getLocalOption().native+")로 도움 문장을 표시합니다.");
     return;
   }
   if(key==="medicalCard"){
@@ -4397,13 +4408,13 @@ async function runAi(){
 
   activeService = "symptom";
   renderServices();
-  setStatus("GPT AI Care가 증상을 분석하는 중입니다...");
+  setStatus("AI 응급도 참고 안내를 생성하는 중입니다...");
   $("triageEmpty").classList.add("hidden");
   $("triageResult").classList.remove("hidden");
   $("triageSummary").className = "result-box urgent";
   $("triageSummary").innerHTML =
-    '<p style="font-size:18px;margin-bottom:6px">🤖 GPT AI Care 분석 중</p>'+
-    '<p>증상, 사고 유형, 위험 신호, 신체부위를 종합해서 판단하고 있습니다.</p>';
+    '<p style="font-size:18px;margin-bottom:6px">🤖 AI 응급도 참고 안내 생성 중</p>'+
+    '<p>증상, 사고 유형, 위험 신호, 신체부위를 종합해 참고 안내를 만들고 있습니다.</p>';
   $("triageSteps").innerHTML = '<div class="notice teal">잠시만 기다려 주세요. 네트워크 상태에 따라 몇 초 걸릴 수 있습니다.</div>';
   $("triageActions").innerHTML = "";
   scrollToId("resultSection");
@@ -4416,8 +4427,9 @@ async function runAi(){
         symptom,
         travelCountry: tripCountryName || (getTripOption().countryKo || getTripOption().country || ""),
         travelCity: tripCityName || "",
-        userLanguage: selected || "ko",
-        localLanguage: localLangId || selected || "ko",
+        userLanguage: "ko",
+        localLanguage: localLangId || tripCountryId || "en",
+        localLanguageName: getLocalOption().native || "",
         emergencyNumber: getTripEmergencyNumber ? getTripEmergencyNumber() : getEmergencyNumber(selected)
       })
     });
@@ -4427,7 +4439,7 @@ async function runAi(){
 
     triage = {
       level: data.level || "urgent",
-      title: data.title || "AI Care 참고 안내 결과",
+      title: data.title || "AI 응급도 참고 안내 결과",
       summary: data.summary || "입력된 증상을 기준으로 의료 상담을 권장합니다.",
       category: data.category || "ai-care",
       reasons: Array.isArray(data.reasons) ? data.reasons : [],
@@ -4437,7 +4449,8 @@ async function runAi(){
       questions: Array.isArray(data.questions) ? data.questions : [],
       phrase: {
         ko: data.localPhraseKo || "도움이 필요합니다. 가까운 의료진이나 구급차를 불러 주세요.",
-        en: data.localPhraseEn || "I need help. Please call medical staff or an ambulance."
+        en: data.localPhraseEn || "I need help. Please call medical staff or an ambulance.",
+        local: data.localPhraseLocal || data.localPhraseNative || data.localPhraseEn || "I need help. Please call medical staff or an ambulance."
       },
       recommended: data.recommendedAction || "hospital",
       recommendedDepartment: data.recommendedDepartment || "",
@@ -4449,7 +4462,7 @@ async function runAi(){
 
     renderTriage();
     renderLocalPhraseCard();
-    setStatus("GPT AI Care 참고 안내 완료: "+triage.summary);
+    setStatus("AI 응급도 참고 안내 완료: "+triage.summary);
     scrollToId("resultSection");
   }catch(error){
     console.error(error);
@@ -4457,9 +4470,18 @@ async function runAi(){
     triage.source = "fallback";
     renderTriage();
     renderLocalPhraseCard();
-    setStatus("GPT AI 연결에 실패해 기본 AI Care 참고 안내으로 안내했습니다. Netlify 환경변수/크레딧/배포 상태를 확인해 주세요.");
+    setStatus("GPT API 연결에 실패해 기본 AI 응급도 참고 안내로 안내했습니다. Netlify 환경변수/크레딧/배포 상태를 확인해 주세요.");
     scrollToId("resultSection");
   }
+}
+
+function localTriagePhrase(phrase){
+  const base=getBaseLang(localLangId);
+  if(phrase && phrase.local) return phrase.local;
+  if(base==="ko" && phrase && phrase.ko) return phrase.ko;
+  if(base==="en" && phrase && phrase.en) return phrase.en;
+  const pack=getPhrasePack(localLangId);
+  return [pack.help, pack.ambulance, pack.hospital].filter(Boolean).join(" ") || (phrase && phrase.en) || "I need help. Please call medical staff or an ambulance.";
 }
 
 function renderTriage(){
@@ -4501,10 +4523,13 @@ function renderTriage(){
   };
 
   const phrase = triage.phrase || {};
+  const localOpt = getLocalOption();
+  const localText = localTriagePhrase(phrase);
   const phraseHtml =
-    '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지인에게 보여줄 문장</div>'+
-    '<div class="step"><span class="check">KO</span><span>'+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>'+
-    '<div class="step"><span class="check">EN</span><span>'+escapeHtml(phrase.en || "I need help.")+'</span></div>';
+    '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지 의료진에게 보여줄 문장 · '+escapeHtml(localOpt.native)+'</div>'+
+    '<div class="step"><span class="check">안내</span><span>아래 문장을 현지 의료진에게 보여주세요.</span></div>'+
+    '<div class="step"><span class="check">현지</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span></div>'+
+    '<div class="step"><span class="check">KO</span><span class="small muted">한국어 뜻: '+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>';
 
   const departmentHtml = triage.recommendedDepartment
     ? '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🏥 추천 진료과</div>'+
@@ -4512,9 +4537,9 @@ function renderTriage(){
     : "";
 
   $("triageSteps").innerHTML =
-    section("안내 근거", triage.reasons, "🔎")+
-    section("지금 바로 할 일", triage.steps, "⚡")+
-    section("절대 하지 말 것", triage.avoid, "⛔")+
+    section("판단 근거", triage.reasons, "🔎")+
+    section("지금 해야 할 일", triage.steps, "⚡")+
+    section("하지 말아야 할 행동", triage.avoid, "⛔")+
     section("계속 확인할 것", triage.monitor, "👀")+
     section("추가로 확인하면 좋은 질문", triage.questions, "❓")+
     departmentHtml+
@@ -4529,7 +4554,7 @@ function renderTriage(){
 }
 function showEmergency(){ $("emergencyNumberBox").textContent=(t().emergencyNumberSample||"Local ambulance number sample")+": "+getEmergencyNumber(selected); $("emergencyModal").classList.remove("hidden"); }
 function hideEmergency(){ $("emergencyModal").classList.add("hidden"); }
-function agreeEmergency(){ hideEmergency(); activeService="emergency"; renderServices(); setStatus("샘플 호출 완료: 현지 구급차 번호 "+getEmergencyNumber(selected)+"로 신고하는 척했습니다. 실제 전화나 신고는 발생하지 않았습니다."); }
+function agreeEmergency(){ hideEmergency(); activeService="emergency"; renderServices(); setStatus("현지 응급번호 확인: "+getEmergencyNumber(selected)+"입니다. 실제 신고나 전화는 사용자의 기기에서 직접 진행해야 합니다."); }
 
 function showSpeech(msg){ $("speechStatus").textContent=msg; $("speechStatus").classList.remove("hidden"); }
 function updateMic(){ $("micBtn").textContent=isListening?"■ 음성 입력 중지":"🎙️ 음성으로 말하기"; $("micBtn").classList.toggle("listening",isListening); }
@@ -4550,7 +4575,7 @@ function init(){
   on("startBtn","click",showApp);
   on("changeLangBtn","click",showLanguage);
   on("languageSearch","input",renderLanguageList);
-  on("userLangSelect","change",e=>{ selected=e.target.value; renderLanguagePage(); });
+  on("userLangSelect","change",e=>{ selected="ko"; renderLanguagePage(); });
   on("tripCountrySelect","change",e=>{
     tripCountryId=e.target.value;
     localLangId=e.target.value;
@@ -4559,11 +4584,12 @@ function init(){
     syncInitialTripInputs(true);
     renderLanguagePage();
   });
-  on("localLangSelect","change",e=>{ localLangId=e.target.value; renderLanguagePage(); });
+  on("localLangSelect","change",e=>{ localLangId=tripCountryId; renderLanguagePage(); });
   on("initialTravelCountry","input",()=>{
     tripCountryName = $("initialTravelCountry").value.trim();
     const matched = findCountryOptionByText(tripCountryName);
     if(matched){
+      selected = "ko";
       tripCountryId = matched.id;
       localLangId = matched.id;
       renderLanguagePage();

@@ -1,22 +1,20 @@
-# Travel Doctor - GPT API AI Care Version
+# SOS Bridge
 
-추가된 내용:
-- Netlify Function `/.netlify/functions/ai-care`
-- `OPENAI_API_KEY` 환경변수를 서버에서만 사용
-- AI Care 버튼을 누르면 OpenAI Responses API로 증상 판단
-- GPT 응답을 JSON으로 받아 기존 AI Care 화면에 표시
-- API 실패 시 기존 규칙 기반 AI Care로 fallback
+한국인이 해외여행 중 아프거나 다쳤을 때, 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 도와주는 해외여행 응급 의료 도우미 앱입니다.
 
-배포 전 확인:
-OPENAI_API_KEY 환경변수가 Netlify에 저장되어 있어야 합니다.
+## 이번 수정 내용
 
-배포 방법:
-이 폴더 전체를 Netlify에 업로드하세요. index.html만 올리면 Function이 배포되지 않습니다.
+- 앱 방향을 전 세계 사용자용에서 한국인 해외여행자 전용으로 변경
+- 앱 화면, 버튼, 안내, AI Care 결과를 한국어 중심으로 정리
+- 현지 의료진/약사/주변 사람에게 보여줄 문장은 여행 국가의 현지어로 표시
+- 위험한 의료 표현을 “AI 응급도 참고 안내”, “위험 신호 확인”, “응급 대처 가이드” 중심으로 수정
+- 첫 화면, AI Care 결과 화면, 이용 안내 화면에 의료 면책 문구 추가/유지
+- OpenAI API는 기존처럼 Netlify Function을 통해 호출하여 API Key가 브라우저에 노출되지 않도록 유지
 
+## 배포 방법
 
-## 2026-06-09 route mode fix
-- 도보 길찾기 버튼: Google Maps `travelmode=walking`
-- 자동차 길찾기 버튼: Google Maps `travelmode=driving`
-- 대중교통 길찾기 버튼: Google Maps `travelmode=transit`
-- 모바일 Google Maps에서 버스 모드로 고정되는 문제를 줄이기 위해 `dir_action=navigate` 제거
-- origin을 `Current Location` 문자열 대신 앱 기준 위치 좌표로 전달하도록 수정
+1. 이 ZIP 파일을 압축 해제합니다.
+2. GitHub 저장소에는 ZIP 파일 자체가 아니라 압축을 푼 안의 파일과 폴더를 업로드합니다.
+3. Commit changes를 누릅니다.
+4. Netlify에서 GitHub 커밋을 자동 배포할 때까지 기다립니다.
+5. 새 Netlify 사이트라면 Environment variables에 `OPENAI_API_KEY`를 다시 추가한 뒤 재배포합니다.

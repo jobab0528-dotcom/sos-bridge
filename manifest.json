@@ -1,11 +1,11 @@
 {
-  "name": "SOS Bridge",
+  "name": "SOS Bridge - 한국인 해외여행 응급 의료 도우미",
   "short_name": "SOS Bridge",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#062a60",
-  "description": "Travel emergency medical guidance app",
+  "description": "한국인이 해외여행 중 아프거나 다쳤을 때 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 돕는 앱",
   "icons": [
     {
       "src": "./icon.svg",
