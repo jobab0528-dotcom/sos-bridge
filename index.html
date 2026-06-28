@@ -66,6 +66,15 @@
     .input:focus,.textarea:focus,.search:focus-within{border-color:#14b8a6}
     .language-grid{display:grid;gap:10px;max-height:58vh;overflow:auto;-webkit-overflow-scrolling:touch}
     @media (min-width:640px){.language-grid{grid-template-columns:1fr 1fr}}
+    .country-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    @media (min-width:520px){.country-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    .country-card{position:relative;border:1px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);border-radius:20px;padding:13px 9px;min-height:104px;text-align:center;transition:.14s;box-shadow:0 7px 18px rgba(148,163,184,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+    .country-card:active{transform:scale(.98)}
+    .country-card.selected{border:2px solid #0fa3a3;background:linear-gradient(180deg,#ecfeff,#f0fdfa);box-shadow:0 12px 28px rgba(15,163,163,.20)}
+    .country-card.selected:after{content:"선택됨";position:absolute;top:7px;right:7px;background:var(--navy);color:white;border-radius:999px;padding:3px 7px;font-size:10px;font-weight:950}
+    .country-flag{font-size:34px;line-height:1}
+    .country-name{font-weight:950;color:var(--navy);font-size:14px}
+    .country-sub{font-size:11px;color:var(--muted);font-weight:800;line-height:1.25}
     .lang-btn,.service,.facility{border:1px solid var(--border);background:white;border-radius:20px;padding:14px;text-align:left;transition:.12s}
     .lang-btn{display:flex;align-items:center;gap:12px}
     .lang-btn.active,.service.active{border-color:#14b8a6;background:#f0fdfa}
@@ -143,7 +152,9 @@
           <select id="userLangSelect" class="input" style="display:none"></select>
 
           <label class="small" style="font-weight:950;color:var(--navy)">1. 여행 국가 · 응급번호와 병원/약국 기준</label>
-          <select id="tripCountrySelect" class="input"></select>
+          <div class="notice teal" style="margin:0">국기를 눌러 여행 국가를 선택하세요. 현지어 문장과 응급번호가 자동으로 바뀝니다.</div>
+          <div id="countryQuickGrid" class="country-grid"></div>
+          <select id="tripCountrySelect" class="input" style="display:none"></select>
 
           <label class="small" style="font-weight:950;color:var(--navy)">2. 여행 도시/지역 · 병원/약국 검색 기준</label>
           <div class="two">
@@ -2575,39 +2586,47 @@ function renderSetupSelects(){
   fill("localLangSelect", localLangId, "local");
 }
 
+function selectTripCountry(id){
+  const opt = languageOptions.find(item => item.id === id);
+  if(!opt) return;
+  selected = "ko";
+  tripCountryId = opt.id;
+  localLangId = opt.id;
+  tripCountryName = opt.countryKo || opt.country || "";
+  syncInitialTripInputs(true);
+  renderAll();
+  bindHospitalFinderButtons();
+}
+
+function renderCountryQuickGrid(){
+  const el = $("countryQuickGrid");
+  if(!el) return;
+  const priority = ["ja","en-us","vi","th","fr","es","it","en-gb","zh","en-sg"];
+  const quick = priority.map(id => languageOptions.find(item => item.id === id)).filter(Boolean);
+  const list = quick.length ? quick : languageOptions.slice(0,10);
+  el.innerHTML = list.map(item =>
+    '<button class="country-card '+(item.id===tripCountryId?'selected':'')+'" data-country-card="'+item.id+'" type="button" aria-label="'+escapeHtml(item.countryKo)+' 선택">'+
+      '<span class="country-flag">'+item.flag+'</span>'+
+      '<span class="country-name">'+escapeHtml(item.countryKo)+'</span>'+
+      '<span class="country-sub">'+escapeHtml(item.languageKo)+' · '+escapeHtml(getEmergencyNumber(item.id))+'</span>'+
+    '</button>'
+  ).join("");
+  document.querySelectorAll("[data-country-card]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.countryCard))));
+}
+
 function renderLanguageList(){
   const q = ($("languageSearch")?.value || "").trim().toLowerCase();
   const list = q
     ? languageOptions.filter(item => [item.countryKo,item.country,item.languageKo,item.native].some(v => String(v).toLowerCase().includes(q)))
     : languageOptions;
 
-  $("languageGrid").innerHTML =
+  const grid = $("languageGrid");
+  if(!grid) return;
+  grid.innerHTML =
     '<div class="notice teal" style="margin:0 0 8px">TOP30 여행 국가 전체 목록입니다. 국가를 누르면 여행 국가와 현지어 도움 문장이 함께 바뀝니다.</div>' +
-    list.map(item => '<button class="lang-btn '+(item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span class="small" style="font-weight:950;color:var(--teal)">TOP '+String(item.rank).padStart(2,"0")+'</span><span style="display:block;font-weight:950;color:var(--navy)">'+item.countryKo+'</span><span class="small muted">'+item.native+' · '+item.languageKo+'</span></span></button>').join("");
+    list.map(item => '<button class="lang-btn '+(item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span class="small" style="font-weight:950;color:var(--teal)">TOP '+String(item.rank).padStart(2,"0")+'</span><span style="display:block;font-weight:950;color:var(--navy)">'+escapeHtml(item.countryKo)+'</span><span class="small muted">'+escapeHtml(item.native)+' · '+escapeHtml(item.languageKo)+'</span></span></button>').join("");
 
-  document.querySelectorAll("[data-trip-country]").forEach(btn => btn.addEventListener("click", () => safe(() => {
-    tripCountryId = btn.dataset.tripCountry;
-    localLangId = tripCountryId;
-    const opt = getTripOption();
-    tripCountryName = opt.countryKo || opt.country || "";
-    syncInitialTripInputs(true);
-  
-  document.addEventListener("click", e=>safe(()=>{
-    const target = e.target && e.target.closest ? e.target.closest("#findHospitalBySymptomBtn,#clearHospitalSymptomBtn") : null;
-    if(!target) return;
-    e.preventDefault();
-    if(target.id === "findHospitalBySymptomBtn") runHospitalFinder();
-    if(target.id === "clearHospitalSymptomBtn"){
-      if($("hospitalSymptomInput")) $("hospitalSymptomInput").value = "";
-      if($("hospitalFinderResult")) $("hospitalFinderResult").classList.add("hidden");
-      facilities = [];
-      $("facilityCard").classList.add("hidden");
-      setStatus("병원찾기 증상 입력을 초기화했습니다.");
-    }
-  }));
-  renderAll();
-  bindHospitalFinderButtons();
-  })));
+  document.querySelectorAll("[data-trip-country]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.tripCountry))));
 }
 function renderLanguagePage(){
   selected = "ko";
@@ -2622,6 +2641,7 @@ function renderLanguagePage(){
   $("languageSearch").placeholder="TOP30 여행 국가 검색";
   renderSetupSelects();
   syncInitialTripInputs(false);
+  renderCountryQuickGrid();
   renderLanguageList();
 }
 function renderServices(){
@@ -4552,9 +4572,9 @@ function renderTriage(){
     $("triageActions").innerHTML = "";
   }
 }
-function showEmergency(){ $("emergencyNumberBox").textContent=(t().emergencyNumberSample||"Local ambulance number sample")+": "+getEmergencyNumber(selected); $("emergencyModal").classList.remove("hidden"); }
+function showEmergency(){ $("emergencyNumberBox").textContent=(t().emergencyNumberSample||"Local ambulance number sample")+": "+getTripEmergencyNumber(); $("emergencyModal").classList.remove("hidden"); }
 function hideEmergency(){ $("emergencyModal").classList.add("hidden"); }
-function agreeEmergency(){ hideEmergency(); activeService="emergency"; renderServices(); setStatus("현지 응급번호 확인: "+getEmergencyNumber(selected)+"입니다. 실제 신고나 전화는 사용자의 기기에서 직접 진행해야 합니다."); }
+function agreeEmergency(){ hideEmergency(); activeService="emergency"; renderServices(); setStatus("현지 응급번호 확인: "+getTripEmergencyNumber()+"입니다. 실제 신고나 전화는 사용자의 기기에서 직접 진행해야 합니다."); }
 
 function showSpeech(msg){ $("speechStatus").textContent=msg; $("speechStatus").classList.remove("hidden"); }
 function updateMic(){ $("micBtn").textContent=isListening?"■ 음성 입력 중지":"🎙️ 음성으로 말하기"; $("micBtn").classList.toggle("listening",isListening); }
