@@ -44,6 +44,7 @@
     .desc{font-size:17px;line-height:1.65;color:#475569;font-weight:650}
     .btn{border:0;border-radius:18px;padding:13px 15px;font-weight:950;transition:.12s;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;min-height:48px}
     .btn:active{transform:scale(.98)}
+    .btn:disabled{cursor:not-allowed;opacity:.55;transform:none}
     .btn.primary{background:var(--navy);color:white}
     .btn.soft{background:#ecfeff;color:var(--navy)}
     .btn.outline{background:white;color:#334155;border:1px solid var(--border)}
@@ -51,6 +52,17 @@
     .w-full{width:100%}
     .selected-box,.notice{border-radius:22px;padding:14px;font-weight:800;line-height:1.55}
     .selected-box{background:#f8fafc;border:1px solid var(--border);margin:22px 0}
+    .home-left-card{display:grid;gap:16px}
+    .setup-panel{border:1px solid var(--border);border-radius:22px;background:#fff;padding:15px;box-shadow:0 8px 22px rgba(148,163,184,.16)}
+    .setup-panel.summary-empty{background:#f8fafc}
+    .setup-panel.medical-prep{background:linear-gradient(180deg,#ffffff,#f0fdfa)}
+    .summary-row{display:flex;align-items:flex-start;gap:12px}
+    .summary-flag{width:48px;height:48px;border-radius:16px;background:#ecfeff;display:flex;align-items:center;justify-content:center;font-size:30px;flex:none}
+    .summary-empty .summary-flag{background:#eef2f7;color:var(--muted);font-size:26px}
+    .city-panel{display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+    .home-helper{font-size:13px;line-height:1.55;color:var(--muted);font-weight:800;margin:0}
+    .medical-tags{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+    .medical-tag{border:1px solid #ccfbf1;background:#f8fafc;color:#134e4a;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:950}
     .notice{margin:14px 0}
     .notice.navy{background:var(--navy);color:white}
     .notice.teal{background:#f0fdfa;color:#134e4a}
@@ -129,8 +141,8 @@
 </head>
 <body>
   <main id="languagePage" class="page">
-    <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:center">
-      <div class="card">
+    <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:start">
+      <div class="card home-left-card">
         <div class="row">
           <div class="logo">🩺</div>
           <div>
@@ -142,45 +154,53 @@
           SOS Bridge는 한국인이 해외여행 중 갑자기 아프거나 다쳤을 때, 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 도와주는 해외여행 응급 의료 도우미입니다.
         </p>
 
-        <div class="notice teal" style="margin-top:18px">
-          앱 화면과 AI Care 결과는 <strong>한국어</strong>로 제공되고, 의료진·약사·주변 사람에게 보여줄 문장은 <strong>선택한 여행 국가의 현지 언어</strong>로 제공됩니다.
-        </div>
-
-        <div id="homeMedicalDisclaimer" class="notice amber" style="margin-top:12px">⚠️ 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
-
-        <div class="grid" style="margin-top:16px">
-          <select id="userLangSelect" class="input" style="display:none"></select>
-
-          <label class="small" style="font-weight:950;color:var(--navy)">1. 여행 국가 · 응급번호와 병원/약국 기준</label>
-          <div class="notice teal" style="margin:0">국기를 눌러 여행 국가를 선택하세요. 현지어 문장과 응급번호가 자동으로 바뀝니다.</div>
-          <div id="countryQuickGrid" class="country-grid"></div>
-          <select id="tripCountrySelect" class="input" style="display:none"></select>
-
-          <label class="small" style="font-weight:950;color:var(--navy)">2. 여행 도시/지역 · 병원/약국 검색 기준</label>
-          <div class="two">
-            <input id="initialTravelCountry" class="input" placeholder="여행 국가 직접 입력 예: 미국, 일본, 베트남" />
-            <input id="initialTravelCity" class="input" placeholder="여행 도시/지역 입력 예: 뉴욕, 도쿄, 다낭" />
-          </div>
-
-          <select id="localLangSelect" class="input" style="display:none"></select>
-          <div class="notice teal">현지어 도움 문장은 여행 국가에 따라 자동 설정됩니다. 예: 미국은 영어, 일본은 일본어, 베트남은 베트남어.</div>
-        </div>
-
-        <div class="selected-box">
-          <div class="row">
-            <div id="selectedFlag" class="flag">🇰🇷</div>
+        <div id="tripSummaryPanel" class="setup-panel summary-empty">
+          <div class="summary-row">
+            <div id="selectedFlag" class="summary-flag">✈️</div>
             <div>
-              <div id="currentLangLabel" class="small muted">현재 설정</div>
-              <h3 id="selectedNative" style="margin:2px 0">대한민국 여행 준비</h3>
-              <div id="selectedCountry" class="small muted">현지어 도움 문장: 한국어 · 응급번호 119</div>
+              <div id="currentLangLabel" class="small muted">현재 여행 설정</div>
+              <h3 id="selectedNative" style="margin:2px 0">아직 여행 국가를 선택하지 않았습니다.</h3>
+              <div id="selectedCountry" class="small muted">오른쪽 TOP30 국가 목록에서 여행 국가를 선택하세요.</div>
             </div>
           </div>
+
+          <div class="city-panel">
+            <label class="small" style="font-weight:950;color:var(--navy)" for="initialTravelCity">여행 도시/지역</label>
+            <p class="home-helper">현재 머무는 도시나 지역을 입력하면 병원·약국 검색 기준으로 사용할 수 있습니다.</p>
+            <input id="initialTravelCity" class="input" placeholder="도쿄, 오사카, 뉴욕, 파리처럼 입력하세요" />
+          </div>
+        </div>
+
+        <div class="setup-panel medical-prep">
+          <p class="eyebrow">Medical Card</p>
+          <h2 style="margin-bottom:8px">여행자 의료카드</h2>
+          <p class="small muted" style="line-height:1.55;margin-bottom:0">해외 병원 방문 시 의료진에게 보여줄 기본 정보를 미리 준비하세요.</p>
+          <div class="medical-tags" aria-label="의료카드 준비 항목">
+            <span class="medical-tag">이름</span>
+            <span class="medical-tag">혈액형</span>
+            <span class="medical-tag">알레르기</span>
+            <span class="medical-tag">복용 중인 약</span>
+            <span class="medical-tag">비상 연락처</span>
+          </div>
+          <button id="prepareMedicalCardBtn" class="btn primary w-full" type="button">의료카드 작성하기</button>
+        </div>
+
+        <p class="home-helper">여행 국가를 선택한 뒤 의료카드를 작성하면, 한국어 보기와 현지어 보기를 함께 사용할 수 있습니다.</p>
+
+        <div id="homeMedicalDisclaimer" class="notice amber" style="margin:0">⚠️ 응급 상황에서는 AI 결과를 기다리지 말고 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
+
+        <div class="grid hidden">
+          <select id="userLangSelect" class="input" style="display:none"></select>
+          <select id="tripCountrySelect" class="input" style="display:none"></select>
+          <select id="localLangSelect" class="input" style="display:none"></select>
         </div>
 
         <button id="startBtn" class="btn primary w-full" type="button">여행 국가 설정하고 시작하기 ›</button>
       </div>
 
       <div class="card">
+        <p class="eyebrow">Travel Country</p>
+        <h2 style="margin-bottom:12px">TOP30 여행 국가 선택</h2>
         <div class="search">
           <span>🔎</span>
           <input id="languageSearch" placeholder="여행 국가 검색" />
@@ -2395,6 +2415,7 @@ let tripCountryId = "ko";
 let localLangId = "ko";
 let tripCountryName = "대한민국";
 let tripCityName = "";
+let hasTripCountrySelection = false;
 let stage = "language";
 let activeService = "home";
 let facilityType = "hospital";
@@ -2484,21 +2505,29 @@ function saveTripInputs(){
   const tripSelect = $("tripCountrySelect");
   const userSelect = $("userLangSelect");
   const localSelect = $("localLangSelect");
+  const countryRaw = countryInput && countryInput.value.trim() ? countryInput.value.trim() : "";
 
   selected = "ko";
-  tripCountryId = tripSelect && tripSelect.value ? tripSelect.value : tripCountryId;
-  localLangId = tripCountryId;
+  if(hasTripCountrySelection){
+    tripCountryId = tripSelect && tripSelect.value ? tripSelect.value : tripCountryId;
+    localLangId = tripCountryId;
+  }else{
+    tripCountryId = "";
+    localLangId = "";
+    tripCountryName = "";
+  }
 
-  const matched = findCountryOptionByText(countryInput && countryInput.value.trim() ? countryInput.value.trim() : "");
+  const matched = findCountryOptionByText(countryRaw);
   if(matched){
     tripCountryId = matched.id;
     localLangId = matched.id;
+    hasTripCountrySelection = true;
     if(tripSelect) tripSelect.value = matched.id;
     if(localSelect) localSelect.value = matched.id;
     tripCountryName = matched.countryKo || matched.country || "";
-  }else{
+  }else if(hasTripCountrySelection){
     const opt=getTripOption();
-    tripCountryName = countryInput && countryInput.value.trim() ? countryInput.value.trim() : (opt.countryKo || opt.country || "");
+    tripCountryName = countryRaw || (opt.countryKo || opt.country || "");
     localLangId = tripCountryId;
   }
 
@@ -2593,6 +2622,7 @@ function selectTripCountry(id){
   tripCountryId = opt.id;
   localLangId = opt.id;
   tripCountryName = opt.countryKo || opt.country || "";
+  hasTripCountrySelection = true;
   syncInitialTripInputs(true);
   renderAll();
   bindHospitalFinderButtons();
@@ -2624,7 +2654,7 @@ function renderLanguageList(){
   if(!grid) return;
   grid.innerHTML =
     '<div class="notice teal" style="margin:0 0 8px">TOP30 여행 국가 전체 목록입니다. 국가를 누르면 여행 국가와 현지어 도움 문장이 함께 바뀝니다.</div>' +
-    list.map(item => '<button class="lang-btn '+(item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span class="small" style="font-weight:950;color:var(--teal)">TOP '+String(item.rank).padStart(2,"0")+'</span><span style="display:block;font-weight:950;color:var(--navy)">'+escapeHtml(item.countryKo)+'</span><span class="small muted">'+escapeHtml(item.native)+' · '+escapeHtml(item.languageKo)+'</span></span></button>').join("");
+    list.map(item => '<button class="lang-btn '+(hasTripCountrySelection && item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span class="small" style="font-weight:950;color:var(--teal)">TOP '+String(item.rank).padStart(2,"0")+'</span><span style="display:block;font-weight:950;color:var(--navy)">'+escapeHtml(item.countryKo)+'</span><span class="small muted">'+escapeHtml(item.native)+' · '+escapeHtml(item.languageKo)+'</span><span class="small muted" style="display:block;margin-top:3px">응급번호 '+escapeHtml(getEmergencyNumber(item.id))+'</span></span></button>').join("");
 
   document.querySelectorAll("[data-trip-country]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.tripCountry))));
 }
@@ -2634,14 +2664,16 @@ function renderLanguagePage(){
   $("chooseTitle").textContent="여행 국가 설정";
   $("chooseDesc").textContent="SOS Bridge는 한국인이 해외여행 중 갑자기 아프거나 다쳤을 때, 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 도와주는 해외여행 응급 의료 도우미입니다.";
   $("currentLangLabel").textContent="현재 여행 설정";
-  $("selectedFlag").textContent=tripOpt.flag;
-  $("selectedNative").textContent=(tripOpt.countryKo+" 여행");
-  $("selectedCountry").textContent="현지어 도움 문장: "+localOpt.native+" · 응급번호 "+getTripEmergencyNumber();
-  $("startBtn").innerHTML="여행 국가 설정하고 시작하기 ›";
+  const hasTrip = !!hasTripCountrySelection;
+  $("tripSummaryPanel").classList.toggle("summary-empty", !hasTrip);
+  $("selectedFlag").textContent=hasTrip ? tripOpt.flag : "✈️";
+  $("selectedNative").textContent=hasTrip ? (tripOpt.countryKo+" 여행 준비") : "아직 여행 국가를 선택하지 않았습니다.";
+  $("selectedCountry").textContent=hasTrip ? ("현지어 도움 문장: "+localOpt.native+" · 응급번호 "+getTripEmergencyNumber()) : "오른쪽 TOP30 국가 목록에서 여행 국가를 선택하세요.";
+  $("startBtn").disabled=!hasTrip;
+  $("startBtn").innerHTML=hasTrip ? "여행 국가 설정하고 시작하기 ›" : "오른쪽 TOP30에서 여행 국가를 선택하세요";
   $("languageSearch").placeholder="TOP30 여행 국가 검색";
   renderSetupSelects();
   syncInitialTripInputs(false);
-  renderCountryQuickGrid();
   renderLanguageList();
 }
 function renderServices(){
@@ -2666,8 +2698,11 @@ function renderServices(){
 function renderApp(){
   selected = "ko";
   const tx=t(), userOpt=getUserOption(), tripOpt=getTripOption(), localOpt=getLocalOption();
+  const displayCountry = hasTripCountrySelection ? (tripCountryName || tripOpt.countryKo) : "여행 국가 미선택";
+  const displayLocalLanguage = hasTripCountrySelection ? localOpt.native : "여행 국가 선택 후 자동 설정";
+  const displayEmergencyNumber = hasTripCountrySelection ? getTripEmergencyNumber() : "국가 선택 후 표시";
   $("appTag").textContent=tx.appTag;
-  $("topFlag").textContent=tripOpt.flag;
+  $("topFlag").textContent=hasTripCountrySelection ? tripOpt.flag : "✈️";
   $("topNative").textContent="여행 국가 변경";
   $("sampleNotice").textContent="⚠️ "+tx.sampleNotice;
 
@@ -2675,9 +2710,9 @@ function renderApp(){
     const cityPart = tripCityName ? " · "+escapeHtml(tripCityName) : "";
     $("travelContextBox").innerHTML =
       "<strong>🇰🇷 앱 화면:</strong> 한국어"+
-      " · <strong>✈️ 여행 국가:</strong> "+escapeHtml(tripCountryName || tripOpt.countryKo)+cityPart+
-      " · <strong>🗣️ 현지어 문장:</strong> "+escapeHtml(localOpt.native)+
-      " · <strong>🚑 응급번호:</strong> "+escapeHtml(String(getTripEmergencyNumber()));
+      " · <strong>✈️ 여행 국가:</strong> "+escapeHtml(displayCountry)+cityPart+
+      " · <strong>🗣️ 현지어 문장:</strong> "+escapeHtml(displayLocalLanguage)+
+      " · <strong>🚑 응급번호:</strong> "+escapeHtml(String(displayEmergencyNumber));
   }
 
   $("symptomTitle").textContent=tx.symptomTitle;
@@ -2688,7 +2723,7 @@ function renderApp(){
   $("consentDesc").textContent=tx.consentDesc;
   $("agreeEmergencyBtn").innerHTML="🚑 "+tx.agree;
   $("cancelEmergencyBtn").textContent=tx.cancel;
-  $("emergencyNumberBox").textContent=(tx.emergencyNumberSample||"Local ambulance number sample")+": "+getTripEmergencyNumber();
+  $("emergencyNumberBox").textContent=(tx.emergencyNumberSample||"Local ambulance number sample")+": "+displayEmergencyNumber;
 
   if($("travelCountry") && !$("travelCountry").value.trim()) $("travelCountry").value=tripCountryName || tripOpt.countryKo || tripOpt.country || "";
   if($("travelPlace") && tripCityName && !$("travelPlace").value.trim()) $("travelPlace").value=tripCityName;
@@ -4601,6 +4636,7 @@ function init(){
     localLangId=e.target.value;
     const opt=getTripOption();
     tripCountryName=opt.countryKo||opt.country||"";
+    hasTripCountrySelection = true;
     syncInitialTripInputs(true);
     renderLanguagePage();
   });
@@ -4612,10 +4648,20 @@ function init(){
       selected = "ko";
       tripCountryId = matched.id;
       localLangId = matched.id;
+      hasTripCountrySelection = true;
       renderLanguagePage();
     }
   });
   on("initialTravelCity","input",()=>{ tripCityName = $("initialTravelCity").value.trim(); });
+  on("prepareMedicalCardBtn","click",()=>{
+    const openMedicalCard = () => openService("medicalCard");
+    if(stage === "language"){
+      showApp();
+      setTimeout(openMedicalCard, 80);
+      return;
+    }
+    openMedicalCard();
+  });
   on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",saveMedicalCard); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency);
   $("emergencyModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="emergencyModal") hideEmergency(); }));
   document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{ if(btn.dataset.nav) scrollToId(btn.dataset.nav); if(btn.dataset.action) openService(btn.dataset.action); })));
