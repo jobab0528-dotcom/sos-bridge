@@ -112,6 +112,17 @@
     .result-box.emergency{background:#fef2f2;color:#991b1b}
     .result-box.urgent{background:#fffbeb;color:#92400e}
     .result-box.mild{background:#f0fdfa;color:#134e4a}
+    .medical-view-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .medical-view-tab{border:1px solid var(--border);background:white;color:#475569;border-radius:16px;padding:11px 10px;font-weight:950}
+    .medical-view-tab.active{background:var(--navy);border-color:var(--navy);color:white}
+    .medical-pass-card{border:1px solid #dbeafe;background:#ffffff;border-radius:22px;padding:16px;box-shadow:0 10px 26px rgba(15,23,42,.08)}
+    .medical-pass-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:10px}
+    .medical-pass-title{font-size:20px;font-weight:950;color:var(--navy);margin:0}
+    .medical-pass-lang{font-size:12px;font-weight:950;color:#0f766e;background:#ecfeff;border-radius:999px;padding:5px 9px;white-space:nowrap}
+    .medical-pass-row{display:grid;gap:4px;border-bottom:1px solid #f1f5f9;padding:10px 0}
+    .medical-pass-row:last-child{border-bottom:0}
+    .medical-pass-label{font-size:13px;font-weight:950;color:#475569}
+    .medical-pass-value{font-size:20px;line-height:1.35;font-weight:950;color:#0f172a;word-break:break-word}
     .modal{position:fixed;inset:0;z-index:100;background:rgba(2,6,23,.58);display:flex;align-items:center;justify-content:center;padding:18px}
     .modal-box{background:white;border-radius:30px;padding:22px;width:min(560px,100%);box-shadow:0 30px 80px rgba(15,23,42,.35);max-height:88vh;overflow:auto}
     .bottom-nav{
@@ -260,8 +271,8 @@
           </div>
           <input id="medAllergy" class="input" placeholder="알레르기 예: 페니실린, 견과류" />
           <input id="medMedication" class="input" placeholder="복용 중인 약" />
-          <input id="medCondition" class="input" placeholder="기저질환" />
-          <input id="medContact" class="input" placeholder="보호자 연락처" />
+          <input id="medCondition" class="input" placeholder="기존 질환" />
+          <input id="medContact" class="input" placeholder="비상 연락처" />
           <input id="medInsurance" class="input" placeholder="여행자 보험/보험사" />
           <input id="medHotel" class="input" placeholder="숙소 주소" />
           <div class="two">
@@ -2429,6 +2440,11 @@ let recognition = null;
 let isListening = false;
 // Google Maps JavaScript API 입력/앱 내부 지도 기능은 제거했습니다.
 let googleMap = null;
+let medicalCardView = "ko";
+let medicalCardTranslation = null;
+let medicalCardTranslationKey = "";
+let medicalCardTranslationStatus = "idle";
+let medicalCardTranslationMessage = "";
 
 const $ = id => document.getElementById(id);
 const safe = (fn) => { try { fn(); } catch(e) { showDebug(e); } };
@@ -2562,7 +2578,7 @@ function getBaseLang(id){ return langAliases[id] || id || "en"; }
 function getPhrasePack(id=localLangId){ return phrasePacks[getBaseLang(id)] || phrasePacks.en; }
 
 const medicalLabelPacks = {
-  ko:{name:"이름", nationality:"국적", age:"나이", blood:"혈액형", allergy:"알레르기", medication:"복용 중인 약", condition:"기저질환", contact:"보호자 연락처", insurance:"여행자 보험", hotel:"숙소 주소"},
+  ko:{name:"이름", nationality:"국적", age:"나이", blood:"혈액형", allergy:"알레르기", medication:"복용 중인 약", condition:"기존 질환", contact:"비상 연락처", insurance:"여행자 보험", hotel:"숙소 주소"},
   en:{name:"Name", nationality:"Nationality", age:"Age", blood:"Blood type", allergy:"Allergies", medication:"Medication", condition:"Medical conditions", contact:"Emergency contact", insurance:"Travel insurance", hotel:"Hotel address"},
   fr:{name:"Nom", nationality:"Nationalité", age:"Âge", blood:"Groupe sanguin", allergy:"Allergies", medication:"Médicaments", condition:"Antécédents médicaux", contact:"Contact d'urgence", insurance:"Assurance voyage", hotel:"Adresse de l'hôtel"},
   es:{name:"Nombre", nationality:"Nacionalidad", age:"Edad", blood:"Tipo de sangre", allergy:"Alergias", medication:"Medicamentos", condition:"Enfermedades previas", contact:"Contacto de emergencia", insurance:"Seguro de viaje", hotel:"Dirección del hotel"},
@@ -2623,6 +2639,7 @@ function selectTripCountry(id){
   localLangId = opt.id;
   tripCountryName = opt.countryKo || opt.country || "";
   hasTripCountrySelection = true;
+  resetMedicalCardTranslation();
   syncInitialTripInputs(true);
   renderAll();
   bindHospitalFinderButtons();
@@ -3177,16 +3194,53 @@ function medicalFields(){
     ["medBlood","blood","Blood type","혈액형"],
     ["medAllergy","allergy","Allergies","알레르기"],
     ["medMedication","medication","Medication","복용 중인 약"],
-    ["medCondition","condition","Medical conditions","기저질환"],
-    ["medContact","contact","Emergency contact","보호자 연락처"],
+    ["medCondition","condition","Medical conditions","기존 질환"],
+    ["medContact","contact","Emergency contact","비상 연락처"],
     ["medInsurance","insurance","Travel insurance","여행자 보험"],
     ["medHotel","hotel","Hotel address","숙소 주소"]
   ];
 }
+
+const medicalValueFields = [
+  ["name","name"],
+  ["nationality","nationality"],
+  ["age","age"],
+  ["blood","bloodType"],
+  ["allergy","allergies"],
+  ["medication","medication"],
+  ["condition","medicalConditions"],
+  ["contact","emergencyContact"],
+  ["insurance","travelInsurance"],
+  ["hotel","hotelAddress"]
+];
+
+const medicalCardTitlePacks = {
+  ko:"여행자 의료카드",
+  en:"Medical Card",
+  fr:"Carte médicale",
+  es:"Tarjeta médica",
+  ja:"医療カード",
+  vi:"Thẻ y tế",
+  zh:"医疗卡",
+  de:"Medizinische Karte",
+  it:"Scheda medica",
+  tr:"Tıbbi Kart",
+  th:"บัตรข้อมูลทางการแพทย์",
+  pt:"Cartão médico",
+  nl:"Medische kaart",
+  ms:"Kad perubatan",
+  id:"Kartu medis",
+  ar:"بطاقة طبية",
+  pl:"Karta medyczna",
+  da:"Medicinsk kort",
+  el:"Ιατρική κάρτα"
+};
+
 function saveMedicalCard(){
   const data={};
   medicalFields().forEach(([id]) => data[id]=$(id)?$(id).value.trim():"");
   localStorage.setItem("travelDoctorMedicalCard", JSON.stringify(data));
+  resetMedicalCardTranslation();
   renderMedicalCardPreview();
   setStatus("의료카드를 이 기기 브라우저에 저장했습니다.");
 }
@@ -3196,8 +3250,17 @@ function loadMedicalCard(){
 function clearMedicalCard(){
   localStorage.removeItem("travelDoctorMedicalCard");
   medicalFields().forEach(([id])=>{ if($(id)) $(id).value=""; });
+  resetMedicalCardTranslation();
+  medicalCardView = "ko";
   renderMedicalCardPreview();
   setStatus("의료카드를 초기화했습니다.");
+}
+
+function resetMedicalCardTranslation(message=""){
+  medicalCardTranslation = null;
+  medicalCardTranslationKey = "";
+  medicalCardTranslationStatus = "idle";
+  medicalCardTranslationMessage = message;
 }
 
 function updateMedicalInputPlaceholders(){
@@ -3208,32 +3271,198 @@ function updateMedicalInputPlaceholders(){
   });
 }
 
+function getMedicalCardPayload(){
+  const data=loadMedicalCard();
+  medicalFields().forEach(([id])=>{ if($(id) && data[id] && !$(id).value) $(id).value=data[id]; });
+  const read = (id) => (($(id) && $(id).value.trim()) || data[id] || "").trim();
+  return {
+    name: read("medName"),
+    nationality: read("medNationality"),
+    age: read("medAge"),
+    bloodType: read("medBlood"),
+    allergies: read("medAllergy"),
+    medication: read("medMedication"),
+    medicalConditions: read("medCondition"),
+    emergencyContact: read("medContact"),
+    travelInsurance: read("medInsurance"),
+    hotelAddress: read("medHotel")
+  };
+}
+
+function medicalCardCacheKey(payload){
+  return JSON.stringify({
+    country: tripCountryId || "",
+    language: localLangId || "",
+    target: getLocalOption().native || "",
+    payload
+  });
+}
+
+function normalizeMedicalTranslation(result, original){
+  const pick = (key) => String((result && result[key]) || original[key] || "").trim();
+  return {
+    name: pick("name"),
+    nationality: pick("nationality"),
+    age: original.age || "",
+    bloodType: original.bloodType || "",
+    allergies: pick("allergies"),
+    medication: pick("medication"),
+    medicalConditions: pick("medicalConditions"),
+    emergencyContact: original.emergencyContact || "",
+    travelInsurance: pick("travelInsurance"),
+    hotelAddress: pick("hotelAddress")
+  };
+}
+
+function medicalRowsHtml(labels, payload, badge){
+  return medicalFields().map(([, labelKey, en, ko])=>{
+    const valueKey = (medicalValueFields.find(([key]) => key === labelKey) || [null, labelKey])[1];
+    const val = payload[valueKey] || "-";
+    const label = labels[labelKey] || ko || en;
+    return '<div class="step"><span class="check">'+badge+'</span><span>'+
+      '<strong style="font-size:17px;color:var(--navy)">'+escapeHtml(label)+'</strong>'+
+      '<br><span style="font-size:17px;font-weight:950">'+escapeHtml(val)+'</span>'+
+    '</span></div>';
+  }).join("");
+}
+
+function medicalPassCardHtml(labels, payload, languageLabel){
+  const title = medicalCardTitlePacks[getBaseLang(localLangId)] || "Medical Card";
+  const rows = medicalFields().map(([, labelKey, en, ko])=>{
+    const valueKey = (medicalValueFields.find(([key]) => key === labelKey) || [null, labelKey])[1];
+    const label = labels[labelKey] || en || ko;
+    const value = payload[valueKey] || "-";
+    return '<div class="medical-pass-row">'+
+      '<div class="medical-pass-label">'+escapeHtml(label)+'</div>'+
+      '<div class="medical-pass-value">'+escapeHtml(value)+'</div>'+
+    '</div>';
+  }).join("");
+
+  return '<div class="medical-pass-card">'+
+    '<div class="medical-pass-head">'+
+      '<p class="medical-pass-title">'+escapeHtml(title)+'</p>'+
+      '<span class="medical-pass-lang">'+escapeHtml(languageLabel)+'</span>'+
+    '</div>'+
+    rows+
+  '</div>';
+}
+
+function bindMedicalCardPreviewControls(){
+  const koBtn = $("medicalKoViewBtn");
+  const localBtn = $("medicalLocalViewBtn");
+  if(koBtn) koBtn.addEventListener("click", () => safe(() => {
+    medicalCardView = "ko";
+    renderMedicalCardPreview();
+  }));
+  if(localBtn) localBtn.addEventListener("click", () => safe(() => showLocalMedicalCard()));
+}
+
+async function showLocalMedicalCard(){
+  medicalCardView = "local";
+  if(!hasTripCountrySelection){
+    medicalCardTranslationStatus = "idle";
+    medicalCardTranslationMessage = "먼저 여행 국가를 선택해주세요.";
+    renderMedicalCardPreview();
+    return;
+  }
+
+  const payload = getMedicalCardPayload();
+  const key = medicalCardCacheKey(payload);
+  if(medicalCardTranslation && medicalCardTranslationKey === key){
+    medicalCardTranslationStatus = "done";
+    medicalCardTranslationMessage = "";
+    renderMedicalCardPreview();
+    return;
+  }
+
+  medicalCardTranslationStatus = "loading";
+  medicalCardTranslationMessage = "현지어 의료카드를 준비하는 중입니다...";
+  renderMedicalCardPreview();
+
+  try{
+    const localOpt = getLocalOption();
+    const tripOpt = getTripOption();
+    const res = await fetch("/.netlify/functions/translate-medical-card", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        targetLanguage: localOpt.native || "",
+        targetLanguageCode: localLangId || tripCountryId || "",
+        travelCountry: tripCountryName || tripOpt.countryKo || tripOpt.country || "",
+        fields: payload
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(data.error || data.detail || "translation failed");
+
+    medicalCardTranslation = normalizeMedicalTranslation(data, payload);
+    medicalCardTranslationKey = key;
+    medicalCardTranslationStatus = "done";
+    medicalCardTranslationMessage = "";
+    renderMedicalCardPreview();
+  }catch(error){
+    medicalCardTranslation = null;
+    medicalCardTranslationKey = "";
+    medicalCardTranslationStatus = "error";
+    medicalCardTranslationMessage = "현지어 번역을 불러오지 못했습니다. 한국어 원문을 함께 보여주세요.";
+    renderMedicalCardPreview();
+  }
+}
+
 function renderMedicalCardPreview(){
   if(!$("medicalCardPreview")) return;
 
-  const data=loadMedicalCard();
-  medicalFields().forEach(([id])=>{ if($(id) && data[id] && !$(id).value) $(id).value=data[id]; });
-
+  const payload = getMedicalCardPayload();
   const localOpt=getLocalOption();
   const tripOpt=getTripOption();
   const localLabels=getMedicalLabels(localLangId);
   const koLabels=getMedicalLabels("ko");
+  const tripLabel = hasTripCountrySelection ? (tripCountryName || tripOpt.countryKo) : "여행 국가 미선택";
+  const tabHtml =
+    '<div class="medical-view-tabs" role="tablist" aria-label="의료카드 보기 전환">'+
+      '<button id="medicalKoViewBtn" class="medical-view-tab '+(medicalCardView==="ko"?'active':'')+'" type="button">한국어 보기</button>'+
+      '<button id="medicalLocalViewBtn" class="medical-view-tab '+(medicalCardView==="local"?'active':'')+'" type="button">현지어 보기</button>'+
+    '</div>';
 
-  const makeRows=(labels, badge)=> medicalFields().map(([id,key,en,ko])=>{
-    const val=($(id) && $(id).value.trim()) || data[id] || "-";
-    const label = labels[key] || ko || en;
-    return '<div class="step"><span class="check">'+badge+'</span><span>'+ '<strong style="font-size:17px;color:var(--navy)">'+escapeHtml(label)+'</strong>'+ '<br><span style="font-size:17px;font-weight:950">'+escapeHtml(val)+'</span>'+ '</span></div>';
-  }).join("");
+  let bodyHtml = "";
+  if(medicalCardView === "ko"){
+    bodyHtml =
+      '<div class="notice teal" style="font-weight:950">🇰🇷 한국어 보기 · 사용자 확인용</div>'+
+      medicalRowsHtml(koLabels, payload, "KO");
+  }else if(!hasTripCountrySelection){
+    bodyHtml =
+      '<div class="notice amber">'+escapeHtml(medicalCardTranslationMessage || "먼저 여행 국가를 선택해주세요.")+'</div>'+
+      '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
+      medicalRowsHtml(koLabels, payload, "KO");
+  }else if(medicalCardTranslationStatus === "loading"){
+    bodyHtml =
+      '<div class="notice teal">'+escapeHtml(medicalCardTranslationMessage || "현지어 의료카드를 준비하는 중입니다...")+'</div>'+
+      medicalPassCardHtml(localLabels, payload, localOpt.native);
+  }else if(medicalCardTranslationStatus === "error"){
+    bodyHtml =
+      '<div class="notice amber">'+escapeHtml(medicalCardTranslationMessage || "현지어 번역을 불러오지 못했습니다. 한국어 원문을 함께 보여주세요.")+'</div>'+
+      '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
+      medicalRowsHtml(koLabels, payload, "KO");
+  }else if(medicalCardTranslation){
+    bodyHtml = medicalPassCardHtml(localLabels, medicalCardTranslation, localOpt.native);
+  }else{
+    bodyHtml =
+      '<div class="notice teal">현지어 보기를 누르면 선택한 여행 국가의 언어로 의료카드를 준비합니다.</div>'+
+      medicalPassCardHtml(localLabels, payload, localOpt.native);
+  }
 
   $("medicalCardPreview").innerHTML =
     '<div class="result-box mild">'+
       '<p style="font-size:18px;margin-bottom:6px">여행자 의료카드</p>'+
-      '<p class="small">한국어로 입력하고, 현지 의료진에게는 현지어 보기 화면을 보여줄 수 있습니다.</p>'+ 
-      '<p class="small muted" style="margin-top:8px">여행 국가: '+escapeHtml(tripCountryName || tripOpt.countryKo)+' · 현지어: '+escapeHtml(localOpt.native)+'</p>'+ 
-    '</div>'+ 
-    '<div class="notice teal" style="font-weight:950">🇰🇷 한국어 보기 · 사용자 확인용</div>'+makeRows(koLabels,"KO")+
-    '<div class="notice teal" style="font-weight:950;margin-top:12px">🗣️ 현지어 보기 · 의료진에게 보여주세요</div>'+makeRows(localLabels,"현지")+
+      '<p class="small">한국어로 입력하고, 현지 의료진에게는 현지어 보기 화면을 보여줄 수 있습니다.</p>'+
+      '<p class="small muted" style="margin-top:8px">여행 국가: '+escapeHtml(tripLabel)+' · 현지어: '+escapeHtml(hasTripCountrySelection ? localOpt.native : "국가 선택 후 자동 설정")+'</p>'+
+    '</div>'+
+    tabHtml+
+    '<p class="small muted" style="line-height:1.55;margin:0">현지어 의료카드 번역을 위해 입력한 정보가 AI 번역 처리에 사용될 수 있습니다. 민감한 정보는 필요한 범위에서만 입력하세요.</p>'+
+    bodyHtml+
     '<div class="notice amber small">민감한 정보가 포함될 수 있어 서버 저장 없이 이 브라우저에만 저장되는 샘플 기능입니다.</div>';
+
+  bindMedicalCardPreviewControls();
 }
 function renderEmergencyInfoCard(){
   if(!$("emergencyInfoContent")) return;
@@ -4637,10 +4866,11 @@ function init(){
     const opt=getTripOption();
     tripCountryName=opt.countryKo||opt.country||"";
     hasTripCountrySelection = true;
+    resetMedicalCardTranslation();
     syncInitialTripInputs(true);
     renderLanguagePage();
   });
-  on("localLangSelect","change",e=>{ localLangId=tripCountryId; renderLanguagePage(); });
+  on("localLangSelect","change",e=>{ localLangId=tripCountryId; resetMedicalCardTranslation(); renderLanguagePage(); });
   on("initialTravelCountry","input",()=>{
     tripCountryName = $("initialTravelCountry").value.trim();
     const matched = findCountryOptionByText(tripCountryName);
@@ -4649,6 +4879,7 @@ function init(){
       tripCountryId = matched.id;
       localLangId = matched.id;
       hasTripCountrySelection = true;
+      resetMedicalCardTranslation();
       renderLanguagePage();
     }
   });
@@ -4661,6 +4892,13 @@ function init(){
       return;
     }
     openMedicalCard();
+  });
+  medicalFields().forEach(([id])=>{
+    on(id,"input",()=>{
+      resetMedicalCardTranslation();
+      if(medicalCardView === "local") medicalCardTranslationMessage = "의료카드 내용이 바뀌었습니다. 현지어 보기를 다시 누르면 새로 번역합니다.";
+      renderMedicalCardPreview();
+    });
   });
   on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",saveMedicalCard); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency);
   $("emergencyModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="emergencyModal") hideEmergency(); }));
