@@ -226,6 +226,14 @@
         <div id="languageGrid" class="language-grid"></div>
       </div>
     </section>
+
+    <section id="medicalCardTestPanel" class="container card hidden" style="margin-top:14px">
+      <p class="eyebrow">Medical Card Test</p>
+      <h2>30개 국가 의료카드 번역 테스트</h2>
+      <p class="small muted">이 패널은 URL에 <strong>?sosTest=medical-card</strong>가 있을 때만 표시됩니다.</p>
+      <button id="runMedicalCardTestBtn" class="btn primary w-full" type="button">30개 국가 의료카드 번역 테스트 실행</button>
+      <div id="medicalCardTestResult" style="margin-top:14px"></div>
+    </section>
   </main>
 
   <main id="appPage" class="page hidden content-pad">
@@ -3651,62 +3659,111 @@ function buildMedicalCardTestTranslation(option){
   };
 }
 
-function evaluateMedicalCardTest(option){
+const MEDICAL_CARD_TEST_PAYLOAD = {
+  name: "",
+  passportName: "",
+  nationality: "대한민국",
+  age: "",
+  bloodType: "",
+  allergies: "땅콩",
+  medication: "애드빌",
+  medicalConditions: "천식",
+  emergencyContact: "",
+  travelInsurance: "",
+  hotelAddress: ""
+};
+
+function medicalCardTestHasLanguageMix(value, option){
+  const base = getBaseLang(option.id);
+  const textValue = String(value || "");
+  if(!textValue) return false;
+  if(base !== "ko" && /[가-힣]/.test(textValue)) return true;
+  if(base !== "en" && /No information provided|Not provided|Peanut allergy|South Korea|medication entered by the user/i.test(textValue)) return true;
+  return false;
+}
+
+function evaluateMedicalCardTest(option, translated){
   const cfg = getMedicalI18n(option.id);
   if(!cfg) return {ok:false, issues:["지원 언어 설정 없음"]};
   const labels = cfg.labels;
-  const result = buildMedicalCardTestTranslation(option);
+  const result = translated || buildMedicalCardTestTranslation(option);
   const blankKeys = ["name","age","bloodType","emergencyContact","travelInsurance","hotelAddress"];
   const issues = [];
   if(!labels.name || !labels.allergies || !labels.medication || !labels.medicalConditions) issues.push("항목명 누락");
   blankKeys.forEach(key => { if(result[key] !== cfg.blankValue) issues.push(key+" 빈칸 표현 확인 필요"); });
+  if(result.nationality !== cfg.southKoreaNationality) issues.push("국적 국가명 확인 필요");
   if(result.allergies !== cfg.testTerms.peanutAllergy) issues.push("알레르기 표현 확인 필요");
   if(!result.medication.startsWith("Advil")) issues.push("Advil 제품명 보존 실패");
+  if(/ibuprofen|acetaminophen|paracetamol|painkiller|pain reliever|anti-inflammatory drug|cold medicine/i.test(result.medication)) issues.push("약 정보가 성분명/일반약으로 바뀜");
   if(result.medicalConditions !== cfg.testTerms.asthma) issues.push("기존 질환 칸 번역 확인 필요");
+  if(/severe|attack|needs inhaler|requires immediate|응급|심각|치료 필요/i.test(result.medicalConditions)) issues.push("기존 질환에 상태/심각도 추가됨");
   if(result.name !== cfg.blankValue) issues.push("이름 칸에 다른 값이 들어감");
   if(result.name.includes(result.allergies) || result.name.includes(result.medicalConditions)) issues.push("필드 매칭 꼬임 의심");
+  ["name","nationality","age","bloodType","allergies","medication","medicalConditions","emergencyContact","travelInsurance","hotelAddress"].forEach(key => {
+    if(medicalCardTestHasLanguageMix(result[key], option)) issues.push(key+" 다른 언어 섞임 확인 필요");
+  });
   return {ok: issues.length === 0, issues};
 }
 
-function runMedicalCardTestPanel(){
+async function runMedicalCardTestPanel(){
   const resultBox = $("medicalCardTestResult");
   if(!resultBox) return;
-  const rows = languageOptions.map(option => {
+  const testInput = {...MEDICAL_CARD_TEST_PAYLOAD};
+  resultBox.innerHTML = '<div class="notice teal">30개 국가 의료카드 번역 테스트를 실행하는 중입니다...</div>';
+  const testResults = [];
+  for(const option of languageOptions){
     const cfg = getMedicalI18n(option.id);
-    const result = evaluateMedicalCardTest(option);
-    const summary = result.ok ? "정상" : result.issues.join(", ");
+    let evaluation;
+    try{
+      if(!cfg) throw new Error("지원 언어 설정 없음");
+      const res = await fetch("/.netlify/functions/translate-medical-card", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          targetLanguage: cfg.languageLabel,
+          targetLanguageCode: option.id,
+          travelCountry: option.countryKo || option.country || "",
+          fields: testInput
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if(!res.ok) throw new Error(data.error || data.detail || "번역 함수 호출 실패");
+      evaluation = evaluateMedicalCardTest(option, data);
+    }catch(error){
+      evaluation = {ok:false, issues:[error && error.message ? error.message : "테스트 실패"]};
+    }
+    testResults.push({option, cfg, evaluation});
+    resultBox.innerHTML = '<div class="notice teal">테스트 진행 중: '+testResults.length+' / '+languageOptions.length+'</div>';
+  }
+  const rows = testResults.map(({option, cfg, evaluation}) => {
+    const summary = evaluation.ok ? "정상" : evaluation.issues.join(", ");
     return '<tr>'+
+      '<td>'+escapeHtml(option.id)+'</td>'+
       '<td>'+escapeHtml(option.flag+" "+option.countryKo)+'</td>'+
       '<td>'+escapeHtml(cfg ? cfg.languageLabel+" · "+cfg.locale : option.native)+'</td>'+
-      '<td class="'+(result.ok?'test-pass':'test-warn')+'">'+(result.ok?'통과':'확인 필요')+'</td>'+
+      '<td class="'+(evaluation.ok?'test-pass':'test-warn')+'">'+(evaluation.ok?'통과':'확인 필요')+'</td>'+
       '<td>'+escapeHtml(summary)+'</td>'+
     '</tr>';
   }).join("");
   resultBox.innerHTML =
     '<div class="test-table-wrap">'+
       '<table class="test-table">'+
-        '<thead><tr><th>국가</th><th>언어</th><th>결과</th><th>문제 요약</th></tr></thead>'+
+        '<thead><tr><th>국가 코드</th><th>국가명</th><th>언어</th><th>통과 여부</th><th>문제 요약</th></tr></thead>'+
         '<tbody>'+rows+'</tbody>'+
       '</table>'+
     '</div>';
 }
 
 function ensureMedicalCardTestPanel(){
-  if(!isMedicalCardTestMode() || $("medicalCardTestPanel")) return;
-  const anchor = $("medicalCardSection") || $("infoGuideCard");
-  if(!anchor || !anchor.parentNode) return;
-  const section = document.createElement("section");
-  section.id = "medicalCardTestPanel";
-  section.className = "card";
-  section.innerHTML =
-    '<p class="eyebrow">Medical Card Test</p>'+
-    '<h2>의료카드 30개 국가 번역 테스트</h2>'+
-    '<p class="small muted">이 패널은 URL에 <strong>?sosTest=medical-card</strong>가 있을 때만 표시됩니다.</p>'+
-    '<button id="runMedicalCardTestBtn" class="btn primary w-full" type="button">30개 국가 의료카드 번역 테스트 실행</button>'+
-    '<div id="medicalCardTestResult" style="margin-top:14px"></div>';
-  anchor.parentNode.insertBefore(section, anchor.nextSibling);
+  const panel = $("medicalCardTestPanel");
+  if(!panel) return;
+  panel.classList.toggle("hidden", !isMedicalCardTestMode());
+  if(!isMedicalCardTestMode()) return;
   const btn = $("runMedicalCardTestBtn");
-  if(btn) btn.addEventListener("click", () => safe(runMedicalCardTestPanel));
+  if(btn && !btn.dataset.bound){
+    btn.dataset.bound = "true";
+    btn.addEventListener("click", () => safe(runMedicalCardTestPanel));
+  }
 }
 function renderEmergencyInfoCard(){
   if(!$("emergencyInfoContent")) return;
