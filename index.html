@@ -259,8 +259,8 @@
       <section id="medicalCardSection" class="card hidden">
         <p class="eyebrow">Medical Card</p>
         <h2 id="medicalCardTitle">여행자 의료카드</h2>
-      
-        <p class="small muted" style="line-height:1.55">입력한 의료카드는 기본적으로 이 기기 안에서만 저장됩니다. 현지어 번역 또는 AI 응급도 참고 안내를 사용할 때 입력 정보가 AI 처리에 사용될 수 있습니다. 민감한 정보는 필요한 범위에서만 입력하세요.</p>
+        <p class="small muted">입력한 정보는 이 브라우저 안에만 저장되는 샘플입니다. 서버로 전송하지 않습니다.</p>
+        <p class="small muted" style="line-height:1.55">의료카드는 기본적으로 이 기기 안에 저장됩니다. 다만 현지어 번역 또는 AI 응급도 참고 안내를 사용할 경우 입력 정보가 AI 처리에 사용될 수 있습니다. 민감한 정보는 필요한 범위에서만 입력하세요.</p>
         <div class="grid" style="margin-top:14px">
           <div class="two">
             <input id="medName" class="input" placeholder="이름" />
@@ -2599,7 +2599,7 @@ const medicalLabelPacks = {
   en:{name:"Name", nationality:"Nationality", age:"Age", blood:"Blood type", allergy:"Allergies", medication:"Medication", condition:"Medical conditions", contact:"Emergency contact", insurance:"Travel insurance", hotel:"Hotel address"},
   fr:{name:"Nom", nationality:"Nationalité", age:"Âge", blood:"Groupe sanguin", allergy:"Allergies", medication:"Médicaments", condition:"Antécédents médicaux", contact:"Contact d'urgence", insurance:"Assurance voyage", hotel:"Adresse de l'hôtel"},
   es:{name:"Nombre", nationality:"Nacionalidad", age:"Edad", blood:"Tipo de sangre", allergy:"Alergias", medication:"Medicamentos", condition:"Enfermedades previas", contact:"Contacto de emergencia", insurance:"Seguro de viaje", hotel:"Dirección del hotel"},
-  ja:{name:"氏名", nationality:"国籍", age:"年齢", blood:"血液型", allergy:"アレルギー", medication:"服用中の薬", condition:"既往症・持病", contact:"緊急連絡先", insurance:"旅行保険", hotel:"宿泊先住所"},
+  ja:{name:"氏名", nationality:"国籍", age:"年齢", blood:"血液型", allergy:"アレルギー", medication:"服用中の薬", condition:"既往歴", contact:"緊急連絡先", insurance:"旅行保険", hotel:"宿泊先住所"},
   vi:{name:"Họ tên", nationality:"Quốc tịch", age:"Tuổi", blood:"Nhóm máu", allergy:"Dị ứng", medication:"Thuốc đang dùng", condition:"Bệnh nền", contact:"Liên hệ khẩn cấp", insurance:"Bảo hiểm du lịch", hotel:"Địa chỉ khách sạn"},
   zh:{name:"姓名", nationality:"国籍", age:"年龄", blood:"血型", allergy:"过敏", medication:"正在服用的药物", condition:"既往病史", contact:"紧急联系人", insurance:"旅行保险", hotel:"酒店地址"},
   de:{name:"Name", nationality:"Nationalität", age:"Alter", blood:"Blutgruppe", allergy:"Allergien", medication:"Medikamente", condition:"Vorerkrankungen", contact:"Notfallkontakt", insurance:"Reiseversicherung", hotel:"Hoteladresse"},
@@ -3552,9 +3552,8 @@ function renderMedicalCardPreview(){
       '<p class="small muted" style="margin-top:8px">여행 국가: '+escapeHtml(tripLabel)+' · 현지어: '+escapeHtml(hasTripCountrySelection ? localOpt.native : "국가 선택 후 자동 설정")+'</p>'+
     '</div>'+
     tabHtml+
-    '<p class="small muted" style="line-height:1.55;margin:0">현지어 의료카드 번역을 위해 입력한 정보가 AI 번역 처리에 사용될 수 있습니다. 민감한 정보는 필요한 범위에서만 입력하세요.</p>'+
     bodyHtml+
-    '<div class="notice amber small">민감한 정보가 포함될 수 있어 서버 저장 없이 이 브라우저에만 저장되는 샘플 기능입니다.</div>';
+    '<div class="notice amber small">의료카드는 기본적으로 이 기기 안에 저장됩니다. 다만 현지어 번역 또는 AI 응급도 참고 안내를 사용할 경우 입력 정보가 AI 처리에 사용될 수 있습니다. 민감한 정보는 필요한 범위에서만 입력하세요.</div>';
 
   bindMedicalCardPreviewControls();
 }

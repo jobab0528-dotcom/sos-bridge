@@ -82,6 +82,50 @@ const noneText = {
   el:"Κανένα"
 };
 
+const coldMedicineText = {
+  ko:"감기약, 성분 미기재",
+  en:"Cold medicine, ingredient not specified",
+  fr:"Médicament contre le rhume, ingrédient non précisé",
+  es:"Medicamento para el resfriado, ingrediente no especificado",
+  ja:"風邪薬、成分は不明",
+  vi:"Thuốc cảm, không rõ thành phần",
+  zh:"感冒药，未注明成分",
+  de:"Erkältungsmedikament, Wirkstoff nicht angegeben",
+  it:"Medicinale per il raffreddore, principio attivo non specificato",
+  tr:"Soğuk algınlığı ilacı, içeriği belirtilmemiş",
+  th:"ยาแก้หวัด ไม่ระบุส่วนประกอบ",
+  pt:"Remédio para resfriado, ingrediente não especificado",
+  nl:"Verkoudheidsmedicijn, bestanddeel niet vermeld",
+  ms:"Ubat selesema, bahan tidak dinyatakan",
+  id:"Obat flu, kandungan tidak disebutkan",
+  ar:"دواء للزكام، المكوّن غير محدد",
+  pl:"Lek na przeziębienie, składnik nieokreślony",
+  da:"Forkølelsesmedicin, indholdsstof ikke angivet",
+  el:"Φάρμακο για κρυολόγημα, μη καθορισμένο συστατικό"
+};
+
+const pollenAllergyText = {
+  ko:"꽃가루 알레르기",
+  en:"Pollen allergy",
+  fr:"Allergie au pollen",
+  es:"Alergia al polen",
+  ja:"花粉アレルギー",
+  vi:"Dị ứng phấn hoa",
+  zh:"花粉过敏",
+  de:"Pollenallergie",
+  it:"Allergia al polline",
+  tr:"Polen alerjisi",
+  th:"ภูมิแพ้เกสรดอกไม้",
+  pt:"Alergia ao pólen",
+  nl:"Pollenallergie",
+  ms:"Alahan debunga",
+  id:"Alergi serbuk sari",
+  ar:"حساسية من حبوب اللقاح",
+  pl:"Alergia na pyłki",
+  da:"Pollenallergi",
+  el:"Αλλεργία στη γύρη"
+};
+
 function isEmpty(value){
   return !text(value);
 }
@@ -90,12 +134,28 @@ function isNoneInput(value){
   return /^(없음|없어요|무|해당없음|해당 없음|none|no|n\/a|na)$/i.test(text(value));
 }
 
+function isColdMedicineInput(value){
+  return /감기약/.test(text(value));
+}
+
+function isPollenAllergyInput(value){
+  return /꽃가루/.test(text(value));
+}
+
 function missingFor(lang){
   return notProvidedText[lang] || notProvidedText.en;
 }
 
 function noneFor(lang){
   return noneText[lang] || noneText.en;
+}
+
+function coldMedicineFor(lang){
+  return coldMedicineText[lang] || coldMedicineText.en;
+}
+
+function pollenAllergyFor(lang){
+  return pollenAllergyText[lang] || pollenAllergyText.en;
 }
 
 function valueOrFallback(resultValue, originalValue, lang){
@@ -108,13 +168,10 @@ function safeMedication(resultValue, originalValue, lang){
   const raw = text(originalValue);
   if(isEmpty(raw)) return missingFor(lang);
   if(isNoneInput(raw)) return noneFor(lang);
-  if(raw === "감기약"){
-    if(lang === "fr") return "Médicament contre le rhume, ingrédient non précisé";
-    if(lang === "en") return "Cold medicine, ingredient not specified";
-  }
+  if(isColdMedicineInput(raw)) return coldMedicineFor(lang);
   const translated = text(resultValue) || raw;
-  if(raw === "감기약" && /(paracetamol|ibuprofen|acetaminophen|aspirin)/i.test(translated)){
-    return lang === "fr" ? "Médicament contre le rhume, ingrédient non précisé" : "Cold medicine, ingredient not specified";
+  if(isColdMedicineInput(raw) && /(paracetamol|ibuprofen|acetaminophen|aspirin)/i.test(translated)){
+    return coldMedicineFor(lang);
   }
   return translated;
 }
@@ -123,10 +180,7 @@ function safeAllergy(resultValue, originalValue, lang){
   const raw = text(originalValue);
   if(isEmpty(raw)) return missingFor(lang);
   if(isNoneInput(raw)) return noneFor(lang);
-  if(raw === "꽃가루"){
-    if(lang === "fr") return "Allergie au pollen";
-    if(lang === "en") return "Pollen allergy";
-  }
+  if(isPollenAllergyInput(raw)) return pollenAllergyFor(lang);
   return text(resultValue) || raw;
 }
 
@@ -161,13 +215,14 @@ function systemPrompt(){
     "You translate a Korean travel medical card for local medical staff.",
     "Return JSON only. Do not include Markdown or explanations.",
     "Only translate the user-provided medical card values into the requested target language.",
+    "Every translated value must be in the requested target language. Do not answer in English unless the requested target language is English.",
     "Do not add, infer, interpret, summarize, or create any allergy, medicine, condition, symptom, or personal detail.",
     "For the name field, use passportName first when provided. If passportName is empty and name is Korean Hangul, romanize the name for local staff and include the Korean original in parentheses, for example Cho Hyun-jun (조현준).",
     "Keep age numbers, blood type, phone numbers, dates, and emergency contact numbers unchanged.",
     "If a field is empty, return the target-language equivalent of Not provided or No information provided.",
     "If a user entered 없음/none/no, return the target-language equivalent of None.",
-    "Do not guess medicine ingredients. If the user entered 감기약, translate it as cold medicine and explicitly say ingredient not specified in the target language. Do not output paracetamol, ibuprofen, acetaminophen, or other ingredient names unless the user directly entered that ingredient.",
-    "If allergies is 꽃가루, translate it as pollen allergy or the target-language equivalent of pollen allergy.",
+    "Do not guess medicine ingredients. If the user entered 감기약, translate it as cold medicine and explicitly say ingredient not specified in the target language. For French use Médicament contre le rhume, ingrédient non précisé. For Japanese use 風邪薬、成分は不明. Do not output paracetamol, ibuprofen, acetaminophen, or other ingredient names unless the user directly entered that ingredient.",
+    "If allergies is 꽃가루, translate it as pollen allergy or the target-language equivalent of pollen allergy, not just pollen. For French use Allergie au pollen. For Japanese use 花粉アレルギー.",
     "For ambiguous wording, translate as literally as possible while keeping it understandable for medical staff.",
     "Do not provide medical advice or clinical interpretation.",
     "Required JSON keys: name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
