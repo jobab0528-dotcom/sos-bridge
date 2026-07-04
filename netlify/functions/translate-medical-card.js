@@ -126,6 +126,35 @@ const pollenAllergyText = {
   el:"Αλλεργία στη γύρη"
 };
 
+const medicationEnteredText = {
+  ko:"사용자가 입력한 약",
+  en:"medication entered by the user",
+  fr:"médicament indiqué par l’utilisateur",
+  es:"medicamento indicado por el usuario",
+  ja:"利用者が入力した薬",
+  vi:"thuốc do người dùng nhập",
+  zh:"用户输入的药品",
+  de:"vom Benutzer angegebenes Medikament",
+  it:"farmaco indicato dall'utente",
+  tr:"kullanıcının girdiği ilaç",
+  th:"ยาที่ผู้ใช้ระบุ",
+  pt:"medicamento informado pelo usuário",
+  nl:"door gebruiker ingevoerd medicijn",
+  ms:"ubat yang dimasukkan pengguna",
+  id:"obat yang dimasukkan pengguna",
+  ar:"دواء أدخله المستخدم",
+  pl:"lek wpisany przez użytkownika",
+  da:"lægemiddel angivet af brugeren",
+  el:"φάρμακο που καταχώρισε ο χρήστης"
+};
+
+const medicationBrandPatterns = [
+  {pattern: /타이레놀|tylenol/gi, display: "Tylenol"},
+  {pattern: /애드빌|advil/gi, display: "Advil"},
+  {pattern: /이지엔|ezn/gi, display: "EZN"},
+  {pattern: /판콜|pankol|pancol/gi, display: "Pankol"}
+];
+
 function isEmpty(value){
   return !text(value);
 }
@@ -140,6 +169,27 @@ function isColdMedicineInput(value){
 
 function isPollenAllergyInput(value){
   return /꽃가루/.test(text(value));
+}
+
+function preserveMedicationBrandName(value){
+  let preserved = text(value);
+  let matched = false;
+  medicationBrandPatterns.forEach((item) => {
+    if(item.pattern.test(preserved)){
+      matched = true;
+      preserved = preserved.replace(item.pattern, item.display);
+    }
+    item.pattern.lastIndex = 0;
+  });
+  return matched ? preserved : "";
+}
+
+function userEnteredRestrictedIngredient(value){
+  return /(paracetamol|acetaminophen|ibuprofen|aspirin|파라세타몰|아세트아미노펜|이부프로펜|아스피린)/i.test(text(value));
+}
+
+function looksLikeUnsafeMedicationInference(value){
+  return /(paracetamol|acetaminophen|ibuprofen|aspirin|pain reliever|fever reducer|cold medicine|analg[eé]sico|antipir[eé]tico|antalgique|antipyr[eé]tique|진통제|해열제|medicamento para el resfriado|m[eé]dicament contre le rhume|風邪薬|감기약|thuốc cảm|感冒药|Erkältungsmedikament|medicinale per il raffreddore|remédio para resfriado)/i.test(text(value));
 }
 
 function missingFor(lang){
@@ -158,6 +208,14 @@ function pollenAllergyFor(lang){
   return pollenAllergyText[lang] || pollenAllergyText.en;
 }
 
+function medicationEnteredFor(lang){
+  return medicationEnteredText[lang] || medicationEnteredText.en;
+}
+
+function medicationProductFor(name, lang){
+  return `${name}, ${medicationEnteredFor(lang)}`;
+}
+
 function valueOrFallback(resultValue, originalValue, lang){
   if(isEmpty(originalValue)) return missingFor(lang);
   if(isNoneInput(originalValue)) return noneFor(lang);
@@ -169,9 +227,11 @@ function safeMedication(resultValue, originalValue, lang){
   if(isEmpty(raw)) return missingFor(lang);
   if(isNoneInput(raw)) return noneFor(lang);
   if(isColdMedicineInput(raw)) return coldMedicineFor(lang);
+  const preservedBrand = preserveMedicationBrandName(raw);
+  if(preservedBrand) return medicationProductFor(preservedBrand, lang);
   const translated = text(resultValue) || raw;
-  if(isColdMedicineInput(raw) && /(paracetamol|ibuprofen|acetaminophen|aspirin)/i.test(translated)){
-    return coldMedicineFor(lang);
+  if(looksLikeUnsafeMedicationInference(translated) && !userEnteredRestrictedIngredient(raw)){
+    return medicationProductFor(raw, lang);
   }
   return translated;
 }
@@ -221,7 +281,9 @@ function systemPrompt(){
     "Keep age numbers, blood type, phone numbers, dates, and emergency contact numbers unchanged.",
     "If a field is empty, return the target-language equivalent of Not provided or No information provided.",
     "If a user entered 없음/none/no, return the target-language equivalent of None.",
-    "Do not guess medicine ingredients. If the user entered 감기약, translate it as cold medicine and explicitly say ingredient not specified in the target language. For French use Médicament contre le rhume, ingrédient non précisé. For Japanese use 風邪薬、成分は不明. Do not output paracetamol, ibuprofen, acetaminophen, or other ingredient names unless the user directly entered that ingredient.",
+    "Preserve specific medicine names and product names. If the user entered 타이레놀, return Tylenol plus the target-language equivalent of medication entered by the user. If the user entered 애드빌, 이지엔, or 판콜, preserve the product name as Advil, EZN, or Pankol when appropriate.",
+    "Do not convert medicine product names into cold medicine, pain reliever, fever reducer, paracetamol, acetaminophen, ibuprofen, aspirin, or any ingredient name unless the user directly entered that ingredient.",
+    "Do not guess medicine ingredients. If the user entered 감기약 as a general expression, translate it as cold medicine and explicitly say ingredient not specified in the target language. For Spanish use Medicamento para el resfriado, ingrediente no especificado. For French use Médicament contre le rhume, ingrédient non précisé. For Japanese use 風邪薬、成分は不明.",
     "If allergies is 꽃가루, translate it as pollen allergy or the target-language equivalent of pollen allergy, not just pollen. For French use Allergie au pollen. For Japanese use 花粉アレルギー.",
     "For ambiguous wording, translate as literally as possible while keeping it understandable for medical staff.",
     "Do not provide medical advice or clinical interpretation.",
