@@ -263,12 +263,13 @@
         <div class="grid" style="margin-top:14px">
           <div class="two">
             <input id="medName" class="input" placeholder="이름" />
-            <input id="medNationality" class="input" placeholder="국적" />
+            <input id="medPassportName" class="input" placeholder="여권상 영문 이름" />
           </div>
           <div class="two">
+            <input id="medNationality" class="input" placeholder="국적" />
             <input id="medAge" class="input" placeholder="나이" />
-            <input id="medBlood" class="input" placeholder="혈액형" />
           </div>
+          <input id="medBlood" class="input" placeholder="혈액형" />
           <input id="medAllergy" class="input" placeholder="알레르기 예: 페니실린, 견과류" />
           <input id="medMedication" class="input" placeholder="복용 중인 약" />
           <input id="medCondition" class="input" placeholder="기존 질환" />
@@ -3189,6 +3190,7 @@ function renderLocalPhraseCard(){
 function medicalFields(){
   return [
     ["medName","name","Name","이름"],
+    ["medPassportName","passportName","Passport name","여권상 영문 이름"],
     ["medNationality","nationality","Nationality","국적"],
     ["medAge","age","Age","나이"],
     ["medBlood","blood","Blood type","혈액형"],
@@ -3203,6 +3205,7 @@ function medicalFields(){
 
 const medicalValueFields = [
   ["name","name"],
+  ["passportName","passportName"],
   ["nationality","nationality"],
   ["age","age"],
   ["blood","bloodType"],
@@ -3235,6 +3238,32 @@ const medicalCardTitlePacks = {
   da:"Medicinsk kort",
   el:"Ιατρική κάρτα"
 };
+
+const medicalMissingTextPacks = {
+  ko:"미입력",
+  en:"Not provided",
+  fr:"Non renseigné",
+  es:"No proporcionado",
+  ja:"未入力",
+  vi:"Chưa cung cấp",
+  zh:"未填写",
+  de:"Nicht angegeben",
+  it:"Non fornito",
+  tr:"Belirtilmedi",
+  th:"ไม่ได้ระบุ",
+  pt:"Não informado",
+  nl:"Niet opgegeven",
+  ms:"Tidak diberikan",
+  id:"Tidak diisi",
+  ar:"غير مذكور",
+  pl:"Nie podano",
+  da:"Ikke angivet",
+  el:"Δεν παρέχεται"
+};
+
+function getMedicalMissingText(){
+  return medicalMissingTextPacks[getBaseLang(localLangId)] || medicalMissingTextPacks.en;
+}
 
 function saveMedicalCard(){
   const data={};
@@ -3269,6 +3298,7 @@ function updateMedicalInputPlaceholders(){
   medicalFields().forEach(([id,key])=>{
     if($(id)) $(id).placeholder = labels[key] || fallback[key] || $(id).placeholder;
   });
+  if($("medPassportName")) $("medPassportName").placeholder = "HONG GIL DONG";
 }
 
 function getMedicalCardPayload(){
@@ -3277,6 +3307,7 @@ function getMedicalCardPayload(){
   const read = (id) => (($(id) && $(id).value.trim()) || data[id] || "").trim();
   return {
     name: read("medName"),
+    passportName: read("medPassportName"),
     nationality: read("medNationality"),
     age: read("medAge"),
     bloodType: read("medBlood"),
@@ -3302,6 +3333,7 @@ function normalizeMedicalTranslation(result, original){
   const pick = (key) => String((result && result[key]) || original[key] || "").trim();
   return {
     name: pick("name"),
+    passportName: original.passportName || "",
     nationality: pick("nationality"),
     age: original.age || "",
     bloodType: original.bloodType || "",
@@ -3328,10 +3360,10 @@ function medicalRowsHtml(labels, payload, badge){
 
 function medicalPassCardHtml(labels, payload, languageLabel){
   const title = medicalCardTitlePacks[getBaseLang(localLangId)] || "Medical Card";
-  const rows = medicalFields().map(([, labelKey, en, ko])=>{
+  const rows = medicalFields().filter(([, labelKey]) => labelKey !== "passportName").map(([, labelKey, en, ko])=>{
     const valueKey = (medicalValueFields.find(([key]) => key === labelKey) || [null, labelKey])[1];
     const label = labels[labelKey] || en || ko;
-    const value = payload[valueKey] || "-";
+    const value = payload[valueKey] || getMedicalMissingText();
     return '<div class="medical-pass-row">'+
       '<div class="medical-pass-label">'+escapeHtml(label)+'</div>'+
       '<div class="medical-pass-value">'+escapeHtml(value)+'</div>'+
@@ -3345,6 +3377,13 @@ function medicalPassCardHtml(labels, payload, languageLabel){
     '</div>'+
     rows+
   '</div>';
+}
+
+function romanizationNoticeHtml(payload){
+  if(payload && payload.name && !payload.passportName){
+    return '<p class="small muted" style="line-height:1.55;margin:0">이름 로마자 표기는 여권 표기와 다를 수 있습니다. 가능하면 여권상 영문 이름을 입력하세요.</p>';
+  }
+  return "";
 }
 
 function bindMedicalCardPreviewControls(){
@@ -3437,6 +3476,7 @@ function renderMedicalCardPreview(){
   }else if(medicalCardTranslationStatus === "loading"){
     bodyHtml =
       '<div class="notice teal">'+escapeHtml(medicalCardTranslationMessage || "현지어 의료카드를 준비하는 중입니다...")+'</div>'+
+      romanizationNoticeHtml(payload)+
       medicalPassCardHtml(localLabels, payload, localOpt.native);
   }else if(medicalCardTranslationStatus === "error"){
     bodyHtml =
@@ -3444,10 +3484,11 @@ function renderMedicalCardPreview(){
       '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
       medicalRowsHtml(koLabels, payload, "KO");
   }else if(medicalCardTranslation){
-    bodyHtml = medicalPassCardHtml(localLabels, medicalCardTranslation, localOpt.native);
+    bodyHtml = romanizationNoticeHtml(payload)+medicalPassCardHtml(localLabels, medicalCardTranslation, localOpt.native);
   }else{
     bodyHtml =
       '<div class="notice teal">현지어 보기를 누르면 선택한 여행 국가의 언어로 의료카드를 준비합니다.</div>'+
+      romanizationNoticeHtml(payload)+
       medicalPassCardHtml(localLabels, payload, localOpt.native);
   }
 

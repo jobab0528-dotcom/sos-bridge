@@ -21,6 +21,7 @@ function text(value){
 function cleanFields(fields = {}){
   return {
     name: text(fields.name),
+    passportName: text(fields.passportName),
     nationality: text(fields.nationality),
     age: text(fields.age),
     bloodType: text(fields.bloodType),
@@ -33,18 +34,125 @@ function cleanFields(fields = {}){
   };
 }
 
-function normalizeResult(result = {}, original){
+function baseLanguage(code){
+  return String(code || "").split("-")[0].toLowerCase() || "en";
+}
+
+const notProvidedText = {
+  ko:"미입력",
+  en:"Not provided",
+  fr:"Non renseigné",
+  es:"No proporcionado",
+  ja:"未入力",
+  vi:"Chưa cung cấp",
+  zh:"未填写",
+  de:"Nicht angegeben",
+  it:"Non fornito",
+  tr:"Belirtilmedi",
+  th:"ไม่ได้ระบุ",
+  pt:"Não informado",
+  nl:"Niet opgegeven",
+  ms:"Tidak diberikan",
+  id:"Tidak diisi",
+  ar:"غير مذكور",
+  pl:"Nie podano",
+  da:"Ikke angivet",
+  el:"Δεν παρέχεται"
+};
+
+const noneText = {
+  ko:"없음",
+  en:"None",
+  fr:"Aucun",
+  es:"Ninguno",
+  ja:"なし",
+  vi:"Không có",
+  zh:"无",
+  de:"Keine",
+  it:"Nessuno",
+  tr:"Yok",
+  th:"ไม่มี",
+  pt:"Nenhum",
+  nl:"Geen",
+  ms:"Tiada",
+  id:"Tidak ada",
+  ar:"لا يوجد",
+  pl:"Brak",
+  da:"Ingen",
+  el:"Κανένα"
+};
+
+function isEmpty(value){
+  return !text(value);
+}
+
+function isNoneInput(value){
+  return /^(없음|없어요|무|해당없음|해당 없음|none|no|n\/a|na)$/i.test(text(value));
+}
+
+function missingFor(lang){
+  return notProvidedText[lang] || notProvidedText.en;
+}
+
+function noneFor(lang){
+  return noneText[lang] || noneText.en;
+}
+
+function valueOrFallback(resultValue, originalValue, lang){
+  if(isEmpty(originalValue)) return missingFor(lang);
+  if(isNoneInput(originalValue)) return noneFor(lang);
+  return text(resultValue) || text(originalValue);
+}
+
+function safeMedication(resultValue, originalValue, lang){
+  const raw = text(originalValue);
+  if(isEmpty(raw)) return missingFor(lang);
+  if(isNoneInput(raw)) return noneFor(lang);
+  if(raw === "감기약"){
+    if(lang === "fr") return "Médicament contre le rhume, ingrédient non précisé";
+    if(lang === "en") return "Cold medicine, ingredient not specified";
+  }
+  const translated = text(resultValue) || raw;
+  if(raw === "감기약" && /(paracetamol|ibuprofen|acetaminophen|aspirin)/i.test(translated)){
+    return lang === "fr" ? "Médicament contre le rhume, ingrédient non précisé" : "Cold medicine, ingredient not specified";
+  }
+  return translated;
+}
+
+function safeAllergy(resultValue, originalValue, lang){
+  const raw = text(originalValue);
+  if(isEmpty(raw)) return missingFor(lang);
+  if(isNoneInput(raw)) return noneFor(lang);
+  if(raw === "꽃가루"){
+    if(lang === "fr") return "Allergie au pollen";
+    if(lang === "en") return "Pollen allergy";
+  }
+  return text(resultValue) || raw;
+}
+
+function normalizeName(result = {}, original){
+  const koreanName = text(original.name);
+  const passportName = text(original.passportName);
+  if(passportName && koreanName) return `${passportName} (${koreanName})`;
+  if(passportName) return passportName;
+  const translatedName = text(result.name);
+  if(translatedName && koreanName && !translatedName.includes(koreanName)) return `${translatedName} (${koreanName})`;
+  return translatedName || koreanName;
+}
+
+function normalizeResult(result = {}, original, lang){
   return {
-    name: text(result.name) || original.name,
-    nationality: text(result.nationality) || original.nationality,
-    age: original.age,
-    bloodType: original.bloodType,
-    allergies: text(result.allergies) || original.allergies,
-    medication: text(result.medication) || original.medication,
-    medicalConditions: text(result.medicalConditions) || original.medicalConditions,
-    emergencyContact: original.emergencyContact,
-    travelInsurance: text(result.travelInsurance) || original.travelInsurance,
-    hotelAddress: text(result.hotelAddress) || original.hotelAddress
+    name: normalizeName(result, original) || missingFor(lang),
+    passportName: original.passportName,
+    nationality: valueOrFallback(result.nationality, original.nationality, lang),
+    age: original.age || missingFor(lang),
+    bloodType: original.bloodType || missingFor(lang),
+    allergies: safeAllergy(result.allergies, original.allergies, lang),
+    medication: safeMedication(result.medication, original.medication, lang),
+    medicalConditions: valueOrFallback(result.medicalConditions, original.medicalConditions, lang),
+    emergencyContact: original.emergencyContact || missingFor(lang),
+    travelInsurance: valueOrFallback(result.travelInsurance, original.travelInsurance, lang),
+    hotelAddress: valueOrFallback(result.hotelAddress, original.hotelAddress, lang)
   };
 }
 
@@ -54,10 +162,15 @@ function systemPrompt(){
     "Return JSON only. Do not include Markdown or explanations.",
     "Only translate the user-provided medical card values into the requested target language.",
     "Do not add, infer, interpret, summarize, or create any allergy, medicine, condition, symptom, or personal detail.",
+    "For the name field, use passportName first when provided. If passportName is empty and name is Korean Hangul, romanize the name for local staff and include the Korean original in parentheses, for example Cho Hyun-jun (조현준).",
     "Keep age numbers, blood type, phone numbers, dates, and emergency contact numbers unchanged.",
+    "If a field is empty, return the target-language equivalent of Not provided or No information provided.",
+    "If a user entered 없음/none/no, return the target-language equivalent of None.",
+    "Do not guess medicine ingredients. If the user entered 감기약, translate it as cold medicine and explicitly say ingredient not specified in the target language. Do not output paracetamol, ibuprofen, acetaminophen, or other ingredient names unless the user directly entered that ingredient.",
+    "If allergies is 꽃가루, translate it as pollen allergy or the target-language equivalent of pollen allergy.",
     "For ambiguous wording, translate as literally as possible while keeping it understandable for medical staff.",
     "Do not provide medical advice or clinical interpretation.",
-    "Required JSON keys: name, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
+    "Required JSON keys: name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
   ].join("\n");
 }
 
@@ -80,6 +193,7 @@ exports.handler = async (event) => {
   const fields = cleanFields(body.fields || {});
   const targetLanguage = text(body.targetLanguage) || "English";
   const targetLanguageCode = text(body.targetLanguageCode);
+  const lang = baseLanguage(targetLanguageCode);
   const travelCountry = text(body.travelCountry);
 
   try{
@@ -122,7 +236,7 @@ exports.handler = async (event) => {
       : "{}";
     const parsed = JSON.parse(content || "{}");
 
-    return json(200, normalizeResult(parsed, fields));
+    return json(200, normalizeResult(parsed, fields, lang));
   }catch(error){
     return json(502, {
       error: "Medical card translation failed",
