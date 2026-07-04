@@ -260,6 +260,7 @@
         <p class="eyebrow">Medical Card</p>
         <h2 id="medicalCardTitle">여행자 의료카드</h2>
         <p class="small muted">입력한 정보는 이 브라우저 안에만 저장되는 샘플입니다. 서버로 전송하지 않습니다.</p>
+        <p class="small muted" style="line-height:1.55">입력한 의료카드는 기본적으로 이 기기 안에서만 저장됩니다. 현지어 번역 또는 AI 응급도 참고 안내를 사용할 때 입력 정보가 AI 처리에 사용될 수 있습니다. 민감한 정보는 필요한 범위에서만 입력하세요.</p>
         <div class="grid" style="margin-top:14px">
           <div class="two">
             <input id="medName" class="input" placeholder="이름" />
@@ -278,7 +279,7 @@
           <input id="medHotel" class="input" placeholder="숙소 주소" />
           <div class="two">
             <button id="saveMedicalCardBtn" class="btn primary w-full" type="button">의료카드 저장</button>
-            <button id="clearMedicalCardBtn" class="btn outline w-full" type="button">초기화</button>
+            <button id="clearMedicalCardBtn" class="btn outline w-full" type="button">의료카드 정보 삭제하기</button>
           </div>
         </div>
         <div id="medicalCardPreview" class="grid" style="margin-top:14px"></div>
@@ -293,14 +294,16 @@
 
       <section id="infoGuideCard" class="card hidden">
         <p class="eyebrow">Guide</p>
-        <h2>이용 안내</h2>
+        <h2>이용 안내 및 개인정보</h2>
         <div class="notice amber">⚠️ 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
-        <div class="notice teal">SOS Bridge는 한국인 해외여행자를 위한 응급 의료 도우미 앱입니다. 앱 화면과 AI Care 결과는 한국어로 제공되며, 현지 의료진·약사·주변 사람에게 보여줄 문장은 여행 국가의 언어로 제공됩니다.</div>
+        <div class="notice teal">SOS Bridge는 한국인 해외여행자를 위한 응급 의료 참고 안내 앱입니다.</div>
         <div class="grid" style="margin-top:12px">
-          <div class="step"><span class="check">✓</span><span>AI Care는 의료진의 진단을 대체하지 않는 <strong>AI 응급도 참고 안내</strong> 기능입니다.</span></div>
-          <div class="step"><span class="check">✓</span><span>응급 상황에서는 반드시 현지 응급번호로 연락하거나 가까운 의료기관을 방문해야 합니다.</span></div>
-          <div class="step"><span class="check">✓</span><span>위치 정보는 병원과 약국 검색을 위해 사용됩니다.</span></div>
-          <div class="step"><span class="check">✓</span><span>사용자의 증상 입력은 AI 응급도 참고 안내를 제공하기 위해 처리될 수 있습니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>앱 화면은 한국어로 제공됩니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>현지 의료진, 약사, 주변 사람에게 보여줄 문장은 선택한 여행 국가의 언어로 제공됩니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>입력한 증상과 의료카드 정보는 AI 응급도 참고 안내 또는 현지어 번역 처리를 위해 사용될 수 있습니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>위치정보는 가까운 병원과 약국 검색을 위해 사용됩니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>민감한 정보는 필요한 범위에서만 입력하세요.</span></div>
+          <div class="step"><span class="check">✓</span><span>본 서비스는 의료진의 진단을 대체하지 않습니다.</span></div>
         </div>
       </section>
 
@@ -373,6 +376,18 @@
       <div class="grid">
         <button id="agreeEmergencyBtn" class="btn danger w-full" type="button">🚑 응급번호 확인하기</button>
         <button id="cancelEmergencyBtn" class="btn outline w-full" type="button">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="locationConsentModal" class="modal hidden">
+    <div class="modal-box">
+      <div style="font-size:48px;margin-bottom:12px">📍</div>
+      <h2>현재 위치 사용 안내</h2>
+      <p class="muted">SOS Bridge는 가까운 병원과 약국을 찾기 위해 현재 위치를 사용할 수 있습니다. 위치정보는 병원·약국 검색 목적에만 사용됩니다.</p>
+      <div class="grid">
+        <button id="agreeLocationBtn" class="btn primary w-full" type="button">동의하고 현재 위치 사용</button>
+        <button id="manualLocationBtn" class="btn outline w-full" type="button">직접 도시/지역 입력하기</button>
       </div>
     </div>
   </div>
@@ -679,8 +694,8 @@ const i18n = {
     "emergencyDesc": "여행 국가 기준 응급번호 확인",
     "symptom": "AI 응급도 참고 안내",
     "symptomDesc": "증상에 맞는 응급 대처 참고 안내",
-    "info": "이용 안내",
-    "infoDesc": "서비스 사용법과 안전 고지 확인",
+    "info": "이용 안내 및 개인정보",
+    "infoDesc": "AI·개인정보·위치정보 사용 안내",
     "symptomTitle": "증상 입력",
     "symptomInput": "예: 칼에 찔렸어요 / 트럭에 치였어요 / 숨쉬기 힘들어요 / 복통과 열이 있어요",
     "analyze": "AI 응급도 참고 안내 받기",
@@ -2446,6 +2461,7 @@ let medicalCardTranslation = null;
 let medicalCardTranslationKey = "";
 let medicalCardTranslationStatus = "idle";
 let medicalCardTranslationMessage = "";
+let pendingLocationRequest = null;
 
 const $ = id => document.getElementById(id);
 const safe = (fn) => { try { fn(); } catch(e) { showDebug(e); } };
@@ -2982,6 +2998,43 @@ async function applyLocation(type, loc, message, recommendation=null){
   }
 }
 function requestGps(type, recommendation=null){
+  pendingLocationRequest = {type, recommendation};
+  const modal = $("locationConsentModal");
+  if(modal) modal.classList.remove("hidden");
+}
+
+async function useTripPlaceForLocation(type, recommendation=null){
+  facilityRecommendation = recommendation;
+  activeService = recommendation ? "hospital" : type;
+  facilityType=type; facilities=[]; locationData=null; isLoading=true;
+  $("facilityCard").classList.remove("hidden");
+  renderServices();
+  renderFacilityList();
+
+  const country = (tripCountryName || (getTripOption().countryKo || getTripOption().country || "")).trim();
+  const city = (tripCityName || "").trim();
+
+  if(country && city){
+    setStatus("설정한 여행지 기준으로 검색합니다: "+country+" "+city);
+    try{
+      const loc = await geocodeTravelPlace(country, city);
+      await applyLocation(type, loc, (loc.label || country+" "+city), recommendation);
+    }catch(e){
+      isLoading=false;
+      renderFacilityList();
+      setStatus("여행지 자동 검색이 실패했습니다. 처음 설정 화면에서 여행 도시/지역을 더 구체적으로 입력해 주세요.");
+    }
+    return;
+  }
+
+  isLoading=false;
+  renderFacilityList();
+  setStatus("여행 도시/지역을 먼저 입력해 주세요. 처음 설정 화면에서 현재 머무는 도시나 지역을 입력하면 병원·약국 검색 기준으로 사용할 수 있습니다.");
+  showLanguage();
+  setTimeout(()=>{ if($("initialTravelCity")) $("initialTravelCity").focus(); }, 80);
+}
+
+function startGpsAfterConsent(type, recommendation=null){
   const tx=t();
   facilityRecommendation = recommendation;
   activeService = recommendation ? "hospital" : type;
@@ -2991,27 +3044,7 @@ function requestGps(type, recommendation=null){
   renderFacilityList();
   setStatus("GPS 확인 중...");
 
-  const fallbackToTripPlace = async () => {
-    const country = (tripCountryName || (getTripOption().countryKo || getTripOption().country || "")).trim();
-    const city = (tripCityName || "").trim();
-
-    if(country && city){
-      setStatus("GPS를 사용할 수 없어 설정한 여행지 기준으로 검색합니다: "+country+" "+city);
-      try{
-        const loc = await geocodeTravelPlace(country, city);
-        await applyLocation(type, loc, (loc.label || country+" "+city), recommendation);
-      }catch(e){
-        isLoading=false;
-        renderFacilityList();
-        setStatus("GPS와 여행지 자동 검색이 모두 실패했습니다. 처음 설정 화면에서 여행 도시/지역을 더 구체적으로 입력해 주세요.");
-      }
-      return;
-    }
-
-    isLoading=false;
-    renderFacilityList();
-    setStatus("GPS를 사용할 수 없습니다. 처음 설정 화면에서 여행 국가와 도시/지역을 입력하면 그 위치 기준으로 검색할 수 있습니다.");
-  };
+  const fallbackToTripPlace = async () => useTripPlaceForLocation(type, recommendation);
 
   if(!window.isSecureContext){ fallbackToTripPlace(); return; }
   if(!navigator.geolocation){ fallbackToTripPlace(); return; }
@@ -3021,6 +3054,26 @@ function requestGps(type, recommendation=null){
     err=>fallbackToTripPlace(),
     {enableHighAccuracy:true,timeout:10000,maximumAge:15000}
   );
+}
+
+function hideLocationConsent(){
+  pendingLocationRequest = null;
+  const modal = $("locationConsentModal");
+  if(modal) modal.classList.add("hidden");
+}
+
+function agreeLocationConsent(){
+  const request = pendingLocationRequest;
+  pendingLocationRequest = null;
+  hideLocationConsent();
+  if(request) startGpsAfterConsent(request.type, request.recommendation);
+}
+
+function chooseManualLocation(){
+  const request = pendingLocationRequest;
+  pendingLocationRequest = null;
+  hideLocationConsent();
+  if(request) useTripPlaceForLocation(request.type, request.recommendation);
 }
 async function applyTravelPlace(){
   const tx=t();
@@ -3282,7 +3335,7 @@ function clearMedicalCard(){
   resetMedicalCardTranslation();
   medicalCardView = "ko";
   renderMedicalCardPreview();
-  setStatus("의료카드를 초기화했습니다.");
+  setStatus("저장된 의료카드 정보를 삭제하고 입력칸을 초기화했습니다.");
 }
 
 function resetMedicalCardTranslation(message=""){
@@ -3585,7 +3638,7 @@ function openService(key){
     hideFeatureSections();
     const infoCard = $("infoGuideCard");
     if(infoCard) infoCard.classList.remove("hidden");
-    setStatus("이용 안내를 확인하세요. 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.");
+    setStatus("이용 안내 및 개인정보 내용을 확인하세요. 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.");
     scrollToId("infoGuideCard");
   }
 }
@@ -4809,6 +4862,40 @@ function localTriagePhrase(phrase){
   return [pack.help, pack.ambulance, pack.hospital].filter(Boolean).join(" ") || (phrase && phrase.en) || "I need help. Please call medical staff or an ambulance.";
 }
 
+function triagePossibilityLabel(result){
+  if(!result) return "주의";
+  if(result.level === "emergency" || result.needsAmbulance) return "높음";
+  if(result.level === "urgent") return "주의";
+  return "낮음";
+}
+
+function uniqueList(items){
+  const seen = new Set();
+  return (items || []).map(item => String(item || "").trim()).filter(item => {
+    if(!item || seen.has(item)) return false;
+    seen.add(item);
+    return true;
+  });
+}
+
+function callEmergencyNumber(){
+  const raw = String(getTripEmergencyNumber() || "").split("/")[0].trim();
+  const tel = raw.replace(/[^\d+]/g, "");
+  if(tel){
+    window.location.href = "tel:" + tel;
+    setStatus("현지 응급번호 전화 앱을 열었습니다. 연결되지 않으면 번호를 직접 입력하세요: "+getTripEmergencyNumber());
+    return;
+  }
+  showEmergency();
+}
+
+function openHospitalFromTriage(){
+  const symptom = ($("symptomInput") && $("symptomInput").value.trim()) || "";
+  openService("hospital");
+  if($("hospitalSymptomInput") && symptom) $("hospitalSymptomInput").value = symptom;
+  if(symptom) runHospitalFinder();
+}
+
 function renderTriage(){
   if(!triage){
     $("triageEmpty").classList.remove("hidden");
@@ -4830,15 +4917,15 @@ function renderTriage(){
         ? "ℹ️ 입력 필요"
         : "💊 " + t().selfCare;
 
-  const confidence = typeof triage.confidence === "number" ? triage.confidence : 0;
-  const score = typeof triage.severityScore === "number" ? triage.severityScore : 0;
-  const sourceLabel = triage.source === "openai" ? "GPT API 참고 안내" : triage.source === "fallback" ? "기본 참고 안내" : "AI Care 참고 안내";
+  const possibility = triagePossibilityLabel(triage);
 
   $("triageSummary").innerHTML =
-    '<p style="font-size:18px;margin-bottom:6px">'+label+'</p>'+
-    '<p style="font-size:20px;margin-bottom:6px">'+escapeHtml(triage.title)+'</p>'+
-    '<p>'+escapeHtml(triage.summary)+'</p>'+
-    '<p class="small" style="margin:10px 0 0;font-weight:950">'+escapeHtml(sourceLabel)+' · 참고 신뢰도 '+confidence+'% · 위험 점수 '+score+'/100</p>'+
+    '<div class="notice amber" style="margin:0 0 12px">⚠️ 응급 상황에서는 AI 결과를 기다리지 말고 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>'+
+    '<p style="font-size:18px;margin-bottom:6px">AI 응급도 참고 안내</p>'+
+    '<p style="font-size:20px;margin-bottom:6px">'+label+'</p>'+
+    '<p style="font-size:17px;margin-bottom:8px"><strong>응급 가능성:</strong> '+escapeHtml(possibility)+'</p>'+
+    '<p class="small muted" style="font-weight:950;margin-bottom:4px">현재 상황 요약</p>'+
+    '<p>'+escapeHtml(triage.summary || triage.title || "입력한 내용을 기준으로 참고 안내를 제공합니다.")+'</p>'+
     (triage.level === "emergency" ? '<p class="small" style="margin:8px 0 0;font-weight:950;color:#b91c1c">※ 이 앱은 실제 신고를 대신하지 않습니다. 실제 응급상황이면 현지 응급번호로 직접 신고해야 합니다.</p>' : '');
 
   const section = (title, items, icon) => {
@@ -4856,26 +4943,26 @@ function renderTriage(){
     '<div class="step"><span class="check">현지</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span></div>'+
     '<div class="step"><span class="check">KO</span><span class="small muted">한국어 뜻: '+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>';
 
-  const departmentHtml = triage.recommendedDepartment
-    ? '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🏥 추천 진료과</div>'+
-      '<div class="step"><span class="check">✓</span><span>'+escapeHtml(triage.recommendedDepartment)+'</span></div>'
-    : "";
+  const departmentText = triage.recommendedDepartment || (triage.recommended === "pharmacy" ? "약국 상담 또는 가까운 클리닉" : "가까운 병원 또는 클리닉");
+  const departmentHtml =
+    '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🏥 추천 진료과</div>'+
+    '<div class="step"><span class="check">✓</span><span>'+escapeHtml(departmentText)+'</span></div>';
+  const warningItems = uniqueList([].concat(triage.reasons || [], triage.monitor || []));
 
   $("triageSteps").innerHTML =
-    section("판단 근거", triage.reasons, "🔎")+
+    section("위험 신호", warningItems, "🔎")+
     section("지금 해야 할 일", triage.steps, "⚡")+
     section("하지 말아야 할 행동", triage.avoid, "⛔")+
-    section("계속 확인할 것", triage.monitor, "👀")+
-    section("추가로 확인하면 좋은 질문", triage.questions, "❓")+
     departmentHtml+
     phraseHtml;
 
-  if(triage.level === "emergency" || triage.needsAmbulance){
-    $("triageActions").innerHTML = '<button id="triageEmergency" class="btn danger w-full" type="button">🚑 현지 응급번호 확인 / 신고 샘플</button>';
-    on("triageEmergency", "click", showEmergency);
-  }else{
-    $("triageActions").innerHTML = "";
-  }
+  $("triageActions").innerHTML =
+    '<button id="triageEmergencyCall" class="btn danger w-full" type="button">🚑 현지 응급번호로 전화하기</button>'+
+    '<button id="triageFindHospital" class="btn primary w-full" type="button">🏥 가까운 병원 찾기</button>'+
+    '<button id="triageShowPhrases" class="btn outline w-full" type="button">🗣️ 현지어 도움 문장 보기</button>';
+  on("triageEmergencyCall", "click", callEmergencyNumber);
+  on("triageFindHospital", "click", openHospitalFromTriage);
+  on("triageShowPhrases", "click", () => openService("phrases"));
 }
 function showEmergency(){ $("emergencyNumberBox").textContent=(t().emergencyNumberSample||"Local ambulance number sample")+": "+getTripEmergencyNumber(); $("emergencyModal").classList.remove("hidden"); }
 function hideEmergency(){ $("emergencyModal").classList.add("hidden"); }
@@ -4941,8 +5028,9 @@ function init(){
       renderMedicalCardPreview();
     });
   });
-  on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",saveMedicalCard); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency);
+  on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",saveMedicalCard); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency); on("agreeLocationBtn","click",agreeLocationConsent); on("manualLocationBtn","click",chooseManualLocation);
   $("emergencyModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="emergencyModal") hideEmergency(); }));
+  $("locationConsentModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="locationConsentModal") hideLocationConsent(); }));
   document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{ if(btn.dataset.nav) scrollToId(btn.dataset.nav); if(btn.dataset.action) openService(btn.dataset.action); })));
   renderAll();
 }
