@@ -303,12 +303,22 @@ function baseLanguage(code){
 
 function getConfig(code){
   const lang = baseLanguage(code || "en");
-  return MEDICAL_CARD_I18N[lang] ? {lang, cfg: MEDICAL_CARD_I18N[lang]} : null;
+  return MEDICAL_CARD_I18N[lang] ? {lang, cfg: {...MEDICAL_CARD_I18N[lang], dynamicConfig: false}} : null;
 }
 
 function cleanFields(fields = {}){
+  const source = fields && typeof fields === "object" ? fields : {};
+  const aliases = {
+    medication: ["medications"],
+    medicalConditions: ["conditions"],
+    travelInsurance: ["insurance"],
+    hotelAddress: ["accommodation"]
+  };
   const cleaned = {};
-  FIELD_KEYS.forEach((key) => { cleaned[key] = text(fields[key]); });
+  FIELD_KEYS.forEach((key) => {
+    const aliasValue = (aliases[key] || []).map((alias) => source[alias]).find((value) => text(value));
+    cleaned[key] = text(source[key] || aliasValue);
+  });
   return cleaned;
 }
 
@@ -420,10 +430,22 @@ function hasWrongLanguagePlaceholder(value, lang){
   return /^(Not provided|No information provided|None|No|N\/A)$/i.test(text(value));
 }
 
+function hasStaticConfig(cfg){
+  return !cfg.dynamicConfig;
+}
+
+function fallbackBlank(resultValue, cfg){
+  return text(resultValue) || (hasStaticConfig(cfg) ? cfg.blankValue : "");
+}
+
+function fallbackNone(resultValue, cfg){
+  return text(resultValue) || (hasStaticConfig(cfg) ? cfg.noneValue : "");
+}
+
 function valueOrFallback(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return cfg.blankValue;
-  if(isNoneInput(raw)) return cfg.noneValue;
+  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
+  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
   const translated = text(resultValue);
   if(translated && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   return raw;
@@ -432,7 +454,7 @@ function valueOrFallback(resultValue, originalValue, lang, cfg){
 function normalizeName(result = {}, original, cfg){
   const koreanName = text(original.name);
   const passportName = text(original.passportName);
-  if(!koreanName && !passportName) return cfg.blankValue;
+  if(!koreanName && !passportName) return fallbackBlank(result.name, cfg);
   if(passportName && koreanName) return `${passportName} (${koreanName})`;
   if(passportName) return passportName;
   const translatedName = text(result.name);
@@ -444,10 +466,10 @@ function normalizeName(result = {}, original, cfg){
 
 function normalizeNationality(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return cfg.blankValue;
-  if(isNoneInput(raw)) return cfg.noneValue;
-  if(isSouthKoreaInput(raw)) return cfg.southKoreaNationality;
+  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
+  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
   const translated = text(resultValue);
+  if(isSouthKoreaInput(raw)) return translated && !isSouthKoreaInput(translated) ? translated : (cfg.southKoreaNationality || translated || raw);
   if(isSouthKoreaInput(translated)) return cfg.southKoreaNationality;
   if(translated && !/^(coreano|corean|korean person)$/i.test(translated) && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   return raw;
@@ -455,61 +477,95 @@ function normalizeNationality(resultValue, originalValue, lang, cfg){
 
 function normalizeAllergy(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return cfg.blankValue;
-  if(isNoneInput(raw)) return cfg.noneValue;
+  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
+  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
   const known = normalizeKnownValue(raw, allergyPatterns);
-  if(known && cfg.allergiesMap[known.key]) return cfg.allergiesMap[known.key];
   const translated = text(resultValue);
+  if(!hasStaticConfig(cfg) && translated && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
+  if(known && cfg.allergiesMap[known.key]) return cfg.allergiesMap[known.key];
   if(translated && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   return raw;
 }
 
 function normalizeMedication(resultValue, originalValue, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return cfg.blankValue;
-  if(isNoneInput(raw)) return cfg.noneValue;
+  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
+  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
+  const translated = text(resultValue);
   const brand = preserveMedicationBrandName(raw);
-  if(brand) return medicationProductFor(brand, cfg);
+  if(brand){
+    if(translated && translated.toLowerCase().includes(brand.toLowerCase()) && !looksLikeUnsafeMedicationInference(translated)) return translated;
+    return hasStaticConfig(cfg) ? medicationProductFor(brand, cfg) : brand;
+  }
   const ingredient = preserveDirectIngredient(raw);
   if(ingredient) return ingredient;
   const generic = normalizeKnownValue(raw, genericMedicinePatterns);
+  if(!hasStaticConfig(cfg) && translated && !looksLikeUnsafeMedicationInference(translated)) return translated;
   if(generic && cfg.genericMedicines[generic.key]) return cfg.genericMedicines[generic.key];
-  const translated = text(resultValue);
   if(translated && !looksLikeUnsafeMedicationInference(translated)) return translated;
-  return medicationProductFor(raw, cfg);
+  return hasStaticConfig(cfg) ? medicationProductFor(raw, cfg) : raw;
 }
 
 function normalizeCondition(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return cfg.blankValue;
-  if(isNoneInput(raw)) return cfg.noneValue;
+  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
+  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
   const known = normalizeKnownValue(raw, conditionPatterns);
-  if(known && cfg.conditionsMap[known.key]) return cfg.conditionsMap[known.key];
   const translated = text(resultValue);
+  if(!hasStaticConfig(cfg) && translated && !hasWrongLanguagePlaceholder(translated, lang) && !looksLikeUnsafeConditionInference(translated, raw)) return translated;
+  if(known && cfg.conditionsMap[known.key]) return cfg.conditionsMap[known.key];
   if(translated && !hasWrongLanguagePlaceholder(translated, lang) && !looksLikeUnsafeConditionInference(translated, raw)) return translated;
   return raw;
 }
 
 function normalizeResult(result = {}, original, lang, cfg){
   const responseLabels = result && (result._labels || result.labels);
+  const cardTitle = text(result._cardTitle || result.cardTitle) || (hasStaticConfig(cfg) ? cfg.cardTitle : "");
+  const blankValue = text(result._blankValue || result.blankValue) || (hasStaticConfig(cfg) ? cfg.blankValue : "");
   const labels = {};
   FIELD_KEYS.forEach((key) => {
-    labels[key] = text(responseLabels && responseLabels[key]) || (cfg.labels && cfg.labels[key]) || MEDICAL_CARD_I18N.en.labels[key] || key;
+    labels[key] = text(responseLabels && responseLabels[key]) || (hasStaticConfig(cfg) && cfg.labels && cfg.labels[key]) || key;
   });
   return {
+    _cardTitle: cardTitle,
+    _blankValue: blankValue,
     _labels: labels,
     name: normalizeName(result, original, cfg),
     passportName: text(original.passportName),
     nationality: normalizeNationality(result.nationality, original.nationality, lang, cfg),
-    age: isEmpty(original.age) ? cfg.blankValue : text(original.age),
-    bloodType: isEmpty(original.bloodType) ? cfg.blankValue : text(original.bloodType),
+    age: isEmpty(original.age) ? fallbackBlank(result.age, cfg) : text(original.age),
+    bloodType: isEmpty(original.bloodType) ? fallbackBlank(result.bloodType, cfg) : text(original.bloodType),
     allergies: normalizeAllergy(result.allergies, original.allergies, lang, cfg),
     medication: normalizeMedication(result.medication, original.medication, cfg),
     medicalConditions: normalizeCondition(result.medicalConditions, original.medicalConditions, lang, cfg),
-    emergencyContact: isEmpty(original.emergencyContact) ? cfg.blankValue : text(original.emergencyContact),
+    emergencyContact: isEmpty(original.emergencyContact) ? fallbackBlank(result.emergencyContact, cfg) : text(original.emergencyContact),
     travelInsurance: valueOrFallback(result.travelInsurance, original.travelInsurance, lang, cfg),
     hotelAddress: valueOrFallback(result.hotelAddress, original.hotelAddress, lang, cfg)
   };
+}
+
+function hasEnglishFallbackLeak(normalized, lang){
+  if(baseLanguage(lang) === "en") return false;
+  const values = [
+    normalized._cardTitle,
+    normalized._blankValue,
+    normalized.name,
+    normalized.nationality,
+    normalized.allergies,
+    normalized.medication,
+    normalized.medicalConditions,
+    normalized.emergencyContact,
+    normalized.travelInsurance,
+    normalized.hotelAddress
+  ].map(text).join("\n");
+  return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user|Asthma)\b/i.test(values);
+}
+
+function hasMissingDynamicOutput(normalized, cfg){
+  if(hasStaticConfig(cfg)) return false;
+  return !normalized._cardTitle ||
+    !normalized._blankValue ||
+    FIELD_KEYS.some((key) => !text(normalized[key]));
 }
 
 function systemPrompt(cfg){
@@ -520,14 +576,15 @@ function systemPrompt(cfg){
     "Keep the exact JSON keys. Never move a value into another field.",
     "Only translate the user-provided values for the same field.",
     "Do not add, infer, interpret, summarize, or create allergies, medicine ingredients, medical conditions, severity, symptoms, or care instructions.",
-    "For empty fields, return the configured blank value. For explicit none/no values, return the configured none value.",
-    "For nationality values meaning South Korea, return the configured country name, not a word meaning Korean person.",
+    "For empty fields, return a natural 'not provided' expression in the target language. For explicit none/no values, return a natural 'none' expression in the target language.",
+    "For nationality values meaning South Korea, return the country name in the target language, not a word meaning Korean person.",
     "Preserve medicine names and product names. Do not convert product names into cold medicine, painkiller, fever reducer, paracetamol, acetaminophen, ibuprofen, anti-inflammatory drug, or any ingredient unless the user directly entered that ingredient.",
     "If the medication is a generic expression such as 감기약, 진통제, 혈압약, or 소화제, translate the generic category and state that the ingredient is not specified in the target language.",
     "For allergies, make the allergy meaning explicit in the target language.",
     "For existing medical conditions, translate only the condition name. Do not add severity, current status, or action advice.",
-    "Also return _labels with target-language field labels for the same keys.",
-    "Required JSON keys: _labels, name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
+    "If the target language is not English, do not return English fallback phrases such as Medical Card, Not provided, Peanut allergy, medication entered by the user, or Asthma.",
+    "Also return _cardTitle, _blankValue, and _labels with target-language field labels for the same keys.",
+    "Required JSON keys: _cardTitle, _blankValue, _labels, name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
   ].join("\n");
 }
 
@@ -549,9 +606,19 @@ exports.handler = async (event) => {
   const config = getConfig(targetLanguageCode) || {
     lang: baseLanguage(targetLanguageCode || "en"),
     cfg: {
-      ...MEDICAL_CARD_I18N.en,
       locale: targetLanguageCode || "en",
-      languageLabel: requestedTargetLanguage || targetLanguageCode || "the selected local language"
+      languageLabel: requestedTargetLanguage || targetLanguageCode || "the selected local language",
+      cardTitle: "",
+      labels: {},
+      blankValue: "",
+      noneValue: "",
+      medicationUserEnteredSuffix: "",
+      genericMedicineIngredientUnspecified: "",
+      southKoreaNationality: "",
+      genericMedicines: {},
+      allergiesMap: {},
+      conditionsMap: {},
+      dynamicConfig: true
     }
   };
 
@@ -559,9 +626,13 @@ exports.handler = async (event) => {
     return json(500, {error: "OPENAI_API_KEY is not configured"});
   }
 
-  const fields = cleanFields(body.fields || {});
+  if(!targetLanguageCode && !requestedTargetLanguage){
+    return json(400, {error: "target language is required"});
+  }
+
+  const fields = cleanFields(body.fields || body.medicalCard || {});
   const targetLanguage = requestedTargetLanguage || config.cfg.languageLabel;
-  const travelCountry = text(body.travelCountry);
+  const travelCountry = text(body.travelCountry || body.countryNameKo || body.countryNameEn);
 
   try{
     const response = await fetch(OPENAI_API_URL, {
@@ -604,8 +675,23 @@ exports.handler = async (event) => {
       ? data.choices[0].message.content
       : "{}";
     const parsed = JSON.parse(content || "{}");
+    const normalized = normalizeResult(parsed, fields, config.lang, config.cfg);
 
-    return json(200, normalizeResult(parsed, fields, config.lang, config.cfg));
+    if(hasMissingDynamicOutput(normalized, config.cfg)){
+      return json(502, {
+        error: "Medical card translation failed",
+        detail: "Missing target-language medical card fields"
+      });
+    }
+
+    if(hasEnglishFallbackLeak(normalized, config.lang)){
+      return json(502, {
+        error: "Medical card translation failed",
+        detail: "Target-language validation failed"
+      });
+    }
+
+    return json(200, normalized);
   }catch(error){
     return json(502, {
       error: "Medical card translation failed",
