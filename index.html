@@ -234,6 +234,25 @@
       <button id="runMedicalCardTestBtn" class="btn primary w-full" type="button">30개 국가 의료카드 번역 테스트 실행</button>
       <div id="medicalCardTestResult" style="margin-top:14px"></div>
     </section>
+    <script>
+      (function(){
+        function toggleMedicalCardTestPanel(){
+          var panel = document.getElementById("medicalCardTestPanel");
+          if(!panel) return;
+          var show = false;
+          try{
+            show = new URLSearchParams(window.location.search).get("sosTest") === "medical-card";
+          }catch(error){
+            show = false;
+          }
+          panel.classList.toggle("hidden", !show);
+        }
+        toggleMedicalCardTestPanel();
+        if(document.readyState === "loading"){
+          document.addEventListener("DOMContentLoaded", toggleMedicalCardTestPanel);
+        }
+      })();
+    </script>
   </main>
 
   <main id="appPage" class="page hidden content-pad">
