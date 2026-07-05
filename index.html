@@ -70,7 +70,12 @@
     .notice.red{background:#fef2f2;color:#991b1b}
     .grid{display:grid;gap:14px}
     .two{display:grid;gap:10px}
-    @media (min-width:720px){.two{grid-template-columns:1fr 1fr}.home-grid{grid-template-columns:.9fr 1.1fr}.service-grid{grid-template-columns:1fr 1fr}}
+    .country-picker-card{display:flex;flex-direction:column}
+    .country-picker-card .search{flex:none}
+    .country-picker-card .language-grid{flex:1}
+    @media (min-width:720px){.two{grid-template-columns:1fr 1fr}.home-grid{grid-template-columns:.9fr 1.1fr;align-items:stretch}.home-grid>.card{height:100%}.service-grid{grid-template-columns:1fr 1fr}.country-picker-card .language-grid{max-height:none;min-height:520px}}
+    @media (min-width:900px){.country-picker-card .language-grid{min-height:calc(100dvh - 210px);max-height:calc(100dvh - 210px)}}
+    @media (max-width:719px){.country-picker-card .language-grid{max-height:58vh;min-height:0}}
     .search{display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--border);border-radius:18px;padding:12px 14px;margin-bottom:14px}
     .input,.textarea,.search input{width:100%;border:1px solid var(--border);border-radius:18px;padding:13px 14px;outline:none;font-weight:760;background:white}
     .search input{border:0;padding:0;background:transparent}
@@ -123,13 +128,6 @@
     .medical-pass-row:last-child{border-bottom:0}
     .medical-pass-label{font-size:13px;font-weight:950;color:#475569}
     .medical-pass-value{font-size:20px;line-height:1.35;font-weight:950;color:#0f172a;word-break:break-word}
-    .test-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:18px;background:white}
-    .test-table{width:100%;border-collapse:collapse;min-width:680px;font-size:13px}
-    .test-table th,.test-table td{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:top}
-    .test-table th{background:#f8fafc;color:var(--navy);font-weight:950}
-    .test-table tr:last-child td{border-bottom:0}
-    .test-pass{color:#047857;font-weight:950}
-    .test-warn{color:#b45309;font-weight:950}
     .modal{position:fixed;inset:0;z-index:100;background:rgba(2,6,23,.58);display:flex;align-items:center;justify-content:center;padding:18px}
     .modal-box{background:white;border-radius:30px;padding:22px;width:min(560px,100%);box-shadow:0 30px 80px rgba(15,23,42,.35);max-height:88vh;overflow:auto}
     .bottom-nav{
@@ -159,7 +157,7 @@
 </head>
 <body>
   <main id="languagePage" class="page">
-    <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:start">
+    <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:stretch">
       <div class="card home-left-card">
         <div class="row">
           <div class="logo">🩺</div>
@@ -216,7 +214,7 @@
         <button id="startBtn" class="btn primary w-full" type="button">여행 국가 설정하고 시작하기 ›</button>
       </div>
 
-      <div class="card">
+      <div class="card country-picker-card">
         <p class="eyebrow">Travel Country</p>
         <h2 style="margin-bottom:12px">TOP30 여행 국가 선택</h2>
         <div class="search">
@@ -227,39 +225,6 @@
       </div>
     </section>
 
-    <section id="medicalCardTestPanel" class="container card hidden" style="margin-top:14px;display:none" hidden>
-      <p class="eyebrow">Medical Card Test</p>
-      <h2>30개 국가 의료카드 번역 테스트</h2>
-      <p class="small muted">이 패널은 URL에 <strong>?sosTest=medical-card</strong>가 있을 때만 표시됩니다.</p>
-      <button id="runMedicalCardTestBtn" class="btn primary w-full" type="button">30개 국가 의료카드 번역 테스트 실행</button>
-      <div id="medicalCardTestResult" style="margin-top:14px"></div>
-    </section>
-    <script>
-      (function(){
-        function toggleMedicalCardTestPanel(){
-          var panel = document.getElementById("medicalCardTestPanel");
-          if(!panel) return;
-          var showMedicalCardTest = false;
-          try{
-            var sosTestValue = new URLSearchParams(window.location.search).get("sosTest");
-            showMedicalCardTest =
-              sosTestValue === "medical-card" ||
-              sosTestValue === "medicalCard" ||
-              sosTestValue === "의료카드" ||
-              sosTestValue === "의료 카드";
-          }catch(error){
-            showMedicalCardTest = false;
-          }
-          panel.hidden = !showMedicalCardTest;
-          panel.style.display = showMedicalCardTest ? "block" : "none";
-          panel.classList.toggle("hidden", !showMedicalCardTest);
-        }
-        toggleMedicalCardTestPanel();
-        if(document.readyState === "loading"){
-          document.addEventListener("DOMContentLoaded", toggleMedicalCardTestPanel);
-        }
-      })();
-    </script>
   </main>
 
   <main id="appPage" class="page hidden content-pad">
@@ -2658,25 +2623,25 @@ const medicalLabelPacks = {
 };
 
 const medicalCardLocaleSettings = {
-  ko:{locale:"ko-KR", languageLabel:"한국어", cardTitle:"여행자 의료카드", blankValue:"미입력", noneValue:"없음", medicationUserEnteredSuffix:"사용자가 입력한 약", genericMedicineIngredientUnspecified:"성분 미기재", southKoreaNationality:"대한민국", testTerms:{peanutAllergy:"땅콩 알레르기", advilMedication:"Advil, 사용자가 입력한 약", asthma:"천식"}},
-  en:{locale:"en", languageLabel:"English", cardTitle:"Medical Card", blankValue:"Not provided", noneValue:"None", medicationUserEnteredSuffix:"medication entered by the user", genericMedicineIngredientUnspecified:"ingredient not specified", southKoreaNationality:"South Korea", testTerms:{peanutAllergy:"Peanut allergy", advilMedication:"Advil, medication entered by the user", asthma:"Asthma"}},
-  fr:{locale:"fr", languageLabel:"Français", cardTitle:"Carte médicale", blankValue:"Non renseigné", noneValue:"Aucun", medicationUserEnteredSuffix:"médicament indiqué par l’utilisateur", genericMedicineIngredientUnspecified:"ingrédient non précisé", southKoreaNationality:"Corée du Sud", testTerms:{peanutAllergy:"Allergie aux arachides", advilMedication:"Advil, médicament indiqué par l’utilisateur", asthma:"Asthme"}},
-  es:{locale:"es", languageLabel:"Español", cardTitle:"Tarjeta médica", blankValue:"No proporcionado", noneValue:"Ninguno", medicationUserEnteredSuffix:"medicamento indicado por el usuario", genericMedicineIngredientUnspecified:"ingrediente no especificado", southKoreaNationality:"Corea del Sur", testTerms:{peanutAllergy:"Alergia al maní", advilMedication:"Advil, medicamento indicado por el usuario", asthma:"Asma"}},
-  ja:{locale:"ja", languageLabel:"日本語", cardTitle:"医療カード", blankValue:"未入力", noneValue:"なし", medicationUserEnteredSuffix:"利用者が入力した薬", genericMedicineIngredientUnspecified:"成分は未記載", southKoreaNationality:"韓国", testTerms:{peanutAllergy:"ピーナッツアレルギー", advilMedication:"Advil、利用者が入力した薬", asthma:"喘息"}},
-  vi:{locale:"vi", languageLabel:"Tiếng Việt", cardTitle:"Thẻ y tế", blankValue:"Chưa cung cấp", noneValue:"Không có", medicationUserEnteredSuffix:"thuốc do người dùng nhập", genericMedicineIngredientUnspecified:"không rõ thành phần", southKoreaNationality:"Hàn Quốc", testTerms:{peanutAllergy:"Dị ứng đậu phộng", advilMedication:"Advil, thuốc do người dùng nhập", asthma:"Hen suyễn"}},
-  zh:{locale:"zh", languageLabel:"中文", cardTitle:"医疗卡", blankValue:"未填写", noneValue:"无", medicationUserEnteredSuffix:"用户输入的药品", genericMedicineIngredientUnspecified:"成分未注明", southKoreaNationality:"韩国", testTerms:{peanutAllergy:"花生过敏", advilMedication:"Advil，用户输入的药品", asthma:"哮喘"}},
-  de:{locale:"de", languageLabel:"Deutsch", cardTitle:"Medizinische Karte", blankValue:"Nicht angegeben", noneValue:"Keine", medicationUserEnteredSuffix:"vom Benutzer angegebenes Medikament", genericMedicineIngredientUnspecified:"Wirkstoff nicht angegeben", southKoreaNationality:"Südkorea", testTerms:{peanutAllergy:"Erdnussallergie", advilMedication:"Advil, vom Benutzer angegebenes Medikament", asthma:"Asthma"}},
-  it:{locale:"it", languageLabel:"Italiano", cardTitle:"Scheda medica", blankValue:"Non indicato", noneValue:"Nessuno", medicationUserEnteredSuffix:"farmaco indicato dall'utente", genericMedicineIngredientUnspecified:"principio attivo non specificato", southKoreaNationality:"Corea del Sud", testTerms:{peanutAllergy:"Allergia alle arachidi", advilMedication:"Advil, farmaco indicato dall'utente", asthma:"Asma"}},
-  tr:{locale:"tr", languageLabel:"Türkçe", cardTitle:"Tıbbi Kart", blankValue:"Belirtilmedi", noneValue:"Yok", medicationUserEnteredSuffix:"kullanıcının girdiği ilaç", genericMedicineIngredientUnspecified:"içeriği belirtilmemiş", southKoreaNationality:"Güney Kore", testTerms:{peanutAllergy:"Yer fıstığı alerjisi", advilMedication:"Advil, kullanıcının girdiği ilaç", asthma:"Astım"}},
-  th:{locale:"th", languageLabel:"ไทย", cardTitle:"บัตรข้อมูลทางการแพทย์", blankValue:"ไม่ได้ระบุ", noneValue:"ไม่มี", medicationUserEnteredSuffix:"ยาที่ผู้ใช้ระบุ", genericMedicineIngredientUnspecified:"ไม่ระบุส่วนประกอบ", southKoreaNationality:"เกาหลีใต้", testTerms:{peanutAllergy:"แพ้ถั่วลิสง", advilMedication:"Advil, ยาที่ผู้ใช้ระบุ", asthma:"โรคหืด"}},
-  pt:{locale:"pt", languageLabel:"Português", cardTitle:"Cartão médico", blankValue:"Não informado", noneValue:"Nenhum", medicationUserEnteredSuffix:"medicamento informado pelo usuário", genericMedicineIngredientUnspecified:"ingrediente não especificado", southKoreaNationality:"Coreia do Sul", testTerms:{peanutAllergy:"Alergia a amendoim", advilMedication:"Advil, medicamento informado pelo usuário", asthma:"Asma"}},
-  nl:{locale:"nl", languageLabel:"Nederlands", cardTitle:"Medische kaart", blankValue:"Niet opgegeven", noneValue:"Geen", medicationUserEnteredSuffix:"door gebruiker ingevoerd medicijn", genericMedicineIngredientUnspecified:"bestanddeel niet vermeld", southKoreaNationality:"Zuid-Korea", testTerms:{peanutAllergy:"Pinda-allergie", advilMedication:"Advil, door gebruiker ingevoerd medicijn", asthma:"Astma"}},
-  ms:{locale:"ms", languageLabel:"Bahasa Melayu", cardTitle:"Kad perubatan", blankValue:"Tidak diberikan", noneValue:"Tiada", medicationUserEnteredSuffix:"ubat yang dimasukkan pengguna", genericMedicineIngredientUnspecified:"bahan tidak dinyatakan", southKoreaNationality:"Korea Selatan", testTerms:{peanutAllergy:"Alahan kacang tanah", advilMedication:"Advil, ubat yang dimasukkan pengguna", asthma:"Asma"}},
-  id:{locale:"id", languageLabel:"Bahasa Indonesia", cardTitle:"Kartu medis", blankValue:"Tidak diisi", noneValue:"Tidak ada", medicationUserEnteredSuffix:"obat yang dimasukkan pengguna", genericMedicineIngredientUnspecified:"kandungan tidak disebutkan", southKoreaNationality:"Korea Selatan", testTerms:{peanutAllergy:"Alergi kacang tanah", advilMedication:"Advil, obat yang dimasukkan pengguna", asthma:"Asma"}},
-  ar:{locale:"ar", languageLabel:"العربية", cardTitle:"بطاقة طبية", blankValue:"غير مذكور", noneValue:"لا يوجد", medicationUserEnteredSuffix:"دواء أدخله المستخدم", genericMedicineIngredientUnspecified:"المكوّن غير محدد", southKoreaNationality:"كوريا الجنوبية", testTerms:{peanutAllergy:"حساسية من الفول السوداني", advilMedication:"Advil، دواء أدخله المستخدم", asthma:"الربو"}},
-  pl:{locale:"pl", languageLabel:"Polski", cardTitle:"Karta medyczna", blankValue:"Nie podano", noneValue:"Brak", medicationUserEnteredSuffix:"lek wpisany przez użytkownika", genericMedicineIngredientUnspecified:"składnik nieokreślony", southKoreaNationality:"Korea Południowa", testTerms:{peanutAllergy:"Alergia na orzeszki ziemne", advilMedication:"Advil, lek wpisany przez użytkownika", asthma:"Astma"}},
-  da:{locale:"da", languageLabel:"Dansk", cardTitle:"Medicinsk kort", blankValue:"Ikke angivet", noneValue:"Ingen", medicationUserEnteredSuffix:"lægemiddel angivet af brugeren", genericMedicineIngredientUnspecified:"indholdsstof ikke angivet", southKoreaNationality:"Sydkorea", testTerms:{peanutAllergy:"Jordnøddeallergi", advilMedication:"Advil, lægemiddel angivet af brugeren", asthma:"Astma"}},
-  el:{locale:"el", languageLabel:"Ελληνικά", cardTitle:"Ιατρική κάρτα", blankValue:"Δεν παρέχεται", noneValue:"Κανένα", medicationUserEnteredSuffix:"φάρμακο που καταχώρισε ο χρήστης", genericMedicineIngredientUnspecified:"μη καθορισμένο συστατικό", southKoreaNationality:"Νότια Κορέα", testTerms:{peanutAllergy:"Αλλεργία στα φιστίκια", advilMedication:"Advil, φάρμακο που καταχώρισε ο χρήστης", asthma:"Άσθμα"}}
+  ko:{locale:"ko-KR", languageLabel:"한국어", cardTitle:"여행자 의료카드", blankValue:"미입력", noneValue:"없음", medicationUserEnteredSuffix:"사용자가 입력한 약", genericMedicineIngredientUnspecified:"성분 미기재", southKoreaNationality:"대한민국"},
+  en:{locale:"en", languageLabel:"English", cardTitle:"Medical Card", blankValue:"Not provided", noneValue:"None", medicationUserEnteredSuffix:"medication entered by the user", genericMedicineIngredientUnspecified:"ingredient not specified", southKoreaNationality:"South Korea"},
+  fr:{locale:"fr", languageLabel:"Français", cardTitle:"Carte médicale", blankValue:"Non renseigné", noneValue:"Aucun", medicationUserEnteredSuffix:"médicament indiqué par l’utilisateur", genericMedicineIngredientUnspecified:"ingrédient non précisé", southKoreaNationality:"Corée du Sud"},
+  es:{locale:"es", languageLabel:"Español", cardTitle:"Tarjeta médica", blankValue:"No proporcionado", noneValue:"Ninguno", medicationUserEnteredSuffix:"medicamento indicado por el usuario", genericMedicineIngredientUnspecified:"ingrediente no especificado", southKoreaNationality:"Corea del Sur"},
+  ja:{locale:"ja", languageLabel:"日本語", cardTitle:"医療カード", blankValue:"未入力", noneValue:"なし", medicationUserEnteredSuffix:"利用者が入力した薬", genericMedicineIngredientUnspecified:"成分は未記載", southKoreaNationality:"韓国"},
+  vi:{locale:"vi", languageLabel:"Tiếng Việt", cardTitle:"Thẻ y tế", blankValue:"Chưa cung cấp", noneValue:"Không có", medicationUserEnteredSuffix:"thuốc do người dùng nhập", genericMedicineIngredientUnspecified:"không rõ thành phần", southKoreaNationality:"Hàn Quốc"},
+  zh:{locale:"zh", languageLabel:"中文", cardTitle:"医疗卡", blankValue:"未填写", noneValue:"无", medicationUserEnteredSuffix:"用户输入的药品", genericMedicineIngredientUnspecified:"成分未注明", southKoreaNationality:"韩国"},
+  de:{locale:"de", languageLabel:"Deutsch", cardTitle:"Medizinische Karte", blankValue:"Nicht angegeben", noneValue:"Keine", medicationUserEnteredSuffix:"vom Benutzer angegebenes Medikament", genericMedicineIngredientUnspecified:"Wirkstoff nicht angegeben", southKoreaNationality:"Südkorea"},
+  it:{locale:"it", languageLabel:"Italiano", cardTitle:"Scheda medica", blankValue:"Non indicato", noneValue:"Nessuno", medicationUserEnteredSuffix:"farmaco indicato dall'utente", genericMedicineIngredientUnspecified:"principio attivo non specificato", southKoreaNationality:"Corea del Sud"},
+  tr:{locale:"tr", languageLabel:"Türkçe", cardTitle:"Tıbbi Kart", blankValue:"Belirtilmedi", noneValue:"Yok", medicationUserEnteredSuffix:"kullanıcının girdiği ilaç", genericMedicineIngredientUnspecified:"içeriği belirtilmemiş", southKoreaNationality:"Güney Kore"},
+  th:{locale:"th", languageLabel:"ไทย", cardTitle:"บัตรข้อมูลทางการแพทย์", blankValue:"ไม่ได้ระบุ", noneValue:"ไม่มี", medicationUserEnteredSuffix:"ยาที่ผู้ใช้ระบุ", genericMedicineIngredientUnspecified:"ไม่ระบุส่วนประกอบ", southKoreaNationality:"เกาหลีใต้"},
+  pt:{locale:"pt", languageLabel:"Português", cardTitle:"Cartão médico", blankValue:"Não informado", noneValue:"Nenhum", medicationUserEnteredSuffix:"medicamento informado pelo usuário", genericMedicineIngredientUnspecified:"ingrediente não especificado", southKoreaNationality:"Coreia do Sul"},
+  nl:{locale:"nl", languageLabel:"Nederlands", cardTitle:"Medische kaart", blankValue:"Niet opgegeven", noneValue:"Geen", medicationUserEnteredSuffix:"door gebruiker ingevoerd medicijn", genericMedicineIngredientUnspecified:"bestanddeel niet vermeld", southKoreaNationality:"Zuid-Korea"},
+  ms:{locale:"ms", languageLabel:"Bahasa Melayu", cardTitle:"Kad perubatan", blankValue:"Tidak diberikan", noneValue:"Tiada", medicationUserEnteredSuffix:"ubat yang dimasukkan pengguna", genericMedicineIngredientUnspecified:"bahan tidak dinyatakan", southKoreaNationality:"Korea Selatan"},
+  id:{locale:"id", languageLabel:"Bahasa Indonesia", cardTitle:"Kartu medis", blankValue:"Tidak diisi", noneValue:"Tidak ada", medicationUserEnteredSuffix:"obat yang dimasukkan pengguna", genericMedicineIngredientUnspecified:"kandungan tidak disebutkan", southKoreaNationality:"Korea Selatan"},
+  ar:{locale:"ar", languageLabel:"العربية", cardTitle:"بطاقة طبية", blankValue:"غير مذكور", noneValue:"لا يوجد", medicationUserEnteredSuffix:"دواء أدخله المستخدم", genericMedicineIngredientUnspecified:"المكوّن غير محدد", southKoreaNationality:"كوريا الجنوبية"},
+  pl:{locale:"pl", languageLabel:"Polski", cardTitle:"Karta medyczna", blankValue:"Nie podano", noneValue:"Brak", medicationUserEnteredSuffix:"lek wpisany przez użytkownika", genericMedicineIngredientUnspecified:"składnik nieokreślony", southKoreaNationality:"Korea Południowa"},
+  da:{locale:"da", languageLabel:"Dansk", cardTitle:"Medicinsk kort", blankValue:"Ikke angivet", noneValue:"Ingen", medicationUserEnteredSuffix:"lægemiddel angivet af brugeren", genericMedicineIngredientUnspecified:"indholdsstof ikke angivet", southKoreaNationality:"Sydkorea"},
+  el:{locale:"el", languageLabel:"Ελληνικά", cardTitle:"Ιατρική κάρτα", blankValue:"Δεν παρέχεται", noneValue:"Κανένα", medicationUserEnteredSuffix:"φάρμακο που καταχώρισε ο χρήστης", genericMedicineIngredientUnspecified:"μη καθορισμένο συστατικό", southKoreaNationality:"Νότια Κορέα"}
 };
 
 const medicalPassportNameLabels = {
@@ -3405,23 +3370,68 @@ function getMedicalMissingText(id=localLangId){
   return cfg ? cfg.blankValue : "";
 }
 
+const medicalCardStorageKeys = [
+  "travelDoctorMedicalCard",
+  "travelDoctorMedicalCardTranslation",
+  "medicalCardTranslation",
+  "medicalCardTestData",
+  "medicalCardTestResult"
+];
+
+function emptyMedicalCardData(){
+  const data = {};
+  medicalFields().forEach(([id]) => { data[id] = ""; });
+  return data;
+}
+
+function hasAnyMedicalCardValue(data){
+  return medicalFields().some(([id]) => String((data && data[id]) || "").trim());
+}
+
+function sanitizeMedicalCardData(raw){
+  if(!raw || typeof raw !== "object") return {};
+  const data = emptyMedicalCardData();
+  medicalFields().forEach(([id]) => { data[id] = String(raw[id] || "").trim(); });
+  if(!hasAnyMedicalCardValue(data)) return {};
+  return data;
+}
+
+function removeMedicalCardStorage(){
+  medicalCardStorageKeys.forEach(key => localStorage.removeItem(key));
+}
+
 function saveMedicalCard(){
-  const data={};
+  const data=emptyMedicalCardData();
   medicalFields().forEach(([id]) => data[id]=$(id)?$(id).value.trim():"");
-  localStorage.setItem("travelDoctorMedicalCard", JSON.stringify(data));
+  if(hasAnyMedicalCardValue(data)){
+    localStorage.setItem("travelDoctorMedicalCard", JSON.stringify(data));
+  }else{
+    removeMedicalCardStorage();
+  }
   resetMedicalCardTranslation();
   renderMedicalCardPreview();
   setStatus("의료카드를 이 기기 브라우저에 저장했습니다.");
 }
 function loadMedicalCard(){
-  try{return JSON.parse(localStorage.getItem("travelDoctorMedicalCard")||"{}");}catch(e){return {};}
+  try{
+    if(localStorage.getItem("medicalCardTestData") || localStorage.getItem("medicalCardTestResult")){
+      removeMedicalCardStorage();
+      return {};
+    }
+    const data = sanitizeMedicalCardData(JSON.parse(localStorage.getItem("travelDoctorMedicalCard")||"{}"));
+    if(!hasAnyMedicalCardValue(data)) localStorage.removeItem("travelDoctorMedicalCard");
+    return data;
+  }catch(e){
+    localStorage.removeItem("travelDoctorMedicalCard");
+    return {};
+  }
 }
 function clearMedicalCard(){
-  localStorage.removeItem("travelDoctorMedicalCard");
+  removeMedicalCardStorage();
   medicalFields().forEach(([id])=>{ if($(id)) $(id).value=""; });
   resetMedicalCardTranslation();
   medicalCardView = "ko";
-  renderMedicalCardPreview();
+  if($("medicalCardPreview")) $("medicalCardPreview").innerHTML = "";
   setStatus("저장된 의료카드 정보를 삭제하고 입력칸을 초기화했습니다.");
 }
 
@@ -3659,147 +3669,6 @@ function renderMedicalCardPreview(){
   bindMedicalCardPreviewControls();
 }
 
-function isMedicalCardTestMode(){
-  try{
-    const sosTestValue = new URLSearchParams(window.location.search).get("sosTest");
-    const showMedicalCardTest =
-      sosTestValue === "medical-card" ||
-      sosTestValue === "medicalCard" ||
-      sosTestValue === "의료카드" ||
-      sosTestValue === "의료 카드";
-    return showMedicalCardTest;
-  }catch(error){
-    return false;
-  }
-}
-
-function buildMedicalCardTestTranslation(option){
-  const cfg = getMedicalI18n(option.id);
-  if(!cfg) return null;
-  return {
-    name: cfg.blankValue,
-    passportName: "",
-    nationality: cfg.southKoreaNationality,
-    age: cfg.blankValue,
-    bloodType: cfg.blankValue,
-    allergies: cfg.testTerms.peanutAllergy,
-    medication: cfg.testTerms.advilMedication,
-    medicalConditions: cfg.testTerms.asthma,
-    emergencyContact: cfg.blankValue,
-    travelInsurance: cfg.blankValue,
-    hotelAddress: cfg.blankValue
-  };
-}
-
-const MEDICAL_CARD_TEST_PAYLOAD = {
-  name: "",
-  passportName: "",
-  nationality: "대한민국",
-  age: "",
-  bloodType: "",
-  allergies: "땅콩",
-  medication: "애드빌",
-  medicalConditions: "천식",
-  emergencyContact: "",
-  travelInsurance: "",
-  hotelAddress: ""
-};
-
-function medicalCardTestHasLanguageMix(value, option){
-  const base = getBaseLang(option.id);
-  const textValue = String(value || "");
-  if(!textValue) return false;
-  if(base !== "ko" && /[가-힣]/.test(textValue)) return true;
-  if(base !== "en" && /No information provided|Not provided|Peanut allergy|South Korea|medication entered by the user/i.test(textValue)) return true;
-  return false;
-}
-
-function evaluateMedicalCardTest(option, translated){
-  const cfg = getMedicalI18n(option.id);
-  if(!cfg) return {ok:false, issues:["지원 언어 설정 없음"]};
-  const labels = cfg.labels;
-  const result = translated || buildMedicalCardTestTranslation(option);
-  const blankKeys = ["name","age","bloodType","emergencyContact","travelInsurance","hotelAddress"];
-  const issues = [];
-  if(!labels.name || !labels.allergies || !labels.medication || !labels.medicalConditions) issues.push("항목명 누락");
-  blankKeys.forEach(key => { if(result[key] !== cfg.blankValue) issues.push(key+" 빈칸 표현 확인 필요"); });
-  if(result.nationality !== cfg.southKoreaNationality) issues.push("국적 국가명 확인 필요");
-  if(result.allergies !== cfg.testTerms.peanutAllergy) issues.push("알레르기 표현 확인 필요");
-  if(!result.medication.startsWith("Advil")) issues.push("Advil 제품명 보존 실패");
-  if(/ibuprofen|acetaminophen|paracetamol|painkiller|pain reliever|anti-inflammatory drug|cold medicine/i.test(result.medication)) issues.push("약 정보가 성분명/일반약으로 바뀜");
-  if(result.medicalConditions !== cfg.testTerms.asthma) issues.push("기존 질환 칸 번역 확인 필요");
-  if(/severe|attack|needs inhaler|requires immediate|응급|심각|치료 필요/i.test(result.medicalConditions)) issues.push("기존 질환에 상태/심각도 추가됨");
-  if(result.name !== cfg.blankValue) issues.push("이름 칸에 다른 값이 들어감");
-  if(result.name.includes(result.allergies) || result.name.includes(result.medicalConditions)) issues.push("필드 매칭 꼬임 의심");
-  ["name","nationality","age","bloodType","allergies","medication","medicalConditions","emergencyContact","travelInsurance","hotelAddress"].forEach(key => {
-    if(medicalCardTestHasLanguageMix(result[key], option)) issues.push(key+" 다른 언어 섞임 확인 필요");
-  });
-  return {ok: issues.length === 0, issues};
-}
-
-async function runMedicalCardTestPanel(){
-  const resultBox = $("medicalCardTestResult");
-  if(!resultBox) return;
-  const testInput = {...MEDICAL_CARD_TEST_PAYLOAD};
-  resultBox.innerHTML = '<div class="notice teal">30개 국가 의료카드 번역 테스트를 실행하는 중입니다...</div>';
-  const testResults = [];
-  for(const option of languageOptions){
-    const cfg = getMedicalI18n(option.id);
-    let evaluation;
-    try{
-      if(!cfg) throw new Error("지원 언어 설정 없음");
-      const res = await fetch("/.netlify/functions/translate-medical-card", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          targetLanguage: cfg.languageLabel,
-          targetLanguageCode: option.id,
-          travelCountry: option.countryKo || option.country || "",
-          fields: testInput
-        })
-      });
-      const data = await res.json().catch(() => ({}));
-      if(!res.ok) throw new Error(data.error || data.detail || "번역 함수 호출 실패");
-      evaluation = evaluateMedicalCardTest(option, data);
-    }catch(error){
-      evaluation = {ok:false, issues:[error && error.message ? error.message : "테스트 실패"]};
-    }
-    testResults.push({option, cfg, evaluation});
-    resultBox.innerHTML = '<div class="notice teal">테스트 진행 중: '+testResults.length+' / '+languageOptions.length+'</div>';
-  }
-  const rows = testResults.map(({option, cfg, evaluation}) => {
-    const summary = evaluation.ok ? "정상" : evaluation.issues.join(", ");
-    return '<tr>'+
-      '<td>'+escapeHtml(option.id)+'</td>'+
-      '<td>'+escapeHtml(option.flag+" "+option.countryKo)+'</td>'+
-      '<td>'+escapeHtml(cfg ? cfg.languageLabel+" · "+cfg.locale : option.native)+'</td>'+
-      '<td class="'+(evaluation.ok?'test-pass':'test-warn')+'">'+(evaluation.ok?'통과':'확인 필요')+'</td>'+
-      '<td>'+escapeHtml(summary)+'</td>'+
-    '</tr>';
-  }).join("");
-  resultBox.innerHTML =
-    '<div class="test-table-wrap">'+
-      '<table class="test-table">'+
-        '<thead><tr><th>국가 코드</th><th>국가명</th><th>언어</th><th>통과 여부</th><th>문제 요약</th></tr></thead>'+
-        '<tbody>'+rows+'</tbody>'+
-      '</table>'+
-    '</div>';
-}
-
-function ensureMedicalCardTestPanel(){
-  const panel = $("medicalCardTestPanel");
-  if(!panel) return;
-  const show = isMedicalCardTestMode();
-  panel.hidden = !show;
-  panel.style.display = show ? "block" : "none";
-  panel.classList.toggle("hidden", !show);
-  if(!show) return;
-  const btn = $("runMedicalCardTestBtn");
-  if(btn && !btn.dataset.bound){
-    btn.dataset.bound = "true";
-    btn.addEventListener("click", () => safe(runMedicalCardTestPanel));
-  }
-}
 function renderEmergencyInfoCard(){
   if(!$("emergencyInfoContent")) return;
   const tripOpt=getTripOption(), pack=getPhrasePack(localLangId), userPack=getPhrasePack(selected);
@@ -5275,7 +5144,6 @@ function init(){
   $("locationConsentModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="locationConsentModal") hideLocationConsent(); }));
   document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{ if(btn.dataset.nav) scrollToId(btn.dataset.nav); if(btn.dataset.action) openService(btn.dataset.action); })));
   renderAll();
-  ensureMedicalCardTestPanel();
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init); else init();
 
