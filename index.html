@@ -176,7 +176,7 @@
             <div>
               <div id="currentLangLabel" class="small muted">현재 여행 설정</div>
               <h3 id="selectedNative" style="margin:2px 0">아직 여행 국가를 선택하지 않았습니다.</h3>
-              <div id="selectedCountry" class="small muted">오른쪽 TOP30 국가 목록에서 여행 국가를 선택하세요.</div>
+              <div id="selectedCountry" class="small muted">전세계 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.</div>
             </div>
           </div>
 
@@ -216,10 +216,10 @@
 
       <div class="card country-picker-card">
         <p class="eyebrow">Travel Country</p>
-        <h2 style="margin-bottom:12px">TOP30 여행 국가 선택</h2>
+        <h2 style="margin-bottom:12px">전세계 국가/지역 선택</h2>
         <div class="search">
           <span>🔎</span>
-          <input id="languageSearch" placeholder="여행 국가 검색" />
+          <input id="languageSearch" placeholder="국가명, 지역명, 영어명, 언어명으로 검색" />
         </div>
         <div id="languageGrid" class="language-grid"></div>
       </div>
@@ -403,282 +403,29 @@
     </div>
   </div>
 
+<script src="./countries.js"></script>
 <script>
 (function(){
 "use strict";
 
-const languageOptions = [
-  {
-    "id": "fr",
-    "rank": 1,
-    "flag": "🇫🇷",
-    "countryKo": "프랑스",
-    "country": "France",
-    "languageKo": "프랑스어",
-    "native": "Français"
-  },
-  {
-    "id": "es",
-    "rank": 2,
-    "flag": "🇪🇸",
-    "countryKo": "스페인",
-    "country": "Spain",
-    "languageKo": "스페인어",
-    "native": "Español"
-  },
-  {
-    "id": "en-us",
-    "rank": 3,
-    "flag": "🇺🇸",
-    "countryKo": "미국",
-    "country": "United States",
-    "languageKo": "영어",
-    "native": "English · US"
-  },
-  {
-    "id": "zh",
-    "rank": 4,
-    "flag": "🇨🇳",
-    "countryKo": "중국",
-    "country": "China",
-    "languageKo": "중국어",
-    "native": "中文"
-  },
-  {
-    "id": "it",
-    "rank": 5,
-    "flag": "🇮🇹",
-    "countryKo": "이탈리아",
-    "country": "Italy",
-    "languageKo": "이탈리아어",
-    "native": "Italiano"
-  },
-  {
-    "id": "tr",
-    "rank": 6,
-    "flag": "🇹🇷",
-    "countryKo": "튀르키예",
-    "country": "Türkiye",
-    "languageKo": "튀르키예어",
-    "native": "Türkçe"
-  },
-  {
-    "id": "es-mx",
-    "rank": 7,
-    "flag": "🇲🇽",
-    "countryKo": "멕시코",
-    "country": "Mexico",
-    "languageKo": "스페인어",
-    "native": "Español · MX"
-  },
-  {
-    "id": "en-gb",
-    "rank": 8,
-    "flag": "🇬🇧",
-    "countryKo": "영국",
-    "country": "United Kingdom",
-    "languageKo": "영어",
-    "native": "English · UK"
-  },
-  {
-    "id": "de",
-    "rank": 9,
-    "flag": "🇩🇪",
-    "countryKo": "독일",
-    "country": "Germany",
-    "languageKo": "독일어",
-    "native": "Deutsch"
-  },
-  {
-    "id": "ja",
-    "rank": 10,
-    "flag": "🇯🇵",
-    "countryKo": "일본",
-    "country": "Japan",
-    "languageKo": "일본어",
-    "native": "日本語"
-  },
-  {
-    "id": "th",
-    "rank": 11,
-    "flag": "🇹🇭",
-    "countryKo": "태국",
-    "country": "Thailand",
-    "languageKo": "태국어",
-    "native": "ไทย"
-  },
-  {
-    "id": "el",
-    "rank": 12,
-    "flag": "🇬🇷",
-    "countryKo": "그리스",
-    "country": "Greece",
-    "languageKo": "그리스어",
-    "native": "Ελληνικά"
-  },
-  {
-    "id": "de-at",
-    "rank": 13,
-    "flag": "🇦🇹",
-    "countryKo": "오스트리아",
-    "country": "Austria",
-    "languageKo": "독일어",
-    "native": "Deutsch · AT"
-  },
-  {
-    "id": "ms",
-    "rank": 14,
-    "flag": "🇲🇾",
-    "countryKo": "말레이시아",
-    "country": "Malaysia",
-    "languageKo": "말레이어",
-    "native": "Bahasa Melayu"
-  },
-  {
-    "id": "ar-sa",
-    "rank": 15,
-    "flag": "🇸🇦",
-    "countryKo": "사우디아라비아",
-    "country": "Saudi Arabia",
-    "languageKo": "아랍어",
-    "native": "العربية · السعودية"
-  },
-  {
-    "id": "en-ca",
-    "rank": 16,
-    "flag": "🇨🇦",
-    "countryKo": "캐나다",
-    "country": "Canada",
-    "languageKo": "영어/프랑스어",
-    "native": "English / Français"
-  },
-  {
-    "id": "nl",
-    "rank": 17,
-    "flag": "🇳🇱",
-    "countryKo": "네덜란드",
-    "country": "Netherlands",
-    "languageKo": "네덜란드어",
-    "native": "Nederlands"
-  },
-  {
-    "id": "pt",
-    "rank": 18,
-    "flag": "🇵🇹",
-    "countryKo": "포르투갈",
-    "country": "Portugal",
-    "languageKo": "포르투갈어",
-    "native": "Português"
-  },
-  {
-    "id": "vi",
-    "rank": 19,
-    "flag": "🇻🇳",
-    "countryKo": "베트남",
-    "country": "Vietnam",
-    "languageKo": "베트남어",
-    "native": "Tiếng Việt"
-  },
-  {
-    "id": "ko",
-    "rank": 20,
-    "flag": "🇰🇷",
-    "countryKo": "대한민국",
-    "country": "South Korea",
-    "languageKo": "한국어",
-    "native": "한국어"
-  },
-  {
-    "id": "ar-ae",
-    "rank": 21,
-    "flag": "🇦🇪",
-    "countryKo": "아랍에미리트",
-    "country": "United Arab Emirates",
-    "languageKo": "아랍어/영어",
-    "native": "العربية · UAE"
-  },
-  {
-    "id": "id",
-    "rank": 22,
-    "flag": "🇮🇩",
-    "countryKo": "인도네시아",
-    "country": "Indonesia",
-    "languageKo": "인도네시아어",
-    "native": "Bahasa Indonesia"
-  },
-  {
-    "id": "de-ch",
-    "rank": 23,
-    "flag": "🇨🇭",
-    "countryKo": "스위스",
-    "country": "Switzerland",
-    "languageKo": "독일어/프랑스어/이탈리아어",
-    "native": "Deutsch · CH"
-  },
-  {
-    "id": "en-ie",
-    "rank": 24,
-    "flag": "🇮🇪",
-    "countryKo": "아일랜드",
-    "country": "Ireland",
-    "languageKo": "영어/아일랜드어",
-    "native": "English · Ireland"
-  },
-  {
-    "id": "en-sg",
-    "rank": 25,
-    "flag": "🇸🇬",
-    "countryKo": "싱가포르",
-    "country": "Singapore",
-    "languageKo": "영어/중국어/말레이어/타밀어",
-    "native": "English · Singapore"
-  },
-  {
-    "id": "ar-ma",
-    "rank": 26,
-    "flag": "🇲🇦",
-    "countryKo": "모로코",
-    "country": "Morocco",
-    "languageKo": "아랍어/프랑스어",
-    "native": "العربية · المغرب"
-  },
-  {
-    "id": "pl",
-    "rank": 27,
-    "flag": "🇵🇱",
-    "countryKo": "폴란드",
-    "country": "Poland",
-    "languageKo": "폴란드어",
-    "native": "Polski"
-  },
-  {
-    "id": "ar-eg",
-    "rank": 28,
-    "flag": "🇪🇬",
-    "countryKo": "이집트",
-    "country": "Egypt",
-    "languageKo": "아랍어",
-    "native": "العربية · مصر"
-  },
-  {
-    "id": "da",
-    "rank": 29,
-    "flag": "🇩🇰",
-    "countryKo": "덴마크",
-    "country": "Denmark",
-    "languageKo": "덴마크어",
-    "native": "Dansk"
-  },
-  {
-    "id": "nl-be",
-    "rank": 30,
-    "flag": "🇧🇪",
-    "countryKo": "벨기에",
-    "country": "Belgium",
-    "languageKo": "네덜란드어/프랑스어/독일어",
-    "native": "Nederlands · België"
-  }
-];
+const countrySource = Array.isArray(window.SOS_BRIDGE_COUNTRIES) ? window.SOS_BRIDGE_COUNTRIES : [];
+const countryCollator = new Intl.Collator("ko-KR");
+const languageOptions = countrySource.map((item, index) => ({
+  ...item,
+  id: item.id || (item.languageCode || "country") + "-" + index,
+  rank: index + 1,
+  flag: item.flag || "??",
+  countryKo: item.countryNameKo || item.countryKo || "",
+  country: item.countryNameEn || item.country || "",
+  languageKo: item.languageNameKo || item.languageKo || "",
+  native: item.languageNative || item.native || item.languageNameEn || item.languageNameKo || "",
+  emergencyNumber: item.emergencyNumber || "현지 응급번호 확인 필요",
+  mapCountryQuery: item.mapCountryQuery || item.countryNameEn || item.country || item.countryNameKo || item.countryKo || ""
+})).sort((a, b) => countryCollator.compare(a.countryKo || a.countryNameKo || "", b.countryKo || b.countryNameKo || ""));
+languageOptions.forEach((item, index) => { item.rank = index + 1; });
+if(!languageOptions.length){
+  languageOptions.push({id:"ko", rank:1, flag:"🇰🇷", countryKo:"대한민국", country:"South Korea", countryNameKo:"대한민국", countryNameEn:"South Korea", languageKo:"한국어", languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko", native:"한국어", languageNative:"한국어", emergencyNumber:"119", mapCountryQuery:"South Korea", aliasesKo:["한국"], aliasesEn:["Korea"], availableLanguages:[{languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko"}], safetyNotice:false, regionNotice:false, languageReviewNeeded:false});
+}
 
 const i18n = {
   "ko": {
@@ -2478,7 +2225,7 @@ const $ = id => document.getElementById(id);
 const safe = (fn) => { try { fn(); } catch(e) { showDebug(e); } };
 const on = (id, event, handler) => { const el=$(id); if(el) el.addEventListener(event, e => safe(() => handler(e)), {passive:false}); };
 const t = () => Object.assign({}, i18n.en, i18n.ko || {});
-const selectedOption = () => languageOptions.find(x => x.id === "ko") || languageOptions[19];
+const selectedOption = () => languageOptions.find(x => x.id === "ko" || x.countryKo === "대한민국") || languageOptions[0];
 const getSelectedCountryName = () => {
   const opt = selectedOption();
   return opt ? (opt.countryKo || opt.country || "") : "";
@@ -2505,19 +2252,44 @@ function syncInitialTripInputs(force=false){
 function normalizeCountryText(v){
   return String(v || "").toLowerCase().replace(/[\s·.,()\-_/]/g, "");
 }
+function countrySearchCandidates(item){
+  return [
+    item.id,
+    item.countryKo,
+    item.country,
+    item.countryNameKo,
+    item.countryNameEn,
+    item.regionNote,
+    item.parentEntityKo,
+    item.parentEntityEn,
+    item.languageKo,
+    item.languageNameKo,
+    item.languageNameEn,
+    item.native,
+    item.languageNative,
+    ...(item.aliasesKo || []),
+    ...(item.aliasesEn || []),
+    ...((item.availableLanguages || []).flatMap(lang => [lang.languageNameKo, lang.languageNameEn, lang.languageCode]))
+  ].filter(Boolean);
+}
 function findCountryOptionByText(v){
   const q = normalizeCountryText(v);
   if(!q) return null;
-  return languageOptions.find(item => {
-    const candidates = [
-      item.id, item.countryKo, item.country, item.languageKo, item.native,
-      item.countryKo && item.countryKo.replace("대한민국","한국")
-    ].filter(Boolean);
-    return candidates.some(c => {
-      const n = normalizeCountryText(c);
-      return n === q || n.includes(q) || q.includes(n);
-    });
-  }) || null;
+  const primaryExact = languageOptions.find(item => [
+    item.countryKo,
+    item.country,
+    item.countryNameKo,
+    item.countryNameEn,
+    ...(item.aliasesKo || []),
+    ...(item.aliasesEn || [])
+  ].filter(Boolean).some(c => normalizeCountryText(c) === q));
+  if(primaryExact) return primaryExact;
+  const exact = languageOptions.find(item => countrySearchCandidates(item).some(c => normalizeCountryText(c) === q));
+  if(exact) return exact;
+  return languageOptions.find(item => countrySearchCandidates(item).some(c => {
+    const n = normalizeCountryText(c);
+    return n.includes(q) || q.includes(n);
+  })) || null;
 }
 function applyTripCountrySelectionFromInput(){
   const countryInput = $("initialTravelCountry");
@@ -2542,6 +2314,10 @@ function getTripEmergencyNumber(){
 function getTripLanguageLabel(){
   const matched = findCountryOptionByText(tripCountryName) || getTripOption();
   return matched.native || getLocalOption().native;
+}
+function getTripMapCountryQuery(){
+  const opt = findCountryOptionByText(tripCountryName) || getTripOption();
+  return (opt && (opt.mapCountryQuery || opt.country || opt.countryKo)) || tripCountryName || "";
 }
 function saveTripInputs(){
   const countryInput = $("initialTravelCountry");
@@ -2577,11 +2353,32 @@ function saveTripInputs(){
 
   tripCityName = cityInput && cityInput.value.trim() ? cityInput.value.trim() : "";
 }
-const mapLocale = id => id && id.indexOf("en")===0 ? "en" : (i18n[id] ? id : "en");
-const getEmergencyNumber = id => emergencyNumbers[id] || emergencyNumbers[mapLocale(id)] || "112";
-const getSpeechLang = id => speechLangs[id] || speechLangs[mapLocale(id)] || "en-US";
+function getCountryById(id){
+  return languageOptions.find(x => x.id === id) || findCountryOptionByText(id);
+}
+function getCountryLanguageCode(id=localLangId){
+  const opt = getCountryById(id);
+  return (opt && opt.languageCode) || id || "en";
+}
+function getCountryLanguageName(id=localLangId){
+  const opt = getCountryById(id);
+  return (opt && (opt.languageNameEn || opt.languageNameKo || opt.native)) || getCountryLanguageCode(id);
+}
+const mapLocale = id => {
+  const code = String(getCountryLanguageCode(id) || id || "en").toLowerCase();
+  const base = langAliases[code] || code.split("-")[0];
+  if(base && base.indexOf("en")===0) return "en";
+  return i18n[base] ? base : "en";
+};
+function getEmergencyNumber(id){
+  const opt = getCountryById(id);
+  if(opt && opt.emergencyNumber) return opt.emergencyNumber;
+  const code = getCountryLanguageCode(id);
+  return emergencyNumbers[id] || emergencyNumbers[code] || emergencyNumbers[mapLocale(code)] || "현지 응급번호 확인 필요";
+}
+const getSpeechLang = id => speechLangs[getCountryLanguageCode(id)] || speechLangs[mapLocale(id)] || "en-US";
 
-const langAliases = {"en-us":"en","en-gb":"en","en-ca":"en","en-ie":"en","en-sg":"en","es-mx":"es","de-at":"de","de-ch":"de","ar-sa":"ar","ar-ae":"ar","ar-ma":"ar","ar-eg":"ar","nl-be":"nl"};
+const langAliases = {"en-us":"en","en-gb":"en","en-ca":"en","en-ie":"en","en-sg":"en","es-mx":"es","de-at":"de","de-ch":"de","ar-sa":"ar","ar-ae":"ar","ar-ma":"ar","ar-eg":"ar","nl-be":"nl","zh-tw":"zh","zh-hant":"zh","pt-br":"pt","fil":"en"};
 const phrasePacks = {
   ko:{help:"도와주세요.", ambulance:"구급차를 불러 주세요.", hospital:"병원에 가야 합니다.", pharmacy:"약국이 필요합니다.", pain:"통증이 있습니다.", allergy:"알레르기가 있습니다.", medication:"복용 중인 약이 있습니다.", fever:"열이 있습니다.", stomach:"복통이 있습니다.", stabbed:"칼이나 물체에 찔렸습니다.", accident:"교통사고를 당했습니다.", pharmacyQ:"이 증상에 처방전 없이 살 수 있는 약이 있나요?", dosage:"복용 방법을 알려 주세요.", prescription:"처방전이 필요한가요?"},
   en:{help:"Please help me.", ambulance:"Please call an ambulance.", hospital:"I need to go to a hospital.", pharmacy:"I need a pharmacy.", pain:"I have pain.", allergy:"I have an allergy.", medication:"I take medication.", fever:"I have a fever.", stomach:"I have stomach pain.", stabbed:"I was stabbed or injured by an object.", accident:"I was in a traffic accident.", pharmacyQ:"Is there any over-the-counter medicine for this symptom?", dosage:"Please tell me how to take this medicine.", prescription:"Do I need a prescription?"},
@@ -2602,7 +2399,10 @@ const phrasePacks = {
   pl:{help:"Proszę mi pomóc.", ambulance:"Proszę wezwać karetkę.", hospital:"Muszę iść do szpitala.", pharmacy:"Potrzebuję apteki.", pain:"Czuję ból.", allergy:"Mam alergię.", medication:"Biorę leki.", fever:"Mam gorączkę.", stomach:"Boli mnie brzuch.", stabbed:"Zostałem zraniony nożem lub przedmiotem.", accident:"Miałem wypadek drogowy.", pharmacyQ:"Czy jest lek bez recepty na ten objaw?", dosage:"Proszę powiedzieć, jak przyjmować ten lek.", prescription:"Czy potrzebuję recepty?"},
   da:{help:"Hjælp mig venligst.", ambulance:"Ring venligst efter en ambulance.", hospital:"Jeg skal på hospitalet.", pharmacy:"Jeg har brug for et apotek.", pain:"Jeg har smerter.", allergy:"Jeg har allergi.", medication:"Jeg tager medicin.", fever:"Jeg har feber.", stomach:"Jeg har mavesmerter.", stabbed:"Jeg er blevet såret af en kniv eller genstand.", accident:"Jeg har været i en trafikulykke.", pharmacyQ:"Findes der håndkøbsmedicin til dette symptom?", dosage:"Forklar venligst, hvordan jeg tager denne medicin.", prescription:"Skal jeg have recept?"}
 };
-function getBaseLang(id){ return langAliases[id] || id || "en"; }
+function getBaseLang(id){
+  const code = String(getCountryLanguageCode(id) || id || "en").toLowerCase();
+  return langAliases[code] || code.split("-")[0] || "en";
+}
 function getPhrasePack(id=localLangId){ return phrasePacks[getBaseLang(id)] || phrasePacks.en; }
 
 const medicalLabelPacks = {
@@ -2703,7 +2503,9 @@ const MEDICAL_CARD_I18N = Object.fromEntries(Object.entries(medicalCardLocaleSet
 
 function getMedicalI18n(id=localLangId){
   const cfg = MEDICAL_CARD_I18N[getBaseLang(id)];
-  return cfg ? {...cfg, locale: id || cfg.locale} : null;
+  if(cfg) return {...cfg, locale: id || cfg.locale};
+  const opt = getCountryById(id);
+  return {...MEDICAL_CARD_I18N.en, locale: getCountryLanguageCode(id), languageLabel: (opt && (opt.languageNameEn || opt.native)) || "Local language"};
 }
 
 function hasMedicalI18n(id=localLangId){
@@ -2773,34 +2575,64 @@ function renderCountryQuickGrid(){
   document.querySelectorAll("[data-country-card]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.countryCard))));
 }
 
+function countryNoticeHtml(item){
+  if(!item) return "";
+  const parts = [];
+  if(item.regionNote){
+    parts.push('<div class="notice teal small" style="margin-top:8px">'+escapeHtml(item.regionNote)+'</div>');
+  }
+  if(item.safetyNotice){
+    parts.push('<div class="notice amber small" style="margin-top:8px">이 국가/지역은 현지 상황에 따라 의료기관, 지도, 응급 연락 정보 이용이 제한될 수 있습니다. 출국 전 외교부 해외안전정보와 현지 응급번호를 확인하세요.</div>');
+  }
+  if(item.regionNotice){
+    parts.push('<div class="notice amber small" style="margin-top:8px">이 지역은 국가/지역 지위나 행정 체계가 일반 국가와 다를 수 있습니다. 여행 전 공식 안전정보와 현지 응급 연락 체계를 확인하세요.</div>');
+  }
+  if(item.emergencyNumber === "현지 응급번호 확인 필요"){
+    parts.push('<div class="notice amber small" style="margin-top:8px">출국 전 외교부 해외안전정보와 현지 응급번호를 반드시 확인하세요.</div>');
+  }
+  return parts.join("");
+}
+function countryMetaLine(item){
+  return [
+    item.regionNote,
+    "현지어 도움 문장: " + (item.languageNameKo || item.languageKo || item.native || ""),
+    "응급번호: " + getEmergencyNumber(item.id)
+  ].filter(Boolean).join(" · ");
+}
 function renderLanguageList(){
-  const q = ($("languageSearch")?.value || "").trim().toLowerCase();
+  const rawQuery = ($("languageSearch")?.value || "").trim();
+  const q = rawQuery.toLowerCase();
+  const normalizedQ = normalizeCountryText(rawQuery);
   const list = q
-    ? languageOptions.filter(item => [item.countryKo,item.country,item.languageKo,item.native].some(v => String(v).toLowerCase().includes(q)))
+    ? languageOptions.filter(item => countrySearchCandidates(item).some(v => String(v).toLowerCase().includes(q) || normalizeCountryText(v).includes(normalizedQ)))
     : languageOptions;
 
   const grid = $("languageGrid");
   if(!grid) return;
+  if(!list.length){
+    grid.innerHTML = '<div class="notice amber">검색 결과가 없습니다. 국가명, 지역명 또는 언어명을 다시 입력해 주세요.</div>';
+    return;
+  }
   grid.innerHTML =
-    '<div class="notice teal" style="margin:0 0 8px">TOP30 여행 국가 전체 목록입니다. 국가를 누르면 여행 국가와 현지어 도움 문장이 함께 바뀝니다.</div>' +
-    list.map(item => '<button class="lang-btn '+(hasTripCountrySelection && item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span class="small" style="font-weight:950;color:var(--teal)">TOP '+String(item.rank).padStart(2,"0")+'</span><span style="display:block;font-weight:950;color:var(--navy)">'+escapeHtml(item.countryKo)+'</span><span class="small muted">'+escapeHtml(item.native)+' · '+escapeHtml(item.languageKo)+'</span><span class="small muted" style="display:block;margin-top:3px">응급번호 '+escapeHtml(getEmergencyNumber(item.id))+'</span></span></button>').join("");
+    '<div class="notice teal" style="margin:0 0 8px">전세계 국가/지역 목록입니다. 국가 또는 지역을 누르면 여행 설정과 현지어 도움 문장이 함께 바뀝니다.</div>' +
+    list.map(item => '<button class="lang-btn '+(hasTripCountrySelection && item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span style="display:block;font-weight:950;color:var(--navy)">'+escapeHtml(item.countryKo)+'</span><span class="small muted" style="display:block">'+escapeHtml(item.country)+'</span><span class="small muted" style="display:block;margin-top:3px">'+escapeHtml(countryMetaLine(item))+'</span>'+(item.safetyNotice || item.regionNotice ? '<span class="small" style="display:block;margin-top:5px;color:#b45309;font-weight:950">여행 안전 정보 확인 권장</span>' : '')+'</span></button>').join("");
 
   document.querySelectorAll("[data-trip-country]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.tripCountry))));
 }
 function renderLanguagePage(){
   selected = "ko";
   const tripOpt=getTripOption(), localOpt=getLocalOption();
-  $("chooseTitle").textContent="여행 국가 설정";
+  $("chooseTitle").textContent="여행 국가/지역 설정";
   $("chooseDesc").textContent="SOS Bridge는 한국인이 해외여행 중 갑자기 아프거나 다쳤을 때, 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 도와주는 해외여행 응급 의료 도우미입니다.";
   $("currentLangLabel").textContent="현재 여행 설정";
   const hasTrip = !!hasTripCountrySelection;
   $("tripSummaryPanel").classList.toggle("summary-empty", !hasTrip);
   $("selectedFlag").textContent=hasTrip ? tripOpt.flag : "✈️";
-  $("selectedNative").textContent=hasTrip ? (tripOpt.countryKo+" 여행 준비") : "아직 여행 국가를 선택하지 않았습니다.";
-  $("selectedCountry").textContent=hasTrip ? ("현지어 도움 문장: "+localOpt.native+" · 응급번호 "+getTripEmergencyNumber()) : "오른쪽 TOP30 국가 목록에서 여행 국가를 선택하세요.";
+  $("selectedNative").textContent=hasTrip ? (tripOpt.countryKo+" 여행 준비") : "아직 여행 국가/지역을 선택하지 않았습니다.";
+  $("selectedCountry").innerHTML=hasTrip ? ("현지어 도움 문장: "+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native)+" · 응급번호 "+escapeHtml(getTripEmergencyNumber())+countryNoticeHtml(tripOpt)) : "전세계 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.";
   $("startBtn").disabled=!hasTrip;
-  $("startBtn").innerHTML=hasTrip ? "여행 국가 설정하고 시작하기 ›" : "오른쪽 TOP30에서 여행 국가를 선택하세요";
-  $("languageSearch").placeholder="TOP30 여행 국가 검색";
+  $("startBtn").innerHTML=hasTrip ? "여행 국가/지역 설정하고 시작하기 ›" : "전세계 국가/지역에서 여행지를 선택하세요";
+  $("languageSearch").placeholder="국가명, 지역명, 영어명, 언어명으로 검색";
   renderSetupSelects();
   syncInitialTripInputs(false);
   renderLanguageList();
@@ -2828,7 +2660,7 @@ function renderApp(){
   selected = "ko";
   const tx=t(), userOpt=getUserOption(), tripOpt=getTripOption(), localOpt=getLocalOption();
   const displayCountry = hasTripCountrySelection ? (tripCountryName || tripOpt.countryKo) : "여행 국가 미선택";
-  const displayLocalLanguage = hasTripCountrySelection ? localOpt.native : "여행 국가 선택 후 자동 설정";
+  const displayLocalLanguage = hasTripCountrySelection ? (localOpt.languageNameKo || localOpt.languageKo || localOpt.native) : "여행 국가 선택 후 자동 설정";
   const displayEmergencyNumber = hasTripCountrySelection ? getTripEmergencyNumber() : "국가 선택 후 표시";
   $("appTag").textContent=tx.appTag;
   $("topFlag").textContent=hasTripCountrySelection ? tripOpt.flag : "✈️";
@@ -3106,7 +2938,7 @@ async function useTripPlaceForLocation(type, recommendation=null){
   renderServices();
   renderFacilityList();
 
-  const country = (tripCountryName || (getTripOption().countryKo || getTripOption().country || "")).trim();
+  const country = (getTripMapCountryQuery() || tripCountryName || (getTripOption().countryKo || getTripOption().country || "")).trim();
   const city = (tripCityName || "").trim();
 
   if(country && city){
@@ -3172,9 +3004,11 @@ function chooseManualLocation(){
 }
 async function applyTravelPlace(){
   const tx=t();
-  const country=$("travelCountry").value.trim(), place=$("travelPlace").value.trim();
+  const countryRaw=$("travelCountry").value.trim(), place=$("travelPlace").value.trim();
+  const matchedCountry = findCountryOptionByText(countryRaw);
+  const country = (matchedCountry && matchedCountry.mapCountryQuery) || countryRaw;
   if(!country||!place){setStatus(tx.placeExample||"Enter country and area.");return;}
-  setStatus(country+" "+place+"...");
+  setStatus((matchedCountry ? matchedCountry.countryKo : countryRaw)+" "+place+"...");
   try{
     const loc=await geocodeTravelPlace(country,place);
     await applyLocation(facilityType,loc,(loc.label||country+" "+place));
@@ -3559,14 +3393,6 @@ async function showLocalMedicalCard(){
     renderMedicalCardPreview();
     return;
   }
-  if(!hasMedicalI18n(localLangId)){
-    medicalCardTranslation = null;
-    medicalCardTranslationKey = "";
-    medicalCardTranslationStatus = "error";
-    medicalCardTranslationMessage = "현지어 번역을 불러오지 못했습니다. 한국어 원문을 함께 보여주세요.";
-    renderMedicalCardPreview();
-    return;
-  }
 
   const payload = getMedicalCardPayload();
   const key = medicalCardCacheKey(payload);
@@ -3588,8 +3414,8 @@ async function showLocalMedicalCard(){
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        targetLanguage: localOpt.native || "",
-        targetLanguageCode: localLangId || tripCountryId || "",
+        targetLanguage: localOpt.languageNameEn || localOpt.native || "",
+        targetLanguageCode: localOpt.languageCode || getCountryLanguageCode(localLangId) || localLangId || tripCountryId || "",
         travelCountry: tripCountryName || tripOpt.countryKo || tripOpt.country || "",
         fields: payload
       })
@@ -3673,6 +3499,7 @@ function renderEmergencyInfoCard(){
   const tripOpt=getTripOption(), pack=getPhrasePack(localLangId), userPack=getPhrasePack(selected);
   $("emergencyInfoContent").innerHTML =
     '<div class="result-box emergency"><p style="font-size:20px;margin-bottom:6px">'+escapeHtml(tripCountryName || tripOpt.countryKo)+' 응급번호</p><p style="font-size:26px;font-weight:950">'+escapeHtml(String(getTripEmergencyNumber()))+'</p><p class="small">샘플 앱입니다. 실제 신고는 사용자의 기기 전화 앱 또는 현지 긴급번호로 직접 진행해야 합니다.</p></div>'+
+    countryNoticeHtml(tripOpt)+
     phraseBox("ambulance", pack.ambulance, userPack.ambulance)+
     phraseBox("help", pack.help, userPack.help);
 }
@@ -4916,8 +4743,8 @@ async function runAi(){
         travelCountry: tripCountryName || (getTripOption().countryKo || getTripOption().country || ""),
         travelCity: tripCityName || "",
         userLanguage: "ko",
-        localLanguage: localLangId || tripCountryId || "en",
-        localLanguageName: getLocalOption().native || "",
+        localLanguage: getCountryLanguageCode(localLangId) || "en",
+        localLanguageName: getLocalOption().languageNameEn || getLocalOption().native || "",
         emergencyNumber: getTripEmergencyNumber ? getTripEmergencyNumber() : getEmergencyNumber(selected)
       })
     });

@@ -538,17 +538,22 @@ exports.handler = async (event) => {
   }
 
   const targetLanguageCode = text(body.targetLanguageCode);
-  const config = getConfig(targetLanguageCode);
-  if(!config){
-    return json(400, {error: "Unsupported medical card language"});
-  }
+  const requestedTargetLanguage = text(body.targetLanguage);
+  const config = getConfig(targetLanguageCode) || {
+    lang: baseLanguage(targetLanguageCode || "en"),
+    cfg: {
+      ...MEDICAL_CARD_I18N.en,
+      locale: targetLanguageCode || "en",
+      languageLabel: requestedTargetLanguage || targetLanguageCode || "the selected local language"
+    }
+  };
 
   if(!process.env.OPENAI_API_KEY){
     return json(500, {error: "OPENAI_API_KEY is not configured"});
   }
 
   const fields = cleanFields(body.fields || {});
-  const targetLanguage = text(body.targetLanguage) || config.cfg.languageLabel;
+  const targetLanguage = requestedTargetLanguage || config.cfg.languageLabel;
   const travelCountry = text(body.travelCountry);
 
   try{
