@@ -227,7 +227,7 @@
       </div>
     </section>
 
-    <section id="medicalCardTestPanel" class="container card hidden" style="margin-top:14px">
+    <section id="medicalCardTestPanel" class="container card hidden" style="margin-top:14px;display:none" hidden>
       <p class="eyebrow">Medical Card Test</p>
       <h2>30개 국가 의료카드 번역 테스트</h2>
       <p class="small muted">이 패널은 URL에 <strong>?sosTest=medical-card</strong>가 있을 때만 표시됩니다.</p>
@@ -245,6 +245,8 @@
           }catch(error){
             show = false;
           }
+          panel.hidden = !show;
+          panel.style.display = show ? "" : "none";
           panel.classList.toggle("hidden", !show);
         }
         toggleMedicalCardTestPanel();
@@ -3776,8 +3778,11 @@ async function runMedicalCardTestPanel(){
 function ensureMedicalCardTestPanel(){
   const panel = $("medicalCardTestPanel");
   if(!panel) return;
-  panel.classList.toggle("hidden", !isMedicalCardTestMode());
-  if(!isMedicalCardTestMode()) return;
+  const show = isMedicalCardTestMode();
+  panel.hidden = !show;
+  panel.style.display = show ? "" : "none";
+  panel.classList.toggle("hidden", !show);
+  if(!show) return;
   const btn = $("runMedicalCardTestBtn");
   if(btn && !btn.dataset.bound){
     btn.dataset.bound = "true";
