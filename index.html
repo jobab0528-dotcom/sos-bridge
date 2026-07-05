@@ -3373,9 +3373,7 @@ function getMedicalMissingText(id=localLangId){
 const medicalCardStorageKeys = [
   "travelDoctorMedicalCard",
   "travelDoctorMedicalCardTranslation",
-  "medicalCardTranslation",
-  "medicalCardTestData",
-  "medicalCardTestResult"
+  "medicalCardTranslation"
 ];
 
 function emptyMedicalCardData(){
@@ -3414,10 +3412,6 @@ function saveMedicalCard(){
 }
 function loadMedicalCard(){
   try{
-    if(localStorage.getItem("medicalCardTestData") || localStorage.getItem("medicalCardTestResult")){
-      removeMedicalCardStorage();
-      return {};
-    }
     const data = sanitizeMedicalCardData(JSON.parse(localStorage.getItem("travelDoctorMedicalCard")||"{}"));
     if(!hasAnyMedicalCardValue(data)) localStorage.removeItem("travelDoctorMedicalCard");
     return data;
