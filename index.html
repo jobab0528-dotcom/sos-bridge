@@ -308,9 +308,12 @@
           <div class="step"><span class="check">✓</span><span>현지 의료진, 약사, 주변 사람에게 보여줄 문장은 선택한 여행 국가의 언어로 제공됩니다.</span></div>
           <div class="step"><span class="check">✓</span><span>입력한 증상과 의료카드 정보는 AI 응급도 참고 안내 또는 현지어 번역 처리를 위해 사용될 수 있습니다.</span></div>
           <div class="step"><span class="check">✓</span><span>위치정보는 가까운 병원과 약국 검색을 위해 사용됩니다.</span></div>
+          <div class="step"><span class="check">✓</span><span>병원·약국 찾기 기능은 Google Maps를 통해 연결되며, 앱이 없을 경우 브라우저에서 열릴 수 있습니다.</span></div>
           <div class="step"><span class="check">✓</span><span>민감한 정보는 필요한 범위에서만 입력하세요.</span></div>
           <div class="step"><span class="check">✓</span><span>본 서비스는 의료진의 진단을 대체하지 않습니다.</span></div>
         </div>
+        <div class="notice teal" style="margin-top:12px">병원·약국 찾기 기능은 Google Maps를 통해 연결됩니다. 모바일에서는 Google Maps 앱이 설치되어 있으면 더 원활하게 이용할 수 있으며, 앱이 없을 경우 브라우저에서 Google Maps가 열릴 수 있습니다. 일부 국가, 지역, 기기 환경에서는 길찾기 기능이 제한될 수 있습니다.</div>
+        <a class="btn primary w-full" style="margin-top:12px" href="./privacy.html">개인정보 처리방침 보기</a>
       </section>
 
       
@@ -347,6 +350,7 @@
         <p class="eyebrow">Hospital Finder</p>
         <h2>증상 맞춤 병원찾기</h2>
         <p class="small muted">증상을 입력하면 신체부위와 증상을 함께 분석해 진료과목에 맞는 병원을 가까운 순으로 보여줍니다. 예: 눈→안과, 이/잇몸→치과, 팔다리/관절→정형외과·외과, 복통→내과·소화기내과.</p>
+        <div class="notice teal small" style="margin-top:12px">병원·약국 검색은 Google Maps로 연결됩니다. 모바일에서는 Google Maps 앱이 설치되어 있으면 더 원활하게 이용할 수 있으며, 앱이 없을 경우 브라우저에서 열릴 수 있습니다.</div>
         <textarea id="hospitalSymptomInput" class="textarea" style="margin-top:12px" placeholder="예: 배가 아프고 열이 있어요 / 교통사고를 당했어요 / 숨쉬기 힘들어요"></textarea>
         <div class="two" style="margin-top:10px">
           <button id="findHospitalBySymptomBtn" class="btn primary w-full" type="button">🏥 증상 맞춤 병원찾기</button>
@@ -360,6 +364,7 @@
           <h2 id="facilityTitle" style="margin:0">가까운 병원·의원</h2>
           <span class="distance">거리순</span>
         </div>
+        <div class="notice teal small" style="margin-bottom:12px">Google Maps 앱 또는 브라우저를 통해 병원·약국 위치와 길찾기를 확인합니다. 일부 국가, 지역, 기기 환경에서는 길찾기 기능이 제한될 수 있습니다.</div>
         <div id="facilityList"></div>
       </section>
     </section>
