@@ -239,15 +239,20 @@
         function toggleMedicalCardTestPanel(){
           var panel = document.getElementById("medicalCardTestPanel");
           if(!panel) return;
-          var show = false;
+          var showMedicalCardTest = false;
           try{
-            show = new URLSearchParams(window.location.search).get("sosTest") === "medical-card";
+            var sosTestValue = new URLSearchParams(window.location.search).get("sosTest");
+            showMedicalCardTest =
+              sosTestValue === "medical-card" ||
+              sosTestValue === "medicalCard" ||
+              sosTestValue === "의료카드" ||
+              sosTestValue === "의료 카드";
           }catch(error){
-            show = false;
+            showMedicalCardTest = false;
           }
-          panel.hidden = !show;
-          panel.style.display = show ? "" : "none";
-          panel.classList.toggle("hidden", !show);
+          panel.hidden = !showMedicalCardTest;
+          panel.style.display = showMedicalCardTest ? "block" : "none";
+          panel.classList.toggle("hidden", !showMedicalCardTest);
         }
         toggleMedicalCardTestPanel();
         if(document.readyState === "loading"){
@@ -3656,7 +3661,13 @@ function renderMedicalCardPreview(){
 
 function isMedicalCardTestMode(){
   try{
-    return new URLSearchParams(window.location.search).get("sosTest") === "medical-card";
+    const sosTestValue = new URLSearchParams(window.location.search).get("sosTest");
+    const showMedicalCardTest =
+      sosTestValue === "medical-card" ||
+      sosTestValue === "medicalCard" ||
+      sosTestValue === "의료카드" ||
+      sosTestValue === "의료 카드";
+    return showMedicalCardTest;
   }catch(error){
     return false;
   }
@@ -3780,7 +3791,7 @@ function ensureMedicalCardTestPanel(){
   if(!panel) return;
   const show = isMedicalCardTestMode();
   panel.hidden = !show;
-  panel.style.display = show ? "" : "none";
+  panel.style.display = show ? "block" : "none";
   panel.classList.toggle("hidden", !show);
   if(!show) return;
   const btn = $("runMedicalCardTestBtn");
