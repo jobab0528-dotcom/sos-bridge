@@ -491,7 +491,13 @@ function normalizeCondition(resultValue, originalValue, lang, cfg){
 }
 
 function normalizeResult(result = {}, original, lang, cfg){
+  const responseLabels = result && (result._labels || result.labels);
+  const labels = {};
+  FIELD_KEYS.forEach((key) => {
+    labels[key] = text(responseLabels && responseLabels[key]) || (cfg.labels && cfg.labels[key]) || MEDICAL_CARD_I18N.en.labels[key] || key;
+  });
   return {
+    _labels: labels,
     name: normalizeName(result, original, cfg),
     passportName: text(original.passportName),
     nationality: normalizeNationality(result.nationality, original.nationality, lang, cfg),
@@ -520,7 +526,8 @@ function systemPrompt(cfg){
     "If the medication is a generic expression such as 감기약, 진통제, 혈압약, or 소화제, translate the generic category and state that the ingredient is not specified in the target language.",
     "For allergies, make the allergy meaning explicit in the target language.",
     "For existing medical conditions, translate only the condition name. Do not add severity, current status, or action advice.",
-    "Required JSON keys: name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
+    "Also return _labels with target-language field labels for the same keys.",
+    "Required JSON keys: _labels, name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
   ].join("\n");
 }
 
@@ -576,6 +583,7 @@ exports.handler = async (event) => {
               targetLanguageCode,
               travelCountry,
               fieldOrder: FIELD_KEYS,
+              labelKeys: FIELD_KEYS,
               fields
             })
           }

@@ -2219,6 +2219,8 @@ let medicalCardTranslation = null;
 let medicalCardTranslationKey = "";
 let medicalCardTranslationStatus = "idle";
 let medicalCardTranslationMessage = "";
+let helpPhraseTranslationCache = {};
+let helpPhraseTranslationStatus = {};
 let pendingLocationRequest = null;
 
 const $ = id => document.getElementById(id);
@@ -2404,6 +2406,79 @@ function getBaseLang(id){
   return langAliases[code] || code.split("-")[0] || "en";
 }
 function getPhrasePack(id=localLangId){ return phrasePacks[getBaseLang(id)] || phrasePacks.en; }
+function getStaticPhrasePack(id=localLangId){ return phrasePacks[getBaseLang(id)] || null; }
+
+const phraseTranslationFailureMessage = "현지어 변환에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+
+function helpPhraseCacheKey(keys, id=localLangId){
+  const opt = getCountryById(id) || getLocalOption();
+  return JSON.stringify({
+    country: opt && opt.id ? opt.id : id,
+    languageCode: (opt && opt.languageCode) || getCountryLanguageCode(id),
+    languageName: (opt && opt.languageNameEn) || getCountryLanguageName(id),
+    keys
+  });
+}
+
+function normalizePhraseTranslations(data, keys){
+  const source = data && (data.translations || data.phrases || data);
+  const normalized = {};
+  keys.forEach((key) => {
+    const value = String((source && source[key]) || "").trim();
+    if(value) normalized[key] = value;
+  });
+  return normalized;
+}
+
+async function requestHelpPhraseTranslations(keys, section){
+  const cacheKey = helpPhraseCacheKey(keys);
+  if(helpPhraseTranslationCache[cacheKey] || helpPhraseTranslationStatus[cacheKey] === "loading") return;
+  helpPhraseTranslationStatus[cacheKey] = "loading";
+
+  try{
+    const localOpt = getLocalOption();
+    const phrases = {};
+    keys.forEach((key) => { phrases[key] = phrasePacks.ko[key] || phrasePacks.en[key] || ""; });
+    const res = await fetch("/.netlify/functions/translate-help-phrases", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        targetLanguage: localOpt.languageNameEn || getCountryLanguageName(localLangId) || localOpt.native || "",
+        targetLanguageCode: localOpt.languageCode || getCountryLanguageCode(localLangId) || "",
+        travelCountry: tripCountryName || localOpt.countryKo || localOpt.country || "",
+        phrases
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(data.error || data.detail || "translation failed");
+    const normalized = normalizePhraseTranslations(data, keys);
+    if(keys.some((key) => !normalized[key])) throw new Error("missing translated phrase");
+    helpPhraseTranslationCache[cacheKey] = normalized;
+    helpPhraseTranslationStatus[cacheKey] = "done";
+  }catch(error){
+    helpPhraseTranslationStatus[cacheKey] = "error";
+  }
+
+  if(section === "local" && $("localPhraseCard") && !$("localPhraseCard").classList.contains("hidden")) renderLocalPhraseCard();
+  if(section === "pharmacy" && $("pharmacyPhraseCard") && !$("pharmacyPhraseCard").classList.contains("hidden")) renderPharmacyPhraseCard();
+  if(section === "emergency" && $("emergencyInfoCard") && !$("emergencyInfoCard").classList.contains("hidden")) renderEmergencyInfoCard();
+  if(section === "triage" && triage) renderTriage();
+}
+
+function getTranslatedPhrasePack(keys, section){
+  const staticPack = getStaticPhrasePack(localLangId);
+  if(staticPack) return {pack: staticPack, status: "done"};
+
+  const cacheKey = helpPhraseCacheKey(keys);
+  if(helpPhraseTranslationCache[cacheKey]) return {pack: helpPhraseTranslationCache[cacheKey], status: "done"};
+  if(helpPhraseTranslationStatus[cacheKey] === "error") return {pack: null, status: "error"};
+
+  const sectionElementIds = {local: "localPhraseCard", pharmacy: "pharmacyPhraseCard", emergency: "emergencyInfoCard"};
+  const sectionElement = sectionElementIds[section] ? $(sectionElementIds[section]) : null;
+  const shouldRequest = section === "triage" || (sectionElement && !sectionElement.classList.contains("hidden"));
+  if(shouldRequest) requestHelpPhraseTranslations(keys, section);
+  return {pack: null, status: "loading"};
+}
 
 const medicalLabelPacks = {
   ko:{name:"이름", nationality:"국적", age:"나이", blood:"혈액형", allergy:"알레르기", medication:"복용 중인 약", condition:"기존 질환", contact:"비상 연락처", insurance:"여행자 보험", hotel:"숙소 주소"},
@@ -3155,7 +3230,6 @@ function phraseBox(title, localText, userText){
 }
 function renderLocalPhraseCard(){
   if(!$("localPhraseList")) return;
-  const pack=getPhrasePack(localLangId);
   const userPack=getPhrasePack("ko");
   const localOpt=getLocalOption();
   $("localPhraseTitle").textContent="현지어 도움 문장 · "+localOpt.native;
@@ -3167,7 +3241,14 @@ function renderLocalPhraseCard(){
   else if(situation.includes("fever")) keys=["fever","hospital","pharmacy","help"];
   else if(situation.includes("abdominal")) keys=["stomach","hospital","pain","help"];
   else if(triage && triage.recommended==="pharmacy") keys=["pharmacy","pharmacyQ","fever","dosage"];
-  $("localPhraseList").innerHTML = '<div class="notice teal">한국어로 상황을 확인한 뒤, 필요한 문장을 현지인에게 보여주세요.</div>' + keys.map(k => phraseBox(k, pack[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
+  const translated = getTranslatedPhrasePack(keys, "local");
+  const notice = translated.status === "loading"
+    ? '<div class="notice teal">현지어 도움 문장을 준비하는 중입니다...</div>'
+    : translated.status === "error"
+      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>'
+      : '<div class="notice teal">한국어로 상황을 확인한 뒤, 필요한 문장을 현지인에게 보여주세요.</div>';
+  const pack = translated.pack || phrasePacks.ko;
+  $("localPhraseList").innerHTML = notice + keys.map(k => phraseBox(k, pack[k] || phrasePacks.ko[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
 }
 function medicalFields(){
   return [
@@ -3320,7 +3401,16 @@ function normalizeMedicalTranslation(result, original){
     const raw = String(original[key] || "").trim();
     return raw || (cfg ? cfg.blankValue : "");
   };
-  return {
+  const responseLabels = result && (result._labels || result.labels);
+  const translatedLabels = {};
+  const fallbackLabels = getMedicalLabels(localLangId);
+  if(responseLabels && typeof responseLabels === "object"){
+    medicalFields().forEach(([, labelKey, en, ko]) => {
+      const valueKey = (medicalValueFields.find(([key]) => key === labelKey) || [null, labelKey])[1];
+      translatedLabels[labelKey] = String(responseLabels[valueKey] || responseLabels[labelKey] || "").trim() || fallbackLabels[labelKey] || ko || en;
+    });
+  }
+  const normalized = {
     name: pick("name"),
     passportName: original.passportName || "",
     nationality: pick("nationality"),
@@ -3333,6 +3423,8 @@ function normalizeMedicalTranslation(result, original){
     travelInsurance: pick("travelInsurance"),
     hotelAddress: pick("hotelAddress")
   };
+  if(Object.keys(translatedLabels).length) normalized._labels = translatedLabels;
+  return normalized;
 }
 
 function medicalRowsHtml(labels, payload, badge){
@@ -3443,7 +3535,7 @@ function renderMedicalCardPreview(){
   const payload = getMedicalCardPayload();
   const localOpt=getLocalOption();
   const tripOpt=getTripOption();
-  const localLabels=getMedicalLabels(localLangId);
+  const localLabels=(medicalCardTranslation && medicalCardTranslation._labels) || getMedicalLabels(localLangId);
   const koLabels=getMedicalLabels("ko");
   const tripLabel = hasTripCountrySelection ? (tripCountryName || tripOpt.countryKo) : "여행 국가 미선택";
   const tabHtml =
@@ -3496,19 +3588,31 @@ function renderMedicalCardPreview(){
 
 function renderEmergencyInfoCard(){
   if(!$("emergencyInfoContent")) return;
-  const tripOpt=getTripOption(), pack=getPhrasePack(localLangId), userPack=getPhrasePack(selected);
+  const tripOpt=getTripOption(), userPack=getPhrasePack("ko");
+  const keys = ["ambulance","help"];
+  const translated = getTranslatedPhrasePack(keys, "emergency");
+  const pack = translated.pack || phrasePacks.ko;
+  const phraseNotice = translated.status === "error" ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>' : "";
   $("emergencyInfoContent").innerHTML =
     '<div class="result-box emergency"><p style="font-size:20px;margin-bottom:6px">'+escapeHtml(tripCountryName || tripOpt.countryKo)+' 응급번호</p><p style="font-size:26px;font-weight:950">'+escapeHtml(String(getTripEmergencyNumber()))+'</p><p class="small">샘플 앱입니다. 실제 신고는 사용자의 기기 전화 앱 또는 현지 긴급번호로 직접 진행해야 합니다.</p></div>'+
     countryNoticeHtml(tripOpt)+
+    phraseNotice+
     phraseBox("ambulance", pack.ambulance, userPack.ambulance)+
     phraseBox("help", pack.help, userPack.help);
 }
 function renderPharmacyPhraseCard(){
   if(!$("pharmacyPhraseList")) return;
-  const pack=getPhrasePack(localLangId), userPack=getPhrasePack(selected), localOpt=getLocalOption();
+  const userPack=getPhrasePack("ko"), localOpt=getLocalOption();
   $("pharmacyPhraseTitle").textContent="약국에서 보여줄 문장 · "+localOpt.native;
   const keys=["pharmacy","pharmacyQ","dosage","prescription","allergy","medication","fever","stomach"];
-  $("pharmacyPhraseList").innerHTML = keys.map(k => phraseBox(k, pack[k] || phrasePacks.en[k], userPack[k] || phrasePacks.en[k])).join("");
+  const translated = getTranslatedPhrasePack(keys, "pharmacy");
+  const notice = translated.status === "loading"
+    ? '<div class="notice teal">현지어 약국 상담 문장을 준비하는 중입니다...</div>'
+    : translated.status === "error"
+      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>'
+      : "";
+  const pack = translated.pack || phrasePacks.ko;
+  $("pharmacyPhraseList").innerHTML = notice + keys.map(k => phraseBox(k, pack[k] || phrasePacks.ko[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
 }
 function hideFeatureSections(){
   ["localPhraseCard","medicalCardSection","emergencyInfoCard","pharmacyPhraseCard","hospitalFinderCard","infoGuideCard"].forEach(id=>{ const el=$(id); if(el) el.classList.add("hidden"); });
@@ -4795,7 +4899,10 @@ function localTriagePhrase(phrase){
   if(phrase && phrase.local) return phrase.local;
   if(base==="ko" && phrase && phrase.ko) return phrase.ko;
   if(base==="en" && phrase && phrase.en) return phrase.en;
-  const pack=getPhrasePack(localLangId);
+  const keys = ["help","ambulance","hospital"];
+  const translated = getTranslatedPhrasePack(keys, "triage");
+  if(translated.status === "error") return phraseTranslationFailureMessage;
+  const pack=translated.pack || phrasePacks.ko;
   return [pack.help, pack.ambulance, pack.hospital].filter(Boolean).join(" ") || (phrase && phrase.en) || "I need help. Please call medical staff or an ambulance.";
 }
 
