@@ -306,6 +306,31 @@ function getConfig(code){
   return MEDICAL_CARD_I18N[lang] ? {lang, cfg: {...MEDICAL_CARD_I18N[lang], dynamicConfig: false}} : null;
 }
 
+function dynamicConfig(languageCode, languageName){
+  return {
+    lang: baseLanguage(languageCode || "en"),
+    cfg: {
+      locale: languageCode || "en",
+      languageLabel: languageName || languageCode || "the selected local language",
+      cardTitle: "",
+      labels: {},
+      blankValue: "",
+      noneValue: "",
+      medicationUserEnteredSuffix: "",
+      genericMedicineIngredientUnspecified: "",
+      southKoreaNationality: "",
+      genericMedicines: {},
+      allergiesMap: {},
+      conditionsMap: {},
+      dynamicConfig: true
+    }
+  };
+}
+
+function getAttemptConfig(languageCode, languageName){
+  return getConfig(languageCode) || dynamicConfig(languageCode, languageName);
+}
+
 function cleanFields(fields = {}){
   const source = fields && typeof fields === "object" ? fields : {};
   const aliases = {
@@ -558,7 +583,7 @@ function hasEnglishFallbackLeak(normalized, lang){
     normalized.travelInsurance,
     normalized.hotelAddress
   ].map(text).join("\n");
-  return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user|Asthma)\b/i.test(values);
+  return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user)\b/i.test(values);
 }
 
 function hasMissingDynamicOutput(normalized, cfg){
@@ -566,6 +591,113 @@ function hasMissingDynamicOutput(normalized, cfg){
   return !normalized._cardTitle ||
     !normalized._blankValue ||
     FIELD_KEYS.some((key) => !text(normalized[key]));
+}
+
+function addAttempt(attempts, languageName, languageCode, reason, fallbackUsed){
+  const name = text(languageName);
+  const code = text(languageCode);
+  if(!name && !code) return;
+  const normalizedCode = code.toLowerCase();
+  const normalizedName = name.toLowerCase();
+  if(attempts.some((item) => item.languageCode.toLowerCase() === normalizedCode && item.languageName.toLowerCase() === normalizedName && item.reason === reason)) return;
+  attempts.push({languageName: name || code, languageCode: code || name, reason, fallbackUsed: Boolean(fallbackUsed)});
+}
+
+function buildTranslationAttempts(body, targetLanguage, targetLanguageCode){
+  const selectedCountry = body.selectedCountry && typeof body.selectedCountry === "object" ? body.selectedCountry : {};
+  const attempts = [];
+  addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language translation", false);
+  addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language retry", false);
+  addAttempt(
+    attempts,
+    body.fallbackLanguageNameEn || selectedCountry.fallbackLanguageNameEn,
+    body.fallbackLanguageCode || selectedCountry.fallbackLanguageCode,
+    "Primary language translation failed",
+    true
+  );
+  if(baseLanguage(targetLanguageCode) === "fil"){
+    addAttempt(attempts, "Tagalog", "tl", "Filipino translation failed", true);
+  }
+  if(!attempts.some((item) => baseLanguage(item.languageCode) === "en")){
+    addAttempt(attempts, "English", "en", "Fallback language translation failed", true);
+  }
+  return attempts;
+}
+
+async function translateOnce({attempt, fields, travelCountry}){
+  const attemptConfig = getAttemptConfig(attempt.languageCode, attempt.languageName);
+  const response = await fetch(OPENAI_API_URL, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      temperature: 0,
+      response_format: {type: "json_object"},
+      messages: [
+        {role: "system", content: systemPrompt(attemptConfig.cfg)},
+        {
+          role: "user",
+          content: JSON.stringify({
+            targetLanguage: attempt.languageName,
+            targetLanguageCode: attempt.languageCode,
+            travelCountry,
+            fieldOrder: FIELD_KEYS,
+            labelKeys: FIELD_KEYS,
+            fields
+          })
+        }
+      ]
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if(!response.ok){
+    throw new Error(data.error && data.error.message ? data.error.message : "OpenAI API request failed");
+  }
+
+  const content = data.choices && data.choices[0] && data.choices[0].message
+    ? data.choices[0].message.content
+    : "{}";
+  const parsed = JSON.parse(content || "{}");
+  const normalized = normalizeResult(parsed, fields, attemptConfig.lang, attemptConfig.cfg);
+
+  if(hasMissingDynamicOutput(normalized, attemptConfig.cfg)){
+    throw new Error("Missing target-language medical card fields");
+  }
+
+  if(hasEnglishFallbackLeak(normalized, attemptConfig.lang)){
+    throw new Error("Target-language validation failed");
+  }
+
+  return {
+    ...normalized,
+    language: attempt.languageName,
+    languageCode: attempt.languageCode,
+    usedLanguage: attempt.languageName,
+    usedLanguageCode: attempt.languageCode,
+    fallbackUsed: attempt.fallbackUsed,
+    fallbackReason: attempt.fallbackUsed ? attempt.reason : "",
+    attempts: [attempt.reason]
+  };
+}
+
+function buildLocalFallback(fields, reason){
+  const cfg = MEDICAL_CARD_I18N.en;
+  const normalized = normalizeResult({}, fields, "en", {...cfg, dynamicConfig: false});
+  return {
+    ...normalized,
+    language: "English",
+    languageCode: "en",
+    usedLanguage: "English",
+    usedLanguageCode: "en",
+    fallbackUsed: true,
+    fallbackReason: reason || "All translation attempts failed",
+    _originalKo: fields,
+    attempts: ["Local English fallback"]
+  };
 }
 
 function systemPrompt(cfg){
@@ -582,7 +714,7 @@ function systemPrompt(cfg){
     "If the medication is a generic expression such as 감기약, 진통제, 혈압약, or 소화제, translate the generic category and state that the ingredient is not specified in the target language.",
     "For allergies, make the allergy meaning explicit in the target language.",
     "For existing medical conditions, translate only the condition name. Do not add severity, current status, or action advice.",
-    "If the target language is not English, do not return English fallback phrases such as Medical Card, Not provided, Peanut allergy, medication entered by the user, or Asthma.",
+    "If the target language is not English, do not return English fallback phrases such as Medical Card, Not provided, Peanut allergy, or medication entered by the user.",
     "Also return _cardTitle, _blankValue, and _labels with target-language field labels for the same keys.",
     "Required JSON keys: _cardTitle, _blankValue, _labels, name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
   ].join("\n");
@@ -603,24 +735,6 @@ exports.handler = async (event) => {
 
   const targetLanguageCode = text(body.targetLanguageCode);
   const requestedTargetLanguage = text(body.targetLanguage);
-  const config = getConfig(targetLanguageCode) || {
-    lang: baseLanguage(targetLanguageCode || "en"),
-    cfg: {
-      locale: targetLanguageCode || "en",
-      languageLabel: requestedTargetLanguage || targetLanguageCode || "the selected local language",
-      cardTitle: "",
-      labels: {},
-      blankValue: "",
-      noneValue: "",
-      medicationUserEnteredSuffix: "",
-      genericMedicineIngredientUnspecified: "",
-      southKoreaNationality: "",
-      genericMedicines: {},
-      allergiesMap: {},
-      conditionsMap: {},
-      dynamicConfig: true
-    }
-  };
 
   if(!process.env.OPENAI_API_KEY){
     return json(500, {error: "OPENAI_API_KEY is not configured"});
@@ -631,71 +745,31 @@ exports.handler = async (event) => {
   }
 
   const fields = cleanFields(body.fields || body.medicalCard || {});
-  const targetLanguage = requestedTargetLanguage || config.cfg.languageLabel;
+  const selectedCountry = body.selectedCountry && typeof body.selectedCountry === "object" ? body.selectedCountry : {};
+  const targetLanguage = requestedTargetLanguage || text(selectedCountry.languageNameEn) || targetLanguageCode || "the selected local language";
   const travelCountry = text(body.travelCountry || body.countryNameKo || body.countryNameEn);
+  const attempts = buildTranslationAttempts(body, targetLanguage, targetLanguageCode);
+  const attemptErrors = [];
 
-  try{
-    const response = await fetch(OPENAI_API_URL, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        temperature: 0,
-        response_format: {type: "json_object"},
-        messages: [
-          {role: "system", content: systemPrompt(config.cfg)},
-          {
-            role: "user",
-            content: JSON.stringify({
-              targetLanguage,
-              targetLanguageCode,
-              travelCountry,
-              fieldOrder: FIELD_KEYS,
-              labelKeys: FIELD_KEYS,
-              fields
-            })
-          }
-        ]
-      })
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if(!response.ok){
-      return json(response.status >= 500 ? 502 : response.status, {
-        error: "Medical card translation failed",
-        detail: data.error && data.error.message ? data.error.message : "OpenAI API request failed"
+  for(const attempt of attempts){
+    try{
+      const result = await translateOnce({attempt, fields, travelCountry});
+      result.attempts = attempts.slice(0, attempts.indexOf(attempt) + 1).map((item) => item.reason);
+      if(attemptErrors.length) result.fallbackReason = result.fallbackReason || attemptErrors[attemptErrors.length - 1].message;
+      if(attemptErrors.length) result.attemptErrors = attemptErrors;
+      return json(200, result);
+    }catch(error){
+      attemptErrors.push({
+        language: attempt.languageName,
+        languageCode: attempt.languageCode,
+        reason: attempt.reason,
+        message: error && error.message ? error.message : "Unknown error"
       });
     }
-
-    const content = data.choices && data.choices[0] && data.choices[0].message
-      ? data.choices[0].message.content
-      : "{}";
-    const parsed = JSON.parse(content || "{}");
-    const normalized = normalizeResult(parsed, fields, config.lang, config.cfg);
-
-    if(hasMissingDynamicOutput(normalized, config.cfg)){
-      return json(502, {
-        error: "Medical card translation failed",
-        detail: "Missing target-language medical card fields"
-      });
-    }
-
-    if(hasEnglishFallbackLeak(normalized, config.lang)){
-      return json(502, {
-        error: "Medical card translation failed",
-        detail: "Target-language validation failed"
-      });
-    }
-
-    return json(200, normalized);
-  }catch(error){
-    return json(502, {
-      error: "Medical card translation failed",
-      detail: error && error.message ? error.message : "Unknown error"
-    });
   }
+
+  return json(200, {
+    ...buildLocalFallback(fields, attemptErrors.length ? attemptErrors[attemptErrors.length - 1].message : "All translation attempts failed"),
+    attemptErrors
+  });
 };

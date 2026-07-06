@@ -1613,7 +1613,11 @@
     "country": "Madagascar",
     "languageKo": "말라가시어",
     "native": "Malagasy",
-    "rank": 47
+    "rank": 47,
+    "fallbackLanguageNameKo": "프랑스어",
+    "fallbackLanguageNameEn": "French",
+    "fallbackLanguageCode": "fr",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "mq",
@@ -2351,7 +2355,11 @@
     "country": "Myanmar (Burma)",
     "languageKo": "버마어",
     "native": "မြန်မာ",
-    "rank": 68
+    "rank": 68,
+    "fallbackLanguageNameKo": "영어",
+    "fallbackLanguageNameEn": "English",
+    "fallbackLanguageCode": "en",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "fm",
@@ -3284,7 +3292,11 @@
     "country": "Samoa",
     "languageKo": "사모아어",
     "native": "사모아어",
-    "rank": 95
+    "rank": 95,
+    "fallbackLanguageNameKo": "영어",
+    "fallbackLanguageNameEn": "English",
+    "fallbackLanguageCode": "en",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "ar-sa",
@@ -3862,7 +3874,11 @@
     "country": "Sri Lanka",
     "languageKo": "싱할라어",
     "native": "සිංහල",
-    "rank": 112
+    "rank": 112,
+    "fallbackLanguageNameKo": "영어",
+    "fallbackLanguageNameEn": "English",
+    "fallbackLanguageCode": "en",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "sj",
@@ -4334,7 +4350,11 @@
     "country": "Armenia",
     "languageKo": "아르메니아어",
     "native": "հայերեն",
-    "rank": 125
+    "rank": 125,
+    "fallbackLanguageNameKo": "영어",
+    "fallbackLanguageNameEn": "English",
+    "fallbackLanguageCode": "en",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "ar",
@@ -4525,6 +4545,18 @@
         "languageNameEn": "Catalan",
         "languageCode": "ca",
         "native": "català"
+      },
+      {
+        "languageNameKo": "스페인어",
+        "languageNameEn": "Spanish",
+        "languageCode": "es",
+        "native": "español"
+      },
+      {
+        "languageNameKo": "프랑스어",
+        "languageNameEn": "French",
+        "languageCode": "fr",
+        "native": "français"
       }
     ],
     "emergencyNumber": "현지 응급번호 확인 필요",
@@ -4538,7 +4570,11 @@
     "country": "Andorra",
     "languageKo": "카탈로니아어",
     "native": "català",
-    "rank": 131
+    "rank": 131,
+    "fallbackLanguageNameKo": "스페인어",
+    "fallbackLanguageNameEn": "Spanish",
+    "fallbackLanguageCode": "es",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "al",
@@ -4742,7 +4778,11 @@
     "country": "Eritrea",
     "languageKo": "티그리냐어",
     "native": "ትግርኛ",
-    "rank": 137
+    "rank": 137,
+    "fallbackLanguageNameKo": "아랍어",
+    "fallbackLanguageNameEn": "Arabic",
+    "fallbackLanguageCode": "ar",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "sz",
@@ -4878,7 +4918,11 @@
     "country": "Ethiopia",
     "languageKo": "암하라어",
     "native": "አማርኛ",
-    "rank": 141
+    "rank": 141,
+    "fallbackLanguageNameKo": "영어",
+    "fallbackLanguageNameEn": "English",
+    "fallbackLanguageCode": "en",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "sv",
@@ -6216,7 +6260,11 @@
     "country": "Kenya",
     "languageKo": "스와힐리어",
     "native": "Kiswahili",
-    "rank": 180
+    "rank": 180,
+    "fallbackLanguageNameKo": "영어",
+    "fallbackLanguageNameEn": "English",
+    "fallbackLanguageCode": "en",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "ky",
@@ -6862,7 +6910,11 @@
     "country": "Tanzania",
     "languageKo": "스와힐리어",
     "native": "Kiswahili",
-    "rank": 199
+    "rank": 199,
+    "fallbackLanguageNameKo": "영어",
+    "fallbackLanguageNameEn": "English",
+    "fallbackLanguageCode": "en",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "th",
@@ -7817,7 +7869,11 @@
     "country": "Philippines",
     "languageKo": "필리핀어",
     "native": "Filipino",
-    "rank": 227
+    "rank": 227,
+    "fallbackLanguageNameKo": "타갈로그어",
+    "fallbackLanguageNameEn": "Tagalog",
+    "fallbackLanguageCode": "tl",
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
   },
   {
     "id": "hu",

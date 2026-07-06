@@ -251,6 +251,10 @@
               <th style="padding:9px;border:1px solid var(--border)">복용약 결과</th>
               <th style="padding:9px;border:1px solid var(--border)">기존 질환 결과</th>
               <th style="padding:9px;border:1px solid var(--border)">도움 문장 결과</th>
+              <th style="padding:9px;border:1px solid var(--border)">사용 언어</th>
+              <th style="padding:9px;border:1px solid var(--border)">fallback 사용 여부</th>
+              <th style="padding:9px;border:1px solid var(--border)">fallback 사유</th>
+              <th style="padding:9px;border:1px solid var(--border)">오류 메시지</th>
               <th style="padding:9px;border:1px solid var(--border)">문제 설명</th>
             </tr>
           </thead>
@@ -3332,8 +3336,27 @@ function getSelectedCountryForTranslation(){
     countryNameEn: (opt && (opt.countryNameEn || opt.country)) || "",
     languageNameKo: (opt && (opt.languageNameKo || opt.languageKo || opt.native)) || "",
     languageNameEn: (opt && (opt.languageNameEn || opt.native)) || "",
-    languageCode: (opt && opt.languageCode) || getCountryLanguageCode(localLangId) || ""
+    languageCode: (opt && opt.languageCode) || getCountryLanguageCode(localLangId) || "",
+    fallbackLanguageNameKo: (opt && opt.fallbackLanguageNameKo) || "",
+    fallbackLanguageNameEn: (opt && opt.fallbackLanguageNameEn) || "",
+    fallbackLanguageCode: (opt && opt.fallbackLanguageCode) || "",
+    fallbackNotice: (opt && opt.fallbackNotice) || ""
   };
+}
+
+function fallbackLanguageDisplayName(data){
+  const selectedCountry = getSelectedCountryForTranslation();
+  const usedCode = String((data && data.usedLanguageCode) || "").toLowerCase();
+  if(selectedCountry.fallbackLanguageCode && usedCode === String(selectedCountry.fallbackLanguageCode).toLowerCase()){
+    return selectedCountry.fallbackLanguageNameKo || selectedCountry.fallbackLanguageNameEn || data.usedLanguage || "보조 언어";
+  }
+  const common = {en:"영어", fr:"프랑스어", es:"스페인어", ar:"아랍어", tl:"타갈로그어", de:"독일어"};
+  return common[usedCode] || (data && (data.usedLanguage || data.language)) || "보조 언어";
+}
+
+function medicalFallbackNoticeHtml(data){
+  if(!data || !data.fallbackUsed) return "";
+  return '<p class="small muted" style="line-height:1.55;margin:0">대표 현지어 변환이 어려워 '+escapeHtml(fallbackLanguageDisplayName(data))+'로 표시합니다.</p>';
 }
 
 const medicalCardStorageKeys = [
@@ -3459,6 +3482,10 @@ function normalizeMedicalTranslation(result, original){
   const normalized = {
     _cardTitle: String((result && (result._cardTitle || result.cardTitle)) || "").trim(),
     _blankValue: String((result && (result._blankValue || result.blankValue)) || "").trim(),
+    usedLanguage: String((result && result.usedLanguage) || "").trim(),
+    usedLanguageCode: String((result && result.usedLanguageCode) || "").trim(),
+    fallbackUsed: Boolean(result && result.fallbackUsed),
+    fallbackReason: String((result && result.fallbackReason) || "").trim(),
     name: pick("name"),
     passportName: original.passportName || "",
     nationality: pick("nationality"),
@@ -3560,6 +3587,8 @@ async function showLocalMedicalCard(){
         countryNameEn: selectedCountry.countryNameEn,
         targetLanguage: selectedCountry.languageNameEn || localOpt.languageNameEn || localOpt.native || "",
         targetLanguageCode: selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId) || localLangId || tripCountryId || "",
+        fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
+        fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
         travelCountry: tripCountryName || tripOpt.countryKo || tripOpt.country || "",
         selectedCountry,
         medicalCard: {
@@ -3631,7 +3660,7 @@ function renderMedicalCardPreview(){
       '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
       medicalRowsHtml(koLabels, payload, "KO");
   }else if(medicalCardTranslation){
-    bodyHtml = romanizationNoticeHtml(payload)+medicalPassCardHtml(localLabels, medicalCardTranslation, localOpt.native);
+    bodyHtml = medicalFallbackNoticeHtml(medicalCardTranslation)+romanizationNoticeHtml(payload)+medicalPassCardHtml(localLabels, medicalCardTranslation, medicalCardTranslation.usedLanguage || localOpt.native);
   }else{
     bodyHtml =
       '<div class="notice teal">현지어 보기를 누르면 선택한 여행 국가의 언어로 의료카드를 준비합니다.</div>'+
@@ -5138,7 +5167,7 @@ function devTestTargets(mode){
 function hasEnglishFallbackForDevTest(value, languageCode, languageNameEn){
   const isEnglish = String(languageCode || "").toLowerCase().split("-")[0] === "en" || /^english$/i.test(String(languageNameEn || "").trim());
   if(isEnglish) return false;
-  return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user|Asthma)\b/i.test(String(value || ""));
+  return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user)\b/i.test(String(value || ""));
 }
 
 function devTestCell(value){
@@ -5149,7 +5178,7 @@ function renderDevTestRows(rows){
   const tbody = $("allLanguageTestRows");
   if(!tbody) return;
   tbody.innerHTML = rows.map((row) => {
-    const statusColor = row.status === "통과" ? "#047857" : row.status === "확인 필요" ? "#b45309" : "#b91c1c";
+    const statusColor = row.status === "통과" || row.status === "통과 fallback" ? "#047857" : row.status === "확인 필요" ? "#b45309" : "#b91c1c";
     return '<tr>'+
       '<td style="padding:8px;border:1px solid var(--border);vertical-align:top;font-weight:950;color:'+statusColor+'">'+escapeHtml(row.status)+'</td>'+
       devTestCell(row.countryKo)+
@@ -5162,6 +5191,10 @@ function renderDevTestRows(rows){
       devTestCell(row.medication)+
       devTestCell(row.medicalConditions)+
       devTestCell(row.helpPhrase)+
+      devTestCell(row.usedLanguage)+
+      devTestCell(row.fallbackUsed)+
+      devTestCell(row.fallbackReason)+
+      devTestCell(row.errorMessage)+
       devTestCell(row.problem)+
     '</tr>';
   }).join("");
@@ -5183,6 +5216,11 @@ async function runSingleAllLanguageTest(country){
     medication: "",
     medicalConditions: "",
     helpPhrase: "",
+    usedLanguage: "",
+    usedLanguageCode: "",
+    fallbackUsed: "",
+    fallbackReason: "",
+    errorMessage: "",
     problem: ""
   };
 
@@ -5200,6 +5238,8 @@ async function runSingleAllLanguageTest(country){
         countryNameEn: selectedCountry.countryNameEn,
         targetLanguage: selectedCountry.languageNameEn,
         targetLanguageCode: selectedCountry.languageCode,
+        fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
+        fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
         selectedCountry,
         medicalCard: {
           name: fields.name,
@@ -5242,6 +5282,11 @@ async function runSingleAllLanguageTest(country){
       medication: String(medicalData.medication || "").trim(),
       medicalConditions: String(medicalData.medicalConditions || "").trim(),
       helpPhrase,
+      usedLanguage: String(medicalData.usedLanguage || medicalData.language || "").trim(),
+      usedLanguageCode: String(medicalData.usedLanguageCode || medicalData.languageCode || "").trim(),
+      fallbackUsed: medicalData.fallbackUsed ? "사용" : "미사용",
+      fallbackReason: String(medicalData.fallbackReason || "").trim(),
+      errorMessage: Array.isArray(medicalData.attemptErrors) ? medicalData.attemptErrors.map((item) => item.language + ": " + item.message).join(" / ") : "",
       problem: ""
     };
 
@@ -5254,16 +5299,16 @@ async function runSingleAllLanguageTest(country){
     if(!row.helpPhrase) missing.push("도움 문장 결과 없음");
 
     const combined = [row.cardTitle, row.blankValue, row.allergies, row.medication, row.medicalConditions, row.helpPhrase].join("\n");
-    const hasEnglishLeak = hasEnglishFallbackForDevTest(combined, selectedCountry.languageCode, selectedCountry.languageNameEn);
+    const hasEnglishLeak = !medicalData.fallbackUsed && hasEnglishFallbackForDevTest(combined, row.usedLanguageCode || selectedCountry.languageCode, row.usedLanguage || selectedCountry.languageNameEn);
     if(missing.length){
       return {...row, status: "실패", problem: missing.join(", ")};
     }
     if(hasEnglishLeak){
       return {...row, status: "확인 필요", problem: "비영어권 결과에 영어 fallback 표현이 남아 있음"};
     }
-    return {...row, status: "통과", problem: "정상"};
+    return {...row, status: medicalData.fallbackUsed ? "통과 fallback" : "통과", problem: medicalData.fallbackUsed ? "fallback 언어로 표시됨" : "정상"};
   }catch(error){
-    return {...baseRow, status: "실패", problem: error && error.message ? error.message : "오류 메시지 발생"};
+    return {...baseRow, status: "실패", errorMessage: error && error.message ? error.message : "오류 메시지 발생", problem: error && error.message ? error.message : "오류 메시지 발생"};
   }
 }
 
@@ -5284,7 +5329,8 @@ async function runAllLanguageTest(mode){
   if(status){
     const failed = rows.filter((row) => row.status === "실패").length;
     const review = rows.filter((row) => row.status === "확인 필요").length;
-    status.textContent = "테스트 완료: 총 " + rows.length + "개 · 확인 필요 " + review + "개 · 실패 " + failed + "개";
+    const fallbackPassed = rows.filter((row) => row.status === "통과 fallback").length;
+    status.textContent = "테스트 완료: 총 " + rows.length + "개 · 통과 fallback " + fallbackPassed + "개 · 확인 필요 " + review + "개 · 실패 " + failed + "개";
   }
 }
 
