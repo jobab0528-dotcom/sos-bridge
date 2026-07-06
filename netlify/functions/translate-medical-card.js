@@ -303,47 +303,82 @@ function baseLanguage(code){
 
 function getConfig(code){
   const lang = baseLanguage(code || "en");
-  return MEDICAL_CARD_I18N[lang] ? {lang, cfg: {...MEDICAL_CARD_I18N[lang], dynamicConfig: false}} : null;
+  return MEDICAL_CARD_I18N[lang] ? {lang, cfg: MEDICAL_CARD_I18N[lang]} : null;
 }
 
-function dynamicConfig(languageCode, languageName){
+function getConfiguredOrDynamicConfig(code, languageName){
+  const configured = getConfig(code);
+  if(configured) return {...configured, dynamic: false};
+  const lang = baseLanguage(code || "en");
   return {
-    lang: baseLanguage(languageCode || "en"),
+    lang,
+    dynamic: true,
     cfg: {
-      locale: languageCode || "en",
-      languageLabel: languageName || languageCode || "the selected local language",
-      cardTitle: "",
-      labels: {},
-      blankValue: "",
-      noneValue: "",
-      medicationUserEnteredSuffix: "",
-      genericMedicineIngredientUnspecified: "",
-      southKoreaNationality: "",
-      genericMedicines: {},
-      allergiesMap: {},
-      conditionsMap: {},
-      dynamicConfig: true
+      ...MEDICAL_CARD_I18N.en,
+      locale: code || lang || "en",
+      languageLabel: languageName || code || "the selected local language"
     }
   };
 }
 
-function getAttemptConfig(languageCode, languageName){
-  return getConfig(languageCode) || dynamicConfig(languageCode, languageName);
+function fallbackCandidatesFor(body, requestedCode, requestedLanguage){
+  const requested = {
+    code: requestedCode || "en",
+    language: requestedLanguage || requestedCode || "English",
+    reason: ""
+  };
+  const candidates = [requested];
+  const bodyFallbackCode = text(body.fallbackLanguageCode || body.fallbackLanguageCode1);
+  const bodyFallbackLanguage = text(body.fallbackLanguageNameEn || body.fallbackLanguage || body.fallbackLanguageName);
+
+  if(bodyFallbackCode || bodyFallbackLanguage){
+    candidates.push({
+      code: bodyFallbackCode || bodyFallbackLanguage,
+      language: bodyFallbackLanguage || bodyFallbackCode,
+      reason: "primary language failed"
+    });
+  }else if(baseLanguage(requestedCode) === "ti" || /^tigrinya$/i.test(requestedLanguage)){
+    candidates.push({
+      code: "ar",
+      language: "Arabic",
+      reason: "Tigrinya translation failed; showing Eritrea fallback support language"
+    });
+  }
+
+  candidates.push({
+    code: "en",
+    language: "English",
+    reason: candidates.length > 1 ? "fallback language failed; showing English" : "primary language failed; showing English"
+  });
+
+  const seen = new Set();
+  return candidates.filter((candidate) => {
+    const key = baseLanguage(candidate.code || candidate.language);
+    if(!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function responseWithMeta(normalized, attempt, requestedCode, requestedLanguage, attemptErrors){
+  const fallbackUsed = baseLanguage(attempt.code) !== baseLanguage(requestedCode);
+  return {
+    ...normalized,
+    _cardTitle: attempt.config.cfg.cardTitle,
+    _blankValue: attempt.config.cfg.blankValue,
+    language: requestedLanguage || requestedCode || "",
+    languageCode: requestedCode || "",
+    usedLanguage: attempt.language || attempt.config.cfg.languageLabel,
+    usedLanguageCode: attempt.code || attempt.config.lang,
+    fallbackUsed,
+    fallbackReason: fallbackUsed ? attempt.reason || "primary language failed" : "",
+    attemptErrors
+  };
 }
 
 function cleanFields(fields = {}){
-  const source = fields && typeof fields === "object" ? fields : {};
-  const aliases = {
-    medication: ["medications"],
-    medicalConditions: ["conditions"],
-    travelInsurance: ["insurance"],
-    hotelAddress: ["accommodation"]
-  };
   const cleaned = {};
-  FIELD_KEYS.forEach((key) => {
-    const aliasValue = (aliases[key] || []).map((alias) => source[alias]).find((value) => text(value));
-    cleaned[key] = text(source[key] || aliasValue);
-  });
+  FIELD_KEYS.forEach((key) => { cleaned[key] = text(fields[key]); });
   return cleaned;
 }
 
@@ -455,22 +490,10 @@ function hasWrongLanguagePlaceholder(value, lang){
   return /^(Not provided|No information provided|None|No|N\/A)$/i.test(text(value));
 }
 
-function hasStaticConfig(cfg){
-  return !cfg.dynamicConfig;
-}
-
-function fallbackBlank(resultValue, cfg){
-  return text(resultValue) || (hasStaticConfig(cfg) ? cfg.blankValue : "");
-}
-
-function fallbackNone(resultValue, cfg){
-  return text(resultValue) || (hasStaticConfig(cfg) ? cfg.noneValue : "");
-}
-
 function valueOrFallback(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
-  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
+  if(isEmpty(raw)) return cfg.blankValue;
+  if(isNoneInput(raw)) return cfg.noneValue;
   const translated = text(resultValue);
   if(translated && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   return raw;
@@ -479,7 +502,7 @@ function valueOrFallback(resultValue, originalValue, lang, cfg){
 function normalizeName(result = {}, original, cfg){
   const koreanName = text(original.name);
   const passportName = text(original.passportName);
-  if(!koreanName && !passportName) return fallbackBlank(result.name, cfg);
+  if(!koreanName && !passportName) return cfg.blankValue;
   if(passportName && koreanName) return `${passportName} (${koreanName})`;
   if(passportName) return passportName;
   const translatedName = text(result.name);
@@ -491,10 +514,10 @@ function normalizeName(result = {}, original, cfg){
 
 function normalizeNationality(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
-  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
+  if(isEmpty(raw)) return cfg.blankValue;
+  if(isNoneInput(raw)) return cfg.noneValue;
+  if(isSouthKoreaInput(raw)) return cfg.southKoreaNationality;
   const translated = text(resultValue);
-  if(isSouthKoreaInput(raw)) return translated && !isSouthKoreaInput(translated) ? translated : (cfg.southKoreaNationality || translated || raw);
   if(isSouthKoreaInput(translated)) return cfg.southKoreaNationality;
   if(translated && !/^(coreano|corean|korean person)$/i.test(translated) && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   return raw;
@@ -502,201 +525,54 @@ function normalizeNationality(resultValue, originalValue, lang, cfg){
 
 function normalizeAllergy(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
-  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
+  if(isEmpty(raw)) return cfg.blankValue;
+  if(isNoneInput(raw)) return cfg.noneValue;
   const known = normalizeKnownValue(raw, allergyPatterns);
-  const translated = text(resultValue);
-  if(!hasStaticConfig(cfg) && translated && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   if(known && cfg.allergiesMap[known.key]) return cfg.allergiesMap[known.key];
+  const translated = text(resultValue);
   if(translated && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   return raw;
 }
 
 function normalizeMedication(resultValue, originalValue, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
-  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
-  const translated = text(resultValue);
+  if(isEmpty(raw)) return cfg.blankValue;
+  if(isNoneInput(raw)) return cfg.noneValue;
   const brand = preserveMedicationBrandName(raw);
-  if(brand){
-    if(translated && translated.toLowerCase().includes(brand.toLowerCase()) && !looksLikeUnsafeMedicationInference(translated)) return translated;
-    return hasStaticConfig(cfg) ? medicationProductFor(brand, cfg) : brand;
-  }
+  if(brand) return medicationProductFor(brand, cfg);
   const ingredient = preserveDirectIngredient(raw);
   if(ingredient) return ingredient;
   const generic = normalizeKnownValue(raw, genericMedicinePatterns);
-  if(!hasStaticConfig(cfg) && translated && !looksLikeUnsafeMedicationInference(translated)) return translated;
   if(generic && cfg.genericMedicines[generic.key]) return cfg.genericMedicines[generic.key];
+  const translated = text(resultValue);
   if(translated && !looksLikeUnsafeMedicationInference(translated)) return translated;
-  return hasStaticConfig(cfg) ? medicationProductFor(raw, cfg) : raw;
+  return medicationProductFor(raw, cfg);
 }
 
 function normalizeCondition(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
-  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
-  if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
+  if(isEmpty(raw)) return cfg.blankValue;
+  if(isNoneInput(raw)) return cfg.noneValue;
   const known = normalizeKnownValue(raw, conditionPatterns);
-  const translated = text(resultValue);
-  if(!hasStaticConfig(cfg) && translated && !hasWrongLanguagePlaceholder(translated, lang) && !looksLikeUnsafeConditionInference(translated, raw)) return translated;
   if(known && cfg.conditionsMap[known.key]) return cfg.conditionsMap[known.key];
+  const translated = text(resultValue);
   if(translated && !hasWrongLanguagePlaceholder(translated, lang) && !looksLikeUnsafeConditionInference(translated, raw)) return translated;
   return raw;
 }
 
 function normalizeResult(result = {}, original, lang, cfg){
-  const responseLabels = result && (result._labels || result.labels);
-  const cardTitle = text(result._cardTitle || result.cardTitle) || (hasStaticConfig(cfg) ? cfg.cardTitle : "");
-  const blankValue = text(result._blankValue || result.blankValue) || (hasStaticConfig(cfg) ? cfg.blankValue : "");
-  const labels = {};
-  FIELD_KEYS.forEach((key) => {
-    labels[key] = text(responseLabels && responseLabels[key]) || (hasStaticConfig(cfg) && cfg.labels && cfg.labels[key]) || key;
-  });
   return {
-    _cardTitle: cardTitle,
-    _blankValue: blankValue,
-    _labels: labels,
     name: normalizeName(result, original, cfg),
     passportName: text(original.passportName),
     nationality: normalizeNationality(result.nationality, original.nationality, lang, cfg),
-    age: isEmpty(original.age) ? fallbackBlank(result.age, cfg) : text(original.age),
-    bloodType: isEmpty(original.bloodType) ? fallbackBlank(result.bloodType, cfg) : text(original.bloodType),
+    age: isEmpty(original.age) ? cfg.blankValue : text(original.age),
+    bloodType: isEmpty(original.bloodType) ? cfg.blankValue : text(original.bloodType),
     allergies: normalizeAllergy(result.allergies, original.allergies, lang, cfg),
     medication: normalizeMedication(result.medication, original.medication, cfg),
     medicalConditions: normalizeCondition(result.medicalConditions, original.medicalConditions, lang, cfg),
-    emergencyContact: isEmpty(original.emergencyContact) ? fallbackBlank(result.emergencyContact, cfg) : text(original.emergencyContact),
+    emergencyContact: isEmpty(original.emergencyContact) ? cfg.blankValue : text(original.emergencyContact),
     travelInsurance: valueOrFallback(result.travelInsurance, original.travelInsurance, lang, cfg),
     hotelAddress: valueOrFallback(result.hotelAddress, original.hotelAddress, lang, cfg)
-  };
-}
-
-function hasEnglishFallbackLeak(normalized, lang){
-  if(baseLanguage(lang) === "en") return false;
-  const values = [
-    normalized._cardTitle,
-    normalized._blankValue,
-    normalized.name,
-    normalized.nationality,
-    normalized.allergies,
-    normalized.medication,
-    normalized.medicalConditions,
-    normalized.emergencyContact,
-    normalized.travelInsurance,
-    normalized.hotelAddress
-  ].map(text).join("\n");
-  return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user)\b/i.test(values);
-}
-
-function hasMissingDynamicOutput(normalized, cfg){
-  if(hasStaticConfig(cfg)) return false;
-  return !normalized._cardTitle ||
-    !normalized._blankValue ||
-    FIELD_KEYS.some((key) => !text(normalized[key]));
-}
-
-function addAttempt(attempts, languageName, languageCode, reason, fallbackUsed){
-  const name = text(languageName);
-  const code = text(languageCode);
-  if(!name && !code) return;
-  const normalizedCode = code.toLowerCase();
-  const normalizedName = name.toLowerCase();
-  if(attempts.some((item) => item.languageCode.toLowerCase() === normalizedCode && item.languageName.toLowerCase() === normalizedName && item.reason === reason)) return;
-  attempts.push({languageName: name || code, languageCode: code || name, reason, fallbackUsed: Boolean(fallbackUsed)});
-}
-
-function buildTranslationAttempts(body, targetLanguage, targetLanguageCode){
-  const selectedCountry = body.selectedCountry && typeof body.selectedCountry === "object" ? body.selectedCountry : {};
-  const attempts = [];
-  addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language translation", false);
-  addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language retry", false);
-  addAttempt(
-    attempts,
-    body.fallbackLanguageNameEn || selectedCountry.fallbackLanguageNameEn,
-    body.fallbackLanguageCode || selectedCountry.fallbackLanguageCode,
-    "Primary language translation failed",
-    true
-  );
-  if(baseLanguage(targetLanguageCode) === "fil"){
-    addAttempt(attempts, "Tagalog", "tl", "Filipino translation failed", true);
-  }
-  if(!attempts.some((item) => baseLanguage(item.languageCode) === "en")){
-    addAttempt(attempts, "English", "en", "Fallback language translation failed", true);
-  }
-  return attempts;
-}
-
-async function translateOnce({attempt, fields, travelCountry}){
-  const attemptConfig = getAttemptConfig(attempt.languageCode, attempt.languageName);
-  const response = await fetch(OPENAI_API_URL, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      temperature: 0,
-      response_format: {type: "json_object"},
-      messages: [
-        {role: "system", content: systemPrompt(attemptConfig.cfg)},
-        {
-          role: "user",
-          content: JSON.stringify({
-            targetLanguage: attempt.languageName,
-            targetLanguageCode: attempt.languageCode,
-            travelCountry,
-            fieldOrder: FIELD_KEYS,
-            labelKeys: FIELD_KEYS,
-            fields
-          })
-        }
-      ]
-    })
-  });
-
-  const data = await response.json().catch(() => ({}));
-  if(!response.ok){
-    throw new Error(data.error && data.error.message ? data.error.message : "OpenAI API request failed");
-  }
-
-  const content = data.choices && data.choices[0] && data.choices[0].message
-    ? data.choices[0].message.content
-    : "{}";
-  const parsed = JSON.parse(content || "{}");
-  const normalized = normalizeResult(parsed, fields, attemptConfig.lang, attemptConfig.cfg);
-
-  if(hasMissingDynamicOutput(normalized, attemptConfig.cfg)){
-    throw new Error("Missing target-language medical card fields");
-  }
-
-  if(hasEnglishFallbackLeak(normalized, attemptConfig.lang)){
-    throw new Error("Target-language validation failed");
-  }
-
-  return {
-    ...normalized,
-    language: attempt.languageName,
-    languageCode: attempt.languageCode,
-    usedLanguage: attempt.languageName,
-    usedLanguageCode: attempt.languageCode,
-    fallbackUsed: attempt.fallbackUsed,
-    fallbackReason: attempt.fallbackUsed ? attempt.reason : "",
-    attempts: [attempt.reason]
-  };
-}
-
-function buildLocalFallback(fields, reason){
-  const cfg = MEDICAL_CARD_I18N.en;
-  const normalized = normalizeResult({}, fields, "en", {...cfg, dynamicConfig: false});
-  return {
-    ...normalized,
-    language: "English",
-    languageCode: "en",
-    usedLanguage: "English",
-    usedLanguageCode: "en",
-    fallbackUsed: true,
-    fallbackReason: reason || "All translation attempts failed",
-    _originalKo: fields,
-    attempts: ["Local English fallback"]
   };
 }
 
@@ -708,15 +584,13 @@ function systemPrompt(cfg){
     "Keep the exact JSON keys. Never move a value into another field.",
     "Only translate the user-provided values for the same field.",
     "Do not add, infer, interpret, summarize, or create allergies, medicine ingredients, medical conditions, severity, symptoms, or care instructions.",
-    "For empty fields, return a natural 'not provided' expression in the target language. For explicit none/no values, return a natural 'none' expression in the target language.",
-    "For nationality values meaning South Korea, return the country name in the target language, not a word meaning Korean person.",
+    "For empty fields, return the configured blank value. For explicit none/no values, return the configured none value.",
+    "For nationality values meaning South Korea, return the configured country name, not a word meaning Korean person.",
     "Preserve medicine names and product names. Do not convert product names into cold medicine, painkiller, fever reducer, paracetamol, acetaminophen, ibuprofen, anti-inflammatory drug, or any ingredient unless the user directly entered that ingredient.",
     "If the medication is a generic expression such as 감기약, 진통제, 혈압약, or 소화제, translate the generic category and state that the ingredient is not specified in the target language.",
     "For allergies, make the allergy meaning explicit in the target language.",
     "For existing medical conditions, translate only the condition name. Do not add severity, current status, or action advice.",
-    "If the target language is not English, do not return English fallback phrases such as Medical Card, Not provided, Peanut allergy, or medication entered by the user.",
-    "Also return _cardTitle, _blankValue, and _labels with target-language field labels for the same keys.",
-    "Required JSON keys: _cardTitle, _blankValue, _labels, name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
+    "Required JSON keys: name, passportName, nationality, age, bloodType, allergies, medication, medicalConditions, emergencyContact, travelInsurance, hotelAddress."
   ].join("\n");
 }
 
@@ -740,36 +614,80 @@ exports.handler = async (event) => {
     return json(500, {error: "OPENAI_API_KEY is not configured"});
   }
 
-  if(!targetLanguageCode && !requestedTargetLanguage){
-    return json(400, {error: "target language is required"});
-  }
-
-  const fields = cleanFields(body.fields || body.medicalCard || {});
-  const selectedCountry = body.selectedCountry && typeof body.selectedCountry === "object" ? body.selectedCountry : {};
-  const targetLanguage = requestedTargetLanguage || text(selectedCountry.languageNameEn) || targetLanguageCode || "the selected local language";
-  const travelCountry = text(body.travelCountry || body.countryNameKo || body.countryNameEn);
-  const attempts = buildTranslationAttempts(body, targetLanguage, targetLanguageCode);
+  const fields = cleanFields(body.fields || {});
+  const travelCountry = text(body.travelCountry);
+  const attempts = fallbackCandidatesFor(body, targetLanguageCode, requestedTargetLanguage).map((candidate) => ({
+    ...candidate,
+    config: getConfiguredOrDynamicConfig(candidate.code, candidate.language)
+  }));
   const attemptErrors = [];
 
   for(const attempt of attempts){
     try{
-      const result = await translateOnce({attempt, fields, travelCountry});
-      result.attempts = attempts.slice(0, attempts.indexOf(attempt) + 1).map((item) => item.reason);
-      if(attemptErrors.length) result.fallbackReason = result.fallbackReason || attemptErrors[attemptErrors.length - 1].message;
-      if(attemptErrors.length) result.attemptErrors = attemptErrors;
-      return json(200, result);
+      const response = await fetch(OPENAI_API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          temperature: 0,
+          response_format: {type: "json_object"},
+          messages: [
+            {role: "system", content: systemPrompt(attempt.config.cfg)},
+            {
+              role: "user",
+              content: JSON.stringify({
+                targetLanguage: attempt.language || attempt.config.cfg.languageLabel,
+                targetLanguageCode: attempt.code,
+                travelCountry,
+                fieldOrder: FIELD_KEYS,
+                fields
+              })
+            }
+          ]
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if(!response.ok){
+        const message = data.error && data.error.message ? data.error.message : "OpenAI API request failed";
+        attemptErrors.push({language: attempt.language || attempt.code, languageCode: attempt.code, message});
+        continue;
+      }
+
+      const content = data.choices && data.choices[0] && data.choices[0].message
+        ? data.choices[0].message.content
+        : "{}";
+      const parsed = JSON.parse(content || "{}");
+      const normalized = normalizeResult(parsed, fields, attempt.config.lang, attempt.config.cfg);
+      if(attempt.config.dynamic && baseLanguage(attempt.code) !== "en"){
+        attemptErrors.push({
+          language: attempt.language || attempt.code,
+          languageCode: attempt.code,
+          message: "Local medical card labels are not configured for this language"
+        });
+        continue;
+      }
+
+      return json(200, responseWithMeta(normalized, attempt, targetLanguageCode, requestedTargetLanguage, attemptErrors));
     }catch(error){
       attemptErrors.push({
-        language: attempt.languageName,
-        languageCode: attempt.languageCode,
-        reason: attempt.reason,
+        language: attempt.language || attempt.code,
+        languageCode: attempt.code,
         message: error && error.message ? error.message : "Unknown error"
       });
     }
   }
 
-  return json(200, {
-    ...buildLocalFallback(fields, attemptErrors.length ? attemptErrors[attemptErrors.length - 1].message : "All translation attempts failed"),
-    attemptErrors
-  });
+  const englishAttempt = attempts.find((attempt) => baseLanguage(attempt.code) === "en") || {
+    code: "en",
+    language: "English",
+    reason: "all translation attempts failed; showing safe English fallback",
+    config: getConfiguredOrDynamicConfig("en", "English")
+  };
+  const normalized = normalizeResult({}, fields, englishAttempt.config.lang, englishAttempt.config.cfg);
+  return json(200, responseWithMeta(normalized, englishAttempt, targetLanguageCode, requestedTargetLanguage, attemptErrors));
 };
