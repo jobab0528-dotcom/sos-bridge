@@ -225,6 +225,41 @@
       </div>
     </section>
 
+    <section id="allLanguageTestPanel" class="container card hidden" style="margin-top:16px;margin-bottom:16px">
+      <p class="eyebrow">DEVELOPER TEST</p>
+      <h2>전세계 국가/지역 번역 테스트</h2>
+      <p class="small muted" style="line-height:1.6">현재 앱에 등록된 국가/지역의 대표 언어를 기준으로 도움 문장과 여행자 의료카드 현지어 보기를 점검합니다.</p>
+      <div class="two" style="margin-top:12px">
+        <button id="runRepresentativeLanguageTestBtn" class="btn primary w-full" type="button">대표 언어별 테스트 실행</button>
+        <button id="runAllCountryLanguageTestBtn" class="btn outline w-full" type="button">전체 국가/지역 테스트 실행</button>
+      </div>
+      <div id="allLanguageTestStatus" class="notice teal hidden" style="margin-top:12px"></div>
+      <div style="overflow:auto;margin-top:12px">
+        <table style="width:100%;border-collapse:collapse;min-width:1120px;font-size:12px">
+          <thead>
+            <tr style="background:#f8fafc;color:var(--navy);text-align:left">
+              <th style="padding:9px;border:1px solid var(--border)">상태</th>
+              <th style="padding:9px;border:1px solid var(--border)">국가/지역</th>
+              <th style="padding:9px;border:1px solid var(--border)">영어명</th>
+              <th style="padding:9px;border:1px solid var(--border)">대표 언어</th>
+              <th style="padding:9px;border:1px solid var(--border)">languageCode</th>
+              <th style="padding:9px;border:1px solid var(--border)">의료카드 제목</th>
+              <th style="padding:9px;border:1px solid var(--border)">미입력 표시</th>
+              <th style="padding:9px;border:1px solid var(--border)">알레르기 결과</th>
+              <th style="padding:9px;border:1px solid var(--border)">복용약 결과</th>
+              <th style="padding:9px;border:1px solid var(--border)">기존 질환 결과</th>
+              <th style="padding:9px;border:1px solid var(--border)">도움 문장 결과</th>
+              <th style="padding:9px;border:1px solid var(--border)">사용 언어</th>
+              <th style="padding:9px;border:1px solid var(--border)">fallback 사용 여부</th>
+              <th style="padding:9px;border:1px solid var(--border)">fallback 사유</th>
+              <th style="padding:9px;border:1px solid var(--border)">오류 메시지</th>
+            </tr>
+          </thead>
+          <tbody id="allLanguageTestRows"></tbody>
+        </table>
+      </div>
+    </section>
+
   </main>
 
   <main id="appPage" class="page hidden content-pad">
@@ -4926,6 +4961,206 @@ function startVoiceInput(){
   recognition.start();
 }
 
+function shouldShowAllLanguageTestPanel(){
+  return new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
+}
+
+function devTestCountryPayload(country){
+  return {
+    countryNameKo: country.countryNameKo || country.countryKo || "",
+    countryNameEn: country.countryNameEn || country.country || "",
+    languageNameKo: country.languageNameKo || country.languageKo || country.native || "",
+    languageNameEn: country.languageNameEn || country.native || "",
+    languageCode: country.languageCode || ""
+  };
+}
+
+function devTestMedicalFields(){
+  return {
+    name: "홍길동",
+    passportName: "HONG GIL DONG",
+    nationality: "대한민국",
+    age: "25",
+    bloodType: "B",
+    allergies: "땅콩 알레르기",
+    medication: "Advil",
+    medicalConditions: "천식",
+    emergencyContact: "",
+    travelInsurance: "",
+    hotelAddress: ""
+  };
+}
+
+function devTestTargets(mode){
+  const countries = languageOptions.filter((country) => country && (country.languageCode || country.languageNameEn));
+  if(mode === "all") return countries;
+  const seen = new Set();
+  return countries.filter((country) => {
+    const key = String(country.languageCode || country.languageNameEn || "").toLowerCase();
+    if(!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function hasEnglishFallbackForDevTest(value, languageCode, languageNameEn){
+  const isEnglish = String(languageCode || "").toLowerCase().split("-")[0] === "en" || /^english$/i.test(String(languageNameEn || "").trim());
+  if(isEnglish) return false;
+  return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user)\b/i.test(String(value || ""));
+}
+
+function devTestCell(value){
+  return '<td style="padding:8px;border:1px solid var(--border);vertical-align:top">'+escapeHtml(value || "")+'</td>';
+}
+
+function renderDevTestRows(rows){
+  const tbody = $("allLanguageTestRows");
+  if(!tbody) return;
+  tbody.innerHTML = rows.map((row) => {
+    const statusColor = row.status === "통과" || row.status === "통과 fallback" ? "#047857" : row.status === "확인 필요" ? "#b45309" : "#b91c1c";
+    return '<tr>'+
+      '<td style="padding:8px;border:1px solid var(--border);vertical-align:top;font-weight:950;color:'+statusColor+'">'+escapeHtml(row.status)+'</td>'+
+      devTestCell(row.countryKo)+
+      devTestCell(row.countryEn)+
+      devTestCell(row.languageName)+
+      devTestCell(row.languageCode)+
+      devTestCell(row.cardTitle)+
+      devTestCell(row.blankValue)+
+      devTestCell(row.allergies)+
+      devTestCell(row.medication)+
+      devTestCell(row.medicalConditions)+
+      devTestCell(row.helpPhrase)+
+      devTestCell(row.usedLanguage)+
+      devTestCell(row.fallbackUsed)+
+      devTestCell(row.fallbackReason)+
+      devTestCell(row.errorMessage)+
+    '</tr>';
+  }).join("");
+}
+
+async function runSingleAllLanguageTest(country){
+  const selectedCountry = devTestCountryPayload(country);
+  const languageName = selectedCountry.languageNameEn || selectedCountry.languageNameKo;
+  const languageCode = selectedCountry.languageCode;
+  const baseRow = {
+    status: "실패",
+    countryKo: selectedCountry.countryNameKo,
+    countryEn: selectedCountry.countryNameEn,
+    languageName: selectedCountry.languageNameKo ? selectedCountry.languageNameKo + " / " + selectedCountry.languageNameEn : selectedCountry.languageNameEn,
+    languageCode,
+    cardTitle: "",
+    blankValue: "",
+    allergies: "",
+    medication: "",
+    medicalConditions: "",
+    helpPhrase: "",
+    usedLanguage: "",
+    fallbackUsed: "",
+    fallbackReason: "",
+    errorMessage: ""
+  };
+
+  if(!languageName || !languageCode){
+    return {...baseRow, errorMessage: "targetLanguage 또는 languageCode 누락"};
+  }
+
+  const fields = devTestMedicalFields();
+  try{
+    const medicalRes = await fetch("/.netlify/functions/translate-medical-card", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        countryNameKo: selectedCountry.countryNameKo,
+        countryNameEn: selectedCountry.countryNameEn,
+        targetLanguage: selectedCountry.languageNameEn,
+        targetLanguageCode: selectedCountry.languageCode,
+        selectedCountry,
+        fields
+      })
+    });
+    const medicalData = await medicalRes.json().catch(() => ({}));
+    if(!medicalRes.ok) throw new Error(medicalData.detail || medicalData.error || "translate-medical-card 실패");
+
+    const helpRes = await fetch("/.netlify/functions/translate-help-phrases", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        targetLanguage: selectedCountry.languageNameEn,
+        targetLanguageCode: selectedCountry.languageCode,
+        travelCountry: selectedCountry.countryNameKo || selectedCountry.countryNameEn,
+        phrases: {help: phrasePacks.ko.help}
+      })
+    });
+    const helpData = await helpRes.json().catch(() => ({}));
+    if(!helpRes.ok) throw new Error(helpData.detail || helpData.error || "translate-help-phrases 실패");
+
+    const helpPhrase = String((helpData.translations && helpData.translations.help) || helpData.help || "").trim();
+    const row = {
+      ...baseRow,
+      cardTitle: String(medicalData._cardTitle || medicalData.cardTitle || "").trim(),
+      blankValue: String(medicalData._blankValue || medicalData.emergencyContact || medicalData.travelInsurance || "").trim(),
+      allergies: String(medicalData.allergies || "").trim(),
+      medication: String(medicalData.medication || "").trim(),
+      medicalConditions: String(medicalData.medicalConditions || "").trim(),
+      helpPhrase,
+      usedLanguage: String(medicalData.usedLanguage || medicalData.language || "").trim(),
+      fallbackUsed: medicalData.fallbackUsed ? "사용" : "미사용",
+      fallbackReason: String(medicalData.fallbackReason || "").trim(),
+      errorMessage: Array.isArray(medicalData.attemptErrors) ? medicalData.attemptErrors.map((item) => item.language + ": " + item.message).join(" / ") : ""
+    };
+
+    const missing = [];
+    if(!row.cardTitle) missing.push("의료카드 제목 없음");
+    if(!row.blankValue) missing.push("미입력 표시 없음");
+    if(!row.allergies) missing.push("알레르기 결과 없음");
+    if(!row.medication) missing.push("복용약 결과 없음");
+    if(!row.medicalConditions) missing.push("기존 질환 결과 없음");
+    if(!row.helpPhrase) missing.push("도움 문장 결과 없음");
+
+    const combined = [row.cardTitle, row.blankValue, row.allergies, row.medication, row.medicalConditions].join("\n");
+    const hasEnglishLeak = !medicalData.fallbackUsed && hasEnglishFallbackForDevTest(combined, row.usedLanguage || selectedCountry.languageCode, selectedCountry.languageNameEn);
+    if(missing.length){
+      return {...row, status: "실패", errorMessage: missing.join(", ")};
+    }
+    if(hasEnglishLeak){
+      return {...row, status: "확인 필요", errorMessage: "비영어권 결과에 영어 fallback 표현이 남아 있음"};
+    }
+    return {...row, status: medicalData.fallbackUsed ? "통과 fallback" : "통과"};
+  }catch(error){
+    return {...baseRow, status: "실패", errorMessage: error && error.message ? error.message : "오류 메시지 발생"};
+  }
+}
+
+async function runAllLanguageTest(mode){
+  const status = $("allLanguageTestStatus");
+  const targets = devTestTargets(mode);
+  const rows = [];
+  if(status){
+    status.classList.remove("hidden");
+    status.textContent = (mode === "all" ? "전체 국가/지역" : "대표 언어별") + " 테스트를 시작합니다. 0 / " + targets.length;
+  }
+  renderDevTestRows(rows);
+  for(let i=0;i<targets.length;i++){
+    rows.push(await runSingleAllLanguageTest(targets[i]));
+    renderDevTestRows(rows);
+    if(status) status.textContent = (mode === "all" ? "전체 국가/지역" : "대표 언어별") + " 테스트 진행 중: " + (i + 1) + " / " + targets.length;
+  }
+  if(status){
+    const failed = rows.filter((row) => row.status === "실패").length;
+    const review = rows.filter((row) => row.status === "확인 필요").length;
+    const fallbackPassed = rows.filter((row) => row.status === "통과 fallback").length;
+    status.textContent = "테스트 완료: 총 " + rows.length + "개 · 통과 fallback " + fallbackPassed + "개 · 확인 필요 " + review + "개 · 실패 " + failed + "개";
+  }
+}
+
+function initAllLanguageTestPanel(){
+  const panel = $("allLanguageTestPanel");
+  if(!panel || !shouldShowAllLanguageTestPanel()) return;
+  panel.classList.remove("hidden");
+  if($("languagePage")) $("languagePage").insertBefore(panel, $("languagePage").firstElementChild);
+  on("runRepresentativeLanguageTestBtn", "click", () => runAllLanguageTest("representative"));
+  on("runAllCountryLanguageTestBtn", "click", () => runAllLanguageTest("all"));
+}
 
 function init(){
   on("startBtn","click",showApp);
@@ -4977,6 +5212,7 @@ function init(){
   $("locationConsentModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="locationConsentModal") hideLocationConsent(); }));
   document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{ if(btn.dataset.nav) scrollToId(btn.dataset.nav); if(btn.dataset.action) openService(btn.dataset.action); })));
   renderAll();
+  initAllLanguageTestPanel();
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init); else init();
 

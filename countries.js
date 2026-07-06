@@ -7857,6 +7857,7 @@
     "id": "au",
     "countryNameKo": "호주",
     "countryNameEn": "Australia",
+    "countryCode": "AU",
     "flag": "🇦🇺",
     "type": "country",
     "regionNote": "",
@@ -7888,37 +7889,38 @@
     "rank": 229
   },
   {
-    "id": "au",
+    "id": "hk",
     "countryNameKo": "홍콩",
-    "countryNameEn": "Australia",
-    "flag": "🇦🇺",
+    "countryNameEn": "Hong Kong",
+    "countryCode": "HK",
+    "flag": "🇭🇰",
     "type": "special_administrative_region",
     "regionNote": "중국 특별행정구",
     "parentEntityKo": "중국",
     "parentEntityEn": "China",
-    "languageNameKo": "영어",
-    "languageNameEn": "English",
-    "languageCode": "en",
-    "languageNative": "English",
+    "languageNameKo": "중국어(번체)",
+    "languageNameEn": "Traditional Chinese",
+    "languageCode": "zh-TW",
+    "languageNative": "繁體中文",
     "availableLanguages": [
       {
-        "languageNameKo": "영어",
-        "languageNameEn": "English",
-        "languageCode": "en",
-        "native": "English"
+        "languageNameKo": "중국어(번체)",
+        "languageNameEn": "Traditional Chinese",
+        "languageCode": "zh-TW",
+        "native": "繁體中文"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
-    "mapCountryQuery": "Australia",
+    "emergencyNumber": "999",
+    "mapCountryQuery": "Hong Kong",
     "aliasesKo": [],
     "aliasesEn": [],
     "safetyNotice": false,
     "regionNotice": false,
     "languageReviewNeeded": false,
     "countryKo": "홍콩",
-    "country": "Australia",
-    "languageKo": "영어",
-    "native": "English",
+    "country": "Hong Kong",
+    "languageKo": "중국어(번체)",
+    "native": "繁體中文",
     "rank": 230
   }
 ];
