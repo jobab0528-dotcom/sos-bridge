@@ -5,8 +5,10 @@
     if(!isAllLanguageTest) return;
 
     const context = window.SOS_BRIDGE_DEV_TEST_CONTEXT || {};
-    const languageOptions = Array.isArray(context.languageOptions) ? context.languageOptions : [];
-    const phrasePacks = context.phrasePacks || {};
+    const languageOptions = Array.isArray(context.languageOptions) && context.languageOptions.length
+      ? context.languageOptions
+      : (Array.isArray(window.SOS_BRIDGE_COUNTRIES) ? window.SOS_BRIDGE_COUNTRIES : []);
+    const phrasePacks = context.phrasePacks || {ko: {help: "도와주세요."}};
     const escapeHtml = typeof context.escapeHtml === "function"
       ? context.escapeHtml
       : (value) => String(value || "").replace(/[&<>"']/g, (char) => ({

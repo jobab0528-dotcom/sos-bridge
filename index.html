@@ -5087,20 +5087,11 @@ function startVoiceInput(){
 }
 
 function initAllLanguageTestPanel(){
-  const isAllLanguageTest =
-    new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
-  if(!isAllLanguageTest) return;
-
   window.SOS_BRIDGE_DEV_TEST_CONTEXT = {
     languageOptions,
     phrasePacks,
     escapeHtml
   };
-
-  const script = document.createElement("script");
-  script.src = "/developer-test.js?v=" + Date.now();
-  script.defer = true;
-  document.head.appendChild(script);
 }
 
 
@@ -5158,6 +5149,20 @@ function init(){
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init); else init();
 
+})();
+</script>
+
+<script>
+(function () {
+  const isAllLanguageTest =
+    new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
+
+  if (!isAllLanguageTest) return;
+
+  const script = document.createElement("script");
+  script.src = "/developer-test.js?v=" + Date.now();
+  script.defer = true;
+  document.head.appendChild(script);
 })();
 </script>
 
