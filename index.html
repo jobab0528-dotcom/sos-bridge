@@ -225,17 +225,19 @@
       </div>
     </section>
 
-    <section id="allLanguageTestPanel" class="container card hidden" style="margin-top:16px;margin-bottom:16px">
-      <p class="eyebrow">DEVELOPER TEST</p>
+    <!-- DEV TEST PANEL START -->
+    <section id="allLanguageTestPanel" class="container card hidden" style="margin-top:16px">
+      <p class="eyebrow">Developer Test</p>
       <h2>전세계 국가/지역 번역 테스트</h2>
-      <p class="small muted" style="line-height:1.6">현재 앱에 등록된 국가/지역의 대표 언어를 기준으로 도움 문장과 여행자 의료카드 현지어 보기를 점검합니다.</p>
+      <p class="small muted" style="line-height:1.6">현재 앱에 등록된 국가/지역의 대표 언어를 기준으로 현지어 도움 문장과 여행자 의료카드 현지어 보기를 자동 점검합니다.</p>
+      <div class="notice amber small">전체 국가/지역 테스트는 API 호출이 많아 시간이 오래 걸릴 수 있습니다. 빠른 확인은 대표 언어별 테스트를 먼저 실행하세요.</div>
       <div class="two" style="margin-top:12px">
         <button id="runRepresentativeLanguageTestBtn" class="btn primary w-full" type="button">대표 언어별 테스트 실행</button>
         <button id="runAllCountryLanguageTestBtn" class="btn outline w-full" type="button">전체 국가/지역 테스트 실행</button>
       </div>
       <div id="allLanguageTestStatus" class="notice teal hidden" style="margin-top:12px"></div>
       <div style="overflow:auto;margin-top:12px">
-        <table style="width:100%;border-collapse:collapse;min-width:1120px;font-size:12px">
+        <table style="width:100%;border-collapse:collapse;min-width:1180px;font-size:12px">
           <thead>
             <tr style="background:#f8fafc;color:var(--navy);text-align:left">
               <th style="padding:9px;border:1px solid var(--border)">상태</th>
@@ -253,12 +255,14 @@
               <th style="padding:9px;border:1px solid var(--border)">fallback 사용 여부</th>
               <th style="padding:9px;border:1px solid var(--border)">fallback 사유</th>
               <th style="padding:9px;border:1px solid var(--border)">오류 메시지</th>
+              <th style="padding:9px;border:1px solid var(--border)">문제 설명</th>
             </tr>
           </thead>
           <tbody id="allLanguageTestRows"></tbody>
         </table>
       </div>
     </section>
+    <!-- DEV TEST PANEL END -->
 
   </main>
 
@@ -2254,6 +2258,8 @@ let medicalCardTranslation = null;
 let medicalCardTranslationKey = "";
 let medicalCardTranslationStatus = "idle";
 let medicalCardTranslationMessage = "";
+let helpPhraseTranslationCache = {};
+let helpPhraseTranslationStatus = {};
 let pendingLocationRequest = null;
 
 const $ = id => document.getElementById(id);
@@ -2439,6 +2445,83 @@ function getBaseLang(id){
   return langAliases[code] || code.split("-")[0] || "en";
 }
 function getPhrasePack(id=localLangId){ return phrasePacks[getBaseLang(id)] || phrasePacks.en; }
+function getStaticPhrasePack(id=localLangId){ return phrasePacks[getBaseLang(id)] || null; }
+
+const phraseTranslationFailureMessage = "현지어 변환에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+
+function helpPhraseCacheKey(keys, id=localLangId){
+  const opt = getCountryById(id) || getLocalOption();
+  return JSON.stringify({
+    country: opt && opt.id ? opt.id : id,
+    languageCode: (opt && opt.languageCode) || getCountryLanguageCode(id),
+    languageName: (opt && opt.languageNameEn) || getCountryLanguageName(id),
+    keys
+  });
+}
+
+function normalizePhraseTranslations(data, keys){
+  const source = data && (data.translations || data.phrases || data);
+  const normalized = {};
+  keys.forEach((key) => {
+    const value = String((source && source[key]) || "").trim();
+    if(value) normalized[key] = value;
+  });
+  return normalized;
+}
+
+async function requestHelpPhraseTranslations(keys, section){
+  const cacheKey = helpPhraseCacheKey(keys);
+  if(helpPhraseTranslationCache[cacheKey] || helpPhraseTranslationStatus[cacheKey] === "loading") return;
+  helpPhraseTranslationStatus[cacheKey] = "loading";
+
+  try{
+    const localOpt = getLocalOption();
+    const selectedCountry = getSelectedCountryForTranslation();
+    const phrases = {};
+    keys.forEach((key) => { phrases[key] = phrasePacks.ko[key] || phrasePacks.en[key] || ""; });
+    const res = await fetch("/.netlify/functions/translate-help-phrases", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        targetLanguage: selectedCountry.languageNameEn || localOpt.languageNameEn || getCountryLanguageName(localLangId) || localOpt.native || "",
+        targetLanguageCode: selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId) || "",
+        fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
+        fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
+        selectedCountry,
+        travelCountry: tripCountryName || selectedCountry.countryNameKo || selectedCountry.countryNameEn || localOpt.countryKo || localOpt.country || "",
+        phrases
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(data.error || data.detail || "translation failed");
+    const normalized = normalizePhraseTranslations(data, keys);
+    if(keys.some((key) => !normalized[key])) throw new Error("missing translated phrase");
+    helpPhraseTranslationCache[cacheKey] = normalized;
+    helpPhraseTranslationStatus[cacheKey] = "done";
+  }catch(error){
+    helpPhraseTranslationStatus[cacheKey] = "error";
+  }
+
+  if(section === "local" && $("localPhraseCard") && !$("localPhraseCard").classList.contains("hidden")) renderLocalPhraseCard();
+  if(section === "pharmacy" && $("pharmacyPhraseCard") && !$("pharmacyPhraseCard").classList.contains("hidden")) renderPharmacyPhraseCard();
+  if(section === "emergency" && $("emergencyInfoCard") && !$("emergencyInfoCard").classList.contains("hidden")) renderEmergencyInfoCard();
+  if(section === "triage" && triage) renderTriage();
+}
+
+function getTranslatedPhrasePack(keys, section){
+  const staticPack = getStaticPhrasePack(localLangId);
+  if(staticPack) return {pack: staticPack, status: "done"};
+
+  const cacheKey = helpPhraseCacheKey(keys);
+  if(helpPhraseTranslationCache[cacheKey]) return {pack: helpPhraseTranslationCache[cacheKey], status: "done"};
+  if(helpPhraseTranslationStatus[cacheKey] === "error") return {pack: null, status: "error"};
+
+  const sectionElementIds = {local: "localPhraseCard", pharmacy: "pharmacyPhraseCard", emergency: "emergencyInfoCard"};
+  const sectionElement = sectionElementIds[section] ? $(sectionElementIds[section]) : null;
+  const shouldRequest = section === "triage" || (sectionElement && !sectionElement.classList.contains("hidden"));
+  if(shouldRequest) requestHelpPhraseTranslations(keys, section);
+  return {pack: null, status: "loading"};
+}
 
 const medicalLabelPacks = {
   ko:{name:"이름", nationality:"국적", age:"나이", blood:"혈액형", allergy:"알레르기", medication:"복용 중인 약", condition:"기존 질환", contact:"비상 연락처", insurance:"여행자 보험", hotel:"숙소 주소"},
@@ -3190,7 +3273,6 @@ function phraseBox(title, localText, userText){
 }
 function renderLocalPhraseCard(){
   if(!$("localPhraseList")) return;
-  const pack=getPhrasePack(localLangId);
   const userPack=getPhrasePack("ko");
   const localOpt=getLocalOption();
   $("localPhraseTitle").textContent="현지어 도움 문장 · "+localOpt.native;
@@ -3202,7 +3284,14 @@ function renderLocalPhraseCard(){
   else if(situation.includes("fever")) keys=["fever","hospital","pharmacy","help"];
   else if(situation.includes("abdominal")) keys=["stomach","hospital","pain","help"];
   else if(triage && triage.recommended==="pharmacy") keys=["pharmacy","pharmacyQ","fever","dosage"];
-  $("localPhraseList").innerHTML = '<div class="notice teal">한국어로 상황을 확인한 뒤, 필요한 문장을 현지인에게 보여주세요.</div>' + keys.map(k => phraseBox(k, pack[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
+  const translated = getTranslatedPhrasePack(keys, "local");
+  const notice = translated.status === "loading"
+    ? '<div class="notice teal">현지어 도움 문장을 준비하는 중입니다...</div>'
+    : translated.status === "error"
+      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>'
+      : '<div class="notice teal">한국어로 상황을 확인한 뒤, 필요한 문장을 현지인에게 보여주세요.</div>';
+  const pack = translated.pack || phrasePacks.ko;
+  $("localPhraseList").innerHTML = notice + keys.map(k => phraseBox(k, pack[k] || phrasePacks.ko[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
 }
 function medicalFields(){
   return [
@@ -3242,6 +3331,36 @@ function getMedicalCardTitle(id=localLangId){
 function getMedicalMissingText(id=localLangId){
   const cfg = getMedicalI18n(id);
   return cfg ? cfg.blankValue : "";
+}
+
+function getSelectedCountryForTranslation(){
+  const opt = getLocalOption() || getTripOption();
+  return {
+    countryNameKo: (opt && (opt.countryNameKo || opt.countryKo)) || tripCountryName || "",
+    countryNameEn: (opt && (opt.countryNameEn || opt.country)) || "",
+    languageNameKo: (opt && (opt.languageNameKo || opt.languageKo || opt.native)) || "",
+    languageNameEn: (opt && (opt.languageNameEn || opt.native)) || "",
+    languageCode: (opt && opt.languageCode) || getCountryLanguageCode(localLangId) || "",
+    fallbackLanguageNameKo: (opt && opt.fallbackLanguageNameKo) || "",
+    fallbackLanguageNameEn: (opt && opt.fallbackLanguageNameEn) || "",
+    fallbackLanguageCode: (opt && opt.fallbackLanguageCode) || "",
+    fallbackNotice: (opt && opt.fallbackNotice) || ""
+  };
+}
+
+function fallbackLanguageDisplayName(data){
+  const selectedCountry = getSelectedCountryForTranslation();
+  const usedCode = String((data && data.usedLanguageCode) || "").toLowerCase();
+  if(selectedCountry.fallbackLanguageCode && usedCode === String(selectedCountry.fallbackLanguageCode).toLowerCase()){
+    return selectedCountry.fallbackLanguageNameKo || selectedCountry.fallbackLanguageNameEn || data.usedLanguage || "보조 언어";
+  }
+  const common = {en:"영어", fr:"프랑스어", es:"스페인어", ar:"아랍어", tl:"타갈로그어", de:"독일어"};
+  return common[usedCode] || (data && (data.usedLanguage || data.language)) || "보조 언어";
+}
+
+function medicalFallbackNoticeHtml(data){
+  if(!data || !data.fallbackUsed) return "";
+  return '<p class="small muted" style="line-height:1.55;margin:0">대표 현지어 변환이 어려워 '+escapeHtml(fallbackLanguageDisplayName(data))+'로 표시합니다.</p>';
 }
 
 const medicalCardStorageKeys = [
@@ -3355,7 +3474,22 @@ function normalizeMedicalTranslation(result, original){
     const raw = String(original[key] || "").trim();
     return raw || (cfg ? cfg.blankValue : "");
   };
-  return {
+  const responseLabels = result && (result._labels || result.labels);
+  const translatedLabels = {};
+  const fallbackLabels = getMedicalLabels(localLangId);
+  if(responseLabels && typeof responseLabels === "object"){
+    medicalFields().forEach(([, labelKey, en, ko]) => {
+      const valueKey = (medicalValueFields.find(([key]) => key === labelKey) || [null, labelKey])[1];
+      translatedLabels[labelKey] = String(responseLabels[valueKey] || responseLabels[labelKey] || "").trim() || fallbackLabels[labelKey] || ko || en;
+    });
+  }
+  const normalized = {
+    _cardTitle: String((result && (result._cardTitle || result.cardTitle)) || "").trim(),
+    _blankValue: String((result && (result._blankValue || result.blankValue)) || "").trim(),
+    usedLanguage: String((result && result.usedLanguage) || "").trim(),
+    usedLanguageCode: String((result && result.usedLanguageCode) || "").trim(),
+    fallbackUsed: Boolean(result && result.fallbackUsed),
+    fallbackReason: String((result && result.fallbackReason) || "").trim(),
     name: pick("name"),
     passportName: original.passportName || "",
     nationality: pick("nationality"),
@@ -3366,12 +3500,10 @@ function normalizeMedicalTranslation(result, original){
     medicalConditions: pick("medicalConditions"),
     emergencyContact: pick("emergencyContact"),
     travelInsurance: pick("travelInsurance"),
-    hotelAddress: pick("hotelAddress"),
-    fallbackUsed: !!(result && result.fallbackUsed),
-    usedLanguage: String((result && result.usedLanguage) || "").trim(),
-    usedLanguageCode: String((result && result.usedLanguageCode) || "").trim(),
-    fallbackReason: String((result && result.fallbackReason) || "").trim()
+    hotelAddress: pick("hotelAddress")
   };
+  if(Object.keys(translatedLabels).length) normalized._labels = translatedLabels;
+  return normalized;
 }
 
 function medicalRowsHtml(labels, payload, badge){
@@ -3387,11 +3519,12 @@ function medicalRowsHtml(labels, payload, badge){
 }
 
 function medicalPassCardHtml(labels, payload, languageLabel){
-  const title = getMedicalCardTitle(localLangId) || "Medical Card";
+  const title = payload._cardTitle || getMedicalCardTitle(localLangId) || "Medical Card";
+  const missingText = payload._blankValue || getMedicalMissingText();
   const rows = medicalFields().filter(([, labelKey]) => labelKey !== "passportName").map(([, labelKey, en, ko])=>{
     const valueKey = (medicalValueFields.find(([key]) => key === labelKey) || [null, labelKey])[1];
     const label = labels[labelKey] || en || ko;
-    const value = payload[valueKey] || getMedicalMissingText();
+    const value = payload[valueKey] || missingText;
     return '<div class="medical-pass-row">'+
       '<div class="medical-pass-label">'+escapeHtml(label)+'</div>'+
       '<div class="medical-pass-value">'+escapeHtml(value)+'</div>'+
@@ -3449,13 +3582,32 @@ async function showLocalMedicalCard(){
   try{
     const localOpt = getLocalOption();
     const tripOpt = getTripOption();
+    const selectedCountry = getSelectedCountryForTranslation();
     const res = await fetch("/.netlify/functions/translate-medical-card", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        targetLanguage: localOpt.languageNameEn || localOpt.native || "",
-        targetLanguageCode: localOpt.languageCode || getCountryLanguageCode(localLangId) || localLangId || tripCountryId || "",
+        countryNameKo: selectedCountry.countryNameKo,
+        countryNameEn: selectedCountry.countryNameEn,
+        targetLanguage: selectedCountry.languageNameEn || localOpt.languageNameEn || localOpt.native || "",
+        targetLanguageCode: selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId) || localLangId || tripCountryId || "",
+        fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
+        fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
         travelCountry: tripCountryName || tripOpt.countryKo || tripOpt.country || "",
+        selectedCountry,
+        medicalCard: {
+          name: payload.name,
+          passportName: payload.passportName,
+          nationality: payload.nationality,
+          age: payload.age,
+          bloodType: payload.bloodType,
+          allergies: payload.allergies,
+          medications: payload.medication,
+          conditions: payload.medicalConditions,
+          emergencyContact: payload.emergencyContact,
+          insurance: payload.travelInsurance,
+          accommodation: payload.hotelAddress
+        },
         fields: payload
       })
     });
@@ -3482,7 +3634,7 @@ function renderMedicalCardPreview(){
   const payload = getMedicalCardPayload();
   const localOpt=getLocalOption();
   const tripOpt=getTripOption();
-  const localLabels=getMedicalLabels(localLangId);
+  const localLabels=(medicalCardTranslation && medicalCardTranslation._labels) || getMedicalLabels(localLangId);
   const koLabels=getMedicalLabels("ko");
   const tripLabel = hasTripCountrySelection ? (tripCountryName || tripOpt.countryKo) : "여행 국가 미선택";
   const tabHtml =
@@ -3512,10 +3664,7 @@ function renderMedicalCardPreview(){
       '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
       medicalRowsHtml(koLabels, payload, "KO");
   }else if(medicalCardTranslation){
-    const fallbackNotice = medicalCardTranslation.fallbackUsed
-      ? '<div class="notice amber small">선택한 현지어 변환이 어려워 '+escapeHtml(medicalCardTranslation.usedLanguage || "보조 언어")+'로 표시합니다.</div>'
-      : "";
-    bodyHtml = fallbackNotice+romanizationNoticeHtml(payload)+medicalPassCardHtml(localLabels, medicalCardTranslation, medicalCardTranslation.usedLanguage || localOpt.native);
+    bodyHtml = medicalFallbackNoticeHtml(medicalCardTranslation)+romanizationNoticeHtml(payload)+medicalPassCardHtml(localLabels, medicalCardTranslation, medicalCardTranslation.usedLanguage || localOpt.native);
   }else{
     bodyHtml =
       '<div class="notice teal">현지어 보기를 누르면 선택한 여행 국가의 언어로 의료카드를 준비합니다.</div>'+
@@ -3538,19 +3687,31 @@ function renderMedicalCardPreview(){
 
 function renderEmergencyInfoCard(){
   if(!$("emergencyInfoContent")) return;
-  const tripOpt=getTripOption(), pack=getPhrasePack(localLangId), userPack=getPhrasePack(selected);
+  const tripOpt=getTripOption(), userPack=getPhrasePack("ko");
+  const keys = ["ambulance","help"];
+  const translated = getTranslatedPhrasePack(keys, "emergency");
+  const pack = translated.pack || phrasePacks.ko;
+  const phraseNotice = translated.status === "error" ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>' : "";
   $("emergencyInfoContent").innerHTML =
     '<div class="result-box emergency"><p style="font-size:20px;margin-bottom:6px">'+escapeHtml(tripCountryName || tripOpt.countryKo)+' 응급번호</p><p style="font-size:26px;font-weight:950">'+escapeHtml(String(getTripEmergencyNumber()))+'</p><p class="small">샘플 앱입니다. 실제 신고는 사용자의 기기 전화 앱 또는 현지 긴급번호로 직접 진행해야 합니다.</p></div>'+
     countryNoticeHtml(tripOpt)+
+    phraseNotice+
     phraseBox("ambulance", pack.ambulance, userPack.ambulance)+
     phraseBox("help", pack.help, userPack.help);
 }
 function renderPharmacyPhraseCard(){
   if(!$("pharmacyPhraseList")) return;
-  const pack=getPhrasePack(localLangId), userPack=getPhrasePack(selected), localOpt=getLocalOption();
+  const userPack=getPhrasePack("ko"), localOpt=getLocalOption();
   $("pharmacyPhraseTitle").textContent="약국에서 보여줄 문장 · "+localOpt.native;
   const keys=["pharmacy","pharmacyQ","dosage","prescription","allergy","medication","fever","stomach"];
-  $("pharmacyPhraseList").innerHTML = keys.map(k => phraseBox(k, pack[k] || phrasePacks.en[k], userPack[k] || phrasePacks.en[k])).join("");
+  const translated = getTranslatedPhrasePack(keys, "pharmacy");
+  const notice = translated.status === "loading"
+    ? '<div class="notice teal">현지어 약국 상담 문장을 준비하는 중입니다...</div>'
+    : translated.status === "error"
+      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>'
+      : "";
+  const pack = translated.pack || phrasePacks.ko;
+  $("pharmacyPhraseList").innerHTML = notice + keys.map(k => phraseBox(k, pack[k] || phrasePacks.ko[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
 }
 function hideFeatureSections(){
   ["localPhraseCard","medicalCardSection","emergencyInfoCard","pharmacyPhraseCard","hospitalFinderCard","infoGuideCard"].forEach(id=>{ const el=$(id); if(el) el.classList.add("hidden"); });
@@ -4837,7 +4998,10 @@ function localTriagePhrase(phrase){
   if(phrase && phrase.local) return phrase.local;
   if(base==="ko" && phrase && phrase.ko) return phrase.ko;
   if(base==="en" && phrase && phrase.en) return phrase.en;
-  const pack=getPhrasePack(localLangId);
+  const keys = ["help","ambulance","hospital"];
+  const translated = getTranslatedPhrasePack(keys, "triage");
+  if(translated.status === "error") return phraseTranslationFailureMessage;
+  const pack=translated.pack || phrasePacks.ko;
   return [pack.help, pack.ambulance, pack.hospital].filter(Boolean).join(" ") || (phrase && phrase.en) || "I need help. Please call medical staff or an ambulance.";
 }
 
@@ -4961,6 +5125,7 @@ function startVoiceInput(){
   recognition.start();
 }
 
+// DEV TEST PANEL START
 function shouldShowAllLanguageTestPanel(){
   return new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
 }
@@ -4971,7 +5136,11 @@ function devTestCountryPayload(country){
     countryNameEn: country.countryNameEn || country.country || "",
     languageNameKo: country.languageNameKo || country.languageKo || country.native || "",
     languageNameEn: country.languageNameEn || country.native || "",
-    languageCode: country.languageCode || ""
+    languageCode: country.languageCode || "",
+    fallbackLanguageNameKo: country.fallbackLanguageNameKo || "",
+    fallbackLanguageNameEn: country.fallbackLanguageNameEn || "",
+    fallbackLanguageCode: country.fallbackLanguageCode || "",
+    fallbackNotice: country.fallbackNotice || ""
   };
 }
 
@@ -5034,6 +5203,7 @@ function renderDevTestRows(rows){
       devTestCell(row.fallbackUsed)+
       devTestCell(row.fallbackReason)+
       devTestCell(row.errorMessage)+
+      devTestCell(row.problem)+
     '</tr>';
   }).join("");
 }
@@ -5055,13 +5225,15 @@ async function runSingleAllLanguageTest(country){
     medicalConditions: "",
     helpPhrase: "",
     usedLanguage: "",
+    usedLanguageCode: "",
     fallbackUsed: "",
     fallbackReason: "",
-    errorMessage: ""
+    errorMessage: "",
+    problem: ""
   };
 
   if(!languageName || !languageCode){
-    return {...baseRow, errorMessage: "targetLanguage 또는 languageCode 누락"};
+    return {...baseRow, problem: "targetLanguage 또는 languageCode 누락"};
   }
 
   const fields = devTestMedicalFields();
@@ -5074,7 +5246,22 @@ async function runSingleAllLanguageTest(country){
         countryNameEn: selectedCountry.countryNameEn,
         targetLanguage: selectedCountry.languageNameEn,
         targetLanguageCode: selectedCountry.languageCode,
+        fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
+        fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
         selectedCountry,
+        medicalCard: {
+          name: fields.name,
+          passportName: fields.passportName,
+          nationality: fields.nationality,
+          age: fields.age,
+          bloodType: fields.bloodType,
+          allergies: fields.allergies,
+          medications: fields.medication,
+          conditions: fields.medicalConditions,
+          emergencyContact: fields.emergencyContact,
+          insurance: fields.travelInsurance,
+          accommodation: fields.hotelAddress
+        },
         fields
       })
     });
@@ -5087,6 +5274,9 @@ async function runSingleAllLanguageTest(country){
       body: JSON.stringify({
         targetLanguage: selectedCountry.languageNameEn,
         targetLanguageCode: selectedCountry.languageCode,
+        fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
+        fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
+        selectedCountry,
         travelCountry: selectedCountry.countryNameKo || selectedCountry.countryNameEn,
         phrases: {help: phrasePacks.ko.help}
       })
@@ -5095,6 +5285,10 @@ async function runSingleAllLanguageTest(country){
     if(!helpRes.ok) throw new Error(helpData.detail || helpData.error || "translate-help-phrases 실패");
 
     const helpPhrase = String((helpData.translations && helpData.translations.help) || helpData.help || "").trim();
+    const anyFallbackUsed = Boolean(medicalData.fallbackUsed || helpData.fallbackUsed);
+    const fallbackReasons = [];
+    if(medicalData.fallbackReason) fallbackReasons.push("의료카드: " + medicalData.fallbackReason);
+    if(helpData.fallbackReason) fallbackReasons.push("도움 문장: " + helpData.fallbackReason);
     const row = {
       ...baseRow,
       cardTitle: String(medicalData._cardTitle || medicalData.cardTitle || "").trim(),
@@ -5104,9 +5298,11 @@ async function runSingleAllLanguageTest(country){
       medicalConditions: String(medicalData.medicalConditions || "").trim(),
       helpPhrase,
       usedLanguage: String(medicalData.usedLanguage || medicalData.language || "").trim(),
-      fallbackUsed: medicalData.fallbackUsed ? "사용" : "미사용",
-      fallbackReason: String(medicalData.fallbackReason || "").trim(),
-      errorMessage: Array.isArray(medicalData.attemptErrors) ? medicalData.attemptErrors.map((item) => item.language + ": " + item.message).join(" / ") : ""
+      usedLanguageCode: String(medicalData.usedLanguageCode || medicalData.languageCode || "").trim(),
+      fallbackUsed: anyFallbackUsed ? "사용" : "미사용",
+      fallbackReason: fallbackReasons.join(" / "),
+      errorMessage: [medicalData, helpData].flatMap((data) => Array.isArray(data.attemptErrors) ? data.attemptErrors.map((item) => item.language + ": " + item.message) : []).join(" / "),
+      problem: ""
     };
 
     const missing = [];
@@ -5117,17 +5313,17 @@ async function runSingleAllLanguageTest(country){
     if(!row.medicalConditions) missing.push("기존 질환 결과 없음");
     if(!row.helpPhrase) missing.push("도움 문장 결과 없음");
 
-    const combined = [row.cardTitle, row.blankValue, row.allergies, row.medication, row.medicalConditions].join("\n");
-    const hasEnglishLeak = !medicalData.fallbackUsed && hasEnglishFallbackForDevTest(combined, row.usedLanguage || selectedCountry.languageCode, selectedCountry.languageNameEn);
+    const combined = [row.cardTitle, row.blankValue, row.allergies, row.medication, row.medicalConditions, row.helpPhrase].join("\n");
+    const hasEnglishLeak = !anyFallbackUsed && hasEnglishFallbackForDevTest(combined, row.usedLanguageCode || selectedCountry.languageCode, row.usedLanguage || selectedCountry.languageNameEn);
     if(missing.length){
-      return {...row, status: "실패", errorMessage: missing.join(", ")};
+      return {...row, status: "실패", problem: missing.join(", ")};
     }
     if(hasEnglishLeak){
-      return {...row, status: "확인 필요", errorMessage: "비영어권 결과에 영어 fallback 표현이 남아 있음"};
+      return {...row, status: "확인 필요", problem: "비영어권 결과에 영어 fallback 표현이 남아 있음"};
     }
-    return {...row, status: medicalData.fallbackUsed ? "통과 fallback" : "통과"};
+    return {...row, status: anyFallbackUsed ? "통과 fallback" : "통과", problem: anyFallbackUsed ? "fallback 언어로 표시됨" : "정상"};
   }catch(error){
-    return {...baseRow, status: "실패", errorMessage: error && error.message ? error.message : "오류 메시지 발생"};
+    return {...baseRow, status: "실패", errorMessage: error && error.message ? error.message : "오류 메시지 발생", problem: error && error.message ? error.message : "오류 메시지 발생"};
   }
 }
 
@@ -5157,10 +5353,11 @@ function initAllLanguageTestPanel(){
   const panel = $("allLanguageTestPanel");
   if(!panel || !shouldShowAllLanguageTestPanel()) return;
   panel.classList.remove("hidden");
-  if($("languagePage")) $("languagePage").insertBefore(panel, $("languagePage").firstElementChild);
   on("runRepresentativeLanguageTestBtn", "click", () => runAllLanguageTest("representative"));
   on("runAllCountryLanguageTestBtn", "click", () => runAllLanguageTest("all"));
 }
+// DEV TEST PANEL END
+
 
 function init(){
   on("startBtn","click",showApp);
