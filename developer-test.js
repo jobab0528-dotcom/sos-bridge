@@ -1,12 +1,18 @@
 (function(){
   try{
   console.log("developer-test.js started", window.location.search);
+  const isAllLanguageTest =
+    new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
+
+  console.log("developer-test.js query check:", {
+    search: window.location.search,
+    isAllLanguageTest
+  });
+
+  if(!isAllLanguageTest) return;
 
   function renderAllLanguageDeveloperTestPanel(){
     try{
-    const isAllLanguageTest =
-      new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
-    if(!isAllLanguageTest) return;
     console.log("renderAllLanguageDeveloperTestPanel running");
 
     const context = window.SOS_BRIDGE_DEV_TEST_CONTEXT || {};
@@ -31,8 +37,15 @@
     const panel = document.createElement("section");
     panel.id = "sos-dev-test-panel";
     panel.className = "container card";
-    panel.style.marginTop = "16px";
+    panel.style.display = "block";
+    panel.style.position = "relative";
+    panel.style.zIndex = "99999";
+    panel.style.background = "#fff";
+    panel.style.border = "4px solid red";
+    panel.style.padding = "16px";
+    panel.style.margin = "16px";
     panel.innerHTML =
+      '<h1 style="color:red;">DEVELOPER TEST PANEL LOADED</h1>'+
       '<p class="eyebrow">Developer Test</p>'+
       '<h2>전세계 국가/지역 번역 테스트</h2>'+
       '<p class="small muted" style="line-height:1.6">현재 앱에 등록된 국가/지역의 대표 언어를 기준으로 현지어 도움 문장과 여행자 의료카드 현지어 보기를 자동 점검합니다.</p>'+
@@ -68,9 +81,8 @@
         '</table>'+
       '</div>';
 
-    const mountTarget = document.querySelector("main") || document.body;
-    mountTarget.prepend(panel);
-    console.log("Developer test panel inserted");
+    document.body.prepend(panel);
+    console.log("Developer test panel inserted", document.getElementById("sos-dev-test-panel"));
   }
 
     function devTestCountryPayload(country){
@@ -318,6 +330,7 @@
     bindAllLanguageTestButtons();
     }catch(error){
       console.error("developer-test.js runtime error", error);
+      alert("developer-test.js 실행 오류: " + error.message);
     }
   }
 
@@ -329,5 +342,6 @@
   }
   }catch(error){
     console.error("developer-test.js runtime error", error);
+    alert("developer-test.js 실행 오류: " + error.message);
   }
 })();

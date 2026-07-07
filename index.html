@@ -5157,18 +5157,24 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
   const isAllLanguageTest =
     new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
 
+  console.log("sosTest loader check:", {
+    search: window.location.search,
+    isAllLanguageTest
+  });
+
   if (!isAllLanguageTest) return;
 
   const script = document.createElement("script");
   script.src = "/developer-test.js?v=" + Date.now();
-  script.defer = true;
+  script.async = false;
   script.onload = function () {
-    console.log("developer-test.js loaded");
+    console.log("developer-test.js loaded from index.html loader");
   };
-  script.onerror = function () {
-    console.error("developer-test.js failed to load");
+  script.onerror = function (error) {
+    console.error("developer-test.js failed to load from index.html loader", error);
+    alert("developer-test.js 로드 실패");
   };
-  document.head.appendChild(script);
+  document.body.appendChild(script);
 })();
 </script>
 
