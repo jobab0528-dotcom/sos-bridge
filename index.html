@@ -5100,11 +5100,6 @@ function initAllLanguageTestPanel(){
   const script = document.createElement("script");
   script.src = "/developer-test.js?v=" + Date.now();
   script.defer = true;
-  script.onload = () => {
-    if(isAllLanguageTest && typeof window.renderAllLanguageDeveloperTestPanel === "function"){
-      window.renderAllLanguageDeveloperTestPanel();
-    }
-  };
   document.head.appendChild(script);
 }
 

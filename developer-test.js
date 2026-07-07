@@ -61,8 +61,8 @@
         '</table>'+
       '</div>';
 
-    const host = $("languagePage") || document.body;
-    host.appendChild(panel);
+    const mountTarget = document.querySelector("main") || document.body;
+    mountTarget.prepend(panel);
   }
 
     function devTestCountryPayload(country){
@@ -311,4 +311,9 @@
   }
 
   window.renderAllLanguageDeveloperTestPanel = renderAllLanguageDeveloperTestPanel;
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", renderAllLanguageDeveloperTestPanel, {once: true});
+  }else{
+    renderAllLanguageDeveloperTestPanel();
+  }
 })();
