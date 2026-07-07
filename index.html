@@ -226,7 +226,7 @@
     </section>
 
     <!-- DEV TEST PANEL START -->
-    <section id="allLanguageTestPanel" class="container card hidden" style="margin-top:16px">
+    <section id="allLanguageTestPanel" class="container card hidden" hidden aria-hidden="true" style="display:none;margin-top:16px">
       <p class="eyebrow">Developer Test</p>
       <h2>전세계 국가/지역 번역 테스트</h2>
       <p class="small muted" style="line-height:1.6">현재 앱에 등록된 국가/지역의 대표 언어를 기준으로 현지어 도움 문장과 여행자 의료카드 현지어 보기를 자동 점검합니다.</p>
@@ -5127,7 +5127,31 @@ function startVoiceInput(){
 
 // DEV TEST PANEL START
 function shouldShowAllLanguageTestPanel(){
-  return new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
+  const isAllLanguageTest =
+    new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
+  return isAllLanguageTest;
+}
+
+function setAllLanguageTestPanelVisibility(){
+  const panel = $("allLanguageTestPanel");
+  if(!panel) return false;
+
+  const isAllLanguageTest =
+    new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
+
+  if(isAllLanguageTest){
+    panel.hidden = false;
+    panel.removeAttribute("aria-hidden");
+    panel.style.display = "";
+    panel.classList.remove("hidden");
+    return true;
+  }
+
+  panel.classList.add("hidden");
+  panel.hidden = true;
+  panel.setAttribute("aria-hidden", "true");
+  panel.style.display = "none";
+  return false;
 }
 
 function devTestCountryPayload(country){
@@ -5350,9 +5374,7 @@ async function runAllLanguageTest(mode){
 }
 
 function initAllLanguageTestPanel(){
-  const panel = $("allLanguageTestPanel");
-  if(!panel || !shouldShowAllLanguageTestPanel()) return;
-  panel.classList.remove("hidden");
+  if(!setAllLanguageTestPanelVisibility()) return;
   on("runRepresentativeLanguageTestBtn", "click", () => runAllLanguageTest("representative"));
   on("runAllCountryLanguageTestBtn", "click", () => runAllLanguageTest("all"));
 }
