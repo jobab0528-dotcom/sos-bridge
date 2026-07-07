@@ -2174,7 +2174,10 @@
         "native": "디베히어"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "fallbackLanguageNameKo": "영어",
+    "fallbackLanguageNameEn": "English",
+    "fallbackLanguageCode": "en",
+    "emergencyNumber": "102",
     "mapCountryQuery": "Maldives",
     "aliasesKo": [],
     "aliasesEn": [],

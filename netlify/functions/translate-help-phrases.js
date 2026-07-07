@@ -73,15 +73,21 @@ function addAttempt(attempts, languageName, languageCode, reason, fallbackUsed){
 function buildTranslationAttempts(payload, targetLanguage, targetLanguageCode){
   const selectedCountry = payload.selectedCountry && typeof payload.selectedCountry === "object" ? payload.selectedCountry : {};
   const attempts = [];
+  const isDivehiTarget = baseLanguage(targetLanguageCode) === "dv" || /divehi/i.test(text(targetLanguage));
   addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language translation", false);
   addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language retry", false);
-  addAttempt(
-    attempts,
-    payload.fallbackLanguageNameEn || selectedCountry.fallbackLanguageNameEn,
-    payload.fallbackLanguageCode || selectedCountry.fallbackLanguageCode,
-    "Primary language translation failed",
-    true
-  );
+  if(isDivehiTarget){
+    addAttempt(attempts, "English", "en", "Divehi translation failed or returned incomplete fields", true);
+  }
+  if(!isDivehiTarget){
+    addAttempt(
+      attempts,
+      payload.fallbackLanguageNameEn || selectedCountry.fallbackLanguageNameEn,
+      payload.fallbackLanguageCode || selectedCountry.fallbackLanguageCode,
+      "Primary language translation failed",
+      true
+    );
+  }
   if(baseLanguage(targetLanguageCode) === "fil"){
     addAttempt(attempts, "Tagalog", "tl", "Filipino translation failed", true);
   }
