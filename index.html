@@ -3935,7 +3935,7 @@ function getHospitalRecommendationFromTriage(result){
   return hospitalMap[category] || {
     type:"hospital",
     label:"가까운 병원·의원 추천",
-    reason:"AI 의료판단을 바탕으로 가까운 병원 또는 의원을 추천합니다.",
+    reason:"AI 응급도 참고 안내를 바탕으로 가까운 병원 또는 의원을 추천합니다.",
     keywords:["clinic","hospital","의원","병원","내과","가정의학"],
     avoidKeywords:["안과","치과","성형","dental","dentist","ophthalmology","plastic"]
   };
@@ -3946,7 +3946,7 @@ function renderHospitalFinderResult(result, recommendation){
   if(!box) return;
   box.classList.remove("hidden");
   box.innerHTML =
-    '<strong>AI 의료판단:</strong> '+escapeHtml(result.title || "판단 결과")+
+    '<strong>AI 응급도 참고 안내:</strong> '+escapeHtml(result.title || "참고 안내 결과")+
     '<br><span class="small">'+escapeHtml(result.summary || "")+'</span>'+
     '<br><br><strong>병원 추천 기준:</strong> '+escapeHtml(recommendation.label)+
     '<br><span class="small">'+escapeHtml(recommendation.reason)+'</span>';
@@ -5153,37 +5153,58 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 </script>
 
 <script>
-(function () {
-  const isAllLanguageTest =
-    new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
-
-  console.log("sosTest loader check:", {
-    search: window.location.search,
-    isAllLanguageTest
-  });
-
-  if (!isAllLanguageTest) return;
-
-  const script = document.createElement("script");
-  script.src = "/developer-test.js?v=" + Date.now();
-  script.async = false;
-  script.onload = function () {
-    console.log("developer-test.js loaded from index.html loader");
-  };
-  script.onerror = function (error) {
-    console.error("developer-test.js failed to load from index.html loader", error);
-    alert("developer-test.js 로드 실패");
-  };
-  document.body.appendChild(script);
-})();
-</script>
-
-<script>
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./service-worker.js").catch(() => {});
   });
 }
+</script>
+
+<script>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const isAllLanguageTest = params.get("sosTest") === "all-languages";
+
+  window.SOS_BRIDGE_DEV_LOADER_CHECK = {
+    search: window.location.search,
+    isAllLanguageTest
+  };
+
+  console.log("SOS dev loader check", window.SOS_BRIDGE_DEV_LOADER_CHECK);
+
+  if (!isAllLanguageTest) return;
+
+  const fallbackPanel = document.createElement("section");
+  fallbackPanel.id = "sos-dev-test-loader-visible-check";
+  fallbackPanel.style.display = "block";
+  fallbackPanel.style.position = "relative";
+  fallbackPanel.style.zIndex = "999999";
+  fallbackPanel.style.background = "#fff";
+  fallbackPanel.style.border = "4px solid red";
+  fallbackPanel.style.padding = "16px";
+  fallbackPanel.style.margin = "16px";
+  fallbackPanel.innerHTML = `
+    <h1 style="color:red;">DEVELOPER TEST LOADER ACTIVE</h1>
+    <p>?sosTest=all-languages 조건은 정상으로 감지되었습니다.</p>
+    <p>이 문구가 보이면 index.html 로더는 작동 중입니다.</p>
+  `;
+  document.body.prepend(fallbackPanel);
+
+  const script = document.createElement("script");
+  script.src = "/developer-test.js?v=" + Date.now();
+  script.async = false;
+
+  script.onload = function () {
+    console.log("developer-test.js loaded successfully");
+  };
+
+  script.onerror = function (error) {
+    console.error("developer-test.js failed to load", error);
+    alert("developer-test.js 로드 실패");
+  };
+
+  document.body.appendChild(script);
+})();
 </script>
 
 </body>
