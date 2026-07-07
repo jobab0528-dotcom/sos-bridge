@@ -162,7 +162,63 @@
     }).join("");
   }
 
-    async function runSingleAllLanguageTest(country){
+    function devTestBaseLanguage(code){
+    return String(code || "").toLowerCase().split("-")[0];
+  }
+
+    function devTestRequiredMissing(row){
+    const missing = [];
+    if(!row.cardTitle) missing.push("의료카드 제목 없음");
+    if(!row.blankValue) missing.push("미입력 표시 없음");
+    if(!row.allergies) missing.push("알레르기 결과 없음");
+    if(!row.medication) missing.push("복용약 결과 없음");
+    if(!row.medicalConditions) missing.push("기존 질환 결과 없음");
+    if(!row.helpPhrase) missing.push("도움 문장 결과 없음");
+    return missing;
+  }
+
+    function devTestFallbackReason(selectedCountry){
+    const label = String(selectedCountry.languageNameEn || selectedCountry.languageNameKo || selectedCountry.languageCode || "Primary language").trim();
+    return label + " translation failed or returned incomplete fields";
+  }
+
+    function devTestEnglishFallbackCountry(selectedCountry){
+    return {
+      ...selectedCountry,
+      languageNameKo: "영어",
+      languageNameEn: "English",
+      languageCode: "en",
+      fallbackLanguageNameKo: "",
+      fallbackLanguageNameEn: "",
+      fallbackLanguageCode: ""
+    };
+  }
+
+    function devTestRowFromResponses(baseRow, medicalData, helpData, forcedFallbackReason){
+    const helpPhrase = String((helpData.translations && helpData.translations.help) || helpData.help || "").trim();
+    const anyFallbackUsed = Boolean(medicalData.fallbackUsed || helpData.fallbackUsed || forcedFallbackReason);
+    const fallbackReasons = [];
+    if(medicalData.fallbackReason) fallbackReasons.push("의료카드: " + medicalData.fallbackReason);
+    if(helpData.fallbackReason) fallbackReasons.push("도움 문장: " + helpData.fallbackReason);
+    if(forcedFallbackReason && !fallbackReasons.length) fallbackReasons.push("공통 fallback: " + forcedFallbackReason);
+    return {
+      ...baseRow,
+      cardTitle: String(medicalData._cardTitle || medicalData.cardTitle || "").trim(),
+      blankValue: String(medicalData._blankValue || medicalData.emergencyContact || medicalData.travelInsurance || "").trim(),
+      allergies: String(medicalData.allergies || "").trim(),
+      medication: String(medicalData.medication || "").trim(),
+      medicalConditions: String(medicalData.medicalConditions || "").trim(),
+      helpPhrase,
+      usedLanguage: String(medicalData.usedLanguage || medicalData.language || (forcedFallbackReason ? "English" : "")).trim(),
+      usedLanguageCode: String(medicalData.usedLanguageCode || medicalData.languageCode || (forcedFallbackReason ? "en" : "")).trim(),
+      fallbackUsed: anyFallbackUsed ? "사용" : "미사용",
+      fallbackReason: fallbackReasons.join(" / "),
+      errorMessage: [medicalData, helpData].flatMap((data) => Array.isArray(data.attemptErrors) ? data.attemptErrors.map((item) => item.language + ": " + item.message) : []).join(" / "),
+      problem: ""
+    };
+  }
+
+    async function runSingleCountryLanguageTest(country){
     const selectedCountry = devTestCountryPayload(country);
     const languageName = selectedCountry.languageNameEn || selectedCountry.languageNameKo;
     const languageCode = selectedCountry.languageCode;
@@ -191,18 +247,18 @@
     }
 
     const fields = devTestMedicalFields();
-    try{
+    async function requestMedicalCardAndHelpPhraseForCountry(requestCountry, forcedFallbackReason){
       const medicalRes = await fetch("/.netlify/functions/translate-medical-card", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          countryNameKo: selectedCountry.countryNameKo,
-          countryNameEn: selectedCountry.countryNameEn,
-          targetLanguage: selectedCountry.languageNameEn,
-          targetLanguageCode: selectedCountry.languageCode,
-          fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
-          fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
-          selectedCountry,
+          countryNameKo: requestCountry.countryNameKo,
+          countryNameEn: requestCountry.countryNameEn,
+          targetLanguage: requestCountry.languageNameEn,
+          targetLanguageCode: requestCountry.languageCode,
+          fallbackLanguageNameEn: requestCountry.fallbackLanguageNameEn || "",
+          fallbackLanguageCode: requestCountry.fallbackLanguageCode || "",
+          selectedCountry: requestCountry,
           medicalCard: {
             name: fields.name,
             passportName: fields.passportName,
@@ -227,56 +283,72 @@
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          targetLanguage: selectedCountry.languageNameEn,
-          targetLanguageCode: selectedCountry.languageCode,
-          fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
-          fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
-          selectedCountry,
-          travelCountry: selectedCountry.countryNameKo || selectedCountry.countryNameEn,
+          targetLanguage: requestCountry.languageNameEn,
+          targetLanguageCode: requestCountry.languageCode,
+          fallbackLanguageNameEn: requestCountry.fallbackLanguageNameEn || "",
+          fallbackLanguageCode: requestCountry.fallbackLanguageCode || "",
+          selectedCountry: requestCountry,
+          travelCountry: requestCountry.countryNameKo || requestCountry.countryNameEn,
           phrases: {help: helpPhraseKo}
         })
       });
       const helpData = await helpRes.json().catch(() => ({}));
       if(!helpRes.ok) throw new Error(helpData.detail || helpData.error || "translate-help-phrases 실패");
 
-      const helpPhrase = String((helpData.translations && helpData.translations.help) || helpData.help || "").trim();
-      const anyFallbackUsed = Boolean(medicalData.fallbackUsed || helpData.fallbackUsed);
-      const fallbackReasons = [];
-      if(medicalData.fallbackReason) fallbackReasons.push("의료카드: " + medicalData.fallbackReason);
-      if(helpData.fallbackReason) fallbackReasons.push("도움 문장: " + helpData.fallbackReason);
-      const row = {
-        ...baseRow,
-        cardTitle: String(medicalData._cardTitle || medicalData.cardTitle || "").trim(),
-        blankValue: String(medicalData._blankValue || medicalData.emergencyContact || medicalData.travelInsurance || "").trim(),
-        allergies: String(medicalData.allergies || "").trim(),
-        medication: String(medicalData.medication || "").trim(),
-        medicalConditions: String(medicalData.medicalConditions || "").trim(),
-        helpPhrase,
-        usedLanguage: String(medicalData.usedLanguage || medicalData.language || "").trim(),
-        usedLanguageCode: String(medicalData.usedLanguageCode || medicalData.languageCode || "").trim(),
-        fallbackUsed: anyFallbackUsed ? "사용" : "미사용",
-        fallbackReason: fallbackReasons.join(" / "),
-        errorMessage: [medicalData, helpData].flatMap((data) => Array.isArray(data.attemptErrors) ? data.attemptErrors.map((item) => item.language + ": " + item.message) : []).join(" / "),
-        problem: ""
-      };
+      return devTestRowFromResponses(baseRow, medicalData, helpData, forcedFallbackReason);
+    }
 
-      const missing = [];
-      if(!row.cardTitle) missing.push("의료카드 제목 없음");
-      if(!row.blankValue) missing.push("미입력 표시 없음");
-      if(!row.allergies) missing.push("알레르기 결과 없음");
-      if(!row.medication) missing.push("복용약 결과 없음");
-      if(!row.medicalConditions) missing.push("기존 질환 결과 없음");
-      if(!row.helpPhrase) missing.push("도움 문장 결과 없음");
+    async function requestEnglishFallback(reason){
+      const fallbackCountry = devTestEnglishFallbackCountry(selectedCountry);
+      const fallbackRow = await requestMedicalCardAndHelpPhraseForCountry(fallbackCountry, reason);
+      return {
+        ...fallbackRow,
+        fallbackUsed: "사용",
+        fallbackReason: fallbackRow.fallbackReason || "공통 fallback: " + reason,
+        usedLanguage: fallbackRow.usedLanguage || "English",
+        usedLanguageCode: fallbackRow.usedLanguageCode || "en"
+      };
+    }
+
+    try{
+      const fallbackReason = devTestFallbackReason(selectedCountry);
+      let row;
+      try{
+        row = await requestMedicalCardAndHelpPhraseForCountry(selectedCountry, "");
+      }catch(primaryError){
+        if(devTestBaseLanguage(selectedCountry.languageCode) === "en"){
+          throw primaryError;
+        }
+        row = await requestEnglishFallback(fallbackReason);
+      }
+
+      let missing = devTestRequiredMissing(row);
+      if(missing.length && devTestBaseLanguage(selectedCountry.languageCode) !== "en"){
+        const fallbackRow = await requestEnglishFallback(fallbackReason);
+        const fallbackMissing = devTestRequiredMissing(fallbackRow);
+        if(!fallbackMissing.length){
+          row = fallbackRow;
+          missing = [];
+        }else{
+          row = {
+            ...row,
+            fallbackUsed: "사용",
+            fallbackReason: row.fallbackReason || "공통 fallback: " + fallbackReason,
+            errorMessage: [row.errorMessage, "English fallback incomplete: " + fallbackMissing.join(", ")].filter(Boolean).join(" / ")
+          };
+          missing = fallbackMissing;
+        }
+      }
 
       const combined = [row.cardTitle, row.blankValue, row.allergies, row.medication, row.medicalConditions, row.helpPhrase].join("\n");
-      const hasEnglishLeak = !anyFallbackUsed && hasEnglishFallbackForDevTest(combined, row.usedLanguageCode || selectedCountry.languageCode, row.usedLanguage || selectedCountry.languageNameEn);
+      const hasEnglishLeak = row.fallbackUsed !== "사용" && hasEnglishFallbackForDevTest(combined, row.usedLanguageCode || selectedCountry.languageCode, row.usedLanguage || selectedCountry.languageNameEn);
       if(missing.length){
         return {...row, status: "실패", problem: missing.join(", ")};
       }
       if(hasEnglishLeak){
         return {...row, status: "확인 필요", problem: "비영어권 결과에 영어 fallback 표현이 남아 있음"};
       }
-      return {...row, status: anyFallbackUsed ? "통과 fallback" : "통과", problem: anyFallbackUsed ? "fallback 언어로 표시됨" : "정상"};
+      return {...row, status: row.fallbackUsed === "사용" ? "통과 fallback" : "통과", problem: row.fallbackUsed === "사용" ? "fallback 언어로 표시됨" : "정상"};
     }catch(error){
       return {...baseRow, status: "실패", errorMessage: error && error.message ? error.message : "오류 메시지 발생", problem: error && error.message ? error.message : "오류 메시지 발생"};
     }
@@ -292,7 +364,7 @@
     }
     renderDevTestRows(rows);
     for(let i = 0; i < targets.length; i++){
-      rows.push(await runSingleAllLanguageTest(targets[i]));
+      rows.push(await runSingleCountryLanguageTest(targets[i]));
       renderDevTestRows(rows);
       if(status) status.textContent = (mode === "all" ? "전체 국가/지역" : "대표 언어별") + " 테스트 진행 중: " + (i + 1) + " / " + targets.length;
     }
