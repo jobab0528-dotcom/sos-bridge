@@ -5098,8 +5098,13 @@ function initAllLanguageTestPanel(){
   };
 
   const script = document.createElement("script");
-  script.src = "./dev-all-languages-test.js?v=24";
+  script.src = "./dev-all-languages-test.js?v=25";
   script.async = false;
+  script.onload = () => {
+    if(isAllLanguageTest && typeof window.renderAllLanguageDeveloperTestPanel === "function"){
+      window.renderAllLanguageDeveloperTestPanel();
+    }
+  };
   document.body.appendChild(script);
 }
 

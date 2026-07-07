@@ -1,24 +1,25 @@
 (function(){
-  const isAllLanguageTest =
-    new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
-  if(!isAllLanguageTest) return;
+  function renderAllLanguageDeveloperTestPanel(){
+    const isAllLanguageTest =
+      new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
+    if(!isAllLanguageTest) return;
 
-  const context = window.SOS_BRIDGE_DEV_TEST_CONTEXT || {};
-  const languageOptions = Array.isArray(context.languageOptions) ? context.languageOptions : [];
-  const phrasePacks = context.phrasePacks || {};
-  const escapeHtml = typeof context.escapeHtml === "function"
-    ? context.escapeHtml
-    : (value) => String(value || "").replace(/[&<>"']/g, (char) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[char]));
+    const context = window.SOS_BRIDGE_DEV_TEST_CONTEXT || {};
+    const languageOptions = Array.isArray(context.languageOptions) ? context.languageOptions : [];
+    const phrasePacks = context.phrasePacks || {};
+    const escapeHtml = typeof context.escapeHtml === "function"
+      ? context.escapeHtml
+      : (value) => String(value || "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
 
-  const $ = (id) => document.getElementById(id);
+    const $ = (id) => document.getElementById(id);
 
-  function createAllLanguageTestPanel(){
+    function createAllLanguageTestPanel(){
     if($("allLanguageTestPanel")) return;
     const panel = document.createElement("section");
     panel.id = "allLanguageTestPanel";
@@ -64,7 +65,7 @@
     host.appendChild(panel);
   }
 
-  function devTestCountryPayload(country){
+    function devTestCountryPayload(country){
     return {
       countryNameKo: country.countryNameKo || country.countryKo || "",
       countryNameEn: country.countryNameEn || country.country || "",
@@ -78,7 +79,7 @@
     };
   }
 
-  function devTestMedicalFields(){
+    function devTestMedicalFields(){
     return {
       name: "홍길동",
       passportName: "HONG GIL DONG",
@@ -94,7 +95,7 @@
     };
   }
 
-  function devTestTargets(mode){
+    function devTestTargets(mode){
     const countries = languageOptions.filter((country) => country && (country.languageCode || country.languageNameEn));
     if(mode === "all") return countries;
     const seen = new Set();
@@ -106,17 +107,17 @@
     });
   }
 
-  function hasEnglishFallbackForDevTest(value, languageCode, languageNameEn){
+    function hasEnglishFallbackForDevTest(value, languageCode, languageNameEn){
     const isEnglish = String(languageCode || "").toLowerCase().split("-")[0] === "en" || /^english$/i.test(String(languageNameEn || "").trim());
     if(isEnglish) return false;
     return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user)\b/i.test(String(value || ""));
   }
 
-  function devTestCell(value){
+    function devTestCell(value){
     return '<td style="padding:8px;border:1px solid var(--border);vertical-align:top">'+escapeHtml(value || "")+'</td>';
   }
 
-  function renderDevTestRows(rows){
+    function renderDevTestRows(rows){
     const tbody = $("allLanguageTestRows");
     if(!tbody) return;
     tbody.innerHTML = rows.map((row) => {
@@ -142,7 +143,7 @@
     }).join("");
   }
 
-  async function runSingleAllLanguageTest(country){
+    async function runSingleAllLanguageTest(country){
     const selectedCountry = devTestCountryPayload(country);
     const languageName = selectedCountry.languageNameEn || selectedCountry.languageNameKo;
     const languageCode = selectedCountry.languageCode;
@@ -262,7 +263,7 @@
     }
   }
 
-  async function runAllLanguageTest(mode){
+    async function runAllLanguageTest(mode){
     const status = $("allLanguageTestStatus");
     const targets = devTestTargets(mode);
     const rows = [];
@@ -284,9 +285,12 @@
     }
   }
 
-  createAllLanguageTestPanel();
-  const representativeButton = $("runRepresentativeLanguageTestBtn");
-  const allCountryButton = $("runAllCountryLanguageTestBtn");
-  if(representativeButton) representativeButton.addEventListener("click", () => runAllLanguageTest("representative"));
-  if(allCountryButton) allCountryButton.addEventListener("click", () => runAllLanguageTest("all"));
+    createAllLanguageTestPanel();
+    const representativeButton = $("runRepresentativeLanguageTestBtn");
+    const allCountryButton = $("runAllCountryLanguageTestBtn");
+    if(representativeButton) representativeButton.addEventListener("click", () => runAllLanguageTest("representative"));
+    if(allCountryButton) allCountryButton.addEventListener("click", () => runAllLanguageTest("all"));
+  }
+
+  window.renderAllLanguageDeveloperTestPanel = renderAllLanguageDeveloperTestPanel;
 })();
