@@ -39,15 +39,14 @@
     panel.className = "container card";
     panel.style.display = "block";
     panel.style.position = "relative";
-    panel.style.zIndex = "99999";
+    panel.style.zIndex = "20";
     panel.style.background = "#fff";
-    panel.style.border = "4px solid red";
+    panel.style.border = "1px solid #cbd5e1";
     panel.style.padding = "16px";
-    panel.style.margin = "16px";
+    panel.style.margin = "16px auto";
     panel.innerHTML =
-      '<h1 style="color:red;">DEVELOPER TEST PANEL LOADED</h1>'+
-      '<p class="eyebrow">Developer Test</p>'+
-      '<h2>전세계 국가/지역 번역 테스트</h2>'+
+      '<p class="eyebrow" style="margin-bottom:6px">Developer Test</p>'+
+      '<h2 style="margin-top:0">전세계 국가/지역 번역 테스트</h2>'+
       '<p class="small muted" style="line-height:1.6">현재 앱에 등록된 국가/지역의 대표 언어를 기준으로 현지어 도움 문장과 여행자 의료카드 현지어 보기를 자동 점검합니다.</p>'+
       '<div class="notice amber small">전체 국가/지역 테스트는 API 호출이 많아 시간이 오래 걸릴 수 있습니다. 빠른 확인은 대표 언어별 테스트를 먼저 실행하세요.</div>'+
       '<div class="two" style="margin-top:12px">'+

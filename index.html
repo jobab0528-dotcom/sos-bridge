@@ -5174,22 +5174,6 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
 
   if (!isAllLanguageTest) return;
 
-  const fallbackPanel = document.createElement("section");
-  fallbackPanel.id = "sos-dev-test-loader-visible-check";
-  fallbackPanel.style.display = "block";
-  fallbackPanel.style.position = "relative";
-  fallbackPanel.style.zIndex = "999999";
-  fallbackPanel.style.background = "#fff";
-  fallbackPanel.style.border = "4px solid red";
-  fallbackPanel.style.padding = "16px";
-  fallbackPanel.style.margin = "16px";
-  fallbackPanel.innerHTML = `
-    <h1 style="color:red;">DEVELOPER TEST LOADER ACTIVE</h1>
-    <p>?sosTest=all-languages 조건은 정상으로 감지되었습니다.</p>
-    <p>이 문구가 보이면 index.html 로더는 작동 중입니다.</p>
-  `;
-  document.body.prepend(fallbackPanel);
-
   const script = document.createElement("script");
   script.src = "/developer-test.js?v=" + Date.now();
   script.async = false;
