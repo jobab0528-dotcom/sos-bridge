@@ -70,31 +70,63 @@ function addAttempt(attempts, languageName, languageCode, reason, fallbackUsed){
   });
 }
 
+function fallbackReasonFor(languageName, languageCode){
+  const label = text(languageName) || text(languageCode) || "Primary language";
+  return `${label} translation failed or returned incomplete fields`;
+}
+
 function buildTranslationAttempts(payload, targetLanguage, targetLanguageCode){
   const selectedCountry = payload.selectedCountry && typeof payload.selectedCountry === "object" ? payload.selectedCountry : {};
   const attempts = [];
-  const isDivehiTarget = baseLanguage(targetLanguageCode) === "dv" || /divehi/i.test(text(targetLanguage));
+  const primaryFallbackReason = fallbackReasonFor(targetLanguage, targetLanguageCode);
   addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language translation", false);
   addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language retry", false);
-  if(isDivehiTarget){
-    addAttempt(attempts, "English", "en", "Divehi translation failed or returned incomplete fields", true);
-  }
-  if(!isDivehiTarget){
-    addAttempt(
-      attempts,
-      payload.fallbackLanguageNameEn || selectedCountry.fallbackLanguageNameEn,
-      payload.fallbackLanguageCode || selectedCountry.fallbackLanguageCode,
-      "Primary language translation failed",
-      true
-    );
-  }
+  addAttempt(
+    attempts,
+    payload.fallbackLanguageNameEn || selectedCountry.fallbackLanguageNameEn,
+    payload.fallbackLanguageCode || selectedCountry.fallbackLanguageCode,
+    primaryFallbackReason,
+    true
+  );
   if(baseLanguage(targetLanguageCode) === "fil"){
     addAttempt(attempts, "Tagalog", "tl", "Filipino translation failed", true);
   }
   if(!attempts.some((item) => baseLanguage(item.languageCode) === "en")){
-    addAttempt(attempts, "English", "en", "Fallback language translation failed", true);
+    addAttempt(attempts, "English", "en", primaryFallbackReason, true);
   }
   return attempts;
+}
+
+function localEnglishPhrase(key, value){
+  const normalizedKey = text(key).toLowerCase();
+  const normalizedValue = text(value);
+  const known = {
+    help: "Please help me.",
+    hospital: "Please take me to a hospital.",
+    pharmacy: "I need a pharmacy.",
+    emergency: "This is an emergency.",
+    pain: "I am in pain.",
+    allergy: "I have an allergy.",
+    medicine: "I am taking medication."
+  };
+  return known[normalizedKey] || normalizedValue || "Please help me.";
+}
+
+function buildLocalFallback(phrases, keys, reason){
+  const translations = {};
+  keys.forEach((key) => {
+    translations[key] = localEnglishPhrase(key, phrases[key]);
+  });
+  return {
+    translations,
+    language: "English",
+    languageCode: "en",
+    usedLanguage: "English",
+    usedLanguageCode: "en",
+    fallbackUsed: true,
+    fallbackReason: reason || "All translation attempts failed",
+    attempts: ["Local English fallback"]
+  };
 }
 
 async function translateOnce({attempt, travelCountry, phrases, keys}){
@@ -200,9 +232,8 @@ exports.handler = async (event) => {
     }
   }
 
-  return json(502, {
-    error: "Help phrase translation failed",
-    detail: attemptErrors.length ? attemptErrors[attemptErrors.length - 1].message : "Unknown error",
+  return json(200, {
+    ...buildLocalFallback(phrases, keys, fallbackReasonFor(targetLanguage, targetLanguageCode)),
     attemptErrors
   });
 };

@@ -645,11 +645,29 @@ function hasEnglishFallbackLeak(normalized, lang){
   return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user)\b/i.test(values);
 }
 
-function hasMissingDynamicOutput(normalized, cfg){
-  if(hasStaticConfig(cfg)) return false;
-  return !normalized._cardTitle ||
-    !normalized._blankValue ||
-    FIELD_KEYS.some((key) => !text(normalized[key]));
+function hasCompleteMedicalCardOutput(normalized){
+  const shaped = responseShape(normalized);
+  return Boolean(
+    text(shaped.title) &&
+    text(normalized._blankValue) &&
+    text(shaped.fields && shaped.fields.allergies && shaped.fields.allergies.value) &&
+    text(shaped.fields && shaped.fields.medications && shaped.fields.medications.value) &&
+    text(shaped.fields && shaped.fields.conditions && shaped.fields.conditions.value)
+  );
+}
+
+function hasRequiredRawMedicalCardResult(result){
+  return Boolean(
+    text(result && (result._cardTitle || result.cardTitle || result.title)) &&
+    text(result && (result._blankValue || result.blankValue || result.notProvidedText || result.emptyValue)) &&
+    text(readResultValue(result || {}, "allergies")) &&
+    text(readResultValue(result || {}, "medication")) &&
+    text(readResultValue(result || {}, "medicalConditions"))
+  );
+}
+
+function hasMissingMedicalCardOutput(normalized){
+  return !hasCompleteMedicalCardOutput(normalized);
 }
 
 function structuredFields(normalized){
@@ -686,29 +704,29 @@ function addAttempt(attempts, languageName, languageCode, reason, fallbackUsed){
   attempts.push({languageName: name || code, languageCode: code || name, reason, fallbackUsed: Boolean(fallbackUsed)});
 }
 
+function fallbackReasonFor(languageName, languageCode){
+  const label = text(languageName) || text(languageCode) || "Primary language";
+  return `${label} translation failed or returned incomplete fields`;
+}
+
 function buildTranslationAttempts(body, targetLanguage, targetLanguageCode){
   const selectedCountry = body.selectedCountry && typeof body.selectedCountry === "object" ? body.selectedCountry : {};
   const attempts = [];
-  const isDivehiTarget = baseLanguage(targetLanguageCode) === "dv" || /divehi/i.test(text(targetLanguage));
+  const primaryFallbackReason = fallbackReasonFor(targetLanguage, targetLanguageCode);
   addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language translation", false);
   addAttempt(attempts, targetLanguage, targetLanguageCode, "Primary language retry", false);
-  if(isDivehiTarget){
-    addAttempt(attempts, "English", "en", "Divehi translation failed or returned incomplete fields", true);
-  }
-  if(!isDivehiTarget){
-    addAttempt(
-      attempts,
-      body.fallbackLanguageNameEn || selectedCountry.fallbackLanguageNameEn,
-      body.fallbackLanguageCode || selectedCountry.fallbackLanguageCode,
-      "Primary language translation failed",
-      true
-    );
-  }
+  addAttempt(
+    attempts,
+    body.fallbackLanguageNameEn || selectedCountry.fallbackLanguageNameEn,
+    body.fallbackLanguageCode || selectedCountry.fallbackLanguageCode,
+    primaryFallbackReason,
+    true
+  );
   if(baseLanguage(targetLanguageCode) === "fil"){
     addAttempt(attempts, "Tagalog", "tl", "Filipino translation failed", true);
   }
   if(!attempts.some((item) => baseLanguage(item.languageCode) === "en")){
-    addAttempt(attempts, "English", "en", "Fallback language translation failed", true);
+    addAttempt(attempts, "English", "en", primaryFallbackReason, true);
   }
   return attempts;
 }
@@ -751,9 +769,14 @@ async function translateOnce({attempt, fields, travelCountry}){
     ? data.choices[0].message.content
     : "{}";
   const parsed = JSON.parse(content || "{}");
+
+  if(attemptConfig.cfg.dynamicConfig && !hasRequiredRawMedicalCardResult(parsed)){
+    throw new Error("Missing target-language medical card fields");
+  }
+
   const normalized = normalizeResult(parsed, fields, attemptConfig.lang, attemptConfig.cfg);
 
-  if(hasMissingDynamicOutput(normalized, attemptConfig.cfg)){
+  if(hasMissingMedicalCardOutput(normalized)){
     throw new Error("Missing target-language medical card fields");
   }
 
@@ -858,7 +881,7 @@ exports.handler = async (event) => {
   }
 
   return json(200, {
-    ...buildLocalFallback(fields, attemptErrors.length ? attemptErrors[attemptErrors.length - 1].message : "All translation attempts failed"),
+    ...buildLocalFallback(fields, fallbackReasonFor(targetLanguage, targetLanguageCode)),
     attemptErrors
   });
 };
