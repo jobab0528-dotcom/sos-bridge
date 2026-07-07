@@ -1,8 +1,13 @@
 (function(){
+  try{
+  console.log("developer-test.js started", window.location.search);
+
   function renderAllLanguageDeveloperTestPanel(){
+    try{
     const isAllLanguageTest =
       new URLSearchParams(window.location.search).get("sosTest") === "all-languages";
     if(!isAllLanguageTest) return;
+    console.log("renderAllLanguageDeveloperTestPanel running");
 
     const context = window.SOS_BRIDGE_DEV_TEST_CONTEXT || {};
     const languageOptions = Array.isArray(context.languageOptions) && context.languageOptions.length
@@ -65,6 +70,7 @@
 
     const mountTarget = document.querySelector("main") || document.body;
     mountTarget.prepend(panel);
+    console.log("Developer test panel inserted");
   }
 
     function devTestCountryPayload(country){
@@ -310,6 +316,9 @@
 
     createAllLanguageTestPanel();
     bindAllLanguageTestButtons();
+    }catch(error){
+      console.error("developer-test.js runtime error", error);
+    }
   }
 
   window.renderAllLanguageDeveloperTestPanel = renderAllLanguageDeveloperTestPanel;
@@ -317,5 +326,8 @@
     document.addEventListener("DOMContentLoaded", renderAllLanguageDeveloperTestPanel, {once: true});
   }else{
     renderAllLanguageDeveloperTestPanel();
+  }
+  }catch(error){
+    console.error("developer-test.js runtime error", error);
   }
 })();

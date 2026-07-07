@@ -5162,6 +5162,12 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
   const script = document.createElement("script");
   script.src = "/developer-test.js?v=" + Date.now();
   script.defer = true;
+  script.onload = function () {
+    console.log("developer-test.js loaded");
+  };
+  script.onerror = function () {
+    console.error("developer-test.js failed to load");
+  };
   document.head.appendChild(script);
 })();
 </script>
