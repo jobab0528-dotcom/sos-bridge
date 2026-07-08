@@ -176,9 +176,9 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "notesKo": "FCDO 여행안전 안내에서 감비아에는 영국 999와 같은 중앙 응급번호가 없고 경찰서·소방서별 개별 번호를 현지에서 직접 확인해야 한다고 안내합니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "FCDO Travel Advice - The Gambia getting help",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/the-gambia/getting-help",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
         },
@@ -498,8 +498,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "그린란드에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 덴마크 본토 번호를 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
@@ -544,9 +544,9 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "notesKo": "FCDO 여행안전 안내에서 기니에는 응급 서비스가 없다고 안내합니다. 긴급 의료 지원이 필요하면 코나크리 현지 의료기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "FCDO Travel Advice - Guinea getting help",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/guinea/getting-help",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
         },
@@ -774,9 +774,9 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "notesKo": "FCDO 여행안전 안내에서 남수단에는 중앙 응급번호가 없다고 안내합니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "FCDO Travel Advice - South Sudan getting help",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/south-sudan/getting-help",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
         },
@@ -1016,8 +1016,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "노퍽섬에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 호주 본토 000을 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
@@ -1137,7 +1137,7 @@
                 "native": "English"
             }
         ],
-        "emergencyNumber": "현지 응급번호 확인 필요",
+        "emergencyNumber": "999",
         "mapCountryQuery": "Niue",
         "aliasesKo": [],
         "aliasesEn": [],
@@ -1150,15 +1150,15 @@
         "native": "English",
         "rank": 25,
         "emergencyNumbers": {
-            "primary": "",
-            "police": "",
-            "ambulance": "",
-            "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "primary": "999",
+            "police": "4324",
+            "ambulance": "4100",
+            "fire": "999",
+            "notesKo": "호주 Smartraveller는 니우에 응급 서비스 999, 소방 999, 의료 응급 시 Niue Foou Hospital 4100, 경찰 4324를 안내합니다. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.",
+            "sourceName": "Smartraveller - Niue Travel Advice & Safety",
+            "sourceUrl": "https://www.smartraveller.gov.au/destinations/pacific/niue",
             "lastVerified": "2026-07-08",
-            "status": "needs-verification"
+            "status": "verified"
         },
         "countryCode": "NU"
     },
@@ -1649,7 +1649,7 @@
                 "native": "English"
             }
         ],
-        "emergencyNumber": "현지 응급번호 확인 필요",
+        "emergencyNumber": "+231 770 800 911",
         "mapCountryQuery": "Liberia",
         "aliasesKo": [],
         "aliasesEn": [],
@@ -1662,15 +1662,15 @@
         "native": "English",
         "rank": 36,
         "emergencyNumbers": {
-            "primary": "",
-            "police": "",
+            "primary": "+231 770 800 911",
+            "police": "+231 770 800 911",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "notesKo": "FCDO 여행안전 안내는 라이베리아 경찰 연락처로 +231 770 800 911을 안내하며, 응급 서비스가 신뢰하기 어려울 수 있다고 명시합니다. 의료·소방 지원은 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "FCDO Travel Advice - Liberia getting help",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/liberia/getting-help",
             "lastVerified": "2026-07-08",
-            "status": "needs-verification"
+            "status": "verified"
         },
         "countryCode": "LR"
     },
@@ -3409,8 +3409,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "바티칸 시국에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 이탈리아 또는 로마 번호를 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
@@ -4258,8 +4258,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "북키프로스에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 키프로스공화국 번호를 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
@@ -5278,8 +5278,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "스발바르 제도에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 노르웨이 본토 번호를 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
@@ -5566,9 +5566,9 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "notesKo": "FCDO 여행안전 안내에서 시리아의 응급 서비스가 장기간 분쟁으로 제한될 수 있다고 안내하지만, 공식 중앙 응급번호는 명확히 확인되지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "FCDO Travel Advice - Syria getting help",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/syria/getting-help",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
         },
@@ -6946,8 +6946,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "올란드 제도에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 핀란드 본토 번호를 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
@@ -8756,9 +8756,9 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "notesKo": "FCDO 여행안전 안내에서 콩고공화국에는 중앙 응급번호가 없고 전화번호가 신뢰하기 어려울 수 있다고 안내합니다. 범죄 신고용 현지 경찰 번호 06 665 4804가 안내되어 있으나, 의료·소방 지원은 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "FCDO Travel Advice - Congo getting help",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/congo/getting-help",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
         },
@@ -8802,9 +8802,9 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "notesKo": "FCDO 여행안전 안내에서 콩고민주공화국에는 일반 응급 의료번호가 없고 주요 도시 일부에만 제한적 응급 서비스가 있다고 안내합니다. 킨샤사에서는 소방 118, 경찰 112가 안내되지만 전국 공통 번호로 확인되지는 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "FCDO Travel Advice - Democratic Republic of the Congo getting help",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/democratic-republic-of-the-congo/getting-help",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
         },
@@ -8969,7 +8969,7 @@
                 "native": "English"
             }
         ],
-        "emergencyNumber": "현지 응급번호 확인 필요",
+        "emergencyNumber": "999",
         "mapCountryQuery": "Cook Islands",
         "aliasesKo": [],
         "aliasesEn": [],
@@ -8982,15 +8982,15 @@
         "native": "English",
         "rank": 192,
         "emergencyNumbers": {
-            "primary": "",
-            "police": "",
-            "ambulance": "",
-            "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
-            "sourceUrl": "",
+            "primary": "999",
+            "police": "22499",
+            "ambulance": "22664",
+            "fire": "996",
+            "notesKo": "호주 Smartraveller는 쿡 제도 응급 서비스 999, 소방 996, 의료 응급 시 Rarotonga Hospital 22 664, 경찰 22 499를 안내합니다. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.",
+            "sourceName": "Smartraveller - Cook Islands Travel Advice & Safety",
+            "sourceUrl": "https://www.smartraveller.gov.au/destinations/pacific/cook-islands",
             "lastVerified": "2026-07-08",
-            "status": "needs-verification"
+            "status": "verified"
         },
         "countryCode": "CK"
     },
@@ -9078,8 +9078,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "크리스마스섬에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 호주 본토 000을 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
@@ -9496,8 +9496,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "토켈라우에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 뉴질랜드 본토 111을 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
@@ -10094,8 +10094,8 @@
             "police": "",
             "ambulance": "",
             "fire": "",
-            "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-            "sourceName": "",
+            "notesKo": "페로 제도에 특화된 공식/공공 출처에서 중앙 응급번호를 명확히 확인하지 못했습니다. 덴마크 본토 112를 자동 적용하지 않았습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+            "sourceName": "공식 출처 확인 필요",
             "sourceUrl": "",
             "lastVerified": "2026-07-08",
             "status": "needs-verification"
