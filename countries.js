@@ -344,7 +344,7 @@
         "native": "English"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "911",
     "mapCountryQuery": "Guam",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -357,15 +357,15 @@
     "native": "English",
     "rank": 8,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "911",
+      "police": "911",
+      "ambulance": "911",
+      "fire": "911",
+      "notesKo": "911로 경찰·구급·소방 연결 가능.",
+      "sourceName": "National 911 Program, 911.gov",
+      "sourceUrl": "https://www.911.gov/",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "GU"
   },
@@ -436,7 +436,7 @@
         "native": "Ελληνικά"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Greece",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -449,17 +449,17 @@
     "native": "Ελληνικά",
     "rank": 10,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "EL"
+    "countryCode": "GR"
   },
   {
     "id": "gl",
@@ -862,7 +862,7 @@
         "native": "Nederlands"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Netherlands",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -875,15 +875,15 @@
     "native": "Nederlands",
     "rank": 19,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "네덜란드는 112를 국가 긴급번호로 사용하며 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "NL"
   },
@@ -954,7 +954,7 @@
         "native": "norsk"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "113",
     "mapCountryQuery": "Norway",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -967,15 +967,15 @@
     "native": "norsk",
     "rank": 21,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "113",
+      "police": "112",
+      "ambulance": "113",
+      "fire": "110",
+      "notesKo": "소방 110, 경찰 112, 구급 113.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/norway/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "NO"
   },
@@ -1046,7 +1046,7 @@
         "native": "English"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "111",
     "mapCountryQuery": "New Zealand",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -1059,15 +1059,15 @@
     "native": "English",
     "rank": 23,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "111",
+      "police": "111",
+      "ambulance": "111",
+      "fire": "111",
+      "notesKo": "111로 경찰·구급·소방 연결 가능.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/new-zealand/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "NZ"
   },
@@ -1276,7 +1276,7 @@
         "native": "繁體中文"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "119",
     "mapCountryQuery": "Taiwan",
     "aliasesKo": [
       "타이완"
@@ -1291,15 +1291,15 @@
     "native": "繁體中文",
     "rank": 28,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "119",
+      "police": "110",
+      "ambulance": "119",
+      "fire": "119",
+      "notesKo": "경찰 110, 구급·소방 119. 해안경비 118, 가정폭력·성폭력 핫라인 113.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/taiwan/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "TW"
   },
@@ -1372,7 +1372,7 @@
         "native": "dansk"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Denmark",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -1385,17 +1385,17 @@
     "native": "Dansk",
     "rank": 30,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "덴마크는 112를 국가 긴급번호로 사용하며 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "DA"
+    "countryCode": "DK"
   },
   {
     "id": "do",
@@ -2352,7 +2352,7 @@
         "native": "português"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "999",
     "mapCountryQuery": "Macao SAR China",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -2365,15 +2365,15 @@
     "native": "繁體中文",
     "rank": 51,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "999",
+      "police": "999",
+      "ambulance": "999",
+      "fire": "999",
+      "notesKo": "999로 경찰·구급·소방 연결 가능.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/macao/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "MO"
   },
@@ -2462,7 +2462,7 @@
         "native": "தமிழ்"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "999",
     "mapCountryQuery": "Malaysia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -2475,17 +2475,17 @@
     "native": "Bahasa Melayu",
     "rank": 53,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "999",
+      "police": "999",
+      "ambulance": "999",
+      "fire": "994",
+      "notesKo": "경찰·구급 999, 소방 994. 휴대전화 구급 요청은 112도 안내됩니다.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/malaysia/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "MS"
+    "countryCode": "MY"
   },
   {
     "id": "im",
@@ -2554,7 +2554,7 @@
         "native": "español"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "911",
     "mapCountryQuery": "Mexico",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -2567,17 +2567,17 @@
     "native": "Español · MX",
     "rank": 55,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "911",
+      "police": "911",
+      "ambulance": "911",
+      "fire": "911",
+      "notesKo": "911로 경찰·구급·소방 연결 가능.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/mexico/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "ES-MX"
+    "countryCode": "MX"
   },
   {
     "id": "mc",
@@ -2669,7 +2669,7 @@
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
     },
-    "countryCode": "AR-MA"
+    "countryCode": "MA"
   },
   {
     "id": "mu",
@@ -2925,7 +2925,7 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "102",
     "mapCountryQuery": "Maldives",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -2938,15 +2938,15 @@
     "native": "디베히어",
     "rank": 63,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "102",
+      "police": "119",
+      "ambulance": "102",
+      "fire": "118",
+      "notesKo": "구급 102, 소방 118, 경찰 119.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/maldives/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "MV"
   },
@@ -3017,7 +3017,7 @@
         "native": "монгол"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "103",
     "mapCountryQuery": "Mongolia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -3030,15 +3030,15 @@
     "native": "монгол",
     "rank": 65,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "103",
+      "police": "102",
+      "ambulance": "103",
+      "fire": "101",
+      "notesKo": "경찰 102, 구급 103, 소방 101.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/mongolia/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "MN"
   },
@@ -3727,7 +3727,7 @@
         "native": "Deutsch"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Belgium",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -3740,17 +3740,17 @@
     "native": "Nederlands · België",
     "rank": 80,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "NL-BE"
+    "countryCode": "BE"
   },
   {
     "id": "by",
@@ -4141,7 +4141,7 @@
         "native": "English"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "911",
     "mapCountryQuery": "Northern Mariana Islands",
     "aliasesKo": [
       "북마리아나제도",
@@ -4157,15 +4157,15 @@
     "native": "English",
     "rank": 89,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "911",
+      "police": "911",
+      "ambulance": "911",
+      "fire": "911",
+      "notesKo": "911로 경찰·구급·소방 연결 가능.",
+      "sourceName": "National 911 Program, 911.gov",
+      "sourceUrl": "https://www.911.gov/",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "MP"
   },
@@ -4334,7 +4334,7 @@
         "native": "português (Brasil)"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "192",
     "mapCountryQuery": "Brazil",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -4347,15 +4347,15 @@
     "native": "português (Brasil)",
     "rank": 93,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "192",
+      "police": "190",
+      "ambulance": "192",
+      "fire": "193",
+      "notesKo": "경찰 190, 구급 192, 소방 193.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/brazil/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "BR"
   },
@@ -4380,7 +4380,7 @@
         "native": "Melayu"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "991",
     "mapCountryQuery": "Brunei",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -4393,15 +4393,15 @@
     "native": "Melayu",
     "rank": 94,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "991",
+      "police": "993",
+      "ambulance": "991",
+      "fire": "995",
+      "notesKo": "구급 991, 경찰 993, 소방 995. 수색·구조 998.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/brunei/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "BN"
   },
@@ -4499,7 +4499,7 @@
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
     },
-    "countryCode": "AR-SA"
+    "countryCode": "SA"
   },
   {
     "id": "sm",
@@ -5308,7 +5308,7 @@
         "native": "svenska"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Sweden",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5321,15 +5321,15 @@
     "native": "svenska",
     "rank": 114,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "스웨덴은 112를 국가 긴급번호로 사용하며 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "SE"
   },
@@ -5366,7 +5366,7 @@
         "native": "italiano"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "144",
     "mapCountryQuery": "Switzerland",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5379,17 +5379,17 @@
     "native": "Deutsch · CH",
     "rank": 115,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "144",
+      "police": "117",
+      "ambulance": "144",
+      "fire": "118",
+      "notesKo": "경찰 117, 소방 118, 구급 144. 유럽 긴급번호 112도 사용할 수 있습니다.",
+      "sourceName": "Swiss Confederation ch.ch",
+      "sourceUrl": "https://www.ch.ch/en/safety-and-justice/emergencies/emergency-numbers/",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "DE-CH"
+    "countryCode": "CH"
   },
   {
     "id": "es",
@@ -5412,7 +5412,7 @@
         "native": "español"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Spain",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5425,15 +5425,15 @@
     "native": "Español",
     "rank": 116,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "ES"
   },
@@ -5706,7 +5706,7 @@
         "native": "தமிழ்"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "995",
     "mapCountryQuery": "Singapore",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5719,17 +5719,17 @@
     "native": "English · Singapore",
     "rank": 122,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "995",
+      "police": "999",
+      "ambulance": "995",
+      "fire": "995",
+      "notesKo": "구급·소방 995, 경찰 999.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/singapore/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "EN-SG"
+    "countryCode": "SG"
   },
   {
     "id": "ar-ae",
@@ -5752,7 +5752,7 @@
         "native": "العربية"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "998",
     "mapCountryQuery": "United Arab Emirates",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5765,17 +5765,17 @@
     "native": "العربية · UAE",
     "rank": 123,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "998",
+      "police": "999",
+      "ambulance": "998",
+      "fire": "997",
+      "notesKo": "경찰 999, 구급 998, 소방 997.",
+      "sourceName": "UAE Government Portal",
+      "sourceUrl": "https://u.ae/en/information-and-services/justice-safety-and-the-law/emergency",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "AR-AE"
+    "countryCode": "AE"
   },
   {
     "id": "aw",
@@ -5894,7 +5894,7 @@
         "native": "español"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "911",
     "mapCountryQuery": "Argentina",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5907,15 +5907,15 @@
     "native": "español",
     "rank": 126,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "911",
+      "police": "911",
+      "ambulance": "107",
+      "fire": "100",
+      "notesKo": "경찰 911, 구급 107, 소방 100.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/argentina/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "AR"
   },
@@ -5986,7 +5986,7 @@
         "native": "íslenska"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Iceland",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5999,15 +5999,15 @@
     "native": "íslenska",
     "rank": 128,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "Iceland 112",
+      "sourceUrl": "https://www.112.is/",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "IS"
   },
@@ -6032,7 +6032,7 @@
         "native": "English"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112 / 999",
     "mapCountryQuery": "Ireland",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -6045,17 +6045,17 @@
     "native": "English · Ireland",
     "rank": 129,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112 / 999",
+      "police": "112 / 999",
+      "ambulance": "112 / 999",
+      "fire": "112 / 999",
+      "notesKo": "112 또는 999로 경찰·구급·소방 연결 가능.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/ireland/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "EN-IE"
+    "countryCode": "IE"
   },
   {
     "id": "az",
@@ -6838,7 +6838,7 @@
         "native": "Deutsch"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Austria",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -6851,17 +6851,17 @@
     "native": "Deutsch · AT",
     "rank": 146,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "DE-AT"
+    "countryCode": "AT"
   },
   {
     "id": "hn",
@@ -7252,7 +7252,7 @@
         "native": "עברית"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "101",
     "mapCountryQuery": "Israel",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7265,15 +7265,15 @@
     "native": "עברית",
     "rank": 155,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "101",
+      "police": "100",
+      "ambulance": "101",
+      "fire": "102",
+      "notesKo": "경찰 100, 구급 101, 소방 102.",
+      "sourceName": "Israel public emergency guidance",
+      "sourceUrl": "https://www.gov.il/en/departments/general/emergency-numbers",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "IL"
   },
@@ -7298,7 +7298,7 @@
         "native": "العربية"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "123",
     "mapCountryQuery": "Egypt",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7311,17 +7311,17 @@
     "native": "العربية · مصر",
     "rank": 156,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "123",
+      "police": "122",
+      "ambulance": "123",
+      "fire": "180",
+      "notesKo": "경찰 122, 구급 123, 소방 180.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/egypt/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "AR-EG"
+    "countryCode": "EG"
   },
   {
     "id": "it",
@@ -7344,7 +7344,7 @@
         "native": "italiano"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Italy",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7357,15 +7357,15 @@
     "native": "Italiano",
     "rank": 157,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "IT"
   },
@@ -7396,7 +7396,7 @@
         "native": "English"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "India",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7409,15 +7409,15 @@
     "native": "हिन्दी",
     "rank": 158,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/india/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "IN"
   },
@@ -7442,7 +7442,7 @@
         "native": "Indonesia"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "118",
     "mapCountryQuery": "Indonesia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7455,15 +7455,15 @@
     "native": "Bahasa Indonesia",
     "rank": 159,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "118",
+      "police": "110",
+      "ambulance": "118",
+      "fire": "112",
+      "notesKo": "구급 118, 경찰 110, 소방 112.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/indonesia/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "ID"
   },
@@ -7764,7 +7764,7 @@
         "native": "中文"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "120",
     "mapCountryQuery": "China",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7777,17 +7777,17 @@
     "native": "中文",
     "rank": 166,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "120",
+      "police": "110",
+      "ambulance": "120",
+      "fire": "119",
+      "notesKo": "경찰 110, 구급 120, 소방 119. 교통경찰 122, 해상수색구조 12395.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/china/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
-    "countryCode": "ZH"
+    "countryCode": "CN"
   },
   {
     "id": "cf",
@@ -8040,7 +8040,7 @@
         "native": "čeština"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Czechia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -8053,15 +8053,15 @@
     "native": "čeština",
     "rank": 172,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "CZ"
   },
@@ -8086,7 +8086,7 @@
         "native": "español"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "131",
     "mapCountryQuery": "Chile",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -8099,15 +8099,15 @@
     "native": "español",
     "rank": 173,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "131",
+      "police": "133",
+      "ambulance": "131",
+      "fire": "132",
+      "notesKo": "구급 131, 소방 132, 경찰 133.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/chile/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "CL"
   },
@@ -8270,7 +8270,7 @@
         "native": "العربية"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "999",
     "mapCountryQuery": "Qatar",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -8283,15 +8283,15 @@
     "native": "العربية",
     "rank": 177,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "999",
+      "police": "999",
+      "ambulance": "999",
+      "fire": "999",
+      "notesKo": "999로 경찰·구급·소방 연결 가능.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/qatar/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "QA"
   },
@@ -8316,7 +8316,7 @@
         "native": "ខ្មែរ"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "119",
     "mapCountryQuery": "Cambodia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -8329,15 +8329,15 @@
     "native": "ខ្មែរ",
     "rank": 178,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "119",
+      "police": "117",
+      "ambulance": "119",
+      "fire": "118",
+      "notesKo": "경찰 117, 소방 118, 구급 119.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/cambodia/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "KH"
   },
@@ -9016,7 +9016,7 @@
         "native": "hrvatski"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Croatia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -9029,15 +9029,15 @@
     "native": "hrvatski",
     "rank": 193,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "HR"
   },
@@ -9710,7 +9710,7 @@
         "native": "Türkçe"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Türkiye",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -9723,15 +9723,15 @@
     "native": "Türkçe",
     "rank": 208,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/turkey/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "TR"
   },
@@ -10124,7 +10124,7 @@
         "native": "español"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "106",
     "mapCountryQuery": "Peru",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -10137,15 +10137,15 @@
     "native": "español",
     "rank": 217,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "106",
+      "police": "105",
+      "ambulance": "106",
+      "fire": "116",
+      "notesKo": "경찰 105, 구급 106, 소방 116.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/peru/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "PE"
   },
@@ -10170,7 +10170,7 @@
         "native": "português"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Portugal",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -10183,15 +10183,15 @@
     "native": "Português",
     "rank": 218,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "PT"
   },
@@ -10262,7 +10262,7 @@
         "native": "polski"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Poland",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -10275,15 +10275,15 @@
     "native": "Polski",
     "rank": 220,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "PL"
   },
@@ -10544,7 +10544,7 @@
         "native": "suomi"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Finland",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -10557,15 +10557,15 @@
     "native": "suomi",
     "rank": 226,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "핀란드는 112를 국가 긴급번호로 사용하며 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "FI"
   },
@@ -10640,7 +10640,7 @@
         "native": "magyar"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Hungary",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -10653,15 +10653,15 @@
     "native": "magyar",
     "rank": 228,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "EU 공통 응급번호 112로 경찰·구급·소방 연결 가능.",
+      "sourceName": "European Commission 112",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     },
     "countryCode": "HU"
   },
@@ -10733,7 +10733,7 @@
         "native": "繁體中文"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "999",
     "mapCountryQuery": "Hong Kong",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -10746,15 +10746,15 @@
     "native": "繁體中文",
     "rank": 230,
     "emergencyNumbers": {
-      "primary": "",
-      "police": "",
-      "ambulance": "",
-      "fire": "",
-      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-      "sourceName": "",
-      "sourceUrl": "",
+      "primary": "999",
+      "police": "999",
+      "ambulance": "999",
+      "fire": "999",
+      "notesKo": "999로 경찰·구급·소방 연결 가능.",
+      "sourceName": "GOV.UK FCDO Foreign travel advice",
+      "sourceUrl": "https://www.gov.uk/foreign-travel-advice/hong-kong/getting-help",
       "lastVerified": "2026-07-08",
-      "status": "needs-verification"
+      "status": "verified"
     }
   }
 ];
