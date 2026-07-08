@@ -534,6 +534,22 @@ function valueOrFallback(resultValue, originalValue, lang, cfg){
   return raw;
 }
 
+function comparableMedicalText(value){
+  return text(value)
+    .toLowerCase()
+    .replace(/[()\[\]{}"'`.,;:，、。]/g, "")
+    .replace(/\s+/g, "");
+}
+
+function appendOriginalInput(translatedValue, originalValue){
+  const translated = text(translatedValue);
+  const original = text(originalValue);
+  if(!translated || !original) return translated;
+  if(comparableMedicalText(translated) === comparableMedicalText(original)) return translated;
+  if(translated.includes(`(${original})`) || translated.includes(original)) return translated;
+  return `${translated} (${original})`;
+}
+
 function normalizeName(result = {}, original, cfg){
   const koreanName = text(original.name);
   const passportName = text(original.passportName);
@@ -619,9 +635,9 @@ function normalizeResult(result = {}, original, lang, cfg){
     nationality: normalizeNationality(resultValues.nationality, original.nationality, lang, cfg),
     age: isEmpty(original.age) ? fallbackBlank(resultValues.age, cfg) : text(original.age),
     bloodType: isEmpty(original.bloodType) ? fallbackBlank(resultValues.bloodType, cfg) : text(original.bloodType),
-    allergies: normalizeAllergy(resultValues.allergies, original.allergies, lang, cfg),
-    medication: normalizeMedication(resultValues.medication, original.medication, cfg),
-    medicalConditions: normalizeCondition(resultValues.medicalConditions, original.medicalConditions, lang, cfg),
+    allergies: appendOriginalInput(normalizeAllergy(resultValues.allergies, original.allergies, lang, cfg), original.allergies),
+    medication: appendOriginalInput(normalizeMedication(resultValues.medication, original.medication, cfg), original.medication),
+    medicalConditions: appendOriginalInput(normalizeCondition(resultValues.medicalConditions, original.medicalConditions, lang, cfg), original.medicalConditions),
     emergencyContact: isEmpty(original.emergencyContact) ? fallbackBlank(resultValues.emergencyContact, cfg) : text(original.emergencyContact),
     travelInsurance: valueOrFallback(resultValues.travelInsurance, original.travelInsurance, lang, cfg),
     hotelAddress: valueOrFallback(resultValues.hotelAddress, original.hotelAddress, lang, cfg)
