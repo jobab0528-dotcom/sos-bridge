@@ -68,6 +68,11 @@
     .notice.teal{background:#f0fdfa;color:#134e4a}
     .notice.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
     .notice.red{background:#fef2f2;color:#991b1b}
+    .support-status-row{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.76);border:1px solid rgba(148,163,184,.28);border-radius:14px;padding:9px 10px}
+    .support-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:950;white-space:nowrap}
+    .support-badge.supported{background:#dcfce7;color:#166534}
+    .support-badge.limited{background:#fef3c7;color:#92400e}
+    .support-status-text{font-size:12px;font-weight:900;line-height:1.45;color:#475569}
     .emergency-verification-card{display:grid;gap:8px;line-height:1.55}
     .emergency-verification-card p{margin:0}
     .emergency-verification-card strong{font-size:14px;color:#78350f}
@@ -2416,14 +2421,40 @@ function getEmergencyNumbersData(id){
 function hasUsableEmergencyNumbers(data){
   return Boolean(data && data.status !== "needs-verification" && (data.primary || data.police || data.ambulance || data.fire));
 }
+function isLimitedEmergencySupport(item){
+  const data = getEmergencyNumbersData(item);
+  return Boolean(data && data.status === "needs-verification");
+}
+function supportStatusHtml(data){
+  if(data && data.status === "needs-verification"){
+    return ''+
+      '<div class="support-status-row">'+
+        '<span class="support-badge limited">제한 지원 국가</span>'+
+        '<span class="support-status-text">도움 요청 문장, 의료카드, 병원·약국 검색은 계속 사용할 수 있습니다.</span>'+
+      '</div>';
+  }
+  if(data && data.status === "verified"){
+    return ''+
+      '<div class="support-status-row">'+
+        '<span class="support-badge supported">정식 지원 국가</span>'+
+        '<span class="support-status-text">공식·공공 출처 기반 응급번호를 제공합니다.</span>'+
+      '</div>';
+  }
+  return ''+
+    '<div class="support-status-row">'+
+      '<span class="support-badge limited">응급번호 확인 필요</span>'+
+      '<span class="support-status-text">출국 전 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.</span>'+
+    '</div>';
+}
 function emergencyVerificationDetailHtml(data, margin){
   const reason = (data && data.notesKo) || emergencyVerificationNotice;
   return ''+
     '<div class="notice amber small emergency-verification-card" style="margin:'+margin+'">'+
+      supportStatusHtml(data)+
       '<strong>응급번호 확인 필요</strong>'+
-      '<p>이 국가/지역은 공식 출처에서 중앙 응급번호를 명확히 확인하기 어렵습니다. 잘못된 번호 안내를 피하기 위해 확인 필요 상태로 표시합니다.</p>'+
+      '<p>이 국가/지역은 중앙 응급번호를 공식 출처에서 명확히 확인하기 어렵습니다. 잘못된 번호 안내를 피하기 위해 응급번호 직접 안내를 제한합니다.</p>'+
       '<div class="emergency-verification-reason"><span>확인 사유:</span>'+escapeHtml(reason)+'</div>'+
-      '<p>응급 상황에서는 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.</p>'+
+      '<p>응급 상황에서는 현지 공공기관, 숙소, 대사관 또는 영사관, 여행자 보험사에 즉시 확인하세요.</p>'+
     '</div>';
 }
 function emergencyNumbersDetailHtml(item, opts={}){
@@ -2440,6 +2471,7 @@ function emergencyNumbersDetailHtml(item, opts={}){
   ].filter(([, value]) => String(value || "").trim());
   const allSame = primary && services.length && services.every(([, value]) => String(value || "").trim() === primary);
   const lines = [];
+  lines.push(supportStatusHtml(data));
   if(allSame){
     lines.push('<div><strong>응급번호:</strong> '+escapeHtml(primary)+'</div>');
     lines.push('<div class="small">경찰·구급·소방 연결 가능</div>');
@@ -5066,6 +5098,11 @@ function uniqueList(items){
 }
 
 function callEmergencyNumber(){
+  if(isLimitedEmergencySupport(getTripOption())){
+    showEmergency();
+    setStatus("제한 지원 국가입니다. 현지 공공기관, 숙소, 대사관 또는 영사관, 여행자 보험사에 즉시 확인하세요.");
+    return;
+  }
   const raw = String(getTripEmergencyNumber() || "").split("/")[0].trim();
   const tel = raw.replace(/[^\d+]/g, "");
   if(tel){
@@ -5143,11 +5180,15 @@ function renderTriage(){
     departmentHtml+
     phraseHtml;
 
+  const emergencyActionHtml = isLimitedEmergencySupport(getTripOption())
+    ? '<button id="triageEmergencyInfo" class="btn outline w-full" type="button">🚑 응급 연락 안내 확인하기</button>'
+    : '<button id="triageEmergencyCall" class="btn danger w-full" type="button">🚑 현지 응급번호로 전화하기</button>';
   $("triageActions").innerHTML =
-    '<button id="triageEmergencyCall" class="btn danger w-full" type="button">🚑 현지 응급번호로 전화하기</button>'+
+    emergencyActionHtml+
     '<button id="triageFindHospital" class="btn primary w-full" type="button">🏥 가까운 병원 찾기</button>'+
     '<button id="triageShowPhrases" class="btn outline w-full" type="button">🗣️ 현지어 도움 문장 보기</button>';
   on("triageEmergencyCall", "click", callEmergencyNumber);
+  on("triageEmergencyInfo", "click", showEmergency);
   on("triageFindHospital", "click", openHospitalFromTriage);
   on("triageShowPhrases", "click", () => openService("phrases"));
 }
