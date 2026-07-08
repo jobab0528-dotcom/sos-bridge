@@ -273,6 +273,22 @@ const MEDICAL_CARD_I18N = {
     allergiesMap: {peanut:"Jordnøddeallergi", pollen:"Pollenallergi", penicillin:"Penicillinallergi"},
     conditionsMap: {asthma:"Astma", hypertension:"Forhøjet blodtryk", diabetes:"Diabetes"}
   },
+  lv: {
+    locale: "lv",
+    languageLabel: "Latviešu",
+    cardTitle: "Medicīniskā karte",
+    labels: {name:"Vārds", passportName:"Vārds pasē", nationality:"Pilsonība", age:"Vecums", bloodType:"Asins grupa", allergies:"Alerģijas", medication:"Lietotās zāles", medicalConditions:"Medicīniskie stāvokļi", emergencyContact:"Ārkārtas kontakttālrunis", travelInsurance:"Ceļojuma apdrošināšana", hotelAddress:"Viesnīcas adrese"},
+    blankValue: "Nav norādīts",
+    noneValue: "Nav",
+    medicationUserEnteredSuffix: "lietotāja ievadītas zāles",
+    genericMedicineIngredientUnspecified: "aktīvā viela nav norādīta",
+    southKoreaNationality: "Dienvidkoreja",
+    genericMedicines: {cold:"Zāles pret saaukstēšanos, aktīvā viela nav norādīta", pain:"Pretsāpju zāles, aktīvā viela nav norādīta", bloodPressure:"Zāles asinsspiedienam, aktīvā viela nav norādīta", digestive:"Gremošanas zāles, aktīvā viela nav norādīta", fever:"Zāles pret drudzi, aktīvā viela nav norādīta", antiInflammatory:"Pretiekaisuma zāles, aktīvā viela nav norādīta"},
+    allergiesMap: {peanut:"alerģija pret zemesriekstiem", pollen:"alerģija pret ziedputekšņiem", penicillin:"alerģija pret penicilīnu"},
+    conditionsMap: {asthma:"astma", hypertension:"augsts asinsspiediens", diabetes:"diabēts"},
+    preserveMedicationBrandOnly: true,
+    preferStaticLabels: true
+  },
   el: {
     locale: "el",
     languageLabel: "Ελληνικά",
@@ -492,6 +508,7 @@ function preserveDirectIngredient(value){
 }
 
 function medicationProductFor(name, cfg){
+  if(cfg && cfg.preserveMedicationBrandOnly) return name;
   const separator = baseLanguage(cfg.locale) === "ja" ? "、" : (baseLanguage(cfg.locale) === "zh" ? "，" : ", ");
   return `${name}${separator}${cfg.medicationUserEnteredSuffix}`;
 }
@@ -624,7 +641,8 @@ function normalizeResult(result = {}, original, lang, cfg){
   const blankValue = text(result._blankValue || result.blankValue || result.notProvidedText || result.emptyValue) || (hasStaticConfig(cfg) ? cfg.blankValue : "");
   const labels = {};
   FIELD_KEYS.forEach((key) => {
-    labels[key] = readResultLabel(result, key) || (hasStaticConfig(cfg) && cfg.labels && cfg.labels[key]) || key;
+    const staticLabel = hasStaticConfig(cfg) && cfg.labels && cfg.labels[key];
+    labels[key] = cfg.preferStaticLabels ? (staticLabel || readResultLabel(result, key) || key) : (readResultLabel(result, key) || staticLabel || key);
   });
   return {
     _cardTitle: cardTitle,
