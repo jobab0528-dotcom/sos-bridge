@@ -33,7 +33,18 @@
     "country": "Ghana",
     "languageKo": "영어",
     "native": "English",
-    "rank": 1
+    "rank": 1,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ga",
@@ -67,7 +78,18 @@
     "country": "Gabon",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 2
+    "rank": 2,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gy",
@@ -101,7 +123,18 @@
     "country": "Guyana",
     "languageKo": "영어",
     "native": "English",
-    "rank": 3
+    "rank": 3,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gm",
@@ -135,7 +168,18 @@
     "country": "Gambia",
     "languageKo": "영어",
     "native": "English",
-    "rank": 4
+    "rank": 4,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gg",
@@ -169,7 +213,18 @@
     "country": "Guernsey",
     "languageKo": "영어",
     "native": "English",
-    "rank": 5
+    "rank": 5,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gp",
@@ -203,7 +258,18 @@
     "country": "Guadeloupe",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 6
+    "rank": 6,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gt",
@@ -237,7 +303,18 @@
     "country": "Guatemala",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 7
+    "rank": 7,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gu",
@@ -271,7 +348,18 @@
     "country": "Guam",
     "languageKo": "영어",
     "native": "English",
-    "rank": 8
+    "rank": 8,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gd",
@@ -305,7 +393,18 @@
     "country": "Grenada",
     "languageKo": "영어",
     "native": "English",
-    "rank": 9
+    "rank": 9,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "el",
@@ -328,7 +427,7 @@
         "native": "Ελληνικά"
       }
     ],
-    "emergencyNumber": "112 / 166",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Greece",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -339,7 +438,18 @@
     "country": "Greece",
     "languageKo": "그리스어",
     "native": "Ελληνικά",
-    "rank": 10
+    "rank": 10,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gl",
@@ -373,7 +483,18 @@
     "country": "Greenland",
     "languageKo": "그린란드어",
     "native": "kalaallisut",
-    "rank": 11
+    "rank": 11,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gn",
@@ -407,7 +528,18 @@
     "country": "Guinea",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 12
+    "rank": 12,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gw",
@@ -441,7 +573,18 @@
     "country": "Guinea-Bissau",
     "languageKo": "포르투갈어",
     "native": "português",
-    "rank": 13
+    "rank": 13,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "na",
@@ -475,7 +618,18 @@
     "country": "Namibia",
     "languageKo": "영어",
     "native": "English",
-    "rank": 14
+    "rank": 14,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "nr",
@@ -509,7 +663,18 @@
     "country": "Nauru",
     "languageKo": "영어",
     "native": "English",
-    "rank": 15
+    "rank": 15,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ng",
@@ -543,7 +708,18 @@
     "country": "Nigeria",
     "languageKo": "영어",
     "native": "English",
-    "rank": 16
+    "rank": 16,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ss",
@@ -577,7 +753,18 @@
     "country": "South Sudan",
     "languageKo": "영어",
     "native": "English",
-    "rank": 17
+    "rank": 17,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "za",
@@ -623,7 +810,18 @@
     "country": "South Africa",
     "languageKo": "영어",
     "native": "English",
-    "rank": 18
+    "rank": 18,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "nl",
@@ -646,7 +844,7 @@
         "native": "Nederlands"
       }
     ],
-    "emergencyNumber": "112",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Netherlands",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -657,7 +855,18 @@
     "country": "Netherlands",
     "languageKo": "네덜란드어",
     "native": "Nederlands",
-    "rank": 19
+    "rank": 19,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "np",
@@ -691,7 +900,18 @@
     "country": "Nepal",
     "languageKo": "네팔어",
     "native": "नेपाली",
-    "rank": 20
+    "rank": 20,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "no",
@@ -725,7 +945,18 @@
     "country": "Norway",
     "languageKo": "노르웨이어",
     "native": "norsk",
-    "rank": 21
+    "rank": 21,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "nf",
@@ -759,7 +990,18 @@
     "country": "Norfolk Island",
     "languageKo": "영어",
     "native": "English",
-    "rank": 22
+    "rank": 22,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "nz",
@@ -793,7 +1035,18 @@
     "country": "New Zealand",
     "languageKo": "영어",
     "native": "English",
-    "rank": 23
+    "rank": 23,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "nc",
@@ -827,7 +1080,18 @@
     "country": "New Caledonia",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 24
+    "rank": 24,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "nu",
@@ -861,7 +1125,18 @@
     "country": "Niue",
     "languageKo": "영어",
     "native": "English",
-    "rank": 25
+    "rank": 25,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ne",
@@ -895,7 +1170,18 @@
     "country": "Niger",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 26
+    "rank": 26,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ni",
@@ -929,7 +1215,18 @@
     "country": "Nicaragua",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 27
+    "rank": 27,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tw",
@@ -965,7 +1262,18 @@
     "country": "Taiwan",
     "languageKo": "중국어(번체)",
     "native": "繁體中文",
-    "rank": 28
+    "rank": 28,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ko",
@@ -1001,7 +1309,18 @@
     "country": "South Korea",
     "languageKo": "한국어",
     "native": "한국어",
-    "rank": 29
+    "rank": 29,
+    "emergencyNumbers": {
+      "primary": "119",
+      "police": "112",
+      "ambulance": "119",
+      "fire": "119",
+      "notesKo": "경찰 112, 구급·소방 119. 관광 통역 지원은 1330 여행상담을 별도로 확인할 수 있습니다.",
+      "sourceName": "Korea Tourism Organization / public emergency guidance",
+      "sourceUrl": "https://english.visitkorea.or.kr/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "da",
@@ -1024,7 +1343,7 @@
         "native": "dansk"
       }
     ],
-    "emergencyNumber": "112",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Denmark",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -1035,7 +1354,18 @@
     "country": "Denmark",
     "languageKo": "덴마크어",
     "native": "Dansk",
-    "rank": 30
+    "rank": 30,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "do",
@@ -1069,7 +1399,18 @@
     "country": "Dominican Republic",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 31
+    "rank": 31,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "dm",
@@ -1103,7 +1444,18 @@
     "country": "Dominica",
     "languageKo": "영어",
     "native": "English",
-    "rank": 32
+    "rank": 32,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "de",
@@ -1137,7 +1489,18 @@
     "country": "Germany",
     "languageKo": "독일어",
     "native": "Deutsch",
-    "rank": 33
+    "rank": 33,
+    "emergencyNumbers": {
+      "primary": "112",
+      "police": "110",
+      "ambulance": "112",
+      "fire": "112",
+      "notesKo": "구급·소방 112, 경찰 110. EU 공통 응급번호 112 사용 가능.",
+      "sourceName": "European Commission 112 / German public emergency guidance",
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "tl",
@@ -1171,7 +1534,18 @@
     "country": "Timor-Leste",
     "languageKo": "테툼어",
     "native": "테툼어",
-    "rank": 34
+    "rank": 34,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "la",
@@ -1205,7 +1579,18 @@
     "country": "Laos",
     "languageKo": "라오어",
     "native": "ລາວ",
-    "rank": 35
+    "rank": 35,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "lr",
@@ -1239,7 +1624,18 @@
     "country": "Liberia",
     "languageKo": "영어",
     "native": "English",
-    "rank": 36
+    "rank": 36,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "lv",
@@ -1262,7 +1658,7 @@
         "native": "latviešu"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "112",
     "mapCountryQuery": "Latvia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -1273,7 +1669,18 @@
     "country": "Latvia",
     "languageKo": "라트비아어",
     "native": "latviešu",
-    "rank": 37
+    "rank": 37,
+    "emergencyNumbers": {
+      "primary": "112",
+      "police": "110",
+      "ambulance": "113",
+      "fire": "112",
+      "notesKo": "통합 긴급번호 112 사용 가능. 현지 서비스별 번호는 경찰 110, 구급 113, 소방 112로 안내됩니다.",
+      "sourceName": "Latvia 112 / EU 112 public emergency guidance",
+      "sourceUrl": "https://www.112.lv/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "ru",
@@ -1307,7 +1714,18 @@
     "country": "Russia",
     "languageKo": "러시아어",
     "native": "русский",
-    "rank": 38
+    "rank": 38,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "lb",
@@ -1341,7 +1759,18 @@
     "country": "Lebanon",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 39
+    "rank": 39,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ls",
@@ -1375,7 +1804,18 @@
     "country": "Lesotho",
     "languageKo": "영어",
     "native": "English",
-    "rank": 40
+    "rank": 40,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "re",
@@ -1409,7 +1849,18 @@
     "country": "Réunion",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 41
+    "rank": 41,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ro",
@@ -1443,7 +1894,18 @@
     "country": "Romania",
     "languageKo": "루마니아어",
     "native": "română",
-    "rank": 42
+    "rank": 42,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "lu",
@@ -1477,7 +1939,18 @@
     "country": "Luxembourg",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 43
+    "rank": 43,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "dm",
@@ -1511,7 +1984,18 @@
     "country": "Dominica",
     "languageKo": "영어",
     "native": "English",
-    "rank": 44
+    "rank": 44,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "lt",
@@ -1545,7 +2029,18 @@
     "country": "Lithuania",
     "languageKo": "리투아니아어",
     "native": "lietuvių",
-    "rank": 45
+    "rank": 45,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "li",
@@ -1579,7 +2074,18 @@
     "country": "Liechtenstein",
     "languageKo": "독일어",
     "native": "Deutsch",
-    "rank": 46
+    "rank": 46,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mg",
@@ -1617,7 +2123,18 @@
     "fallbackLanguageNameKo": "프랑스어",
     "fallbackLanguageNameEn": "French",
     "fallbackLanguageCode": "fr",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mq",
@@ -1651,7 +2168,18 @@
     "country": "Martinique",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 48
+    "rank": 48,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mh",
@@ -1685,7 +2213,18 @@
     "country": "Marshall Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 49
+    "rank": 49,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "yt",
@@ -1719,7 +2258,18 @@
     "country": "Mayotte",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 50
+    "rank": 50,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mo",
@@ -1759,7 +2309,18 @@
     "country": "Macao SAR China",
     "languageKo": "중국어(번체)",
     "native": "繁體中文",
-    "rank": 51
+    "rank": 51,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mw",
@@ -1793,7 +2354,18 @@
     "country": "Malawi",
     "languageKo": "영어",
     "native": "English",
-    "rank": 52
+    "rank": 52,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ms",
@@ -1834,7 +2406,7 @@
         "native": "தமிழ்"
       }
     ],
-    "emergencyNumber": "999",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Malaysia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -1845,7 +2417,18 @@
     "country": "Malaysia",
     "languageKo": "말레이어",
     "native": "Bahasa Melayu",
-    "rank": 53
+    "rank": 53,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "im",
@@ -1879,7 +2462,18 @@
     "country": "Isle of Man",
     "languageKo": "영어",
     "native": "English",
-    "rank": 54
+    "rank": 54,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "es-mx",
@@ -1902,7 +2496,7 @@
         "native": "español"
       }
     ],
-    "emergencyNumber": "911",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Mexico",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -1913,7 +2507,18 @@
     "country": "Mexico",
     "languageKo": "스페인어",
     "native": "Español · MX",
-    "rank": 55
+    "rank": 55,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mc",
@@ -1947,7 +2552,18 @@
     "country": "Monaco",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 56
+    "rank": 56,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ar-ma",
@@ -1970,7 +2586,7 @@
         "native": "العربية"
       }
     ],
-    "emergencyNumber": "15 / 112",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Morocco",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -1981,7 +2597,18 @@
     "country": "Morocco",
     "languageKo": "아랍어",
     "native": "العربية · المغرب",
-    "rank": 57
+    "rank": 57,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mu",
@@ -2015,7 +2642,18 @@
     "country": "Mauritius",
     "languageKo": "영어",
     "native": "English",
-    "rank": 58
+    "rank": 58,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mr",
@@ -2049,7 +2687,18 @@
     "country": "Mauritania",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 59
+    "rank": 59,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mz",
@@ -2083,7 +2732,18 @@
     "country": "Mozambique",
     "languageKo": "포르투갈어",
     "native": "português",
-    "rank": 60
+    "rank": 60,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "me",
@@ -2117,7 +2777,18 @@
     "country": "Montenegro",
     "languageKo": "세르비아어",
     "native": "српски",
-    "rank": 61
+    "rank": 61,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "md",
@@ -2151,7 +2822,18 @@
     "country": "Moldova",
     "languageKo": "루마니아어",
     "native": "română",
-    "rank": 62
+    "rank": 62,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mv",
@@ -2177,7 +2859,7 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "emergencyNumber": "102",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Maldives",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -2188,7 +2870,18 @@
     "country": "Maldives",
     "languageKo": "디베히어",
     "native": "디베히어",
-    "rank": 63
+    "rank": 63,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mt",
@@ -2222,7 +2915,18 @@
     "country": "Malta",
     "languageKo": "몰타어",
     "native": "Malti",
-    "rank": 64
+    "rank": 64,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mn",
@@ -2256,7 +2960,18 @@
     "country": "Mongolia",
     "languageKo": "몽골어",
     "native": "монгол",
-    "rank": 65
+    "rank": 65,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "en-us",
@@ -2290,7 +3005,18 @@
     "country": "United States",
     "languageKo": "영어",
     "native": "English · US",
-    "rank": 66
+    "rank": 66,
+    "emergencyNumbers": {
+      "primary": "911",
+      "police": "911",
+      "ambulance": "911",
+      "fire": "911",
+      "notesKo": "긴급 상황은 911로 경찰·구급·소방 연결 가능.",
+      "sourceName": "National 911 Program, 911.gov",
+      "sourceUrl": "https://www.911.gov/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "vi",
@@ -2324,7 +3050,18 @@
     "country": "U.S. Virgin Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 67
+    "rank": 67,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mm",
@@ -2362,7 +3099,18 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "fm",
@@ -2396,7 +3144,18 @@
     "country": "Micronesia",
     "languageKo": "영어",
     "native": "English",
-    "rank": 69
+    "rank": 69,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "vu",
@@ -2430,7 +3189,18 @@
     "country": "Vanuatu",
     "languageKo": "영어",
     "native": "English",
-    "rank": 70
+    "rank": 70,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bh",
@@ -2464,7 +3234,18 @@
     "country": "Bahrain",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 71
+    "rank": 71,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bb",
@@ -2498,7 +3279,18 @@
     "country": "Barbados",
     "languageKo": "영어",
     "native": "English",
-    "rank": 72
+    "rank": 72,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "va",
@@ -2532,7 +3324,18 @@
     "country": "Vatican City",
     "languageKo": "이탈리아어",
     "native": "italiano",
-    "rank": 73
+    "rank": 73,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bs",
@@ -2566,7 +3369,18 @@
     "country": "Bahamas",
     "languageKo": "영어",
     "native": "English",
-    "rank": 74
+    "rank": 74,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bd",
@@ -2600,7 +3414,18 @@
     "country": "Bangladesh",
     "languageKo": "벵골어",
     "native": "বাংলা",
-    "rank": 75
+    "rank": 75,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bm",
@@ -2634,7 +3459,18 @@
     "country": "Bermuda",
     "languageKo": "영어",
     "native": "English",
-    "rank": 76
+    "rank": 76,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bj",
@@ -2668,7 +3504,18 @@
     "country": "Benin",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 77
+    "rank": 77,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ve",
@@ -2702,7 +3549,18 @@
     "country": "Venezuela",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 78
+    "rank": 78,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "vi",
@@ -2736,7 +3594,18 @@
     "country": "Vietnam",
     "languageKo": "베트남어",
     "native": "Tiếng Việt",
-    "rank": 79
+    "rank": 79,
+    "emergencyNumbers": {
+      "primary": "115",
+      "police": "113",
+      "ambulance": "115",
+      "fire": "114",
+      "notesKo": "경찰 113, 소방 114, 구급 115.",
+      "sourceName": "Vietnam public emergency guidance",
+      "sourceUrl": "https://vietnam.travel/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "nl-be",
@@ -2771,7 +3640,7 @@
         "native": "Deutsch"
       }
     ],
-    "emergencyNumber": "112",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Belgium",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -2782,7 +3651,18 @@
     "country": "Belgium",
     "languageKo": "네덜란드어",
     "native": "Nederlands · België",
-    "rank": 80
+    "rank": 80,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "by",
@@ -2816,7 +3696,18 @@
     "country": "Belarus",
     "languageKo": "벨라루스어",
     "native": "беларуская",
-    "rank": 81
+    "rank": 81,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bz",
@@ -2850,7 +3741,18 @@
     "country": "Belize",
     "languageKo": "영어",
     "native": "English",
-    "rank": 82
+    "rank": 82,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ba",
@@ -2884,7 +3786,18 @@
     "country": "Bosnia & Herzegovina",
     "languageKo": "보스니아어",
     "native": "bosanski",
-    "rank": 83
+    "rank": 83,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bw",
@@ -2918,7 +3831,18 @@
     "country": "Botswana",
     "languageKo": "영어",
     "native": "English",
-    "rank": 84
+    "rank": 84,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bo",
@@ -2952,7 +3876,18 @@
     "country": "Bolivia",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 85
+    "rank": 85,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bi",
@@ -2986,7 +3921,18 @@
     "country": "Burundi",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 86
+    "rank": 86,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bf",
@@ -3020,7 +3966,18 @@
     "country": "Burkina Faso",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 87
+    "rank": 87,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bt",
@@ -3054,7 +4011,18 @@
     "country": "Bhutan",
     "languageKo": "종카어",
     "native": "རྫོང་ཁ",
-    "rank": 88
+    "rank": 88,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mp",
@@ -3091,7 +4059,18 @@
     "country": "Northern Mariana Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 89
+    "rank": 89,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mk",
@@ -3125,7 +4104,18 @@
     "country": "North Macedonia",
     "languageKo": "마케도니아어",
     "native": "македонски",
-    "rank": 90
+    "rank": 90,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cy",
@@ -3159,7 +4149,18 @@
     "country": "Cyprus",
     "languageKo": "그리스어",
     "native": "Ελληνικά",
-    "rank": 91
+    "rank": 91,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bg",
@@ -3193,7 +4194,18 @@
     "country": "Bulgaria",
     "languageKo": "불가리아어",
     "native": "български",
-    "rank": 92
+    "rank": 92,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "br",
@@ -3227,7 +4239,18 @@
     "country": "Brazil",
     "languageKo": "포르투갈어(브라질)",
     "native": "português (Brasil)",
-    "rank": 93
+    "rank": 93,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bn",
@@ -3261,7 +4284,18 @@
     "country": "Brunei",
     "languageKo": "말레이어",
     "native": "Melayu",
-    "rank": 94
+    "rank": 94,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ws",
@@ -3299,7 +4333,18 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ar-sa",
@@ -3322,7 +4367,7 @@
         "native": "العربية"
       }
     ],
-    "emergencyNumber": "997",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Saudi Arabia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -3333,7 +4378,18 @@
     "country": "Saudi Arabia",
     "languageKo": "아랍어",
     "native": "العربية · السعودية",
-    "rank": 96
+    "rank": 96,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sm",
@@ -3367,7 +4423,18 @@
     "country": "San Marino",
     "languageKo": "이탈리아어",
     "native": "italiano",
-    "rank": 97
+    "rank": 97,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "st",
@@ -3401,7 +4468,18 @@
     "country": "São Tomé & Príncipe",
     "languageKo": "포르투갈어",
     "native": "português",
-    "rank": 98
+    "rank": 98,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "mf",
@@ -3435,7 +4513,18 @@
     "country": "St. Martin",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 99
+    "rank": 99,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "bl",
@@ -3469,7 +4558,18 @@
     "country": "St. Barthélemy",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 100
+    "rank": 100,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pm",
@@ -3503,7 +4603,18 @@
     "country": "St. Pierre & Miquelon",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 101
+    "rank": 101,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "eh",
@@ -3537,7 +4648,18 @@
     "country": "Western Sahara",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 102
+    "rank": 102,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sn",
@@ -3571,7 +4693,18 @@
     "country": "Senegal",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 103
+    "rank": 103,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "rs",
@@ -3605,7 +4738,18 @@
     "country": "Serbia",
     "languageKo": "세르비아어",
     "native": "српски",
-    "rank": 104
+    "rank": 104,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sc",
@@ -3639,7 +4783,18 @@
     "country": "Seychelles",
     "languageKo": "영어",
     "native": "English",
-    "rank": 105
+    "rank": 105,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "lc",
@@ -3673,7 +4828,18 @@
     "country": "St. Lucia",
     "languageKo": "영어",
     "native": "English",
-    "rank": 106
+    "rank": 106,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "vc",
@@ -3707,7 +4873,18 @@
     "country": "St. Vincent & Grenadines",
     "languageKo": "영어",
     "native": "English",
-    "rank": 107
+    "rank": 107,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "kn",
@@ -3741,7 +4918,18 @@
     "country": "St. Kitts & Nevis",
     "languageKo": "영어",
     "native": "English",
-    "rank": 108
+    "rank": 108,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sh",
@@ -3775,7 +4963,18 @@
     "country": "St. Helena",
     "languageKo": "영어",
     "native": "English",
-    "rank": 109
+    "rank": 109,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sb",
@@ -3809,7 +5008,18 @@
     "country": "Solomon Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 110
+    "rank": 110,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sr",
@@ -3843,7 +5053,18 @@
     "country": "Suriname",
     "languageKo": "네덜란드어",
     "native": "Nederlands",
-    "rank": 111
+    "rank": 111,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "lk",
@@ -3881,7 +5102,18 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sj",
@@ -3915,7 +5147,18 @@
     "country": "Svalbard & Jan Mayen",
     "languageKo": "노르웨이어",
     "native": "norsk",
-    "rank": 113
+    "rank": 113,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "se",
@@ -3949,7 +5192,18 @@
     "country": "Sweden",
     "languageKo": "스웨덴어",
     "native": "svenska",
-    "rank": 114
+    "rank": 114,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "de-ch",
@@ -3984,7 +5238,7 @@
         "native": "italiano"
       }
     ],
-    "emergencyNumber": "112 / 144",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Switzerland",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -3995,7 +5249,18 @@
     "country": "Switzerland",
     "languageKo": "독일어",
     "native": "Deutsch · CH",
-    "rank": 115
+    "rank": 115,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "es",
@@ -4018,7 +5283,7 @@
         "native": "español"
       }
     ],
-    "emergencyNumber": "112",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Spain",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -4029,7 +5294,18 @@
     "country": "Spain",
     "languageKo": "스페인어",
     "native": "Español",
-    "rank": 116
+    "rank": 116,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sk",
@@ -4063,7 +5339,18 @@
     "country": "Slovakia",
     "languageKo": "슬로바키아어",
     "native": "slovenčina",
-    "rank": 117
+    "rank": 117,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "si",
@@ -4097,7 +5384,18 @@
     "country": "Slovenia",
     "languageKo": "슬로베니아어",
     "native": "slovenščina",
-    "rank": 118
+    "rank": 118,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sy",
@@ -4131,7 +5429,18 @@
     "country": "Syria",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 119
+    "rank": 119,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sl",
@@ -4165,7 +5474,18 @@
     "country": "Sierra Leone",
     "languageKo": "영어",
     "native": "English",
-    "rank": 120
+    "rank": 120,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sx",
@@ -4199,7 +5519,18 @@
     "country": "Sint Maarten",
     "languageKo": "네덜란드어",
     "native": "Nederlands",
-    "rank": 121
+    "rank": 121,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "en-sg",
@@ -4240,7 +5571,7 @@
         "native": "தமிழ்"
       }
     ],
-    "emergencyNumber": "995",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Singapore",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -4251,7 +5582,18 @@
     "country": "Singapore",
     "languageKo": "영어",
     "native": "English · Singapore",
-    "rank": 122
+    "rank": 122,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ar-ae",
@@ -4274,7 +5616,7 @@
         "native": "العربية"
       }
     ],
-    "emergencyNumber": "998 / 999",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "United Arab Emirates",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -4285,7 +5627,18 @@
     "country": "United Arab Emirates",
     "languageKo": "아랍어",
     "native": "العربية · UAE",
-    "rank": 123
+    "rank": 123,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "aw",
@@ -4319,7 +5672,18 @@
     "country": "Aruba",
     "languageKo": "네덜란드어",
     "native": "Nederlands",
-    "rank": 124
+    "rank": 124,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "am",
@@ -4357,7 +5721,18 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ar",
@@ -4391,7 +5766,18 @@
     "country": "Argentina",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 126
+    "rank": 126,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "as",
@@ -4425,7 +5811,18 @@
     "country": "American Samoa",
     "languageKo": "영어",
     "native": "English",
-    "rank": 127
+    "rank": 127,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "is",
@@ -4459,7 +5856,18 @@
     "country": "Iceland",
     "languageKo": "아이슬란드어",
     "native": "íslenska",
-    "rank": 128
+    "rank": 128,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "en-ie",
@@ -4482,7 +5890,7 @@
         "native": "English"
       }
     ],
-    "emergencyNumber": "112 / 999",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Ireland",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -4493,7 +5901,18 @@
     "country": "Ireland",
     "languageKo": "영어",
     "native": "English · Ireland",
-    "rank": 129
+    "rank": 129,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "az",
@@ -4527,7 +5946,18 @@
     "country": "Azerbaijan",
     "languageKo": "아제르바이잔어",
     "native": "azərbaycan",
-    "rank": 130
+    "rank": 130,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ad",
@@ -4577,7 +6007,18 @@
     "fallbackLanguageNameKo": "스페인어",
     "fallbackLanguageNameEn": "Spanish",
     "fallbackLanguageCode": "es",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "al",
@@ -4611,7 +6052,18 @@
     "country": "Albania",
     "languageKo": "알바니아어",
     "native": "shqip",
-    "rank": 132
+    "rank": 132,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "dz",
@@ -4645,7 +6097,18 @@
     "country": "Algeria",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 133
+    "rank": 133,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ao",
@@ -4679,7 +6142,18 @@
     "country": "Angola",
     "languageKo": "포르투갈어",
     "native": "português",
-    "rank": 134
+    "rank": 134,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ai",
@@ -4713,7 +6187,18 @@
     "country": "Anguilla",
     "languageKo": "영어",
     "native": "English",
-    "rank": 135
+    "rank": 135,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ag",
@@ -4747,7 +6232,18 @@
     "country": "Antigua & Barbuda",
     "languageKo": "영어",
     "native": "English",
-    "rank": 136
+    "rank": 136,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "er",
@@ -4785,7 +6281,18 @@
     "fallbackLanguageNameKo": "아랍어",
     "fallbackLanguageNameEn": "Arabic",
     "fallbackLanguageCode": "ar",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sz",
@@ -4819,7 +6326,18 @@
     "country": "Eswatini",
     "languageKo": "영어",
     "native": "English",
-    "rank": 138
+    "rank": 138,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ee",
@@ -4853,7 +6371,18 @@
     "country": "Estonia",
     "languageKo": "에스토니아어",
     "native": "eesti",
-    "rank": 139
+    "rank": 139,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ec",
@@ -4887,7 +6416,18 @@
     "country": "Ecuador",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 140
+    "rank": 140,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "et",
@@ -4925,7 +6465,18 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "sv",
@@ -4959,7 +6510,18 @@
     "country": "El Salvador",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 142
+    "rank": 142,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "en-gb",
@@ -4993,7 +6555,18 @@
     "country": "United Kingdom",
     "languageKo": "영어",
     "native": "English · UK",
-    "rank": 143
+    "rank": 143,
+    "emergencyNumbers": {
+      "primary": "999 / 112",
+      "police": "999 / 112",
+      "ambulance": "999 / 112",
+      "fire": "999 / 112",
+      "notesKo": "영국 국가 응급번호 999와 112 모두 사용 가능.",
+      "sourceName": "GOV.UK",
+      "sourceUrl": "https://www.gov.uk/guidance/999-and-112-the-uks-national-emergency-numbers",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "vg",
@@ -5027,7 +6600,18 @@
     "country": "British Virgin Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 144
+    "rank": 144,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "om",
@@ -5061,7 +6645,18 @@
     "country": "Oman",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 145
+    "rank": 145,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "de-at",
@@ -5084,7 +6679,7 @@
         "native": "Deutsch"
       }
     ],
-    "emergencyNumber": "112",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Austria",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5095,7 +6690,18 @@
     "country": "Austria",
     "languageKo": "독일어",
     "native": "Deutsch · AT",
-    "rank": 146
+    "rank": 146,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "hn",
@@ -5129,7 +6735,18 @@
     "country": "Honduras",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 147
+    "rank": 147,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ax",
@@ -5163,7 +6780,18 @@
     "country": "Åland Islands",
     "languageKo": "스웨덴어",
     "native": "svenska",
-    "rank": 148
+    "rank": 148,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "jo",
@@ -5197,7 +6825,18 @@
     "country": "Jordan",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 149
+    "rank": 149,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ug",
@@ -5231,7 +6870,18 @@
     "country": "Uganda",
     "languageKo": "영어",
     "native": "English",
-    "rank": 150
+    "rank": 150,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "uy",
@@ -5265,7 +6915,18 @@
     "country": "Uruguay",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 151
+    "rank": 151,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "uz",
@@ -5299,7 +6960,18 @@
     "country": "Uzbekistan",
     "languageKo": "우즈베크어",
     "native": "o‘zbek",
-    "rank": 152
+    "rank": 152,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "wf",
@@ -5333,7 +7005,18 @@
     "country": "Wallis & Futuna",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 153
+    "rank": 153,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ir",
@@ -5367,7 +7050,18 @@
     "country": "Iran",
     "languageKo": "페르시아어",
     "native": "فارسی",
-    "rank": 154
+    "rank": 154,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "il",
@@ -5401,7 +7095,18 @@
     "country": "Israel",
     "languageKo": "히브리어",
     "native": "עברית",
-    "rank": 155
+    "rank": 155,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ar-eg",
@@ -5424,7 +7129,7 @@
         "native": "العربية"
       }
     ],
-    "emergencyNumber": "123",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Egypt",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5435,7 +7140,18 @@
     "country": "Egypt",
     "languageKo": "아랍어",
     "native": "العربية · مصر",
-    "rank": 156
+    "rank": 156,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "it",
@@ -5458,7 +7174,7 @@
         "native": "italiano"
       }
     ],
-    "emergencyNumber": "112 / 118",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Italy",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5469,7 +7185,18 @@
     "country": "Italy",
     "languageKo": "이탈리아어",
     "native": "Italiano",
-    "rank": 157
+    "rank": 157,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "in",
@@ -5509,7 +7236,18 @@
     "country": "India",
     "languageKo": "힌디어",
     "native": "हिन्दी",
-    "rank": 158
+    "rank": 158,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "id",
@@ -5532,7 +7270,7 @@
         "native": "Indonesia"
       }
     ],
-    "emergencyNumber": "112 / 118",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Indonesia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5543,7 +7281,18 @@
     "country": "Indonesia",
     "languageKo": "인도네시아어",
     "native": "Bahasa Indonesia",
-    "rank": 159
+    "rank": 159,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ja",
@@ -5577,7 +7326,18 @@
     "country": "Japan",
     "languageKo": "일본어",
     "native": "日本語",
-    "rank": 160
+    "rank": 160,
+    "emergencyNumbers": {
+      "primary": "119",
+      "police": "110",
+      "ambulance": "119",
+      "fire": "119",
+      "notesKo": "경찰 110, 구급·소방 119.",
+      "sourceName": "Japan National Tourism Organization / public emergency guidance",
+      "sourceUrl": "https://www.japan.travel/en/plan/emergencies/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "jm",
@@ -5611,7 +7371,18 @@
     "country": "Jamaica",
     "languageKo": "영어",
     "native": "English",
-    "rank": 161
+    "rank": 161,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "zm",
@@ -5645,7 +7416,18 @@
     "country": "Zambia",
     "languageKo": "영어",
     "native": "English",
-    "rank": 162
+    "rank": 162,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "je",
@@ -5679,7 +7461,18 @@
     "country": "Jersey",
     "languageKo": "영어",
     "native": "English",
-    "rank": 163
+    "rank": 163,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gq",
@@ -5713,7 +7506,18 @@
     "country": "Equatorial Guinea",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 164
+    "rank": 164,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ge",
@@ -5747,7 +7551,18 @@
     "country": "Georgia",
     "languageKo": "조지아어",
     "native": "ქართული",
-    "rank": 165
+    "rank": 165,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "zh",
@@ -5770,7 +7585,7 @@
         "native": "中文"
       }
     ],
-    "emergencyNumber": "120",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "China",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -5781,7 +7596,18 @@
     "country": "China",
     "languageKo": "중국어",
     "native": "中文",
-    "rank": 166
+    "rank": 166,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cf",
@@ -5815,7 +7641,18 @@
     "country": "Central African Republic",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 167
+    "rank": 167,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "dj",
@@ -5849,7 +7686,18 @@
     "country": "Djibouti",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 168
+    "rank": 168,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "gi",
@@ -5883,7 +7731,18 @@
     "country": "Gibraltar",
     "languageKo": "영어",
     "native": "English",
-    "rank": 169
+    "rank": 169,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "zw",
@@ -5917,7 +7776,18 @@
     "country": "Zimbabwe",
     "languageKo": "영어",
     "native": "English",
-    "rank": 170
+    "rank": 170,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "td",
@@ -5951,7 +7821,18 @@
     "country": "Chad",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 171
+    "rank": 171,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cz",
@@ -5985,7 +7866,18 @@
     "country": "Czechia",
     "languageKo": "체코어",
     "native": "čeština",
-    "rank": 172
+    "rank": 172,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cl",
@@ -6019,7 +7911,18 @@
     "country": "Chile",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 173
+    "rank": 173,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cm",
@@ -6053,7 +7956,18 @@
     "country": "Cameroon",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 174
+    "rank": 174,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cv",
@@ -6087,7 +8001,18 @@
     "country": "Cape Verde",
     "languageKo": "포르투갈어",
     "native": "português",
-    "rank": 175
+    "rank": 175,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "kz",
@@ -6121,7 +8046,18 @@
     "country": "Kazakhstan",
     "languageKo": "카자흐어",
     "native": "қазақ тілі",
-    "rank": 176
+    "rank": 176,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "qa",
@@ -6155,7 +8091,18 @@
     "country": "Qatar",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 177
+    "rank": 177,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "kh",
@@ -6189,7 +8136,18 @@
     "country": "Cambodia",
     "languageKo": "크메르어",
     "native": "ខ្មែរ",
-    "rank": 178
+    "rank": 178,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "en-ca",
@@ -6229,7 +8187,18 @@
     "country": "Canada",
     "languageKo": "영어",
     "native": "English / Français",
-    "rank": 179
+    "rank": 179,
+    "emergencyNumbers": {
+      "primary": "911",
+      "police": "911",
+      "ambulance": "911",
+      "fire": "911",
+      "notesKo": "9-1-1로 경찰·구급·소방 연결 가능. 지역별 운영은 주·준주·지방정부 관할입니다.",
+      "sourceName": "CRTC / Government of Canada",
+      "sourceUrl": "https://crtc.gc.ca/eng/phone/911/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "ke",
@@ -6267,7 +8236,18 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ky",
@@ -6301,7 +8281,18 @@
     "country": "Cayman Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 181
+    "rank": 181,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "km",
@@ -6335,7 +8326,18 @@
     "country": "Comoros",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 182
+    "rank": 182,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "xk",
@@ -6369,7 +8371,18 @@
     "country": "Kosovo",
     "languageKo": "알바니아어",
     "native": "shqip",
-    "rank": 183
+    "rank": 183,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cr",
@@ -6403,7 +8416,18 @@
     "country": "Costa Rica",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 184
+    "rank": 184,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ci",
@@ -6437,7 +8461,18 @@
     "country": "Côte d’Ivoire",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 185
+    "rank": 185,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "co",
@@ -6471,7 +8506,18 @@
     "country": "Colombia",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 186
+    "rank": 186,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cg",
@@ -6505,7 +8551,18 @@
     "country": "Congo - Brazzaville",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 187
+    "rank": 187,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cd",
@@ -6539,7 +8596,18 @@
     "country": "Congo - Kinshasa",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 188
+    "rank": 188,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cw",
@@ -6573,7 +8641,18 @@
     "country": "Curaçao",
     "languageKo": "네덜란드어",
     "native": "Nederlands",
-    "rank": 189
+    "rank": 189,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cu",
@@ -6607,7 +8686,18 @@
     "country": "Cuba",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 190
+    "rank": 190,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "kw",
@@ -6641,7 +8731,18 @@
     "country": "Kuwait",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 191
+    "rank": 191,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ck",
@@ -6675,7 +8776,18 @@
     "country": "Cook Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 192
+    "rank": 192,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "hr",
@@ -6709,7 +8821,18 @@
     "country": "Croatia",
     "languageKo": "크로아티아어",
     "native": "hrvatski",
-    "rank": 193
+    "rank": 193,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cx",
@@ -6743,7 +8866,18 @@
     "country": "Christmas Island",
     "languageKo": "영어",
     "native": "English",
-    "rank": 194
+    "rank": 194,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "kg",
@@ -6777,7 +8911,18 @@
     "country": "Kyrgyzstan",
     "languageKo": "키르기스어",
     "native": "кыргызча",
-    "rank": 195
+    "rank": 195,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ki",
@@ -6811,7 +8956,18 @@
     "country": "Kiribati",
     "languageKo": "영어",
     "native": "English",
-    "rank": 196
+    "rank": 196,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "cy",
@@ -6845,7 +9001,18 @@
     "country": "Cyprus",
     "languageKo": "그리스어",
     "native": "Ελληνικά",
-    "rank": 197
+    "rank": 197,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tj",
@@ -6879,7 +9046,18 @@
     "country": "Tajikistan",
     "languageKo": "타지크어",
     "native": "тоҷикӣ",
-    "rank": 198
+    "rank": 198,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tz",
@@ -6917,7 +9095,18 @@
     "fallbackLanguageNameKo": "영어",
     "fallbackLanguageNameEn": "English",
     "fallbackLanguageCode": "en",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "th",
@@ -6951,7 +9140,18 @@
     "country": "Thailand",
     "languageKo": "태국어",
     "native": "ไทย",
-    "rank": 200
+    "rank": 200,
+    "emergencyNumbers": {
+      "primary": "1669",
+      "police": "191",
+      "ambulance": "1669",
+      "fire": "199",
+      "notesKo": "의료 응급 1669, 경찰 191, 소방 199. 관광경찰은 1155를 별도로 확인할 수 있습니다.",
+      "sourceName": "Thailand public emergency guidance",
+      "sourceUrl": "https://www.tourismthailand.org/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "tc",
@@ -6985,7 +9185,18 @@
     "country": "Turks & Caicos Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 201
+    "rank": 201,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tg",
@@ -7019,7 +9230,18 @@
     "country": "Togo",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 202
+    "rank": 202,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tk",
@@ -7053,7 +9275,18 @@
     "country": "Tokelau",
     "languageKo": "영어",
     "native": "English",
-    "rank": 203
+    "rank": 203,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "to",
@@ -7087,7 +9320,18 @@
     "country": "Tonga",
     "languageKo": "영어",
     "native": "English",
-    "rank": 204
+    "rank": 204,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tm",
@@ -7121,7 +9365,18 @@
     "country": "Turkmenistan",
     "languageKo": "투르크멘어",
     "native": "türkmen dili",
-    "rank": 205
+    "rank": 205,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tv",
@@ -7155,7 +9410,18 @@
     "country": "Tuvalu",
     "languageKo": "영어",
     "native": "English",
-    "rank": 206
+    "rank": 206,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tn",
@@ -7189,7 +9455,18 @@
     "country": "Tunisia",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 207
+    "rank": 207,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tr",
@@ -7212,7 +9489,7 @@
         "native": "Türkçe"
       }
     ],
-    "emergencyNumber": "112",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Türkiye",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7223,7 +9500,18 @@
     "country": "Türkiye",
     "languageKo": "튀르키예어",
     "native": "Türkçe",
-    "rank": 208
+    "rank": 208,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "tt",
@@ -7257,7 +9545,18 @@
     "country": "Trinidad & Tobago",
     "languageKo": "영어",
     "native": "English",
-    "rank": 209
+    "rank": 209,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pa",
@@ -7291,7 +9590,18 @@
     "country": "Panama",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 210
+    "rank": 210,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "py",
@@ -7325,7 +9635,18 @@
     "country": "Paraguay",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 211
+    "rank": 211,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pk",
@@ -7359,7 +9680,18 @@
     "country": "Pakistan",
     "languageKo": "우르두어",
     "native": "اردو",
-    "rank": 212
+    "rank": 212,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pg",
@@ -7393,7 +9725,18 @@
     "country": "Papua New Guinea",
     "languageKo": "영어",
     "native": "English",
-    "rank": 213
+    "rank": 213,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pw",
@@ -7427,7 +9770,18 @@
     "country": "Palau",
     "languageKo": "영어",
     "native": "English",
-    "rank": 214
+    "rank": 214,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ps",
@@ -7461,7 +9815,18 @@
     "country": "Palestinian Territories",
     "languageKo": "아랍어",
     "native": "العربية",
-    "rank": 215
+    "rank": 215,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "fo",
@@ -7495,7 +9860,18 @@
     "country": "Faroe Islands",
     "languageKo": "페로어",
     "native": "føroyskt",
-    "rank": 216
+    "rank": 216,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pe",
@@ -7529,7 +9905,18 @@
     "country": "Peru",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 217
+    "rank": 217,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pt",
@@ -7552,7 +9939,7 @@
         "native": "português"
       }
     ],
-    "emergencyNumber": "112",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Portugal",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7563,7 +9950,18 @@
     "country": "Portugal",
     "languageKo": "포르투갈어",
     "native": "Português",
-    "rank": 218
+    "rank": 218,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "fk",
@@ -7597,7 +9995,18 @@
     "country": "Falkland Islands",
     "languageKo": "영어",
     "native": "English",
-    "rank": 219
+    "rank": 219,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pl",
@@ -7620,7 +10029,7 @@
         "native": "polski"
       }
     ],
-    "emergencyNumber": "112 / 999",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Poland",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7631,7 +10040,18 @@
     "country": "Poland",
     "languageKo": "폴란드어",
     "native": "Polski",
-    "rank": 220
+    "rank": 220,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "pr",
@@ -7665,7 +10085,18 @@
     "country": "Puerto Rico",
     "languageKo": "스페인어",
     "native": "español",
-    "rank": 221
+    "rank": 221,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "fr",
@@ -7699,7 +10130,18 @@
     "country": "France",
     "languageKo": "프랑스어",
     "native": "Français",
-    "rank": 222
+    "rank": 222,
+    "emergencyNumbers": {
+      "primary": "112",
+      "police": "17",
+      "ambulance": "15",
+      "fire": "18",
+      "notesKo": "EU 공통 응급번호 112 사용 가능. 프랑스 서비스별 번호는 SAMU 15, 경찰 17, 소방 18입니다.",
+      "sourceName": "French government emergency guidance / EU 112",
+      "sourceUrl": "https://www.gouvernement.fr/risques/connaitre-les-numeros-d-urgence",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "gf",
@@ -7733,7 +10175,18 @@
     "country": "French Guiana",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 223
+    "rank": 223,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "fr",
@@ -7770,7 +10223,18 @@
     "country": "France",
     "languageKo": "프랑스어",
     "native": "français",
-    "rank": 224
+    "rank": 224,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "fj",
@@ -7804,7 +10268,18 @@
     "country": "Fiji",
     "languageKo": "영어",
     "native": "English",
-    "rank": 225
+    "rank": 225,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "fi",
@@ -7838,7 +10313,18 @@
     "country": "Finland",
     "languageKo": "핀란드어",
     "native": "suomi",
-    "rank": 226
+    "rank": 226,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "ph",
@@ -7861,7 +10347,7 @@
         "native": "Filipino"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "911",
     "mapCountryQuery": "Philippines",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7876,7 +10362,18 @@
     "fallbackLanguageNameKo": "타갈로그어",
     "fallbackLanguageNameEn": "Tagalog",
     "fallbackLanguageCode": "tl",
-    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다."
+    "fallbackNotice": "대표 언어 번역이 어려울 경우 현지에서 널리 쓰이는 보조 언어로 안내합니다.",
+    "emergencyNumbers": {
+      "primary": "911",
+      "police": "911",
+      "ambulance": "911",
+      "fire": "911",
+      "notesKo": "전국 응급 핫라인 911 사용 가능.",
+      "sourceName": "Emergency 911 National Office, Philippines",
+      "sourceUrl": "https://e911.gov.ph/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "hu",
@@ -7910,7 +10407,18 @@
     "country": "Hungary",
     "languageKo": "헝가리어",
     "native": "magyar",
-    "rank": 228
+    "rank": 228,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   },
   {
     "id": "au",
@@ -7934,7 +10442,7 @@
         "native": "English"
       }
     ],
-    "emergencyNumber": "현지 응급번호 확인 필요",
+    "emergencyNumber": "000",
     "mapCountryQuery": "Australia",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7945,7 +10453,18 @@
     "country": "Australia",
     "languageKo": "영어",
     "native": "English",
-    "rank": 229
+    "rank": 229,
+    "emergencyNumbers": {
+      "primary": "000",
+      "police": "000",
+      "ambulance": "000",
+      "fire": "000",
+      "notesKo": "Triple Zero 000으로 경찰·구급·소방 연결 가능.",
+      "sourceName": "Australian Government Triple Zero",
+      "sourceUrl": "https://www.triplezero.gov.au/",
+      "lastVerified": "2026-07-08",
+      "status": "verified"
+    }
   },
   {
     "id": "hk",
@@ -7969,7 +10488,7 @@
         "native": "繁體中文"
       }
     ],
-    "emergencyNumber": "999",
+    "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Hong Kong",
     "aliasesKo": [],
     "aliasesEn": [],
@@ -7980,7 +10499,18 @@
     "country": "Hong Kong",
     "languageKo": "중국어(번체)",
     "native": "繁體中文",
-    "rank": 230
+    "rank": 230,
+    "emergencyNumbers": {
+      "primary": "",
+      "police": "",
+      "ambulance": "",
+      "fire": "",
+      "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
+      "sourceName": "",
+      "sourceUrl": "",
+      "lastVerified": "2026-07-08",
+      "status": "needs-verification"
+    }
   }
 ];
   window.SOS_BRIDGE_COUNTRIES = countries;
