@@ -206,7 +206,7 @@
           "native": "English"
         }
       ],
-      "emergencyNumber": "현지 응급번호 확인 필요",
+      "emergencyNumber": "999",
       "mapCountryQuery": "Guernsey",
       "aliasesKo": [],
       "aliasesEn": [],
@@ -219,15 +219,15 @@
       "native": "English",
       "rank": 5,
       "emergencyNumbers": {
-        "primary": "",
-        "police": "",
-        "ambulance": "",
-        "fire": "",
-        "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-        "sourceName": "",
-        "sourceUrl": "",
+        "primary": "999",
+        "police": "999",
+        "ambulance": "999",
+        "fire": "999",
+        "notesKo": "건지에서는 응급 상황 시 999 또는 112로 경찰·구급·소방 등 긴급 서비스를 요청할 수 있습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.",
+        "sourceName": "States of Guernsey - Emergencies",
+        "sourceUrl": "https://www.gov.gg/article/120203/Emergencies",
         "lastVerified": "2026-07-08",
-        "status": "needs-verification"
+        "status": "verified"
       },
       "countryCode": "GG"
     },
@@ -2508,7 +2508,7 @@
           "native": "English"
         }
       ],
-      "emergencyNumber": "현지 응급번호 확인 필요",
+      "emergencyNumber": "999",
       "mapCountryQuery": "Isle of Man",
       "aliasesKo": [],
       "aliasesEn": [],
@@ -2521,15 +2521,15 @@
       "native": "English",
       "rank": 54,
       "emergencyNumbers": {
-        "primary": "",
-        "police": "",
-        "ambulance": "",
-        "fire": "",
-        "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-        "sourceName": "",
-        "sourceUrl": "",
+        "primary": "999",
+        "police": "999",
+        "ambulance": "999",
+        "fire": "999",
+        "notesKo": "맨섬에서는 응급 상황 시 999로 경찰·구급·소방 등 긴급 서비스를 요청할 수 있습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.",
+        "sourceName": "Isle of Man Government - Ambulance and Paramedics / Fire and Rescue Service",
+        "sourceUrl": "https://www.gov.im/categories/home-and-neighbourhood/emergency-services/ambulance-and-paramedics/",
         "lastVerified": "2026-07-08",
-        "status": "needs-verification"
+        "status": "verified"
       },
       "countryCode": "IM"
     },
@@ -7626,7 +7626,7 @@
           "native": "English"
         }
       ],
-      "emergencyNumber": "현지 응급번호 확인 필요",
+      "emergencyNumber": "999",
       "mapCountryQuery": "Jersey",
       "aliasesKo": [],
       "aliasesEn": [],
@@ -7639,15 +7639,15 @@
       "native": "English",
       "rank": 163,
       "emergencyNumbers": {
-        "primary": "",
-        "police": "",
-        "ambulance": "",
-        "fire": "",
-        "notesKo": "응급번호 확인 필요. 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요.",
-        "sourceName": "",
-        "sourceUrl": "",
+        "primary": "999",
+        "police": "999",
+        "ambulance": "999",
+        "fire": "999",
+        "notesKo": "저지에서는 의료 응급상황, 중대한 사고 또는 범죄 목격 시 999 또는 112로 긴급 서비스를 요청할 수 있습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.",
+        "sourceName": "Government of Jersey - How to contact emergency services",
+        "sourceUrl": "https://www.gov.je/LifeEvents/MovingToJersey/WhenYouArrive/pages/contactemergencyservices.aspx",
         "lastVerified": "2026-07-08",
-        "status": "needs-verification"
+        "status": "verified"
       },
       "countryCode": "JE"
     },
