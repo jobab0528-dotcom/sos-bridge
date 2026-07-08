@@ -44,7 +44,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GH"
   },
   {
     "id": "ga",
@@ -89,7 +90,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GA"
   },
   {
     "id": "gy",
@@ -134,7 +136,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GY"
   },
   {
     "id": "gm",
@@ -179,7 +182,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GM"
   },
   {
     "id": "gg",
@@ -224,7 +228,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GG"
   },
   {
     "id": "gp",
@@ -269,7 +274,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GP"
   },
   {
     "id": "gt",
@@ -314,7 +320,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GT"
   },
   {
     "id": "gu",
@@ -359,7 +366,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GU"
   },
   {
     "id": "gd",
@@ -404,7 +412,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GD"
   },
   {
     "id": "el",
@@ -449,7 +458,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "EL"
   },
   {
     "id": "gl",
@@ -494,7 +504,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GL"
   },
   {
     "id": "gn",
@@ -539,7 +550,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GN"
   },
   {
     "id": "gw",
@@ -584,7 +596,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GW"
   },
   {
     "id": "na",
@@ -629,7 +642,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NA"
   },
   {
     "id": "nr",
@@ -674,7 +688,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NR"
   },
   {
     "id": "ng",
@@ -719,7 +734,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NG"
   },
   {
     "id": "ss",
@@ -764,7 +780,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SS"
   },
   {
     "id": "za",
@@ -821,7 +838,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ZA"
   },
   {
     "id": "nl",
@@ -866,7 +884,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NL"
   },
   {
     "id": "np",
@@ -911,7 +930,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NP"
   },
   {
     "id": "no",
@@ -956,7 +976,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NO"
   },
   {
     "id": "nf",
@@ -1001,7 +1022,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NF"
   },
   {
     "id": "nz",
@@ -1046,7 +1068,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NZ"
   },
   {
     "id": "nc",
@@ -1091,7 +1114,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NC"
   },
   {
     "id": "nu",
@@ -1136,7 +1160,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NU"
   },
   {
     "id": "ne",
@@ -1181,7 +1206,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NE"
   },
   {
     "id": "ni",
@@ -1226,7 +1252,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NI"
   },
   {
     "id": "tw",
@@ -1273,7 +1300,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TW"
   },
   {
     "id": "ko",
@@ -1320,7 +1348,8 @@
       "sourceUrl": "https://english.visitkorea.or.kr/",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "KR"
   },
   {
     "id": "da",
@@ -1365,7 +1394,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "DA"
   },
   {
     "id": "do",
@@ -1410,11 +1440,12 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "DO"
   },
   {
     "id": "dm",
-    "countryNameKo": "도미니카연방",
+    "countryNameKo": "도미니카",
     "countryNameEn": "Dominica",
     "flag": "🇩🇲",
     "type": "country",
@@ -1435,12 +1466,14 @@
     ],
     "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Dominica",
-    "aliasesKo": [],
+    "aliasesKo": [
+      "도미니카연방"
+    ],
     "aliasesEn": [],
     "safetyNotice": false,
     "regionNotice": false,
     "languageReviewNeeded": false,
-    "countryKo": "도미니카연방",
+    "countryKo": "도미니카",
     "country": "Dominica",
     "languageKo": "영어",
     "native": "English",
@@ -1455,7 +1488,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "DM"
   },
   {
     "id": "de",
@@ -1500,7 +1534,8 @@
       "sourceUrl": "https://digital-strategy.ec.europa.eu/en/policies/112",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "DE"
   },
   {
     "id": "tl",
@@ -1545,7 +1580,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TL"
   },
   {
     "id": "la",
@@ -1590,7 +1626,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LA"
   },
   {
     "id": "lr",
@@ -1635,7 +1672,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LR"
   },
   {
     "id": "lv",
@@ -1680,7 +1718,8 @@
       "sourceUrl": "https://www.112.lv/",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "LV"
   },
   {
     "id": "ru",
@@ -1725,7 +1764,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "RU"
   },
   {
     "id": "lb",
@@ -1770,7 +1810,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LB"
   },
   {
     "id": "ls",
@@ -1815,7 +1856,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LS"
   },
   {
     "id": "re",
@@ -1860,7 +1902,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "RE"
   },
   {
     "id": "ro",
@@ -1905,7 +1948,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "RO"
   },
   {
     "id": "lu",
@@ -1950,13 +1994,14 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LU"
   },
   {
-    "id": "dm",
+    "id": "rw",
     "countryNameKo": "르완다",
-    "countryNameEn": "Dominica",
-    "flag": "🇩🇲",
+    "countryNameEn": "Rwanda",
+    "flag": "🇷🇼",
     "type": "country",
     "regionNote": "",
     "parentEntityKo": "",
@@ -1974,14 +2019,16 @@
       }
     ],
     "emergencyNumber": "현지 응급번호 확인 필요",
-    "mapCountryQuery": "Dominica",
+    "mapCountryQuery": "Rwanda",
     "aliasesKo": [],
-    "aliasesEn": [],
+    "aliasesEn": [
+      "Rwanda"
+    ],
     "safetyNotice": false,
     "regionNotice": false,
     "languageReviewNeeded": false,
     "countryKo": "르완다",
-    "country": "Dominica",
+    "country": "Rwanda",
     "languageKo": "영어",
     "native": "English",
     "rank": 44,
@@ -1995,7 +2042,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "RW"
   },
   {
     "id": "lt",
@@ -2040,7 +2088,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LT"
   },
   {
     "id": "li",
@@ -2085,7 +2134,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LI"
   },
   {
     "id": "mg",
@@ -2134,7 +2184,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MG"
   },
   {
     "id": "mq",
@@ -2179,7 +2230,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MQ"
   },
   {
     "id": "mh",
@@ -2224,7 +2276,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MH"
   },
   {
     "id": "yt",
@@ -2269,7 +2322,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "YT"
   },
   {
     "id": "mo",
@@ -2320,7 +2374,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MO"
   },
   {
     "id": "mw",
@@ -2365,7 +2420,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MW"
   },
   {
     "id": "ms",
@@ -2428,7 +2484,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MS"
   },
   {
     "id": "im",
@@ -2473,7 +2530,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "IM"
   },
   {
     "id": "es-mx",
@@ -2518,7 +2576,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ES-MX"
   },
   {
     "id": "mc",
@@ -2563,7 +2622,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MC"
   },
   {
     "id": "ar-ma",
@@ -2608,7 +2668,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AR-MA"
   },
   {
     "id": "mu",
@@ -2653,7 +2714,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MU"
   },
   {
     "id": "mr",
@@ -2698,7 +2760,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MR"
   },
   {
     "id": "mz",
@@ -2743,7 +2806,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MZ"
   },
   {
     "id": "me",
@@ -2788,7 +2852,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ME"
   },
   {
     "id": "md",
@@ -2833,7 +2898,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MD"
   },
   {
     "id": "mv",
@@ -2881,7 +2947,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MV"
   },
   {
     "id": "mt",
@@ -2926,7 +2993,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MT"
   },
   {
     "id": "mn",
@@ -2971,7 +3039,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MN"
   },
   {
     "id": "en-us",
@@ -3016,10 +3085,11 @@
       "sourceUrl": "https://www.911.gov/",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "US"
   },
   {
-    "id": "vi",
+    "id": "vi-us",
     "countryNameKo": "미국령 버진아일랜드",
     "countryNameEn": "U.S. Virgin Islands",
     "flag": "🇻🇮",
@@ -3042,7 +3112,11 @@
     "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "U.S. Virgin Islands",
     "aliasesKo": [],
-    "aliasesEn": [],
+    "aliasesEn": [
+      "United States Virgin Islands",
+      "US Virgin Islands",
+      "U.S. Virgin Islands"
+    ],
     "safetyNotice": false,
     "regionNotice": false,
     "languageReviewNeeded": false,
@@ -3061,7 +3135,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "VI"
   },
   {
     "id": "mm",
@@ -3110,7 +3185,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MM"
   },
   {
     "id": "fm",
@@ -3155,7 +3231,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "FM"
   },
   {
     "id": "vu",
@@ -3200,7 +3277,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "VU"
   },
   {
     "id": "bh",
@@ -3245,7 +3323,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BH"
   },
   {
     "id": "bb",
@@ -3290,7 +3369,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BB"
   },
   {
     "id": "va",
@@ -3335,7 +3415,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "VA"
   },
   {
     "id": "bs",
@@ -3380,7 +3461,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BS"
   },
   {
     "id": "bd",
@@ -3425,7 +3507,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BD"
   },
   {
     "id": "bm",
@@ -3470,7 +3553,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BM"
   },
   {
     "id": "bj",
@@ -3515,7 +3599,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BJ"
   },
   {
     "id": "ve",
@@ -3560,7 +3645,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "VE"
   },
   {
     "id": "vi",
@@ -3605,7 +3691,8 @@
       "sourceUrl": "https://vietnam.travel/",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "VN"
   },
   {
     "id": "nl-be",
@@ -3662,7 +3749,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "NL-BE"
   },
   {
     "id": "by",
@@ -3707,7 +3795,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BY"
   },
   {
     "id": "bz",
@@ -3752,7 +3841,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BZ"
   },
   {
     "id": "ba",
@@ -3797,7 +3887,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BA"
   },
   {
     "id": "bw",
@@ -3842,7 +3933,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BW"
   },
   {
     "id": "bo",
@@ -3887,7 +3979,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BO"
   },
   {
     "id": "bi",
@@ -3932,7 +4025,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BI"
   },
   {
     "id": "bf",
@@ -3977,7 +4071,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BF"
   },
   {
     "id": "bt",
@@ -4022,7 +4117,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BT"
   },
   {
     "id": "mp",
@@ -4070,7 +4166,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MP"
   },
   {
     "id": "mk",
@@ -4115,10 +4212,11 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MK"
   },
   {
-    "id": "cy",
+    "id": "cy-north",
     "countryNameKo": "북키프로스",
     "countryNameEn": "Cyprus",
     "flag": "🇨🇾",
@@ -4140,8 +4238,14 @@
     ],
     "emergencyNumber": "현지 응급번호 확인 필요",
     "mapCountryQuery": "Cyprus",
-    "aliasesKo": [],
-    "aliasesEn": [],
+    "aliasesKo": [
+      "북키프로스",
+      "북키프로스 터키 공화국"
+    ],
+    "aliasesEn": [
+      "Northern Cyprus",
+      "Turkish Republic of Northern Cyprus"
+    ],
     "safetyNotice": false,
     "regionNotice": true,
     "languageReviewNeeded": false,
@@ -4160,7 +4264,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CY-NORTH"
   },
   {
     "id": "bg",
@@ -4205,7 +4310,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BG"
   },
   {
     "id": "br",
@@ -4250,7 +4356,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BR"
   },
   {
     "id": "bn",
@@ -4295,7 +4402,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BN"
   },
   {
     "id": "ws",
@@ -4344,7 +4452,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "WS"
   },
   {
     "id": "ar-sa",
@@ -4389,7 +4498,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AR-SA"
   },
   {
     "id": "sm",
@@ -4434,7 +4544,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SM"
   },
   {
     "id": "st",
@@ -4479,7 +4590,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ST"
   },
   {
     "id": "mf",
@@ -4524,7 +4636,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "MF"
   },
   {
     "id": "bl",
@@ -4569,7 +4682,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "BL"
   },
   {
     "id": "pm",
@@ -4614,7 +4728,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PM"
   },
   {
     "id": "eh",
@@ -4659,7 +4774,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "EH"
   },
   {
     "id": "sn",
@@ -4704,7 +4820,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SN"
   },
   {
     "id": "rs",
@@ -4749,7 +4866,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "RS"
   },
   {
     "id": "sc",
@@ -4794,7 +4912,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SC"
   },
   {
     "id": "lc",
@@ -4839,7 +4958,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LC"
   },
   {
     "id": "vc",
@@ -4884,7 +5004,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "VC"
   },
   {
     "id": "kn",
@@ -4929,7 +5050,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KN"
   },
   {
     "id": "sh",
@@ -4974,7 +5096,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SH"
   },
   {
     "id": "sb",
@@ -5019,7 +5142,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SB"
   },
   {
     "id": "sr",
@@ -5064,7 +5188,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SR"
   },
   {
     "id": "lk",
@@ -5113,7 +5238,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "LK"
   },
   {
     "id": "sj",
@@ -5158,7 +5284,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SJ"
   },
   {
     "id": "se",
@@ -5203,7 +5330,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SE"
   },
   {
     "id": "de-ch",
@@ -5260,7 +5388,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "DE-CH"
   },
   {
     "id": "es",
@@ -5305,7 +5434,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ES"
   },
   {
     "id": "sk",
@@ -5350,7 +5480,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SK"
   },
   {
     "id": "si",
@@ -5395,7 +5526,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SI"
   },
   {
     "id": "sy",
@@ -5440,7 +5572,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SY"
   },
   {
     "id": "sl",
@@ -5485,7 +5618,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SL"
   },
   {
     "id": "sx",
@@ -5530,7 +5664,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SX"
   },
   {
     "id": "en-sg",
@@ -5593,7 +5728,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "EN-SG"
   },
   {
     "id": "ar-ae",
@@ -5638,7 +5774,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AR-AE"
   },
   {
     "id": "aw",
@@ -5683,7 +5820,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AW"
   },
   {
     "id": "am",
@@ -5732,7 +5870,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AM"
   },
   {
     "id": "ar",
@@ -5777,7 +5916,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AR"
   },
   {
     "id": "as",
@@ -5822,7 +5962,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AS"
   },
   {
     "id": "is",
@@ -5867,7 +6008,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "IS"
   },
   {
     "id": "en-ie",
@@ -5912,7 +6054,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "EN-IE"
   },
   {
     "id": "az",
@@ -5957,7 +6100,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AZ"
   },
   {
     "id": "ad",
@@ -6018,7 +6162,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AD"
   },
   {
     "id": "al",
@@ -6063,7 +6208,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AL"
   },
   {
     "id": "dz",
@@ -6108,7 +6254,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "DZ"
   },
   {
     "id": "ao",
@@ -6153,7 +6300,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AO"
   },
   {
     "id": "ai",
@@ -6198,7 +6346,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AI"
   },
   {
     "id": "ag",
@@ -6243,7 +6392,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AG"
   },
   {
     "id": "er",
@@ -6292,7 +6442,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ER"
   },
   {
     "id": "sz",
@@ -6337,7 +6488,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SZ"
   },
   {
     "id": "ee",
@@ -6382,7 +6534,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "EE"
   },
   {
     "id": "ec",
@@ -6427,7 +6580,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "EC"
   },
   {
     "id": "et",
@@ -6476,7 +6630,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ET"
   },
   {
     "id": "sv",
@@ -6521,7 +6676,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "SV"
   },
   {
     "id": "en-gb",
@@ -6566,7 +6722,8 @@
       "sourceUrl": "https://www.gov.uk/guidance/999-and-112-the-uks-national-emergency-numbers",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "GB"
   },
   {
     "id": "vg",
@@ -6611,7 +6768,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "VG"
   },
   {
     "id": "om",
@@ -6656,7 +6814,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "OM"
   },
   {
     "id": "de-at",
@@ -6701,7 +6860,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "DE-AT"
   },
   {
     "id": "hn",
@@ -6746,7 +6906,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "HN"
   },
   {
     "id": "ax",
@@ -6791,7 +6952,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AX"
   },
   {
     "id": "jo",
@@ -6836,7 +6998,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "JO"
   },
   {
     "id": "ug",
@@ -6881,7 +7044,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "UG"
   },
   {
     "id": "uy",
@@ -6926,7 +7090,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "UY"
   },
   {
     "id": "uz",
@@ -6971,7 +7136,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "UZ"
   },
   {
     "id": "wf",
@@ -7016,7 +7182,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "WF"
   },
   {
     "id": "ir",
@@ -7061,7 +7228,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "IR"
   },
   {
     "id": "il",
@@ -7106,7 +7274,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "IL"
   },
   {
     "id": "ar-eg",
@@ -7151,7 +7320,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "AR-EG"
   },
   {
     "id": "it",
@@ -7196,7 +7366,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "IT"
   },
   {
     "id": "in",
@@ -7247,7 +7418,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "IN"
   },
   {
     "id": "id",
@@ -7292,7 +7464,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ID"
   },
   {
     "id": "ja",
@@ -7337,7 +7510,8 @@
       "sourceUrl": "https://www.japan.travel/en/plan/emergencies/",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "JP"
   },
   {
     "id": "jm",
@@ -7382,7 +7556,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "JM"
   },
   {
     "id": "zm",
@@ -7427,7 +7602,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ZM"
   },
   {
     "id": "je",
@@ -7472,7 +7648,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "JE"
   },
   {
     "id": "gq",
@@ -7517,7 +7694,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GQ"
   },
   {
     "id": "ge",
@@ -7562,7 +7740,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GE"
   },
   {
     "id": "zh",
@@ -7607,7 +7786,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ZH"
   },
   {
     "id": "cf",
@@ -7652,7 +7832,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CF"
   },
   {
     "id": "dj",
@@ -7697,7 +7878,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "DJ"
   },
   {
     "id": "gi",
@@ -7742,7 +7924,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GI"
   },
   {
     "id": "zw",
@@ -7787,7 +7970,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "ZW"
   },
   {
     "id": "td",
@@ -7832,7 +8016,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TD"
   },
   {
     "id": "cz",
@@ -7877,7 +8062,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CZ"
   },
   {
     "id": "cl",
@@ -7922,7 +8108,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CL"
   },
   {
     "id": "cm",
@@ -7967,7 +8154,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CM"
   },
   {
     "id": "cv",
@@ -8012,7 +8200,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CV"
   },
   {
     "id": "kz",
@@ -8057,7 +8246,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KZ"
   },
   {
     "id": "qa",
@@ -8102,7 +8292,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "QA"
   },
   {
     "id": "kh",
@@ -8147,7 +8338,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KH"
   },
   {
     "id": "en-ca",
@@ -8198,7 +8390,8 @@
       "sourceUrl": "https://crtc.gc.ca/eng/phone/911/",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "CA"
   },
   {
     "id": "ke",
@@ -8247,7 +8440,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KE"
   },
   {
     "id": "ky",
@@ -8292,7 +8486,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KY"
   },
   {
     "id": "km",
@@ -8337,7 +8532,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KM"
   },
   {
     "id": "xk",
@@ -8382,7 +8578,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "XK"
   },
   {
     "id": "cr",
@@ -8427,7 +8624,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CR"
   },
   {
     "id": "ci",
@@ -8472,7 +8670,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CI"
   },
   {
     "id": "co",
@@ -8517,7 +8716,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CO"
   },
   {
     "id": "cg",
@@ -8562,7 +8762,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CG"
   },
   {
     "id": "cd",
@@ -8607,7 +8808,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CD"
   },
   {
     "id": "cw",
@@ -8652,7 +8854,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CW"
   },
   {
     "id": "cu",
@@ -8697,7 +8900,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CU"
   },
   {
     "id": "kw",
@@ -8742,7 +8946,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KW"
   },
   {
     "id": "ck",
@@ -8787,7 +8992,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CK"
   },
   {
     "id": "hr",
@@ -8832,7 +9038,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "HR"
   },
   {
     "id": "cx",
@@ -8877,7 +9084,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CX"
   },
   {
     "id": "kg",
@@ -8922,7 +9130,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KG"
   },
   {
     "id": "ki",
@@ -8967,7 +9176,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "KI"
   },
   {
     "id": "cy",
@@ -9012,7 +9222,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "CY"
   },
   {
     "id": "tj",
@@ -9057,7 +9268,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TJ"
   },
   {
     "id": "tz",
@@ -9106,7 +9318,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TZ"
   },
   {
     "id": "th",
@@ -9151,7 +9364,8 @@
       "sourceUrl": "https://www.tourismthailand.org/",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "TH"
   },
   {
     "id": "tc",
@@ -9196,7 +9410,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TC"
   },
   {
     "id": "tg",
@@ -9241,7 +9456,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TG"
   },
   {
     "id": "tk",
@@ -9286,7 +9502,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TK"
   },
   {
     "id": "to",
@@ -9331,7 +9548,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TO"
   },
   {
     "id": "tm",
@@ -9376,7 +9594,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TM"
   },
   {
     "id": "tv",
@@ -9421,7 +9640,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TV"
   },
   {
     "id": "tn",
@@ -9466,7 +9686,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TN"
   },
   {
     "id": "tr",
@@ -9511,7 +9732,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TR"
   },
   {
     "id": "tt",
@@ -9556,7 +9778,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "TT"
   },
   {
     "id": "pa",
@@ -9601,7 +9824,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PA"
   },
   {
     "id": "py",
@@ -9646,7 +9870,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PY"
   },
   {
     "id": "pk",
@@ -9691,7 +9916,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PK"
   },
   {
     "id": "pg",
@@ -9736,7 +9962,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PG"
   },
   {
     "id": "pw",
@@ -9781,7 +10008,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PW"
   },
   {
     "id": "ps",
@@ -9826,7 +10054,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PS"
   },
   {
     "id": "fo",
@@ -9871,7 +10100,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "FO"
   },
   {
     "id": "pe",
@@ -9916,7 +10146,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PE"
   },
   {
     "id": "pt",
@@ -9961,7 +10192,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PT"
   },
   {
     "id": "fk",
@@ -10006,7 +10238,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "FK"
   },
   {
     "id": "pl",
@@ -10051,7 +10284,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PL"
   },
   {
     "id": "pr",
@@ -10096,7 +10330,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PR"
   },
   {
     "id": "fr",
@@ -10141,7 +10376,8 @@
       "sourceUrl": "https://www.gouvernement.fr/risques/connaitre-les-numeros-d-urgence",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "FR"
   },
   {
     "id": "gf",
@@ -10186,13 +10422,14 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "GF"
   },
   {
-    "id": "fr",
+    "id": "pf",
     "countryNameKo": "프랑스령 폴리네시아 / 타히티",
-    "countryNameEn": "France",
-    "flag": "🇫🇷",
+    "countryNameEn": "French Polynesia / Tahiti",
+    "flag": "🇵🇫",
     "type": "territory",
     "regionNote": "프랑스령",
     "parentEntityKo": "프랑스",
@@ -10210,17 +10447,20 @@
       }
     ],
     "emergencyNumber": "현지 응급번호 확인 필요",
-    "mapCountryQuery": "France",
+    "mapCountryQuery": "French Polynesia",
     "aliasesKo": [
       "프랑스령 폴리네시아",
       "타히티"
     ],
-    "aliasesEn": [],
+    "aliasesEn": [
+      "French Polynesia",
+      "Tahiti"
+    ],
     "safetyNotice": false,
     "regionNotice": false,
     "languageReviewNeeded": false,
     "countryKo": "프랑스령 폴리네시아 / 타히티",
-    "country": "France",
+    "country": "French Polynesia / Tahiti",
     "languageKo": "프랑스어",
     "native": "français",
     "rank": 224,
@@ -10234,7 +10474,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "PF"
   },
   {
     "id": "fj",
@@ -10279,7 +10520,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "FJ"
   },
   {
     "id": "fi",
@@ -10324,7 +10566,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "FI"
   },
   {
     "id": "ph",
@@ -10373,7 +10616,8 @@
       "sourceUrl": "https://e911.gov.ph/",
       "lastVerified": "2026-07-08",
       "status": "verified"
-    }
+    },
+    "countryCode": "PH"
   },
   {
     "id": "hu",
@@ -10418,7 +10662,8 @@
       "sourceUrl": "",
       "lastVerified": "2026-07-08",
       "status": "needs-verification"
-    }
+    },
+    "countryCode": "HU"
   },
   {
     "id": "au",

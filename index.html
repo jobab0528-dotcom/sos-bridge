@@ -415,6 +415,7 @@ const languageOptions = countrySource.map((item, index) => ({
   id: item.id || (item.languageCode || "country") + "-" + index,
   rank: index + 1,
   flag: item.flag || "??",
+  countryCode: item.countryCode || "",
   countryKo: item.countryNameKo || item.countryKo || "",
   country: item.countryNameEn || item.country || "",
   languageKo: item.languageNameKo || item.languageKo || "",
@@ -424,7 +425,7 @@ const languageOptions = countrySource.map((item, index) => ({
 })).sort((a, b) => countryCollator.compare(a.countryKo || a.countryNameKo || "", b.countryKo || b.countryNameKo || ""));
 languageOptions.forEach((item, index) => { item.rank = index + 1; });
 if(!languageOptions.length){
-  languageOptions.push({id:"ko", rank:1, flag:"🇰🇷", countryKo:"대한민국", country:"South Korea", countryNameKo:"대한민국", countryNameEn:"South Korea", languageKo:"한국어", languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko", native:"한국어", languageNative:"한국어", emergencyNumber:"119", mapCountryQuery:"South Korea", aliasesKo:["한국"], aliasesEn:["Korea"], availableLanguages:[{languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko"}], safetyNotice:false, regionNotice:false, languageReviewNeeded:false});
+  languageOptions.push({id:"ko", countryCode:"KR", rank:1, flag:"🇰🇷", countryKo:"대한민국", country:"South Korea", countryNameKo:"대한민국", countryNameEn:"South Korea", languageKo:"한국어", languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko", native:"한국어", languageNative:"한국어", emergencyNumber:"119", mapCountryQuery:"South Korea", aliasesKo:["한국"], aliasesEn:["Korea"], availableLanguages:[{languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko"}], safetyNotice:false, regionNotice:false, languageReviewNeeded:false});
 }
 
 const i18n = {
@@ -2257,6 +2258,7 @@ function normalizeCountryText(v){
 function countrySearchCandidates(item){
   return [
     item.id,
+    item.countryCode,
     item.countryKo,
     item.country,
     item.countryNameKo,
@@ -2738,6 +2740,7 @@ function countryNoticeHtml(item){
 }
 function countryMetaLine(item){
   return [
+    item.countryCode ? "코드: " + item.countryCode : "",
     item.regionNote,
     "현지어 도움 문장: " + (item.languageNameKo || item.languageKo || item.native || ""),
     "응급번호: " + getEmergencyNumber(item.id)
