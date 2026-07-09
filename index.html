@@ -162,6 +162,11 @@
     .nav-btn .ico{display:block;font-size:22px;margin-bottom:3px}
     .nav-btn.active{background:#ecfeff;color:var(--navy)}
     .content-pad{padding-bottom:150px!important}
+    .legal-footer{width:min(1060px,100%);margin:18px auto 0;padding:16px;border:1px solid var(--border);border-radius:22px;background:rgba(255,255,255,.86);box-shadow:0 10px 28px rgba(148,163,184,.14)}
+    .legal-footer p{margin:0 0 10px;color:#475569;font-size:13px;font-weight:850;line-height:1.55}
+    .legal-links{display:flex;flex-wrap:wrap;gap:8px}
+    .legal-links a{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 11px;border:1px solid var(--border);border-radius:999px;background:white;color:#0f766e;text-decoration:none;font-size:12px;font-weight:950}
+    @media (max-width:520px){.legal-links a{flex:1 1 100%}}
     .debug{font-size:12px;white-space:pre-wrap}
   </style>
 </head>
@@ -213,7 +218,7 @@
 
         <p class="home-helper">여행 국가를 선택한 뒤 의료카드를 작성하면, 한국어 보기와 현지어 보기를 함께 사용할 수 있습니다.</p>
 
-        <div id="homeMedicalDisclaimer" class="notice amber" style="margin:0">⚠️ 응급 상황에서는 AI 결과를 기다리지 말고 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
+        <div id="homeMedicalDisclaimer" class="notice amber" style="margin:0">⚠️ SOS Bridge는 의료진의 진단이나 치료를 대체하지 않습니다. 응급 상황에서는 앱 사용보다 현지 응급번호, 가까운 의료기관, 숙소, 대사관/영사관의 도움을 우선하세요.</div>
 
         <div class="grid hidden">
           <select id="userLangSelect" class="input" style="display:none"></select>
@@ -234,6 +239,16 @@
         <div id="languageGrid" class="language-grid"></div>
       </div>
     </section>
+
+    <footer class="legal-footer" aria-label="서비스 안내 링크">
+      <p>SOS Bridge는 해외여행 중 도움 요청을 돕는 참고 안내 서비스입니다. 의료진의 진단이나 현지 응급기관의 안내를 대체하지 않습니다. 응급 상황에서는 앱 사용보다 현지 응급번호, 가까운 의료기관, 숙소, 대사관/영사관의 도움을 우선하세요.</p>
+      <nav class="legal-links">
+        <a href="./privacy.html">개인정보처리방침</a>
+        <a href="./terms.html">이용약관</a>
+        <a href="./disclaimer.html">의료/응급 면책 안내</a>
+        <a href="./emergency-sources.html">응급번호 출처 및 지원 범위 안내</a>
+      </nav>
+    </footer>
 
   </main>
 
@@ -311,7 +326,7 @@
       <section id="infoGuideCard" class="card hidden">
         <p class="eyebrow">Guide</p>
         <h2>이용 안내 및 개인정보</h2>
-        <div class="notice amber">⚠️ 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
+        <div class="notice amber">⚠️ SOS Bridge는 의료진의 진단이나 치료를 대체하지 않습니다. 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관, 현지 공공기관, 숙소, 대사관 또는 영사관의 도움을 받으세요.</div>
         <div class="notice teal">SOS Bridge는 한국인 해외여행자를 위한 응급 의료 참고 안내 앱입니다.</div>
         <div class="grid" style="margin-top:12px">
           <div class="step"><span class="check">✓</span><span>앱 화면은 한국어로 제공됩니다.</span></div>
@@ -323,7 +338,15 @@
           <div class="step"><span class="check">✓</span><span>본 서비스는 의료진의 진단을 대체하지 않습니다.</span></div>
         </div>
         <div class="notice teal" style="margin-top:12px">병원·약국 찾기 기능은 Google Maps를 통해 연결됩니다. 모바일에서는 Google Maps 앱이 설치되어 있으면 더 원활하게 이용할 수 있으며, 앱이 없을 경우 브라우저에서 Google Maps가 열릴 수 있습니다. 일부 국가, 지역, 기기 환경에서는 길찾기 기능이 제한될 수 있습니다.</div>
-        <a class="btn primary w-full" style="margin-top:12px" href="./privacy.html">개인정보 처리방침 보기</a>
+        <div class="legal-footer" style="margin-top:12px">
+          <p>SOS Bridge는 도움 요청을 돕는 참고 안내 서비스입니다. 응급 상황에서는 현지 응급번호, 가까운 의료기관, 숙소, 대사관/영사관의 도움을 우선하세요.</p>
+          <nav class="legal-links">
+            <a href="./privacy.html">개인정보처리방침</a>
+            <a href="./terms.html">이용약관</a>
+            <a href="./disclaimer.html">의료/응급 면책 안내</a>
+            <a href="./emergency-sources.html">응급번호 출처 및 지원 범위 안내</a>
+          </nav>
+        </div>
       </section>
 
       
@@ -346,7 +369,7 @@
 
       <section id="resultSection" class="card">
         <h2 id="resultTitle">AI 응급도 참고 안내 결과</h2>
-        <div id="aiResultDisclaimer" class="notice amber">⚠️ 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>
+        <div id="aiResultDisclaimer" class="notice amber">⚠️ SOS Bridge는 의료진의 진단이나 치료를 대체하지 않습니다. 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관, 현지 공공기관, 숙소, 대사관 또는 영사관의 도움을 받으세요.</div>
         <div id="triageEmpty" class="notice teal">증상을 입력하거나 음성으로 말하면 AI 응급도 참고 안내 결과를 표시합니다.</div>
         <div id="triageResult" class="hidden">
           <div id="triageSummary" class="result-box"></div>
@@ -5144,7 +5167,7 @@ function renderTriage(){
   const possibility = triagePossibilityLabel(triage);
 
   $("triageSummary").innerHTML =
-    '<div class="notice amber" style="margin:0 0 12px">⚠️ 응급 상황에서는 AI 결과를 기다리지 말고 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.</div>'+
+    '<div class="notice amber" style="margin:0 0 12px">⚠️ SOS Bridge는 의료진의 진단이나 치료를 대체하지 않습니다. 응급 상황에서는 AI 결과를 기다리지 말고 즉시 현지 응급번호, 가까운 의료기관, 현지 공공기관, 숙소, 대사관 또는 영사관의 도움을 받으세요.</div>'+
     '<p style="font-size:18px;margin-bottom:6px">AI 응급도 참고 안내</p>'+
     '<p style="font-size:20px;margin-bottom:6px">'+label+'</p>'+
     '<p style="font-size:17px;margin-bottom:8px"><strong>응급 가능성:</strong> '+escapeHtml(possibility)+'</p>'+
