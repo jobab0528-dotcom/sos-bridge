@@ -22,8 +22,9 @@
     <article class="card">
       <p class="eyebrow">Emergency Sources</p>
       <h1>응급번호 출처 및 지원 범위 안내</h1>
-      <p class="lead">SOS Bridge는 국가/지역별 응급번호를 공식·공공 출처 기반으로 관리하려고 합니다. 다만 일부 국가/지역은 중앙 응급번호를 안전하게 단일 번호로 안내하기 어려워 제한 지원으로 표시합니다.</p>
+      <p class="lead">SOS Bridge는 국가/지역별 응급번호를 공식·공공 출처 기반으로 관리합니다. 다만 응급번호는 현지 제도, 기관 운영, 통신 상황에 따라 변경되거나 연결이 제한될 수 있으므로, 실제 응급상황에서는 현지 기관의 안내를 우선해야 합니다.</p>
       <div class="notice amber">SOS Bridge는 의료진의 진단이나 치료를 대체하지 않습니다. 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관, 현지 공공기관, 숙소, 대사관 또는 영사관의 도움을 받으세요.</div>
+      <div class="notice">SOS Bridge는 의료기기가 아니며, 질병이나 건강 상태를 진단, 치료, 완화 또는 예방하기 위한 서비스가 아닙니다.</div>
 
       <h2>1. 지원 상태 구분</h2>
       <h3>정식 지원 국가</h3>
@@ -49,7 +50,7 @@
       <p class="small">이 수치는 페이지가 열릴 때 countries.js 데이터를 기준으로 계산합니다. 데이터를 불러오지 못하면 현재 검증된 기준값을 표시합니다.</p>
 
       <h2>3. 주요 출처 유형</h2>
-      <p>응급번호 데이터는 countries.js에 저장된 sourceName, sourceUrl, lastVerified, notesKo 필드를 기준으로 표시합니다. 출처명은 임의로 새로 만들지 않고, 데이터에 있는 값을 사용합니다.</p>
+      <p>응급번호 데이터에 포함된 출처명, 출처 URL, 확인일, notesKo 등의 정보를 기준으로 표시합니다. 출처명은 임의로 새로 만들지 않고, 데이터에 있는 값을 사용합니다.</p>
       <ul>
         <li>각국 정부 또는 관광청</li>
         <li>공식 공공 안전 안내</li>
@@ -84,6 +85,9 @@
       <h2>7. 마지막 확인일</h2>
       <p>정식 지원 국가의 확인일은 countries.js의 lastVerified 필드가 있는 경우 앱 화면에 표시됩니다. 필드가 없는 정보는 새로 임의 생성하지 않습니다.</p>
 
+      <h2>8. 문의</h2>
+      <p>응급번호 출처 및 지원 범위 관련 문의: <a href="mailto:fare0528@gmail.com">fare0528@gmail.com</a></p>
+
       <div class="links">
         <a href="./privacy.html">개인정보처리방침</a>
         <a href="./terms.html">이용약관</a>
@@ -115,10 +119,18 @@
         list.innerHTML = '<div class="limited-item">현재 제한 지원 국가 목록을 불러오지 못했습니다. 앱의 최신 국가 데이터를 확인해 주세요.</div>';
         return;
       }
+      function displayKo(country){
+        if(country.countryCode === "SJ") return "스발바르·얀마옌";
+        return country.countryNameKo || country.countryKo;
+      }
+      function displayEn(country){
+        if(country.countryCode === "CY-NORTH") return "Northern Cyprus";
+        return country.countryNameEn || country.country;
+      }
       list.innerHTML = limited.map(function(country){
         var numbers = country.emergencyNumbers || {};
         return '<section class="limited-item">'+
-          '<h3>'+escapeHtml(country.countryNameKo || country.countryKo)+' / '+escapeHtml(country.countryNameEn || country.country)+'</h3>'+
+          '<h3>'+escapeHtml(displayKo(country))+' / '+escapeHtml(displayEn(country))+'</h3>'+
           '<p class="small">countryCode: '+escapeHtml(country.countryCode || country.id || "")+'</p>'+
           '<p><strong>제한 사유:</strong> '+escapeHtml(numbers.notesKo || "공식 출처에서 중앙 응급번호를 명확히 확인하기 어렵습니다.")+'</p>'+
         '</section>';
