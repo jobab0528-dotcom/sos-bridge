@@ -2293,6 +2293,7 @@ let medicalCardTranslation = null;
 let medicalCardTranslationKey = "";
 let medicalCardTranslationStatus = "idle";
 let medicalCardTranslationMessage = "";
+const medicalCardTranslationCacheVersion = "medical-card-quality-v2";
 let helpPhraseTranslationCache = {};
 let helpPhraseTranslationStatus = {};
 let pendingLocationRequest = null;
@@ -3598,6 +3599,7 @@ function getMedicalCardPayload(){
 
 function medicalCardCacheKey(payload){
   return JSON.stringify({
+    version: medicalCardTranslationCacheVersion,
     country: tripCountryId || "",
     language: localLangId || "",
     target: getLocalOption().native || "",

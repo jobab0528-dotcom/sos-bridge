@@ -103,12 +103,12 @@
       name: "홍길동",
       passportName: "HONG GIL DONG",
       nationality: "대한민국",
-      age: "25",
-      bloodType: "B",
-      allergies: "땅콩 알레르기",
-      medication: "Advil",
-      medicalConditions: "천식",
-      emergencyContact: "",
+      age: "22",
+      bloodType: "B+",
+      allergies: "꽃가루, 땅콩",
+      medication: "타이레놀",
+      medicalConditions: "천식, 당뇨",
+      emergencyContact: "+82-10-1234-5678",
       travelInsurance: "",
       hotelAddress: ""
     };
@@ -129,7 +129,11 @@
     function hasEnglishFallbackForDevTest(value, languageCode, languageNameEn){
     const isEnglish = String(languageCode || "").toLowerCase().split("-")[0] === "en" || /^english$/i.test(String(languageNameEn || "").trim());
     if(isEnglish) return false;
-    return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user)\b/i.test(String(value || ""));
+    return /\b(Medical Card|Not provided|No information provided|Peanut allergy|Pollen allergy|medication entered by the user|user-entered medication|medicine entered by user|medication provided by user)\b/i.test(String(value || "")) || hasMedicationPlaceholderForDevTest(value);
+  }
+
+    function hasMedicationPlaceholderForDevTest(value){
+    return /(사용자가 입력한 약|사용자 입력 약품|이용자가 입력한 약|사용자 제공 약|利用者が入力した薬|ユーザーが入力した薬|用户输入的药品|使用者輸入的藥品|user-entered medication|medicine entered by user|medication entered by the user|medication provided by user|m[eé]dicament indiqu[eé] par l[’']utilisateur|medicamento indicado por el usuario|vom Benutzer angegebenes Medikament|farmaco indicato dall['’]utente|medicamento informado pelo usuário|door gebruiker ingevoerd medicijn|obat yang dimasukkan pengguna|ubat yang dimasukkan pengguna|lek wpisany przez użytkownika|lægemiddel angivet af brugeren|kullanıcının girdiği ilaç|دواء أدخله المستخدم)/i.test(String(value || ""));
   }
 
     function devTestCell(value){
@@ -175,6 +179,17 @@
     if(!row.medicalConditions) missing.push("기존 질환 결과 없음");
     if(!row.helpPhrase) missing.push("도움 문장 결과 없음");
     return missing;
+  }
+
+    function devTestQualityProblems(row){
+    const problems = [];
+    if(hasMedicationPlaceholderForDevTest(row.medication)) problems.push("복용약 placeholder 문구 포함");
+    if(!String(row.allergies || "").includes("꽃가루")) problems.push("알레르기 원문 꽃가루 누락");
+    if(!String(row.allergies || "").includes("땅콩")) problems.push("알레르기 원문 땅콩 누락");
+    if(!String(row.medication || "").includes("타이레놀")) problems.push("복용약 원문 타이레놀 누락");
+    if(!String(row.medicalConditions || "").includes("천식")) problems.push("기존질환 원문 천식 누락");
+    if(!String(row.medicalConditions || "").includes("당뇨")) problems.push("기존질환 원문 당뇨 누락");
+    return problems;
   }
 
     function devTestFallbackReason(selectedCountry){
@@ -347,6 +362,10 @@
       }
       if(hasEnglishLeak){
         return {...row, status: "확인 필요", problem: "비영어권 결과에 영어 fallback 표현이 남아 있음"};
+      }
+      const qualityProblems = devTestQualityProblems(row);
+      if(qualityProblems.length){
+        return {...row, status: "실패", problem: qualityProblems.join(", ")};
       }
       return {...row, status: row.fallbackUsed === "사용" ? "통과 fallback" : "통과", problem: row.fallbackUsed === "사용" ? "fallback 언어로 표시됨" : "정상"};
     }catch(error){

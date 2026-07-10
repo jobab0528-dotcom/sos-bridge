@@ -469,6 +469,61 @@ const conditionPatterns = [
   {key: "diabetes", pattern: /^(당뇨|당뇨병|diabetes|diab[eè]te|糖尿病)$/i}
 ];
 
+const allergyExtractPatterns = [
+  {key: "pollen", pattern: /꽃가루|pollen|polen|花粉|ละอองเกสร|phấn hoa|ziedputekšņ/i},
+  {key: "peanut", pattern: /땅콩|peanut|man[ií]|cacahuate|arachide|ピーナッツ|花生|ถั่วลิสง|đậu phộng|zemesriekst/i},
+  {key: "penicillin", pattern: /페니실린|penicillin|p[eé]nicilline|penicilina|青霉素|ペニシリン/i},
+  {key: "shrimp", pattern: /새우|shrimp|crevette|camar[oó]n|gamba|garnele|กุ้ง|tôm|虾|エビ/i}
+];
+
+const medicationExtractPatterns = [
+  {key: "tylenol", pattern: /타이레놀|tylenol/i},
+  {key: "advil", pattern: /애드빌|advil/i},
+  {key: "ezn", pattern: /이지엔|ezn/i},
+  {key: "pankol", pattern: /판콜|pankol|pancol/i},
+  {key: "geborin", pattern: /게보린|geborin/i},
+  {key: "acetaminophen", pattern: /아세트아미노펜|acetaminophen/i},
+  {key: "paracetamol", pattern: /파라세타몰|paracetamol/i},
+  {key: "ibuprofen", pattern: /이부프로펜|ibuprofen/i},
+  {key: "aspirin", pattern: /아스피린|aspirin/i},
+  {key: "cold", pattern: /감기약|cold medicine/i},
+  {key: "pain", pattern: /진통제|painkiller|pain reliever|pain medication|analgesic/i},
+  {key: "bloodPressure", pattern: /혈압약|고혈압약|blood pressure medication|blood pressure medicine/i},
+  {key: "digestive", pattern: /소화제|digestive medicine|stomach medicine/i},
+  {key: "fever", pattern: /해열제|fever medicine|fever medication/i},
+  {key: "antiInflammatory", pattern: /소염제|anti-inflammatory|anti inflammatory drug|anti-inflammatory drug/i}
+];
+
+const conditionExtractPatterns = [
+  {key: "asthma", pattern: /천식|asthma|asma|asthme|哮喘|喘息/i},
+  {key: "hypertension", pattern: /고혈압|hypertension|high blood pressure|hipertensi[oó]n|高血压|高血圧/i},
+  {key: "diabetes", pattern: /당뇨병?|diabetes|diab[eè]te|糖尿病/i}
+];
+
+const extraAllergyTranslations = {
+  ko: {shrimp: "새우 알레르기"},
+  en: {shrimp: "Shrimp allergy"},
+  es: {shrimp: "Alergia al camarón"},
+  fr: {shrimp: "Allergie aux crevettes"},
+  it: {shrimp: "Allergia ai gamberi"},
+  zh: {shrimp: "虾过敏"},
+  ja: {shrimp: "エビアレルギー"},
+  ar: {shrimp: "حساسية من الروبيان"},
+  de: {shrimp: "Garnelenallergie"},
+  vi: {shrimp: "Dị ứng tôm"},
+  th: {shrimp: "แพ้กุ้ง"},
+  tr: {shrimp: "Karides alerjisi"},
+  pt: {shrimp: "Alergia a camarão"},
+  nl: {shrimp: "Garnalenallergie"},
+  ms: {shrimp: "Alahan udang"},
+  id: {shrimp: "Alergi udang"},
+  pl: {shrimp: "Alergia na krewetki"},
+  da: {shrimp: "Rejeallergi"},
+  el: {shrimp: "Αλλεργία στις γαρίδες"}
+};
+
+const medicationPlaceholderPattern = /(사용자가 입력한 약|사용자 입력 약품|이용자가 입력한 약|사용자 제공 약|利用者が入力した薬|ユーザーが入力した薬|用户输入的药品|使用者輸入的藥品|thuốc do người dùng nhập|thuốc mà người dùng nhập|ยาที่ผู้ใช้ระบุ|medication entered by the user|user-entered medication|medicine entered by user|medication provided by user|drug entered by the user|m[eé]dicament indiqu[eé] par l[’']utilisateur|medicamento indicado por el usuario|vom Benutzer angegebenes Medikament|farmaco indicato dall['’]utente|medicamento informado pelo usuário|door gebruiker ingevoerd medicijn|obat yang dimasukkan pengguna|ubat yang dimasukkan pengguna|lek wpisany przez użytkownika|lægemiddel angivet af brugeren|kullanıcının girdiği ilaç|دواء أدخله المستخدم|φάρμακο που καταχώρισε ο χρήστης|lietotāja ievadītas zāles)/i;
+
 function normalizeKnownValue(value, patterns){
   const raw = text(value);
   for(const item of patterns){
@@ -479,6 +534,69 @@ function normalizeKnownValue(value, patterns){
     item.pattern.lastIndex = 0;
   }
   return null;
+}
+
+function extractKnownItems(raw, patterns){
+  const source = text(raw);
+  if(!source) return [];
+  const matches = [];
+  patterns.forEach((item) => {
+    const flags = item.pattern.flags.includes("g") ? item.pattern.flags : item.pattern.flags + "g";
+    const pattern = new RegExp(item.pattern.source, flags);
+    let match;
+    while((match = pattern.exec(source))){
+      if(match[0]){
+        matches.push({index: match.index, value: match[0].trim(), key: item.key});
+      }
+      if(match.index === pattern.lastIndex) pattern.lastIndex += 1;
+    }
+  });
+  return matches
+    .sort((a, b) => a.index - b.index)
+    .filter((item, index, array) => !array.slice(0, index).some((seen) => seen.index === item.index && seen.value === item.value))
+    .map((item) => item.value);
+}
+
+function splitExplicitMedicalItems(value){
+  return text(value)
+    .split(/[\r\n,，、;；/·]+/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function splitMedicalItems(value, extractPatterns = []){
+  const raw = text(value);
+  if(!raw) return [];
+  const explicit = splitExplicitMedicalItems(raw);
+  if(explicit.length > 1) return explicit;
+  const knownItems = extractKnownItems(raw, extractPatterns);
+  if(knownItems.length > 1) return knownItems;
+  return [raw];
+}
+
+function splitTranslatedItems(value, expectedCount){
+  const translated = text(value);
+  if(!translated || expectedCount <= 1) return [];
+  const parts = splitExplicitMedicalItems(translated);
+  return parts.length >= expectedCount ? parts : [];
+}
+
+function medicalListSeparator(cfg){
+  const lang = baseLanguage(cfg && cfg.locale);
+  return lang === "ja" || lang === "zh" ? "、" : ", ";
+}
+
+function originalParentheses(cfg){
+  const lang = baseLanguage(cfg && cfg.locale);
+  return lang === "ja" || lang === "zh" ? ["（", "）"] : ["(", ")"];
+}
+
+function knownMapValue(cfg, mapName, key){
+  const base = baseLanguage(cfg && cfg.locale);
+  const direct = cfg && cfg[mapName] && cfg[mapName][key];
+  if(direct) return direct;
+  if(mapName === "allergiesMap") return extraAllergyTranslations[base] && extraAllergyTranslations[base][key] || "";
+  return "";
 }
 
 function preserveMedicationBrandName(value){
@@ -508,13 +626,24 @@ function preserveDirectIngredient(value){
 }
 
 function medicationProductFor(name, cfg){
-  if(cfg && cfg.preserveMedicationBrandOnly) return name;
-  const separator = baseLanguage(cfg.locale) === "ja" ? "、" : (baseLanguage(cfg.locale) === "zh" ? "，" : ", ");
-  return `${name}${separator}${cfg.medicationUserEnteredSuffix}`;
+  return text(name);
 }
 
 function looksLikeUnsafeMedicationInference(value){
   return /(paracetamol|acetaminophen|ibuprofen|aspirin|painkiller|pain reliever|cold medicine|anti-inflammatory drug|acetaminof[eé]n|parac[eé]tamol|ibuprofeno|analg[eé]sico|medicamento para el resfriado|m[eé]dicament contre le rhume|antalgique|antipyr[eé]tique|風邪薬|감기약|진통제|해열제|혈압약|소화제|感冒药|止痛药|退烧药|Erkältungsmedikament|Schmerzmittel|Farmaco per il raffreddore|Remédio para resfriado)/i.test(text(value));
+}
+
+function hasMedicationPlaceholder(value){
+  return medicationPlaceholderPattern.test(text(value));
+}
+
+function stripMedicationPlaceholder(value){
+  const raw = text(value);
+  if(!raw) return "";
+  const parts = raw.split(/[\r\n,，、;；]+/g).map((item) => item.trim()).filter(Boolean);
+  const filtered = parts.filter((item) => !hasMedicationPlaceholder(item));
+  if(filtered.length && filtered.length !== parts.length) return filtered.join(", ");
+  return hasMedicationPlaceholder(raw) ? "" : raw;
 }
 
 function looksLikeUnsafeConditionInference(value, originalValue){
@@ -558,13 +687,15 @@ function comparableMedicalText(value){
     .replace(/\s+/g, "");
 }
 
-function appendOriginalInput(translatedValue, originalValue){
+function appendOriginalInput(translatedValue, originalValue, cfg){
   const translated = text(translatedValue);
   const original = text(originalValue);
   if(!translated || !original) return translated;
   if(comparableMedicalText(translated) === comparableMedicalText(original)) return translated;
-  if(translated.includes(`(${original})`) || translated.includes(original)) return translated;
-  return `${translated} (${original})`;
+  if(translated.includes(`(${original})`) || translated.includes(`（${original}）`) || translated.includes(original)) return translated;
+  const [open, close] = originalParentheses(cfg);
+  const spacer = open === "（" ? "" : " ";
+  return `${translated}${spacer}${open}${original}${close}`;
 }
 
 function normalizeName(result = {}, original, cfg){
@@ -595,10 +726,22 @@ function normalizeAllergy(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
   if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
   if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
-  const known = normalizeKnownValue(raw, allergyPatterns);
   const translated = text(resultValue);
+  const items = splitMedicalItems(raw, allergyExtractPatterns);
+  if(items.length > 1){
+    const translatedParts = splitTranslatedItems(translated, items.length);
+    return items.map((item, index) => normalizeAllergy(translatedParts[index] || "", item, lang, cfg)).join(medicalListSeparator(cfg));
+  }
+  const known = normalizeKnownValue(raw, allergyPatterns) || normalizeKnownValue(raw, allergyExtractPatterns);
+  if(known && hasStaticConfig(cfg)){
+    const mapped = knownMapValue(cfg, "allergiesMap", known.key);
+    if(mapped) return mapped;
+  }
   if(!hasStaticConfig(cfg) && translated && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
-  if(known && cfg.allergiesMap[known.key]) return cfg.allergiesMap[known.key];
+  if(known){
+    const mapped = knownMapValue(cfg, "allergiesMap", known.key);
+    if(mapped) return mapped;
+  }
   if(translated && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   return raw;
 }
@@ -607,27 +750,37 @@ function normalizeMedication(resultValue, originalValue, cfg){
   const raw = text(originalValue);
   if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
   if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
-  const translated = text(resultValue);
+  const translated = stripMedicationPlaceholder(resultValue);
+  const items = splitMedicalItems(raw, medicationExtractPatterns);
+  if(items.length > 1){
+    const translatedParts = splitTranslatedItems(translated, items.length);
+    return items.map((item, index) => normalizeMedication(translatedParts[index] || "", item, cfg)).join(medicalListSeparator(cfg));
+  }
   const brand = preserveMedicationBrandName(raw);
   if(brand){
-    if(translated && translated.toLowerCase().includes(brand.toLowerCase()) && !looksLikeUnsafeMedicationInference(translated)) return translated;
-    return hasStaticConfig(cfg) ? medicationProductFor(brand, cfg) : brand;
+    if(translated && translated.toLowerCase().includes(brand.toLowerCase()) && !looksLikeUnsafeMedicationInference(translated) && !hasMedicationPlaceholder(translated)) return stripMedicationPlaceholder(translated);
+    return brand;
   }
   const ingredient = preserveDirectIngredient(raw);
   if(ingredient) return ingredient;
   const generic = normalizeKnownValue(raw, genericMedicinePatterns);
-  if(!hasStaticConfig(cfg) && translated && !looksLikeUnsafeMedicationInference(translated)) return translated;
+  if(!hasStaticConfig(cfg) && translated && !looksLikeUnsafeMedicationInference(translated) && !hasMedicationPlaceholder(translated)) return translated;
   if(generic && cfg.genericMedicines[generic.key]) return cfg.genericMedicines[generic.key];
-  if(translated && !looksLikeUnsafeMedicationInference(translated)) return translated;
-  return hasStaticConfig(cfg) ? medicationProductFor(raw, cfg) : raw;
+  if(translated && !looksLikeUnsafeMedicationInference(translated) && !hasMedicationPlaceholder(translated)) return translated;
+  return medicationProductFor(raw, cfg);
 }
 
 function normalizeCondition(resultValue, originalValue, lang, cfg){
   const raw = text(originalValue);
   if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
   if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
-  const known = normalizeKnownValue(raw, conditionPatterns);
   const translated = text(resultValue);
+  const items = splitMedicalItems(raw, conditionExtractPatterns);
+  if(items.length > 1){
+    const translatedParts = splitTranslatedItems(translated, items.length);
+    return items.map((item, index) => normalizeCondition(translatedParts[index] || "", item, lang, cfg)).join(medicalListSeparator(cfg));
+  }
+  const known = normalizeKnownValue(raw, conditionPatterns) || normalizeKnownValue(raw, conditionExtractPatterns);
   if(!hasStaticConfig(cfg) && translated && !hasWrongLanguagePlaceholder(translated, lang) && !looksLikeUnsafeConditionInference(translated, raw)) return translated;
   if(known && cfg.conditionsMap[known.key]) return cfg.conditionsMap[known.key];
   if(translated && !hasWrongLanguagePlaceholder(translated, lang) && !looksLikeUnsafeConditionInference(translated, raw)) return translated;
@@ -653,9 +806,9 @@ function normalizeResult(result = {}, original, lang, cfg){
     nationality: normalizeNationality(resultValues.nationality, original.nationality, lang, cfg),
     age: isEmpty(original.age) ? fallbackBlank(resultValues.age, cfg) : text(original.age),
     bloodType: isEmpty(original.bloodType) ? fallbackBlank(resultValues.bloodType, cfg) : text(original.bloodType),
-    allergies: appendOriginalInput(normalizeAllergy(resultValues.allergies, original.allergies, lang, cfg), original.allergies),
-    medication: appendOriginalInput(normalizeMedication(resultValues.medication, original.medication, cfg), original.medication),
-    medicalConditions: appendOriginalInput(normalizeCondition(resultValues.medicalConditions, original.medicalConditions, lang, cfg), original.medicalConditions),
+    allergies: appendOriginalInput(normalizeAllergy(resultValues.allergies, original.allergies, lang, cfg), original.allergies, cfg),
+    medication: appendOriginalInput(normalizeMedication(resultValues.medication, original.medication, cfg), original.medication, cfg),
+    medicalConditions: appendOriginalInput(normalizeCondition(resultValues.medicalConditions, original.medicalConditions, lang, cfg), original.medicalConditions, cfg),
     emergencyContact: isEmpty(original.emergencyContact) ? fallbackBlank(resultValues.emergencyContact, cfg) : text(original.emergencyContact),
     travelInsurance: valueOrFallback(resultValues.travelInsurance, original.travelInsurance, lang, cfg),
     hotelAddress: valueOrFallback(resultValues.hotelAddress, original.hotelAddress, lang, cfg)
@@ -676,7 +829,7 @@ function hasEnglishFallbackLeak(normalized, lang){
     normalized.travelInsurance,
     normalized.hotelAddress
   ].map(text).join("\n");
-  return /\b(Medical Card|Not provided|Peanut allergy|medication entered by the user)\b/i.test(values);
+  return /\b(Medical Card|Not provided|No information provided|Peanut allergy|Pollen allergy|medication entered by the user|user-entered medication|medicine entered by user|medication provided by user)\b/i.test(values) || hasMedicationPlaceholder(values);
 }
 
 function hasCompleteMedicalCardOutput(normalized){
@@ -854,9 +1007,11 @@ function systemPrompt(cfg){
     "Keep the exact JSON keys. Never move a value into another field.",
     "Only translate the user-provided values for the same field.",
     "Do not add, infer, interpret, summarize, or create allergies, medicine ingredients, medical conditions, severity, symptoms, or care instructions.",
+    "If allergies, medication, or medical conditions contain multiple items separated by commas, Korean commas, line breaks, slashes, semicolons, middle dots, or spaces, translate every item and do not omit any item.",
     "For empty fields, return a natural 'not provided' expression in the target language. For explicit none/no values, return a natural 'none' expression in the target language.",
     "For nationality values meaning South Korea, return the country name in the target language, not a word meaning Korean person.",
     "Preserve medicine names and product names. Do not convert product names into cold medicine, painkiller, fever reducer, paracetamol, acetaminophen, ibuprofen, anti-inflammatory drug, or any ingredient unless the user directly entered that ingredient.",
+    "For medication product names, return only the product name in a readable form. Do not append phrases like user-entered medication, medicine entered by user, medication provided by user, or similar placeholder wording.",
     "If the medication is a generic expression such as 감기약, 진통제, 혈압약, or 소화제, translate the generic category and state that the ingredient is not specified in the target language.",
     "For allergies, make the allergy meaning explicit in the target language.",
     "For existing medical conditions, translate only the condition name. Do not add severity, current status, or action advice.",

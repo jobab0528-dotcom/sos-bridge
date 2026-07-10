@@ -1,4 +1,4 @@
-const CACHE_NAME = "sos-bridge-korean-traveler-v43";
+const CACHE_NAME = "sos-bridge-korean-traveler-v44";
 const ASSETS = [
   "./",
   "./index.html",
