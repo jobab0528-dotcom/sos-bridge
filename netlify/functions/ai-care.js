@@ -33,11 +33,48 @@ function normalizeAction(value){
   return ["emergency", "hospital", "pharmacy", "self-care"].includes(value) ? value : "hospital";
 }
 
+function sanitizeCareInstruction(item){
+  const value = String(item || "").trim();
+  if(!value) return "";
+
+  if(/(항히스타민|진통제|해열제|소염제|소화제|일반\s*의약품|약|medicine|medication|drug|pill).*(복용하세요|복용해도|드세요|먹으세요|take|use)/i.test(value)){
+    return "약 복용이 필요하다고 생각되면 현지 의료진 또는 약사에게 먼저 상담하세요.";
+  }
+
+  if(/(복용하세요|복용해도\s*됩니다|일반\s*의약품을\s*복용|take\s+.*(medicine|medication|drug|pill|mg))/i.test(value)){
+    return "증상이 지속되면 현지 의료진 또는 약사에게 상담하세요.";
+  }
+
+  if(/(차갑게|냉찜질|얼음찜질).*(붓기|부기).*(줄이|가라앉|완화)|붓기.*줄이세요|부기.*줄이세요/i.test(value)){
+    return "붓기나 통증이 지속되거나 심해지면 현지 의료진에게 상담하세요.";
+  }
+
+  return value;
+}
+
+function sanitizeCareInstructions(items){
+  return asArray(items).map(sanitizeCareInstruction).filter(Boolean);
+}
+
+function isGenericLocalPhraseKo(value){
+  const normalized = String(value || "").replace(/\s+/g, " ").trim();
+  if(!normalized) return true;
+  return /^(현지\s*)?의료진에게 보여줄 문장$|^현지어 도움 문장$|^도움 문장$|^local phrase$/i.test(normalized);
+}
+
+function normalizeLocalPhraseKo(value, context){
+  const phrase = String(value || "").trim();
+  if(phrase && !isGenericLocalPhraseKo(phrase)) return phrase;
+  return String(context.symptom || "").trim() || "도움이 필요합니다. 가까운 의료진이나 구급차를 불러 주세요.";
+}
+
 function normalizeResult(raw, context){
   const level = normalizeLevel(raw.level);
   const needsAmbulance = Boolean(raw.needsAmbulance || level === "emergency");
   const emergencyNumber = context.emergencyNumber || "현지 응급번호";
   const localLanguageName = context.localLanguageName || "현지어";
+  const sanitizedSteps = sanitizeCareInstructions(raw.steps);
+  const localPhraseKo = normalizeLocalPhraseKo(raw.localPhraseKo, context);
 
   return {
     level,
@@ -45,7 +82,7 @@ function normalizeResult(raw, context){
     summary: String(raw.summary || "입력된 증상과 여행 상황을 기준으로 의료 상담을 권장합니다.").replace(/진단/g, "판단"),
     category: String(raw.category || "ai-care"),
     reasons: asArray(raw.reasons, ["입력된 증상에서 확인이 필요한 위험 신호가 있는지 살펴야 합니다."]),
-    steps: asArray(raw.steps, [
+    steps: sanitizedSteps.length ? sanitizedSteps : asArray(raw.steps, [
       needsAmbulance ? `즉시 ${emergencyNumber}로 연락하거나 주변 사람에게 도움을 요청하세요.` : "증상이 시작된 시간과 변화 양상을 기록하세요.",
       "여권, 복용 중인 약, 알레르기 정보를 준비하세요.",
       "증상이 악화되면 가까운 의료기관을 방문하세요."
@@ -56,7 +93,7 @@ function normalizeResult(raw, context){
     ]),
     monitor: asArray(raw.monitor, ["호흡곤란", "의식 저하", "심한 통증", "출혈", "고열"]),
     questions: asArray(raw.questions, ["언제 시작됐나요?", "통증은 어느 부위인가요?", "복용 중인 약이나 알레르기가 있나요?"]),
-    localPhraseKo: String(raw.localPhraseKo || "도움이 필요합니다. 가까운 의료진이나 구급차를 불러 주세요."),
+    localPhraseKo,
     localPhraseEn: String(raw.localPhraseEn || "I need help. Please call medical staff or an ambulance."),
     localPhraseLocal: String(raw.localPhraseLocal || raw.localPhraseNative || raw.localPhraseEn || "I need help. Please call medical staff or an ambulance."),
     recommendedAction: normalizeAction(raw.recommendedAction || (needsAmbulance ? "emergency" : "hospital")),
@@ -76,6 +113,9 @@ function buildPrompt(){
     "Use Korean for user-facing guidance, except localPhraseEn and localPhraseLocal.",
     "Focus on AI 응급도 참고 안내, 위험 신호, 지금 해야 할 일, 하지 말아야 할 행동, 추천 진료과, and 현지 의료진에게 보여줄 문장.",
     "If red flags appear, set level to emergency, needsAmbulance to true, and tell the traveler to contact the local emergency number immediately.",
+    "Do not directly instruct the traveler to take medication, use over-the-counter medicine, or perform treatment steps. Tell them to consult local medical staff or a pharmacist instead.",
+    "Do not claim that cooling, icing, or other care will reduce swelling or treat symptoms. If symptoms continue or worsen, advise medical consultation.",
+    "localPhraseKo must be the actual Korean sentence to show to medical staff based on the user's symptom. Do not return a label such as '의료진에게 보여줄 문장'.",
     "JSON fields required: level, title, summary, category, reasons, steps, avoid, monitor, questions, localPhraseKo, localPhraseEn, localPhraseLocal, recommendedAction, recommendedDepartment, needsAmbulance, confidence, severityScore.",
     "level must be one of emergency, urgent, mild, info.",
     "recommendedAction must be one of emergency, hospital, pharmacy, self-care."

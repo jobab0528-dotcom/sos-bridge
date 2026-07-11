@@ -129,6 +129,19 @@ function buildLocalFallback(phrases, keys, reason){
   };
 }
 
+function buildKoreanPassthrough(phrases){
+  return {
+    translations: {...phrases},
+    language: "Korean",
+    languageCode: "ko",
+    usedLanguage: "Korean",
+    usedLanguageCode: "ko",
+    fallbackUsed: false,
+    fallbackReason: "",
+    attempts: ["Korean source passthrough"]
+  };
+}
+
 async function translateOnce({attempt, travelCountry, phrases, keys}){
   const response = await fetch(OPENAI_API_URL, {
     method: "POST",
@@ -187,10 +200,6 @@ exports.handler = async (event) => {
     return json(405, {error: "Method not allowed"});
   }
 
-  if(!process.env.OPENAI_API_KEY){
-    return json(500, {error: "OPENAI_API_KEY is not configured"});
-  }
-
   let payload;
   try{
     payload = JSON.parse(event.body || "{}");
@@ -210,6 +219,14 @@ exports.handler = async (event) => {
 
   if(!targetLanguage && !targetLanguageCode){
     return json(400, {error: "target language is required"});
+  }
+
+  if(baseLanguage(targetLanguageCode) === "ko"){
+    return json(200, buildKoreanPassthrough(phrases));
+  }
+
+  if(!process.env.OPENAI_API_KEY){
+    return json(500, {error: "OPENAI_API_KEY is not configured"});
   }
 
   const attempts = buildTranslationAttempts(payload, targetLanguage, targetLanguageCode);

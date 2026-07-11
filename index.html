@@ -5096,6 +5096,8 @@ async function runAi(){
     const data = await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(data.error || data.detail || "AI Care 요청 실패");
 
+    const localPhraseKo = normalizeAiCareKoreanPhrase(data.localPhraseKo, symptom);
+
     triage = {
       level: data.level || "urgent",
       title: data.title || "AI 응급도 참고 안내 결과",
@@ -5107,7 +5109,7 @@ async function runAi(){
       monitor: Array.isArray(data.monitor) ? data.monitor : [],
       questions: Array.isArray(data.questions) ? data.questions : [],
       phrase: {
-        ko: data.localPhraseKo || "도움이 필요합니다. 가까운 의료진이나 구급차를 불러 주세요.",
+        ko: localPhraseKo,
         en: data.localPhraseEn || "I need help. Please call medical staff or an ambulance.",
         local: data.localPhraseLocal || data.localPhraseNative || data.localPhraseEn || "I need help. Please call medical staff or an ambulance."
       },
@@ -5132,6 +5134,18 @@ async function runAi(){
     setStatus("GPT API 연결에 실패해 기본 AI 응급도 참고 안내로 안내했습니다. Netlify 환경변수/크레딧/배포 상태를 확인해 주세요.");
     scrollToId("resultSection");
   }
+}
+
+function isGenericAiCareKoreanPhrase(value){
+  const normalized = String(value || "").replace(/\s+/g, " ").trim();
+  if(!normalized) return true;
+  return /^(현지\s*)?의료진에게 보여줄 문장$|^현지어 도움 문장$|^도움 문장$|^local phrase$/i.test(normalized);
+}
+
+function normalizeAiCareKoreanPhrase(value, symptom){
+  const phrase = String(value || "").trim();
+  if(phrase && !isGenericAiCareKoreanPhrase(phrase)) return phrase;
+  return String(symptom || "").trim() || "도움이 필요합니다. 가까운 의료진이나 구급차를 불러 주세요.";
 }
 
 function localTriagePhrase(phrase){

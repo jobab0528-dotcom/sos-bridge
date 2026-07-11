@@ -105,6 +105,20 @@ const MEDICAL_CARD_I18N = {
     allergiesMap: {peanut:"花生过敏", pollen:"花粉过敏", penicillin:"青霉素过敏"},
     conditionsMap: {asthma:"哮喘", hypertension:"高血压", diabetes:"糖尿病"}
   },
+  "zh-TW": {
+    locale: "zh-TW",
+    languageLabel: "繁體中文",
+    cardTitle: "醫療卡",
+    labels: {name:"姓名", passportName:"護照英文姓名", nationality:"國籍", age:"年齡", bloodType:"血型", allergies:"過敏", medication:"正在服用的藥物", medicalConditions:"既往病史", emergencyContact:"緊急聯絡人", travelInsurance:"旅行保險", hotelAddress:"飯店地址"},
+    blankValue: "未填寫",
+    noneValue: "無",
+    medicationUserEnteredSuffix: "使用者輸入的藥品",
+    genericMedicineIngredientUnspecified: "成分未註明",
+    southKoreaNationality: "韓國",
+    genericMedicines: {cold:"感冒藥，成分未註明", pain:"止痛藥，成分未註明", bloodPressure:"血壓藥，成分未註明", digestive:"消化藥，成分未註明", fever:"退燒藥，成分未註明", antiInflammatory:"消炎藥，成分未註明"},
+    allergiesMap: {peanut:"花生過敏", pollen:"花粉過敏", penicillin:"青黴素過敏"},
+    conditionsMap: {asthma:"氣喘", hypertension:"高血壓", diabetes:"糖尿病"}
+  },
   ja: {
     locale: "ja",
     languageLabel: "日本語",
@@ -318,7 +332,10 @@ function baseLanguage(code){
 }
 
 function getConfig(code){
-  const lang = baseLanguage(code || "en");
+  const exact = text(code || "en");
+  const exactKey = Object.keys(MEDICAL_CARD_I18N).find((key) => key.toLowerCase() === exact.toLowerCase());
+  if(exactKey) return {lang: exactKey, cfg: {...MEDICAL_CARD_I18N[exactKey], dynamicConfig: false}};
+  const lang = baseLanguage(exact || "en");
   return MEDICAL_CARD_I18N[lang] ? {lang, cfg: {...MEDICAL_CARD_I18N[lang], dynamicConfig: false}} : null;
 }
 
@@ -345,6 +362,14 @@ function dynamicConfig(languageCode, languageName){
 
 function getAttemptConfig(languageCode, languageName){
   return getConfig(languageCode) || dynamicConfig(languageCode, languageName);
+}
+
+const southKoreaNationalityFallbacks = {
+  hi: "दक्षिण कोरिया"
+};
+
+function southKoreaNationalityFor(lang, cfg){
+  return (cfg && cfg.southKoreaNationality) || southKoreaNationalityFallbacks[String(lang || "").toLowerCase()] || southKoreaNationalityFallbacks[baseLanguage(lang)] || "";
 }
 
 function cleanFields(fields = {}){
@@ -507,6 +532,7 @@ const extraAllergyTranslations = {
   fr: {shrimp: "Allergie aux crevettes"},
   it: {shrimp: "Allergia ai gamberi"},
   zh: {shrimp: "虾过敏"},
+  "zh-TW": {shrimp: "蝦過敏"},
   ja: {shrimp: "エビアレルギー"},
   ar: {shrimp: "حساسية من الروبيان"},
   de: {shrimp: "Garnelenallergie"},
@@ -593,9 +619,10 @@ function originalParentheses(cfg){
 
 function knownMapValue(cfg, mapName, key){
   const base = baseLanguage(cfg && cfg.locale);
+  const locale = text(cfg && cfg.locale);
   const direct = cfg && cfg[mapName] && cfg[mapName][key];
   if(direct) return direct;
-  if(mapName === "allergiesMap") return extraAllergyTranslations[base] && extraAllergyTranslations[base][key] || "";
+  if(mapName === "allergiesMap") return extraAllergyTranslations[locale] && extraAllergyTranslations[locale][key] || extraAllergyTranslations[base] && extraAllergyTranslations[base][key] || "";
   return "";
 }
 
@@ -680,6 +707,12 @@ function valueOrFallback(resultValue, originalValue, lang, cfg){
   return raw;
 }
 
+function preserveOriginalAddress(originalValue, resultValue, cfg){
+  const raw = text(originalValue);
+  if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
+  return raw;
+}
+
 function comparableMedicalText(value){
   return text(value)
     .toLowerCase()
@@ -716,8 +749,9 @@ function normalizeNationality(resultValue, originalValue, lang, cfg){
   if(isEmpty(raw)) return fallbackBlank(resultValue, cfg);
   if(isNoneInput(raw)) return fallbackNone(resultValue, cfg);
   const translated = text(resultValue);
-  if(isSouthKoreaInput(raw)) return translated && !isSouthKoreaInput(translated) ? translated : (cfg.southKoreaNationality || translated || raw);
-  if(isSouthKoreaInput(translated)) return cfg.southKoreaNationality;
+  const southKoreaNationality = southKoreaNationalityFor(lang, cfg);
+  if(isSouthKoreaInput(raw)) return southKoreaNationality || (translated && !isSouthKoreaInput(translated) ? translated : raw);
+  if(isSouthKoreaInput(translated)) return southKoreaNationality || translated;
   if(translated && !/^(coreano|corean|korean person)$/i.test(translated) && !hasWrongLanguagePlaceholder(translated, lang)) return translated;
   return raw;
 }
@@ -811,7 +845,7 @@ function normalizeResult(result = {}, original, lang, cfg){
     medicalConditions: appendOriginalInput(normalizeCondition(resultValues.medicalConditions, original.medicalConditions, lang, cfg), original.medicalConditions, cfg),
     emergencyContact: isEmpty(original.emergencyContact) ? fallbackBlank(resultValues.emergencyContact, cfg) : text(original.emergencyContact),
     travelInsurance: valueOrFallback(resultValues.travelInsurance, original.travelInsurance, lang, cfg),
-    hotelAddress: valueOrFallback(resultValues.hotelAddress, original.hotelAddress, lang, cfg)
+    hotelAddress: preserveOriginalAddress(original.hotelAddress, resultValues.hotelAddress, cfg)
   };
 }
 
