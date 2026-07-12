@@ -430,6 +430,7 @@
         expectedSymptom: "chest-breathing"
       }
     ];
+    const aiCarePilotLiveLanguageCodes = ["ko", "en", "ja", "fr", "mn"];
 
     function aiCareRepresentativeTargets(){
       const seen = new Set();
@@ -438,6 +439,20 @@
         if(!code || seen.has(code)) return false;
         seen.add(code);
         return true;
+      });
+    }
+
+    function aiCarePilotLiveTargets(){
+      const representativeTargets = aiCareRepresentativeTargets();
+      return aiCarePilotLiveLanguageCodes.map((code) => {
+        const target = representativeTargets.find((country) => String(country.languageCode || "").toLowerCase() === code);
+        return target || {
+          countryNameKo: code,
+          countryNameEn: code,
+          languageNameKo: code,
+          languageNameEn: code,
+          languageCode: code
+        };
       });
     }
 
@@ -592,6 +607,7 @@
         baseRecommendedDepartment,
         translationOnly: meta && meta.translationOnly || data && data.translationOnly ? "예" : "아니오",
         localPhraseLocal: localText,
+        reviewNeeded: data && (data.localPhraseReviewNeeded || data.translationReviewNeeded) ? "true" : "false",
         localPhraseKo: koText,
         semanticMatch: reasons.some((reason) => /의미|증상|fallback|라벨/.test(reason)) ? "불일치" : "일치",
         urgencyMatch: urgencyComparison.urgencyMatch === "일치" && reasons.some((reason) => /구급차|응급|휴식/.test(reason)) ? "불일치" : urgencyComparison.urgencyMatch,
@@ -664,6 +680,7 @@
         baseRecommendedDepartment: meta && meta.baseRecommendedDepartment || "",
         translationOnly: meta && meta.translationOnly ? "예" : "아니오",
         localPhraseLocal: "",
+        reviewNeeded: "false",
         localPhraseKo: "",
         semanticMatch: "불일치",
         urgencyMatch: "확인 필요",
@@ -739,6 +756,7 @@
           devTestCell(row.baseRecommendedDepartment)+
           devTestCell(row.translationOnly)+
           devTestCell(row.localPhraseLocal)+
+          devTestCell(row.reviewNeeded)+
           devTestCell(row.localPhraseKo)+
           devTestCell(row.semanticMatch)+
           devTestCell(row.urgencyMatch)+
@@ -885,6 +903,110 @@
       return runAiCareSemanticAuditForTargets(targets);
     }
 
+    function aiCareBuildPilotRow(country, scenario, assessment, translationData, meta){
+      const sharedAssessmentId = assessment.sharedAssessmentId || assessment.assessmentId || "";
+      const responseAssessmentId = translationData && translationData.sharedAssessmentId || sharedAssessmentId;
+      const data = {
+        ...assessment,
+        localPhraseLocal: translationData && translationData.localPhraseLocal || "",
+        localPhraseKo: assessment.localPhraseKo || translationData && translationData.localPhraseKo || "",
+        localPhraseReviewNeeded: Boolean(translationData && (translationData.localPhraseReviewNeeded || translationData.translationReviewNeeded)),
+        translationReviewNeeded: Boolean(translationData && (translationData.localPhraseReviewNeeded || translationData.translationReviewNeeded)),
+        localPhraseReviewReason: translationData && translationData.localPhraseReviewReason || "",
+        translationOnly: Boolean(meta && meta.translationOnly),
+        sharedAssessmentId,
+        baseLevel: assessment.level || "",
+        baseRecommendedDepartment: assessment.recommendedDepartment || ""
+      };
+      const row = aiCareEvaluateResult(country, scenario, data, {
+        apiCallCount: meta && meta.apiCallCount || 0,
+        sharedAssessmentId,
+        baseLevel: assessment.level || "",
+        baseRecommendedDepartment: assessment.recommendedDepartment || "",
+        translationOnly: Boolean(meta && meta.translationOnly),
+        error: meta && meta.error || ""
+      });
+      const issues = [];
+      const reviewIssues = [];
+      if(row.level !== "urgent") issues.push("level이 기대값 urgent와 다름");
+      if(row.recommendedDepartment !== "내과·소화기내과") issues.push("recommendedDepartment가 기대값과 다름");
+      if(responseAssessmentId !== sharedAssessmentId) issues.push("sharedAssessmentId가 기준 판단과 다름");
+      if(!String(row.localPhraseLocal || "").trim()) issues.push("현지 문장이 비어 있음");
+      if(data.localPhraseReviewNeeded || data.translationReviewNeeded) reviewIssues.push("reviewNeeded=true");
+      if(meta && meta.error) issues.push("API 실패 또는 응답 오류");
+      const previousReason = row.reason && row.reason !== "현지 문장과 한국어 뜻의 핵심 의미가 일치함" ? row.reason : "";
+      const combinedReason = [previousReason].concat(issues, reviewIssues.map((reason) => "검증 필요: " + reason)).filter(Boolean).join(" / ");
+      return {
+        ...row,
+        status: issues.length ? "BLOCK" : reviewIssues.length ? "HUMAN_REVIEW" : row.status,
+        reason: combinedReason || row.reason,
+        translationOnly: meta && meta.koSkipped ? "아니오(ko 생략)" : row.translationOnly
+      };
+    }
+
+    async function runAiCareFiveLanguageLivePilot(){
+      const scenario = aiCareAuditScenarios.find((item) => item.id === "B") || aiCareAuditScenarios[1];
+      const targets = aiCarePilotLiveTargets();
+      const expectedCalls = 5;
+      const confirmed = window.confirm ? window.confirm("AI Care 대표 5개 언어 실전 테스트는 실제 API를 호출합니다. 예상 OpenAI 호출 수: " + expectedCalls + "회(판단 1회 + 번역 4회). 계속할까요?") : false;
+      if(!confirmed){
+        updateAiCareAuditStatus("대표 5개 언어 실전 테스트 실행을 취소했습니다.");
+        return Promise.resolve();
+      }
+      aiCareAuditRows = [];
+      renderAiCareAuditRows();
+      updateAiCareAuditStatus("대표 5개 언어 실전 테스트 시작: 한국어 판단 1회 생성 중 · 실제 OpenAI 호출 0회");
+      let assessment;
+      let apiCalls = 0;
+      try{
+        assessment = await aiCareRunSharedAssessment(scenario);
+        apiCalls += 1;
+      }catch(error){
+        apiCalls += 1;
+        aiCareAuditRows = targets.map((country) => aiCareFailedAuditRow(country, scenario, "한국어 기준 판단 단계 실패 또는 빈 응답", {
+          apiCallCount: 0,
+          error: error && error.message ? error.message : "오류"
+        }));
+        aiCareSaveRows();
+        renderAiCareAuditRows();
+        updateAiCareAuditStatus(aiCareAuditSummary() + " · 실제 OpenAI 호출 " + apiCalls + "회");
+        return;
+      }
+      for(const country of targets){
+        const code = String(country.languageCode || "").toLowerCase();
+        if(code === "ko"){
+          aiCareAuditRows.push(aiCareBuildPilotRow(country, scenario, assessment, {
+            localPhraseLocal: assessment.localPhraseKo || "",
+            localPhraseKo: assessment.localPhraseKo || "",
+            sharedAssessmentId: assessment.sharedAssessmentId || assessment.assessmentId || ""
+          }, {apiCallCount: 0, koSkipped: true}));
+        }else{
+          try{
+            const translationData = await aiCareFetchJson(aiCareTranslationRequestBody(country, scenario, assessment));
+            apiCalls += 1;
+            aiCareAuditRows.push(aiCareBuildPilotRow(country, scenario, assessment, translationData, {
+              apiCallCount: 1,
+              translationOnly: true
+            }));
+          }catch(error){
+            apiCalls += 1;
+            aiCareAuditRows.push(aiCareFailedAuditRow(country, scenario, "AI Care 번역 단계 호출 실패 또는 빈 응답", {
+              apiCallCount: 1,
+              sharedAssessmentId: assessment.sharedAssessmentId || assessment.assessmentId || "",
+              baseLevel: assessment.level || "",
+              baseRecommendedDepartment: assessment.recommendedDepartment || "",
+              translationOnly: true,
+              error: error && error.message ? error.message : "오류"
+            }));
+          }
+        }
+        aiCareSaveRows();
+        renderAiCareAuditRows();
+        updateAiCareAuditStatus("대표 5개 언어 실전 테스트 진행 중: " + aiCareAuditRows.length + " / " + targets.length + " · 실제 OpenAI 호출 " + apiCalls + "회");
+      }
+      updateAiCareAuditStatus(aiCareAuditSummary() + " · 실제 OpenAI 호출 " + apiCalls + "회 · 기대 호출 수 5회");
+    }
+
     function runAiCareSingleLanguageAudit(languageCode){
       const code = String(languageCode || "").toLowerCase();
       const target = aiCareRepresentativeTargets().find((country) => String(country.languageCode || "").toLowerCase() === code);
@@ -933,6 +1055,7 @@
             '<button id="run-ai-care-semantic-mock-test" class="btn outline w-full" type="button">AI Care 의미 감사 모의 테스트 실행</button>'+
             '<button id="run-ai-care-semantic-live-test" class="btn primary w-full" type="button">대표 언어 73개 테스트 실행</button>'+
           '</div>'+
+          '<button id="run-ai-care-five-language-live-pilot" class="btn outline w-full" type="button" style="margin-top:10px">대표 5개 언어 실전 테스트 실행</button>'+
           '<button id="download-ai-care-semantic-audit-json" class="btn outline w-full" type="button" style="margin-top:10px">전체 결과 JSON 다운로드</button>'+
           '<div id="sos-ai-care-audit-summary" class="notice teal small" style="margin-top:12px">AI Care 의미 감사 결과: 총 0개 · PASS 0개 · HUMAN_REVIEW 0개 · BLOCK 0개</div>'+
           '<div id="sos-ai-care-audit-status" class="notice teal hidden" style="margin-top:12px"></div>'+
@@ -950,6 +1073,7 @@
                   '<th style="padding:9px;border:1px solid var(--border)">baseRecommendedDepartment</th>'+
                   '<th style="padding:9px;border:1px solid var(--border)">translationOnly</th>'+
                   '<th style="padding:9px;border:1px solid var(--border)">localPhraseLocal</th>'+
+                  '<th style="padding:9px;border:1px solid var(--border)">reviewNeeded</th>'+
                   '<th style="padding:9px;border:1px solid var(--border)">localPhraseKo</th>'+
                   '<th style="padding:9px;border:1px solid var(--border)">의미 일치</th>'+
                   '<th style="padding:9px;border:1px solid var(--border)">긴급도 일치</th>'+
@@ -971,11 +1095,13 @@
     function bindAiCareSemanticAuditButtons(){
       const mockButton = $("run-ai-care-semantic-mock-test");
       const liveButton = $("run-ai-care-semantic-live-test");
+      const pilotButton = $("run-ai-care-five-language-live-pilot");
       const downloadButton = $("download-ai-care-semantic-audit-json");
       const rows = $("sos-ai-care-audit-rows");
 
       if(mockButton) mockButton.addEventListener("click", runAiCareMockSemanticAudit);
       if(liveButton) liveButton.addEventListener("click", runAiCareRepresentativeAudit);
+      if(pilotButton) pilotButton.addEventListener("click", runAiCareFiveLanguageLivePilot);
       if(downloadButton) downloadButton.addEventListener("click", downloadAiCareAuditJson);
       if(rows){
         rows.addEventListener("click", (event) => {
