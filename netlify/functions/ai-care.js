@@ -68,6 +68,19 @@ function normalizeLocalPhraseKo(value, context){
   return String(context.symptom || "").trim() || "도움이 필요합니다. 가까운 의료진이나 구급차를 불러 주세요.";
 }
 
+function isHeadacheSymptomKo(value){
+  const normalized = String(value || "").replace(/\s+/g, "").replace(/[.!?。]/g, "");
+  return normalized === "머리가아픕니다";
+}
+
+function normalizeLocalPhraseLocal(value, context){
+  const localLanguage = String(context.localLanguage || "").toLowerCase().split("-")[0];
+  if(localLanguage === "ms" && isHeadacheSymptomKo(context.symptom)){
+    return "Saya sakit kepala.";
+  }
+  return String(value || "I need help. Please call medical staff or an ambulance.").trim();
+}
+
 function normalizeResult(raw, context){
   const level = normalizeLevel(raw.level);
   const needsAmbulance = Boolean(raw.needsAmbulance || level === "emergency");
@@ -95,7 +108,7 @@ function normalizeResult(raw, context){
     questions: asArray(raw.questions, ["언제 시작됐나요?", "통증은 어느 부위인가요?", "복용 중인 약이나 알레르기가 있나요?"]),
     localPhraseKo,
     localPhraseEn: String(raw.localPhraseEn || "I need help. Please call medical staff or an ambulance."),
-    localPhraseLocal: String(raw.localPhraseLocal || raw.localPhraseNative || raw.localPhraseEn || "I need help. Please call medical staff or an ambulance."),
+    localPhraseLocal: normalizeLocalPhraseLocal(raw.localPhraseLocal || raw.localPhraseNative || raw.localPhraseEn, context),
     recommendedAction: normalizeAction(raw.recommendedAction || (needsAmbulance ? "emergency" : "hospital")),
     recommendedDepartment: String(raw.recommendedDepartment || (needsAmbulance ? "응급의학과" : "가까운 병원 또는 클리닉")),
     needsAmbulance,
