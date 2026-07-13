@@ -19,6 +19,9 @@
     const languageOptions = Array.isArray(context.languageOptions) && context.languageOptions.length
       ? context.languageOptions
       : (Array.isArray(window.SOS_BRIDGE_COUNTRIES) ? window.SOS_BRIDGE_COUNTRIES : []);
+    const priorityLanguageOptions = Array.isArray(context.priorityLanguageOptions) && context.priorityLanguageOptions.length
+      ? context.priorityLanguageOptions
+      : languageOptions;
     const phrasePacks = context.phrasePacks || {ko: {help: "도와주세요."}};
     const escapeHtml = typeof context.escapeHtml === "function"
       ? context.escapeHtml
@@ -49,8 +52,9 @@
       '<h2 style="margin-top:0">전세계 국가/지역 번역 테스트</h2>'+
       '<p class="small muted" style="line-height:1.6">현재 앱에 등록된 국가/지역의 대표 언어를 기준으로 현지어 도움 문장과 여행자 의료카드 현지어 보기를 자동 점검합니다.</p>'+
       '<div class="notice amber small">전체 국가/지역 테스트는 API 호출이 많아 시간이 오래 걸릴 수 있습니다. 빠른 확인은 대표 언어별 테스트를 먼저 실행하세요.</div>'+
-      '<div class="two" style="margin-top:12px">'+
-        '<button id="run-representative-language-test" class="btn primary w-full" type="button">대표 언어별 테스트 실행</button>'+
+      '<div class="grid" style="margin-top:12px">'+
+        '<button id="run-priority-country-test" class="btn primary w-full" type="button">우선 지원 62개 테스트 실행</button>'+
+        '<button id="run-representative-language-test" class="btn outline w-full" type="button">대표 언어별 테스트 실행</button>'+
         '<button id="run-all-country-region-test" class="btn outline w-full" type="button">전체 국가/지역 테스트 실행</button>'+
       '</div>'+
       '<div id="sos-dev-test-status" class="notice teal hidden" style="margin-top:12px"></div>'+
@@ -116,7 +120,9 @@
   }
 
     function devTestTargets(mode){
-    const countries = languageOptions.filter((country) => country && (country.languageCode || country.languageNameEn));
+    const source = mode === "priority" ? priorityLanguageOptions : languageOptions;
+    const countries = source.filter((country) => country && (country.languageCode || country.languageNameEn));
+    if(mode === "priority") return countries;
     if(mode === "all") return countries;
     const seen = new Set();
     return countries.filter((country) => {
@@ -377,16 +383,17 @@
     async function runAllLanguageTest(mode){
     const status = $("sos-dev-test-status");
     const targets = devTestTargets(mode);
+    const modeLabel = mode === "priority" ? "우선 지원 국가/지역" : mode === "all" ? "전체 국가/지역" : "대표 언어별";
     const rows = [];
     if(status){
       status.classList.remove("hidden");
-      status.textContent = (mode === "all" ? "전체 국가/지역" : "대표 언어별") + " 테스트를 시작합니다. 0 / " + targets.length;
+      status.textContent = modeLabel + " 테스트를 시작합니다. 0 / " + targets.length;
     }
     renderDevTestRows(rows);
     for(let i = 0; i < targets.length; i++){
       rows.push(await runSingleCountryLanguageTest(targets[i]));
       renderDevTestRows(rows);
-      if(status) status.textContent = (mode === "all" ? "전체 국가/지역" : "대표 언어별") + " 테스트 진행 중: " + (i + 1) + " / " + targets.length;
+      if(status) status.textContent = modeLabel + " 테스트 진행 중: " + (i + 1) + " / " + targets.length;
     }
     if(status){
       const failed = rows.filter((row) => row.status === "실패").length;
@@ -398,6 +405,10 @@
 
     function runRepresentativeLanguageTests(){
       return runAllLanguageTest("representative");
+    }
+
+    function runPriorityCountryTests(){
+      return runAllLanguageTest("priority");
     }
 
     function runAllCountryRegionTests(){
@@ -1119,8 +1130,13 @@
     };
 
     function bindAllLanguageTestButtons(){
+      const priorityButton = $("run-priority-country-test");
       const representativeButton = $("run-representative-language-test");
       const allCountriesButton = $("run-all-country-region-test");
+
+      if(priorityButton){
+        priorityButton.addEventListener("click", runPriorityCountryTests);
+      }
 
       if(representativeButton){
         representativeButton.addEventListener("click", runRepresentativeLanguageTests);

@@ -61,6 +61,26 @@
     .summary-empty .summary-flag{background:#eef2f7;color:var(--muted);font-size:26px}
     .city-panel{display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
     .home-helper{font-size:13px;line-height:1.55;color:var(--muted);font-weight:800;margin:0}
+    .flow-stepper{display:grid;gap:8px;border:1px solid #dbeafe;background:#eff6ff;border-radius:22px;padding:13px}
+    .flow-stepper-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:950;color:#1d4ed8}
+    .flow-progress{height:8px;border-radius:999px;background:#dbeafe;overflow:hidden}
+    .flow-progress>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--navy),var(--teal))}
+    .flow-step-list{display:grid;gap:7px}
+    .flow-step-item{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#475569}
+    .flow-step-item.active{color:var(--navy)}
+    .flow-step-item.done{color:#0f766e}
+    .flow-dot{width:22px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:white;border:1px solid #bfdbfe;font-size:11px;font-weight:950;flex:none}
+    .flow-home-summary{display:grid;gap:8px;border:1px solid #ccfbf1;background:#f0fdfa;border-radius:22px;padding:14px;margin-bottom:14px}
+    .flow-home-summary .flow-actions{display:flex;flex-wrap:wrap;gap:8px}
+    .flow-home-summary .flow-actions button{flex:1 1 160px}
+    .flow-screen{display:grid;gap:14px;width:100%}
+    .flow-screen-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border:1px solid var(--border);border-radius:22px;background:white;padding:14px;box-shadow:0 8px 22px rgba(148,163,184,.12)}
+    .flow-screen-header h2{margin:0 0 4px}
+    .flow-screen-header p{margin:0}
+    .flow-nav{display:grid;gap:10px;margin-top:12px}
+    @media (min-width:520px){.flow-nav{grid-template-columns:1fr 1fr}}
+    .flow-nav.single{grid-template-columns:1fr}
+    .flow-card{display:grid;gap:12px}
     .medical-tags{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
     .medical-tag{border:1px solid #ccfbf1;background:#f8fafc;color:#134e4a;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:950}
     .notice{margin:14px 0}
@@ -168,6 +188,7 @@
     .legal-links{display:flex;flex-wrap:wrap;gap:10px}
     .legal-links a{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 13px;border:1px solid var(--border);border-radius:999px;background:white;color:#0f766e;text-decoration:none;font-size:12px;font-weight:950;white-space:nowrap}
     .pwa-guide-grid{margin-top:18px}
+    #languagePage.flow-ui-active .pwa-guide-grid{display:none}
     @media (min-width:720px){.pwa-guide-grid{grid-template-columns:1fr 1fr}}
     @media (max-width:520px){.legal-footer{padding:18px}.legal-links a{flex:1 1 calc(50% - 10px);white-space:normal;text-align:center}.legal-links a:last-child{flex-basis:100%}}
     .debug{font-size:12px;white-space:pre-wrap}
@@ -176,7 +197,7 @@
 <body>
   <main id="languagePage" class="page">
     <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:stretch">
-      <div class="card home-left-card">
+      <div id="screen-country-summary" class="card home-left-card flow-screen language-flow-screen">
         <div class="row">
           <div class="logo">🩺</div>
           <div>
@@ -194,7 +215,7 @@
             <div>
               <div id="currentLangLabel" class="small muted">현재 여행 설정</div>
               <h3 id="selectedNative" style="margin:2px 0">아직 여행 국가를 선택하지 않았습니다.</h3>
-              <div id="selectedCountry" class="small muted">전세계 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.</div>
+              <div id="selectedCountry" class="small muted">우선 지원 62개 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.</div>
             </div>
           </div>
 
@@ -221,6 +242,8 @@
 
         <p class="home-helper">여행 국가를 선택한 뒤 의료카드를 작성하면, 한국어 보기와 현지어 보기를 함께 사용할 수 있습니다.</p>
 
+        <div id="setupFlowStatus" class="flow-stepper" aria-label="여행 설정 단계"></div>
+
         <div id="homeMedicalDisclaimer" class="notice amber" style="margin:0">⚠️ SOS Bridge는 의료기기가 아니며 의료진의 진단이나 치료를 대체하지 않습니다. 응급 상황에서는 앱 사용보다 현지 응급번호, 가까운 의료기관, 숙소, 대사관/영사관의 도움을 우선하세요.</div>
 
         <div class="grid hidden">
@@ -232,9 +255,10 @@
         <button id="startBtn" class="btn primary w-full" type="button">여행 국가 설정하고 시작하기 ›</button>
       </div>
 
-      <div class="card country-picker-card">
+      <div id="screen-country-select" class="card country-picker-card flow-screen language-flow-screen">
         <p class="eyebrow">Travel Country</p>
-        <h2 style="margin-bottom:12px">전세계 국가/지역 선택</h2>
+        <h2 style="margin-bottom:12px">우선 지원 국가/지역 선택</h2>
+        <p class="small muted" style="line-height:1.55;margin-top:-4px">일반 화면에는 정식 우선 지원 62개 국가·지역만 표시합니다.</p>
         <div class="search">
           <span>🔎</span>
           <input id="languageSearch" placeholder="국가명, 지역명, 영어명, 언어명으로 검색" />
@@ -310,6 +334,7 @@
       <section id="serviceSection" class="card">
         <p class="eyebrow">Service</p>
         <h2 id="serviceSelectTitle">서비스 선택</h2>
+        <div id="appFlowSummary" class="flow-home-summary"></div>
         <div id="serviceGrid" class="grid service-grid"></div>
         <div id="statusBox" class="notice navy">병원찾기는 증상에 맞는 병원을 가까운 순으로 보여주고, 약국찾기는 가까운 순으로 50개를 보여줍니다. AI Care는 GPT API를 이용해 사고 유형, 신체부위, 위험 신호를 종합해 응급도 참고 안내를 제공합니다.</div>
         </div>
@@ -500,6 +525,23 @@ languageOptions.forEach((item, index) => { item.rank = index + 1; });
 if(!languageOptions.length){
   languageOptions.push({id:"ko", countryCode:"KR", rank:1, flag:"🇰🇷", countryKo:"대한민국", country:"South Korea", countryNameKo:"대한민국", countryNameEn:"South Korea", languageKo:"한국어", languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko", native:"한국어", languageNative:"한국어", emergencyNumber:"119", mapCountryQuery:"South Korea", aliasesKo:["한국"], aliasesEn:["Korea"], availableLanguages:[{languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko"}], safetyNotice:false, regionNotice:false, languageReviewNeeded:false});
 }
+const PRIORITY_COUNTRY_CODES = [
+  "GR","ZA","NL","NO","NZ","TW","KR","DK","DE","LA","LV","LU","RO","LT","MO","MY","MX","MT","US","MM",
+  "VN","BE","BG","BR","SA","LK","SE","CH","ES","SK","SI","SG","AE","AR","IS","IE","EE","GB","AT","IL",
+  "IT","IN","ID","JP","CN","CZ","CL","QA","KH","CA","CR","HR","TH","PE","PT","PL","FR","FI","PH","HU",
+  "AU","HK"
+];
+const priorityCountryCodeSet = new Set(PRIORITY_COUNTRY_CODES);
+function isPriorityCountryOption(item){
+  return Boolean(item && priorityCountryCodeSet.has(String(item.countryCode || "").toUpperCase()));
+}
+const priorityLanguageOptions = languageOptions
+  .filter(isPriorityCountryOption)
+  .sort((a, b) => countryCollator.compare(a.countryKo || a.countryNameKo || "", b.countryKo || b.countryNameKo || ""));
+function getPublicCountryOptions(){
+  return priorityLanguageOptions.length ? priorityLanguageOptions : languageOptions;
+}
+window.SOS_BRIDGE_PRIORITY_COUNTRIES = priorityLanguageOptions;
 
 const i18n = {
   "ko": {
@@ -2786,6 +2828,252 @@ function setStatus(message){ const el=$("statusBox"); if(el) el.textContent = me
 function setMapStatus(message){ const el=$("mapStatus"); if(el) el.textContent = message; }
 function scrollToId(id){ const el=$(id); if(el) el.scrollIntoView({behavior:"smooth", block:"start"}); }
 
+const FLOW_SCREEN_IDS = [
+  "screen-home",
+  "screen-country-select",
+  "screen-country-summary",
+  "screen-ai-input",
+  "screen-ai-result",
+  "screen-medical-basic",
+  "screen-medical-health",
+  "screen-medical-contact",
+  "screen-medical-result",
+  "screen-help-phrases",
+  "screen-hospital-input",
+  "screen-hospital-results",
+  "screen-pharmacy-results",
+  "screen-emergency"
+];
+let currentFlowScreen = "";
+let flowHistory = [];
+let flowScreensReady = false;
+
+function flowScrollTop(){
+  window.scrollTo({top:0, left:0, behavior:"auto"});
+}
+
+function makeFlowHeader(title, desc){
+  const header = document.createElement("div");
+  header.className = "flow-screen-header";
+  header.innerHTML =
+    '<div><p class="eyebrow">Flow</p><h2>'+escapeHtml(title)+'</h2>'+
+    (desc ? '<p class="small muted">'+escapeHtml(desc)+'</p>' : '')+'</div>'+
+    '<button class="btn outline" type="button" data-flow-back>이전</button>';
+  return header;
+}
+
+function makeFlowNav(items, single=false){
+  const nav = document.createElement("div");
+  nav.className = "flow-nav" + (single ? " single" : "");
+  nav.innerHTML = items.map(item =>
+    '<button class="btn '+(item.primary ? "primary" : "outline")+' w-full" type="button" '+item.attr+'>'+escapeHtml(item.label)+'</button>'
+  ).join("");
+  return nav;
+}
+
+function makeFlowScreen(root, id, title="", desc=""){
+  let screen = $(id);
+  if(!screen){
+    screen = document.createElement("section");
+    screen.id = id;
+    screen.className = "flow-screen app-flow-screen hidden";
+    root.appendChild(screen);
+  }
+  if(title && !screen.querySelector(":scope > .flow-screen-header")){
+    screen.appendChild(makeFlowHeader(title, desc));
+  }
+  return screen;
+}
+
+function makeFlowCard(title, desc=""){
+  const card = document.createElement("section");
+  card.className = "card flow-card";
+  card.innerHTML = '<p class="eyebrow">SOS Bridge</p><h2>'+escapeHtml(title)+'</h2>'+(desc ? '<p class="small muted">'+escapeHtml(desc)+'</p>' : '');
+  return card;
+}
+
+function appendExisting(parent, id){
+  const el = $(id);
+  if(el) parent.appendChild(el);
+  return el;
+}
+
+function appendInputRow(parent, ids){
+  const row = document.createElement("div");
+  row.className = ids.length > 1 ? "two" : "grid";
+  ids.forEach(id => appendExisting(row, id));
+  parent.appendChild(row);
+}
+
+function setupAppFlowScreens(){
+  if(flowScreensReady) return;
+  const root = document.querySelector("#appPage > section.container.grid");
+  if(!root) return;
+
+  const screenHome = makeFlowScreen(root, "screen-home");
+  appendExisting(screenHome, "sampleNotice");
+  appendExisting(screenHome, "travelContextBox");
+  appendExisting(screenHome, "serviceSection");
+
+  const screenAiInput = makeFlowScreen(root, "screen-ai-input", "AI Care 증상 입력", "증상을 한국어로 입력하면 응급도 참고 안내를 준비합니다.");
+  appendExisting(screenAiInput, "aiCarePanel");
+  screenAiInput.appendChild(makeFlowNav([{label:"홈으로", attr:'data-flow-screen="screen-home"'}], true));
+
+  const screenAiResult = makeFlowScreen(root, "screen-ai-result", "AI Care 결과", "결과를 확인하고 다음 행동을 선택하세요.");
+  appendExisting(screenAiResult, "resultSection");
+
+  const screenHelp = makeFlowScreen(root, "screen-help-phrases", "현지 도움 문장", "현지 의료진, 약사, 주변 사람에게 보여줄 문장을 확인합니다.");
+  appendExisting(screenHelp, "localPhraseCard");
+  appendExisting(screenHelp, "pharmacyPhraseCard");
+  screenHelp.appendChild(makeFlowNav([{label:"홈으로", attr:'data-flow-screen="screen-home"'}], true));
+
+  const oldMedical = $("medicalCardSection");
+  if(oldMedical) oldMedical.classList.add("hidden");
+  const medBasic = makeFlowScreen(root, "screen-medical-basic", "의료카드 1 / 4", "기본 정보를 입력하세요.");
+  const medBasicCard = makeFlowCard("기본 정보");
+  appendInputRow(medBasicCard, ["medName", "medPassportName"]);
+  appendInputRow(medBasicCard, ["medNationality", "medAge"]);
+  medBasicCard.appendChild(makeFlowNav([
+    {label:"홈으로", attr:'data-flow-screen="screen-home"'},
+    {label:"다음", primary:true, attr:'data-flow-screen="screen-medical-health"'}
+  ]));
+  medBasic.appendChild(medBasicCard);
+
+  const medHealth = makeFlowScreen(root, "screen-medical-health", "의료카드 2 / 4", "혈액형, 알레르기, 복용약, 기존 질환을 입력하세요.");
+  const medHealthCard = makeFlowCard("건강 정보");
+  appendInputRow(medHealthCard, ["medBlood"]);
+  appendInputRow(medHealthCard, ["medAllergy"]);
+  appendInputRow(medHealthCard, ["medMedication"]);
+  appendInputRow(medHealthCard, ["medCondition"]);
+  medHealthCard.appendChild(makeFlowNav([
+    {label:"이전", attr:'data-flow-screen="screen-medical-basic"'},
+    {label:"다음", primary:true, attr:'data-flow-screen="screen-medical-contact"'}
+  ]));
+  medHealth.appendChild(medHealthCard);
+
+  const medContact = makeFlowScreen(root, "screen-medical-contact", "의료카드 3 / 4", "비상 연락처, 보험, 숙소 정보를 입력하세요.");
+  const medContactCard = makeFlowCard("연락처 / 보험 / 숙소");
+  appendInputRow(medContactCard, ["medContact"]);
+  appendInputRow(medContactCard, ["medInsurance"]);
+  appendInputRow(medContactCard, ["medHotel"]);
+  const medActions = document.createElement("div");
+  medActions.className = "two";
+  appendExisting(medActions, "saveMedicalCardBtn");
+  appendExisting(medActions, "clearMedicalCardBtn");
+  medContactCard.appendChild(medActions);
+  medContactCard.appendChild(makeFlowNav([
+    {label:"이전", attr:'data-flow-screen="screen-medical-health"'},
+    {label:"결과 보기", primary:true, attr:'data-flow-screen="screen-medical-result"'}
+  ]));
+  medContact.appendChild(medContactCard);
+
+  const medResult = makeFlowScreen(root, "screen-medical-result", "의료카드 4 / 4", "한국어 보기와 현지어 보기를 확인하세요.");
+  const medResultCard = makeFlowCard("저장 및 번역 결과");
+  appendExisting(medResultCard, "medicalCardPreview");
+  medResultCard.appendChild(makeFlowNav([
+    {label:"정보 수정", attr:'data-flow-screen="screen-medical-basic"'},
+    {label:"홈으로", primary:true, attr:'data-flow-screen="screen-home"'}
+  ]));
+  medResult.appendChild(medResultCard);
+
+  const hospitalInput = makeFlowScreen(root, "screen-hospital-input", "병원 찾기 1 / 2", "증상을 입력해 맞는 진료과 병원을 찾습니다.");
+  appendExisting(hospitalInput, "hospitalFinderCard");
+  makeFlowScreen(root, "screen-hospital-results", "병원 찾기 2 / 2", "거리순 병원 결과를 확인하세요.");
+  makeFlowScreen(root, "screen-pharmacy-results", "약국 찾기", "거리순 약국 결과를 확인하세요.");
+  moveFacilityCardToScreen("hospital");
+
+  const emergency = makeFlowScreen(root, "screen-emergency", "응급번호", "선택한 여행 국가의 응급번호와 안전 안내를 확인합니다.");
+  let emergencyCard = $("emergencyInfoCard");
+  if(!emergencyCard){
+    emergencyCard = document.createElement("section");
+    emergencyCard.id = "emergencyInfoCard";
+    emergencyCard.className = "card";
+    emergencyCard.innerHTML =
+      '<p class="eyebrow">Emergency</p><h2>응급번호 확인</h2>'+
+      '<div id="emergencyInfoContent"></div>'+
+      '<div class="two" style="margin-top:12px">'+
+        '<button id="flowEmergencyConfirmBtn" class="btn danger w-full" type="button">🚑 응급번호 확인하기</button>'+
+        '<button class="btn outline w-full" type="button" data-flow-screen="screen-home">홈으로</button>'+
+      '</div>';
+  }
+  emergency.appendChild(emergencyCard);
+
+  const info = makeFlowScreen(root, "screen-info", "이용 안내 및 개인정보", "서비스 안내와 개인정보 관련 내용을 확인하세요.");
+  appendExisting(info, "infoGuideCard");
+
+  flowScreensReady = true;
+}
+
+function showLanguageFlowScreen(screenId){
+  if($("languagePage")) $("languagePage").classList.add("flow-ui-active");
+  ["screen-country-select","screen-country-summary"].forEach(id => {
+    const el = $(id);
+    if(el) el.classList.toggle("hidden", id !== screenId);
+  });
+  currentFlowScreen = screenId;
+  flowScrollTop();
+}
+
+function moveFacilityCardToScreen(type){
+  const target = type === "pharmacy" ? $("screen-pharmacy-results") : $("screen-hospital-results");
+  const card = $("facilityCard");
+  if(target && card && card.parentElement !== target) target.appendChild(card);
+}
+
+function showFlowScreen(screenId, opts={}){
+  setupAppFlowScreens();
+  const target = $(screenId);
+  if(!target) return;
+  if(target.classList.contains("language-flow-screen")){
+    showLanguageFlowScreen(screenId);
+    return;
+  }
+
+  document.querySelectorAll("#appPage .app-flow-screen").forEach(screen => {
+    screen.classList.toggle("hidden", screen.id !== screenId);
+  });
+  if(opts.push !== false && currentFlowScreen && currentFlowScreen !== screenId){
+    flowHistory.push(currentFlowScreen);
+  }
+  currentFlowScreen = screenId;
+  if(stage === "app" && opts.browser !== false && window.history && window.history.pushState){
+    window.history.pushState({sosBridgeFlowScreen: screenId}, "", window.location.href);
+  }
+  flowScrollTop();
+}
+
+function goFlowBack(){
+  const previous = flowHistory.pop();
+  if(previous && $(previous)){
+    showFlowScreen(previous, {push:false, browser:false});
+    return;
+  }
+  if(stage === "app") showFlowScreen("screen-home", {push:false, browser:false});
+  else showLanguageFlowScreen(hasTripCountrySelection ? "screen-country-summary" : "screen-country-select");
+}
+
+function bindFlowNavigation(){
+  document.addEventListener("click", event => {
+    const back = event.target.closest("[data-flow-back]");
+    if(back){
+      event.preventDefault();
+      goFlowBack();
+      return;
+    }
+    const target = event.target.closest("[data-flow-screen]");
+    if(target){
+      event.preventDefault();
+      showFlowScreen(target.getAttribute("data-flow-screen"));
+    }
+  });
+  window.addEventListener("popstate", event => {
+    const screenId = event.state && event.state.sosBridgeFlowScreen;
+    if(stage === "app" && screenId && $(screenId)){
+      showFlowScreen(screenId, {push:false, browser:false});
+    }
+  });
+}
+
 
 function optionLabel(item, mode){
   if(mode==="user") return item.flag+" "+item.native+" · "+item.languageKo;
@@ -2796,13 +3084,37 @@ function renderSetupSelects(){
   const fill = (id, selectedValue, mode) => {
     const el=$(id);
     if(!el) return;
-    el.innerHTML = languageOptions.map(item =>
+    const source = mode === "trip" ? getPublicCountryOptions() : languageOptions;
+    const selectedItem = languageOptions.find(item => item.id === selectedValue);
+    const options = selectedItem && !source.some(item => item.id === selectedItem.id) ? [selectedItem, ...source] : source;
+    el.innerHTML = options.map(item =>
       '<option value="'+item.id+'" '+(item.id===selectedValue?'selected':'')+'>'+optionLabel(item, mode)+'</option>'
     ).join("");
   };
   fill("userLangSelect", selected, "user");
   fill("tripCountrySelect", tripCountryId, "trip");
   fill("localLangSelect", localLangId, "local");
+}
+
+function renderSetupFlowStatus(){
+  const el = $("setupFlowStatus");
+  if(!el) return;
+  const hasCountry = !!hasTripCountrySelection;
+  const hasCity = !!(tripCityName && tripCityName.trim());
+  const step = hasCountry ? (hasCity ? 3 : 2) : 1;
+  const width = step === 1 ? 34 : step === 2 ? 67 : 100;
+  const steps = [
+    {no:1, label:"여행 국가 선택", done:hasCountry},
+    {no:2, label:"도시/지역 입력", done:hasCity, active:hasCountry && !hasCity},
+    {no:3, label:"설정 확인 후 시작", done:hasCountry && hasCity, active:hasCountry && hasCity}
+  ];
+  el.innerHTML =
+    '<div class="flow-stepper-head"><span>Step '+step+' / 3</span><span>한 화면씩 설정</span></div>'+
+    '<div class="flow-progress" aria-hidden="true"><span style="width:'+width+'%"></span></div>'+
+    '<div class="flow-step-list">'+steps.map(item => {
+      const cls = item.done ? "done" : item.active || item.no === step ? "active" : "";
+      return '<div class="flow-step-item '+cls+'"><span class="flow-dot">'+(item.done ? "✓" : item.no)+'</span><span>'+escapeHtml(item.label)+'</span></div>';
+    }).join("")+'</div>';
 }
 
 function selectTripCountry(id){
@@ -2861,18 +3173,19 @@ function renderLanguageList(){
   const rawQuery = ($("languageSearch")?.value || "").trim();
   const q = rawQuery.toLowerCase();
   const normalizedQ = normalizeCountryText(rawQuery);
+  const publicOptions = getPublicCountryOptions();
   const list = q
-    ? languageOptions.filter(item => countrySearchCandidates(item).some(v => String(v).toLowerCase().includes(q) || normalizeCountryText(v).includes(normalizedQ)))
-    : languageOptions;
+    ? publicOptions.filter(item => countrySearchCandidates(item).some(v => String(v).toLowerCase().includes(q) || normalizeCountryText(v).includes(normalizedQ)))
+    : publicOptions;
 
   const grid = $("languageGrid");
   if(!grid) return;
   if(!list.length){
-    grid.innerHTML = '<div class="notice amber">검색 결과가 없습니다. 국가명, 지역명 또는 언어명을 다시 입력해 주세요.</div>';
+    grid.innerHTML = '<div class="notice amber">우선 지원 62개 국가·지역 안에서 검색 결과가 없습니다. 국가명, 지역명 또는 언어명을 다시 입력해 주세요.</div>';
     return;
   }
   grid.innerHTML =
-    '<div class="notice teal" style="margin:0 0 8px">전세계 국가/지역 목록입니다. 국가 또는 지역을 누르면 여행 설정과 현지어 도움 문장이 함께 바뀝니다.</div>' +
+    '<div class="notice teal" style="margin:0 0 8px">우선 지원 '+publicOptions.length+'개 국가·지역입니다. 국가 또는 지역을 누르면 여행 설정과 현지어 도움 문장이 함께 바뀝니다.</div>' +
     list.map(item => '<button class="lang-btn '+(hasTripCountrySelection && item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span style="display:block;font-weight:950;color:var(--navy)">'+escapeHtml(item.countryKo)+'</span><span class="small muted" style="display:block">'+escapeHtml(item.country)+'</span><span class="small muted" style="display:block;margin-top:3px">'+escapeHtml(countryMetaLine(item))+'</span>'+(item.safetyNotice || item.regionNotice ? '<span class="small" style="display:block;margin-top:5px;color:#b45309;font-weight:950">여행 안전 정보 확인 권장</span>' : '')+'</span></button>').join("");
 
   document.querySelectorAll("[data-trip-country]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.tripCountry))));
@@ -2887,20 +3200,41 @@ function renderLanguagePage(){
   $("tripSummaryPanel").classList.toggle("summary-empty", !hasTrip);
   $("selectedFlag").textContent=hasTrip ? tripOpt.flag : "✈️";
   $("selectedNative").textContent=hasTrip ? (tripOpt.countryKo+" 여행 준비") : "아직 여행 국가/지역을 선택하지 않았습니다.";
-  $("selectedCountry").innerHTML=hasTrip ? ("현지어 도움 문장: "+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native)+" · 응급번호 "+escapeHtml(getTripEmergencyNumber())+emergencyNumbersDetailHtml(tripOpt)+countryNoticeHtml(tripOpt)) : "전세계 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.";
+  $("selectedCountry").innerHTML=hasTrip ? ("현지어 도움 문장: "+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native)+" · 응급번호 "+escapeHtml(getTripEmergencyNumber())+emergencyNumbersDetailHtml(tripOpt)+countryNoticeHtml(tripOpt)) : "우선 지원 62개 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.";
   $("startBtn").disabled=!hasTrip;
-  $("startBtn").innerHTML=hasTrip ? "여행 국가/지역 설정하고 시작하기 ›" : "전세계 국가/지역에서 여행지를 선택하세요";
-  $("languageSearch").placeholder="국가명, 지역명, 영어명, 언어명으로 검색";
+  $("startBtn").innerHTML=hasTrip ? "여행 국가/지역 설정하고 시작하기 ›" : "우선 지원 국가/지역에서 여행지를 선택하세요";
+  $("languageSearch").placeholder="우선 지원 국가명, 지역명, 영어명, 언어명으로 검색";
   renderSetupSelects();
   syncInitialTripInputs(false);
+  renderSetupFlowStatus();
   renderLanguageList();
+  showLanguageFlowScreen(hasTrip ? "screen-country-summary" : "screen-country-select");
+}
+function renderAppFlowSummary(){
+  const el = $("appFlowSummary");
+  if(!el) return;
+  const tripOpt = getTripOption();
+  const localOpt = getLocalOption();
+  const emergencyLabel = getTripEmergencyNumber();
+  el.innerHTML =
+    '<div class="between">'+
+      '<div><p class="eyebrow" style="margin-bottom:4px">Current Flow</p><h3 style="margin:0">'+escapeHtml((tripCountryName || tripOpt.countryKo || "여행 국가 미선택"))+'에서 필요한 기능을 선택하세요</h3></div>'+
+      '<span class="support-badge '+(isLimitedEmergencySupport(tripOpt) ? "limited" : "supported")+'">'+(isLimitedEmergencySupport(tripOpt) ? "제한 지원" : "정식 지원")+'</span>'+
+    '</div>'+
+    '<p class="home-helper">현지어: '+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+' · 응급번호: '+escapeHtml(emergencyLabel)+' · 도시/지역: '+escapeHtml(tripCityName || "미입력")+'</p>'+
+    '<div class="flow-actions">'+
+      '<button class="btn primary" type="button" data-service="symptom">AI Care 시작</button>'+
+      '<button class="btn outline" type="button" data-service="medicalCard">의료카드 보기</button>'+
+      '<button class="btn outline" type="button" data-service="phrases">현지 문장 보기</button>'+
+    '</div>';
 }
 function renderServices(){
   const tx=t();
   $("serviceSelectTitle").textContent=tx.serviceSelect;
+  renderAppFlowSummary();
   $("serviceGrid").innerHTML = services.map(s => '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button"><div class="service-icon">'+s.icon+'</div><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+tx[s.descKey]+'</p></button>').join("");
   document.querySelectorAll("[data-service]").forEach(btn => btn.addEventListener("click", () => safe(() => openService(btn.dataset.service))));
-  document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", (btn.dataset.action && btn.dataset.action===activeService) || (btn.dataset.nav==="serviceSection" && activeService==="home")));
+  document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", (btn.dataset.action && btn.dataset.action===activeService) || (btn.dataset.nav==="serviceSection" && activeService==="home") || (btn.dataset.nav==="aiCarePanel" && activeService==="symptom")));
 
   const navItems = [
     { selector:'[data-nav="serviceSection"]', icon:'🏠', label:tx.home || tx.serviceSelect },
@@ -2962,6 +3296,7 @@ function renderAll(){ stage === "language" ? renderLanguagePage() : renderApp();
 function showApp(){
   saveTripInputs();
   stage="app";
+  setupAppFlowScreens();
   $("languagePage").classList.add("hidden");
   $("appPage").classList.remove("hidden");
   activeService="home";
@@ -2974,13 +3309,14 @@ function showApp(){
   }
 
   renderAll();
-  setTimeout(()=>scrollToId("serviceSection"), 50);
+  showFlowScreen("screen-home", {push:false, browser:false});
 }
 function showLanguage(){
   stage="language";
   $("appPage").classList.add("hidden");
   $("languagePage").classList.remove("hidden");
   renderAll();
+  showLanguageFlowScreen("screen-country-select");
 }
 
 function toRadians(v){ return (v*Math.PI)/180; }
@@ -3019,10 +3355,6 @@ function buildOverpassQuery(type, loc, radius){
       node(around:${radius},${lat},${lng})["healthcare"~"hospital|clinic|doctor|doctors|centre|center|yes"];
       way(around:${radius},${lat},${lng})["healthcare"~"hospital|clinic|doctor|doctors|centre|center|yes"];
       relation(around:${radius},${lat},${lng})["healthcare"~"hospital|clinic|doctor|doctors|centre|center|yes"];
-
-      node(around:${radius},${lat},${lng})["healthcare:speciality"];
-      way(around:${radius},${lat},${lng})["healthcare:speciality"];
-      relation(around:${radius},${lat},${lng})["healthcare:speciality"];
     );
     out center tags;
   `;
@@ -3034,10 +3366,92 @@ function isObviouslyNonMedicalPlace(text){
 
   const badWords = [
     "자동차", "카센터", "정비", "공업사", "타이어", "오토", "모터스", "세차", "렌트카", "중고차",
-    "car", "auto", "motor", "motors", "garage", "tire", "tyre", "repair", "mechanic"
+    "car", "auto", "motor", "motors", "garage", "tire", "tyre", "repair", "mechanic",
+    "burger king", "mcdonald", "kfc", "restaurant", "fast food", "fast_food", "cafe", "coffee", "bar", "pub"
   ];
 
   return badWords.some(w => s.includes(w));
+}
+
+function isBlockedNonMedicalCategory(tags){
+  const amenity = String(tag(tags, ["amenity"]) || "").toLowerCase();
+  const shop = String(tag(tags, ["shop"]) || "").toLowerCase();
+  const leisure = String(tag(tags, ["leisure"]) || "").toLowerCase();
+  const tourism = String(tag(tags, ["tourism"]) || "").toLowerCase();
+  const blockedAmenities = ["restaurant", "fast_food", "cafe", "bar", "pub", "food_court", "biergarten", "ice_cream"];
+  if(blockedAmenities.includes(amenity)) return true;
+  if(shop && !["chemist", "medical_supply", "pharmacy", "drugstore"].includes(shop)) return true;
+  if(leisure || tourism) return true;
+  return false;
+}
+
+function isAllowedFacilityCategory(type, tags){
+  if(isBlockedNonMedicalCategory(tags)) return false;
+
+  const amenity = String(tag(tags, ["amenity"]) || "").toLowerCase();
+  const healthcare = String(tag(tags, ["healthcare"]) || "").toLowerCase();
+  const shop = String(tag(tags, ["shop"]) || "").toLowerCase();
+
+  if(type === "pharmacy"){
+    return amenity === "pharmacy" || healthcare === "pharmacy" || ["chemist", "pharmacy", "drugstore"].includes(shop);
+  }
+
+  const allowedAmenities = ["hospital", "clinic", "doctors", "doctor"];
+  const allowedHealthcare = ["hospital", "clinic", "doctor", "doctors", "centre", "center"];
+  return allowedAmenities.includes(amenity) || allowedHealthcare.includes(healthcare);
+}
+
+function facilityDistanceValue(value){
+  if(typeof value === "number" && Number.isFinite(value)) return value;
+  const n = parseFloat(String(value || "").replace(/[^\d.+-]/g, ""));
+  return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+}
+
+function normalizedFacilityName(value){
+  return String(value || "").toLowerCase().replace(/[\s·.,()\-_/]/g, "");
+}
+
+function facilityDedupeKeys(f){
+  const lat = Number(f && f.latitude);
+  const lng = Number(f && f.longitude);
+  const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
+  const name = normalizedFacilityName((f && (f.nameKo || f.nameEn)) || "");
+  const keys = [];
+
+  if(f && f.osmType && (f.osmId || f.osmId === 0)){
+    keys.push("osm:"+f.osmType+":"+f.osmId);
+  }
+  if(hasCoords){
+    keys.push("coord:"+lat.toFixed(5)+":"+lng.toFixed(5));
+    if(name) keys.push("namecoord:"+name+":"+lat.toFixed(4)+":"+lng.toFixed(4));
+  }
+  if(!keys.length && f && f.id) keys.push("id:"+f.id);
+  return keys;
+}
+
+function finalizeFacilityResults(list){
+  const seen = new Set();
+  const finalized = [];
+
+  (list || []).forEach(f => {
+    if(!f) return;
+    const keys = facilityDedupeKeys(f);
+    if(keys.some(key => seen.has(key))) return;
+    keys.forEach(key => seen.add(key));
+    finalized.push(Object.assign({}, f, {
+      distanceKm: facilityDistanceValue(f.distanceKm)
+    }));
+  });
+
+  finalized.sort((a, b) => {
+    const ad = facilityDistanceValue(a.distanceKm);
+    const bd = facilityDistanceValue(b.distanceKm);
+    if(ad !== bd) return ad - bd;
+    return String(a.nameKo || a.nameEn || "").localeCompare(String(b.nameKo || b.nameEn || ""), "ko");
+  });
+
+  finalized.searchRadiusMeters = list && list.searchRadiusMeters;
+  return finalized.slice(0, MAX_FACILITY_RESULTS);
 }
 
 function hasRealPlaceName(tags){
@@ -3074,6 +3488,7 @@ function mapOverpass(elements, type, base){
 
       // 자동차 정비소/카센터가 OSM에서 healthcare로 잘못 잡히는 경우 제거
       if(isObviouslyNonMedicalPlace(combinedText)) return null;
+      if(!isAllowedFacilityCategory(type, tags)) return null;
 
       const distanceKm = getDistanceKm(base, { latitude, longitude });
 
@@ -3085,6 +3500,8 @@ function mapOverpass(elements, type, base){
 
       return {
         id: `${type}-${el.type || "place"}-${el.id || i}`,
+        osmType: el.type || "place",
+        osmId: el.id || i,
         type,
         nameKo,
         nameEn: tag(tags, ["name:en", "name"]) || nameKo,
@@ -3101,8 +3518,7 @@ function mapOverpass(elements, type, base){
       };
     })
     .filter(Boolean)
-    .sort((a, b) => a.distanceKm - b.distanceKm)
-    .slice(0, MAX_FACILITY_RESULTS);
+    .sort((a, b) => facilityDistanceValue(a.distanceKm) - facilityDistanceValue(b.distanceKm));
 }
 
 async function fetchNearbyFacilities(type, loc){
@@ -3128,11 +3544,12 @@ async function fetchNearbyFacilities(type, loc){
       let mapped = mapOverpass(data.elements, type, loc);
       if(mapped.length){
         mapped = rankFacilitiesForRecommendation(mapped, facilityRecommendation);
+        mapped = finalizeFacilityResults(mapped);
         mapped.searchRadiusMeters = radius;
         bestResults = mapped;
 
         if(mapped.length >= MAX_FACILITY_RESULTS){
-          return mapped.slice(0, MAX_FACILITY_RESULTS);
+          return finalizeFacilityResults(mapped);
         }
       }
     }catch(e){
@@ -3143,7 +3560,7 @@ async function fetchNearbyFacilities(type, loc){
   if(lastError) console.warn(lastError);
   if(bestResults.length){
     bestResults.searchRadiusMeters = bestResults.searchRadiusMeters || FACILITY_SEARCH_RADII_METERS[FACILITY_SEARCH_RADII_METERS.length - 1];
-    return bestResults.slice(0, MAX_FACILITY_RESULTS);
+    return finalizeFacilityResults(bestResults);
   }
 
   const empty = [];
@@ -3162,7 +3579,9 @@ async function applyLocation(type, loc, message, recommendation=null){
   const tx=t();
   if(recommendation) facilityRecommendation = recommendation;
   locationData=loc; facilityType=type; facilities=[]; isLoading=true;
+  moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
+  showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
   renderFacilityList();
 
   const recText = facilityRecommendation && facilityRecommendation.label ? " · "+facilityRecommendation.label : "";
@@ -3192,7 +3611,9 @@ async function useTripPlaceForLocation(type, recommendation=null){
   facilityRecommendation = recommendation;
   activeService = recommendation ? "hospital" : type;
   facilityType=type; facilities=[]; locationData=null; isLoading=true;
+  moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
+  showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
   renderServices();
   renderFacilityList();
 
@@ -3224,7 +3645,9 @@ function startGpsAfterConsent(type, recommendation=null){
   facilityRecommendation = recommendation;
   activeService = recommendation ? "hospital" : type;
   facilityType=type; facilities=[]; locationData=null; isLoading=true;
+  moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
+  showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
   renderServices();
   renderFacilityList();
   setStatus("GPS 확인 중...");
@@ -3345,6 +3768,7 @@ function renderFacilityList(){
     return;
   }
 
+  const displayFacilities = finalizeFacilityResults(facilities);
   const radiusKm = facilities.searchRadiusMeters ? Math.round(facilities.searchRadiusMeters/1000) : null;
   const recNotice = rec && rec.reason
     ? '<div class="notice amber small"><strong>추천 기준:</strong> '+escapeHtml(rec.label)+'<br>'+escapeHtml(rec.reason)+'<br>※ 지도 데이터에 진료과 정보가 부족한 지역에서는 가까운 병원 순서가 더 크게 반영됩니다.</div>'
@@ -3359,10 +3783,11 @@ function renderFacilityList(){
     locationData.latitude.toFixed(6)+', '+locationData.longitude.toFixed(6)+
     '<br>자동차 정비소/카센터 등 의료기관이 아닌 장소는 제외했습니다.</div>'+
     '<div class="grid">'+
-    facilities.map((f,i)=>{
+    displayFacilities.map((f,i)=>{
       const badge = rec && f.matchScore > 0 ? '<span class="distance" style="background:#fef3c7;color:#92400e">증상 관련</span>' : '';
       const missingNameLine = f.nameMissing ? '<p class="small" style="color:#b45309;font-weight:900">⚠️ 지도 데이터에 이름이 없어 실제 장소명을 Google Maps에서 한 번 더 확인하세요.</p>' : '';
       const specialtyLine = f.specialty ? '<p class="small muted">진료/분야: '+escapeHtml(f.specialty)+'</p>' : '';
+      const distanceText = Number.isFinite(f.distanceKm) ? f.distanceKm.toFixed(2)+' km' : '거리 확인 필요';
       return '<div class="facility" data-facility-card="'+f.id+'">'+
         '<div class="facility-top">'+
           '<div>'+
@@ -3370,7 +3795,7 @@ function renderFacilityList(){
             '<h3>'+escapeHtml(f.nameKo)+'</h3>'+
             '<p class="small muted">'+escapeHtml(f.nameEn)+'</p>'+
           '</div>'+
-          '<div class="distance">'+f.distanceKm.toFixed(2)+' km</div>'+
+          '<div class="distance">'+distanceText+'</div>'+
         '</div>'+
         missingNameLine+
         '<p class="small muted">'+(tx.address||"Address")+': '+escapeHtml(f.address)+'</p>'+
@@ -3387,17 +3812,17 @@ function renderFacilityList(){
     '</div>';
 
   document.querySelectorAll("[data-route-walk]").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{
-    const f=facilities.find(x=>x.id===btn.dataset.routeWalk);
+    const f=displayFacilities.find(x=>x.id===btn.dataset.routeWalk);
     if(f) openDirections(f,"walking");
   })));
 
   document.querySelectorAll("[data-route-transit]").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{
-    const f=facilities.find(x=>x.id===btn.dataset.routeTransit);
+    const f=displayFacilities.find(x=>x.id===btn.dataset.routeTransit);
     if(f) openDirections(f,"transit");
   })));
 
   document.querySelectorAll("[data-route-driving]").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{
-    const f=facilities.find(x=>x.id===btn.dataset.routeDriving);
+    const f=displayFacilities.find(x=>x.id===btn.dataset.routeDriving);
     if(f) openDirections(f,"driving");
   })));
 }
@@ -3870,8 +4295,8 @@ function openService(key){
     facilities=[];
     facilityType="hospital";
     facilityRecommendation=null;
-    scrollToId("hospitalFinderCard");
     bindHospitalFinderButtons();
+    showFlowScreen("screen-hospital-input");
     setStatus("병원찾기는 증상을 입력해야 실행됩니다. 증상에 맞는 병원을 가까운 순으로 보여줍니다.");
     return;
   }
@@ -3879,39 +4304,52 @@ function openService(key){
   if(key==="pharmacy"){
     hideFeatureSections();
     facilityRecommendation = null;
+    moveFacilityCardToScreen("pharmacy");
+    showFlowScreen("screen-pharmacy-results");
     requestGps("pharmacy", null);
-    scrollToId("facilityCard");
     return;
   }
 
   if(key==="phrases"){
+    hideFeatureSections();
+    $("facilityCard").classList.add("hidden");
     $("localPhraseCard").classList.remove("hidden");
+    $("pharmacyPhraseCard").classList.add("hidden");
     renderLocalPhraseCard();
-    scrollToId("localPhraseCard");
+    showFlowScreen("screen-help-phrases");
     setStatus("현지어("+getLocalOption().native+")로 도움 문장을 표시합니다.");
     return;
   }
   if(key==="medicalCard"){
-    $("medicalCardSection").classList.remove("hidden");
+    hideFeatureSections();
+    $("facilityCard").classList.add("hidden");
     renderMedicalCardPreview();
-    scrollToId("medicalCardSection");
+    showFlowScreen("screen-medical-basic");
     setStatus("여행자 의료카드를 작성하고 현지 의료진에게 보여줄 수 있습니다.");
     return;
   }
   if(key==="pharmacyPhrase"){
+    hideFeatureSections();
+    $("facilityCard").classList.add("hidden");
+    $("localPhraseCard").classList.add("hidden");
     $("pharmacyPhraseCard").classList.remove("hidden");
     renderPharmacyPhraseCard();
-    scrollToId("pharmacyPhraseCard");
+    showFlowScreen("screen-help-phrases");
     setStatus("약국에서 보여줄 현지어 문장을 표시합니다.");
     return;
   }
   if(key==="emergency"){
-    showEmergency();
+    hideFeatureSections();
+    $("facilityCard").classList.add("hidden");
+    renderEmergencyInfoCard();
+    showFlowScreen("screen-emergency");
     setStatus((tx.emergencyNumberSample||"Local ambulance number sample")+": "+getTripEmergencyNumber());
     return;
   }
   if(key==="symptom"){
-    scrollToId("aiCarePanel");
+    hideFeatureSections();
+    $("facilityCard").classList.add("hidden");
+    showFlowScreen("screen-ai-input");
     setStatus("AI Care는 GPT API를 이용해 사고 유형, 신체부위, 위험 신호를 종합해 응급도 참고 안내를 제공합니다.");
     return;
   }
@@ -3920,7 +4358,7 @@ function openService(key){
     const infoCard = $("infoGuideCard");
     if(infoCard) infoCard.classList.remove("hidden");
     setStatus("이용 안내 및 개인정보 내용을 확인하세요. 본 서비스는 의료진의 진단을 대체하지 않으며, 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.");
-    scrollToId("infoGuideCard");
+    showFlowScreen("screen-info");
   }
 }
 
@@ -3961,8 +4399,69 @@ function facilityTextForMatch(f){
   return [f.nameKo, f.nameEn, f.address, f.specialty, f.amenity, f.healthcare].filter(Boolean).join(" ").toLowerCase();
 }
 
+function recommendationTextForMatch(recommendation){
+  return [
+    recommendation && recommendation.label,
+    recommendation && recommendation.reason,
+    ...((recommendation && recommendation.keywords) || [])
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function isInternalDigestiveRecommendation(recommendation){
+  const text = recommendationTextForMatch(recommendation);
+  return (text.includes("소화기") || text.includes("gastro") || text.includes("digestive") || text.includes("위장")) &&
+    (text.includes("내과") || text.includes("internal") || text.includes("medicine"));
+}
+
+function isInternalDigestiveBlockedFacility(f){
+  const text = facilityTextForMatch(f);
+  const blocked = [
+    "이비인후", "otolaryngology",
+    "한의원", "한방", "traditional_chinese_medicine", "oriental",
+    "산부인", "gynaecology", "gynecology", "obstetrics", "obgyn",
+    "비뇨", "urology",
+    "피부과", "dermatology",
+    "안과", "ophthalmology",
+    "정형", "orthopedic", "orthopaedic",
+    "물리치료", "physiotherapy", "rehabilitation",
+    "마취", "통증", "anaesthesiology", "anesthesiology", "pain clinic", "pain medicine",
+    "치과", "dental", "dentist",
+    "소아", "pediatrics", "paediatrics",
+    "research", "research building", "laboratory", "institute", "연구동", "연구소",
+    "women's hospital", "women’s hospital", "maternity", "obstetric", "여성병원"
+  ];
+  return /\bent\b/.test(text) || blocked.some(key => text.includes(key));
+}
+
+function isGeneralHospitalFacility(f){
+  const text = facilityTextForMatch(f);
+  const broadHospitalTerms = [
+    "종합병원", "대학병원", "general hospital", "medical center", "university hospital",
+    "원자력병원", "선한이웃병원", "서울선병원"
+  ];
+  return broadHospitalTerms.some(key => text.includes(key));
+}
+
+function internalDigestiveMatchScore(f){
+  const text = facilityTextForMatch(f);
+  if(isInternalDigestiveBlockedFacility(f)) return -45;
+
+  const directMatches = [
+    "내과", "소화기", "gastro", "gastroenterology", "digestive",
+    "internal medicine", "internal_medicine", "internalmedicine",
+    "가정의학", "family medicine"
+  ];
+  if(directMatches.some(key => text.includes(key))) return 32;
+  if(isGeneralHospitalFacility(f)) return 18;
+  return 0;
+}
+
 function facilityMatchScore(f, recommendation){
   if(!recommendation || !recommendation.keywords) return 0;
+  if(recommendation.type === "hospital" && isInternalDigestiveRecommendation(recommendation)){
+    return internalDigestiveMatchScore(f);
+  }
+
   const text = facilityTextForMatch(f);
   let score = 0;
 
@@ -3991,7 +4490,7 @@ function facilityMatchScore(f, recommendation){
 
 function rankFacilitiesForRecommendation(list, recommendation){
   if(!list || !list.length) return [];
-  if(!recommendation) return list.sort((a,b)=>a.distanceKm-b.distanceKm).slice(0, MAX_FACILITY_RESULTS);
+  if(!recommendation) return list.slice();
 
   const ranked = list.map(f => {
     const score = facilityMatchScore(f, recommendation);
@@ -4002,23 +4501,7 @@ function rankFacilitiesForRecommendation(list, recommendation){
     });
   });
 
-  ranked.sort((a,b) => {
-    const aBad = (a.matchScore || 0) < 0 ? 1 : 0;
-    const bBad = (b.matchScore || 0) < 0 ? 1 : 0;
-    if(aBad !== bBad) return aBad - bBad;
-
-    const aRelevant = (a.matchScore || 0) > 0 ? 0 : 1;
-    const bRelevant = (b.matchScore || 0) > 0 ? 0 : 1;
-    if(aRelevant !== bRelevant) return aRelevant - bRelevant;
-
-    const aw = a.distanceKm - Math.max(0, a.matchScore || 0) * 0.12;
-    const bw = b.distanceKm - Math.max(0, b.matchScore || 0) * 0.12;
-    if(Math.abs(aw - bw) > 0.01) return aw - bw;
-
-    return a.distanceKm - b.distanceKm;
-  });
-
-  return ranked.slice(0, MAX_FACILITY_RESULTS);
+  return ranked;
 }
 
 
@@ -4311,7 +4794,7 @@ function runHospitalFinder(){
       $("hospitalFinderResult").classList.remove("hidden");
       $("hospitalFinderResult").innerHTML = "<strong>증상 입력이 필요합니다.</strong><br>예: 배가 아프고 열이 있어요 / 교통사고를 당했어요 / 숨쉬기 힘들어요";
     }
-    scrollToId("hospitalFinderCard");
+    showFlowScreen("screen-hospital-input", {push:false});
     return;
   }
 
@@ -4330,11 +4813,12 @@ function runHospitalFinder(){
     facilities = [];
     facilityType = "hospital";
     isLoading = true;
+    moveFacilityCardToScreen("hospital");
     $("facilityCard").classList.remove("hidden");
     renderFacilityList();
 
     setStatus("증상을 분석했습니다. "+recommendation.label+" 기준으로 가까운 병원을 찾습니다.");
-    scrollToId("facilityCard");
+    showFlowScreen("screen-hospital-results");
     requestGps("hospital", recommendation);
   }catch(e){
     showDebug(e);
@@ -5061,7 +5545,7 @@ async function runAi(){
     triage = analyzeSymptoms(symptom);
     renderTriage();
     setStatus("증상을 입력해 주세요.");
-    scrollToId("aiCarePanel");
+    showFlowScreen("screen-ai-input", {push:false});
     return;
   }
 
@@ -5076,7 +5560,7 @@ async function runAi(){
     '<p>증상, 사고 유형, 위험 신호, 신체부위를 종합해 참고 안내를 만들고 있습니다.</p>';
   $("triageSteps").innerHTML = '<div class="notice teal">잠시만 기다려 주세요. 네트워크 상태에 따라 몇 초 걸릴 수 있습니다.</div>';
   $("triageActions").innerHTML = "";
-  scrollToId("resultSection");
+  showFlowScreen("screen-ai-result");
 
   try{
     const res = await fetch("/.netlify/functions/ai-care", {
@@ -5097,6 +5581,11 @@ async function runAi(){
     if(!res.ok) throw new Error(data.error || data.detail || "AI Care 요청 실패");
 
     const localPhraseKo = normalizeAiCareKoreanPhrase(data.localPhraseKo, symptom);
+    const localPhraseReviewNeeded = !!(data.localPhraseReviewNeeded || data.translationReviewNeeded);
+    const rawLocalPhrase = String(data.localPhraseLocal || data.localPhraseNative || "").trim();
+    const safeLocalPhrase = localPhraseReviewNeeded
+      ? ""
+      : (rawLocalPhrase || data.localPhraseEn || "I need help. Please call medical staff or an ambulance.");
 
     triage = {
       level: data.level || "urgent",
@@ -5111,7 +5600,9 @@ async function runAi(){
       phrase: {
         ko: localPhraseKo,
         en: data.localPhraseEn || "I need help. Please call medical staff or an ambulance.",
-        local: data.localPhraseLocal || data.localPhraseNative || data.localPhraseEn || "I need help. Please call medical staff or an ambulance."
+        local: safeLocalPhrase,
+        reviewNeeded: localPhraseReviewNeeded,
+        reviewMessage: data.localPhraseReviewReason || "현지어 번역을 확인할 수 없습니다. 한국어 원문을 유지합니다."
       },
       recommended: data.recommendedAction || "hospital",
       recommendedDepartment: data.recommendedDepartment || "",
@@ -5124,7 +5615,7 @@ async function runAi(){
     renderTriage();
     renderLocalPhraseCard();
     setStatus("AI 응급도 참고 안내 완료: "+triage.summary);
-    scrollToId("resultSection");
+    showFlowScreen("screen-ai-result", {push:false});
   }catch(error){
     console.error(error);
     triage = analyzeSymptoms(symptom);
@@ -5132,7 +5623,7 @@ async function runAi(){
     renderTriage();
     renderLocalPhraseCard();
     setStatus("GPT API 연결에 실패해 기본 AI 응급도 참고 안내로 안내했습니다. Netlify 환경변수/크레딧/배포 상태를 확인해 주세요.");
-    scrollToId("resultSection");
+    showFlowScreen("screen-ai-result", {push:false});
   }
 }
 
@@ -5149,6 +5640,7 @@ function normalizeAiCareKoreanPhrase(value, symptom){
 }
 
 function localTriagePhrase(phrase){
+  if(phrase && phrase.reviewNeeded) return "";
   const base=getBaseLang(localLangId);
   if(phrase && phrase.local) return phrase.local;
   if(base==="ko" && phrase && phrase.ko) return phrase.ko;
@@ -5240,11 +5732,15 @@ function renderTriage(){
   const phrase = triage.phrase || {};
   const localOpt = getLocalOption();
   const localText = localTriagePhrase(phrase);
-  const phraseHtml =
-    '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지 의료진에게 보여줄 문장 · '+escapeHtml(localOpt.native)+'</div>'+
-    '<div class="step"><span class="check">안내</span><span>아래 문장을 현지 의료진에게 보여주세요.</span></div>'+
-    '<div class="step"><span class="check">현지</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span></div>'+
-    '<div class="step"><span class="check">KO</span><span class="small muted">한국어 뜻: '+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>';
+  const localPhraseUnavailable = !!phrase.reviewNeeded;
+  const phraseHtml = localPhraseUnavailable
+    ? '<div class="notice amber" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지 의료진에게 보여줄 문장 · '+escapeHtml(localOpt.native)+'</div>'+
+      '<div class="step"><span class="check">안내</span><span>'+escapeHtml(phrase.reviewMessage || "현지어 번역을 확인할 수 없습니다. 한국어 원문을 유지합니다.")+'</span></div>'+
+      '<div class="step"><span class="check">KO</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>'
+    : '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지 의료진에게 보여줄 문장 · '+escapeHtml(localOpt.native)+'</div>'+
+      '<div class="step"><span class="check">안내</span><span>아래 문장을 현지 의료진에게 보여주세요.</span></div>'+
+      '<div class="step"><span class="check">현지</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span></div>'+
+      '<div class="step"><span class="check">KO</span><span class="small muted">한국어 뜻: '+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>';
 
   const departmentText = triage.recommendedDepartment || (triage.recommended === "pharmacy" ? "약국 상담 또는 가까운 클리닉" : "가까운 병원 또는 클리닉");
   const departmentHtml =
@@ -5265,11 +5761,15 @@ function renderTriage(){
   $("triageActions").innerHTML =
     emergencyActionHtml+
     '<button id="triageFindHospital" class="btn primary w-full" type="button">🏥 가까운 병원 찾기</button>'+
-    '<button id="triageShowPhrases" class="btn outline w-full" type="button">🗣️ 현지어 도움 문장 보기</button>';
+    '<button id="triageShowPhrases" class="btn outline w-full" type="button">🗣️ 현지어 도움 문장 보기</button>'+
+    '<button id="triageRetryInput" class="btn outline w-full" type="button">다시 입력</button>'+
+    '<button id="triageGoHome" class="btn outline w-full" type="button">홈으로</button>';
   on("triageEmergencyCall", "click", callEmergencyNumber);
   on("triageEmergencyInfo", "click", showEmergency);
   on("triageFindHospital", "click", openHospitalFromTriage);
   on("triageShowPhrases", "click", () => openService("phrases"));
+  on("triageRetryInput", "click", () => showFlowScreen("screen-ai-input"));
+  on("triageGoHome", "click", () => showFlowScreen("screen-home"));
 }
 function showEmergency(){
   $("emergencyNumberBox").innerHTML=emergencyNumbersDetailHtml(getTripOption(), {margin:"0"});
@@ -5278,12 +5778,7 @@ function showEmergency(){
 function hideEmergency(){ $("emergencyModal").classList.add("hidden"); }
 function agreeEmergency(){
   hideEmergency();
-  activeService="emergency";
-  renderServices();
-  const number = getTripEmergencyNumber();
-  setStatus(number === "응급번호 확인 필요"
-    ? "응급번호 확인 필요: 현지 공공기관, 숙소, 대사관 또는 영사관에 즉시 확인하세요."
-    : "현지 응급번호 확인: "+number+"입니다. 실제 신고나 전화는 사용자의 기기에서 직접 진행해야 합니다.");
+  callEmergencyNumber();
 }
 
 function showSpeech(msg){ $("speechStatus").textContent=msg; $("speechStatus").classList.remove("hidden"); }
@@ -5303,6 +5798,8 @@ function startVoiceInput(){
 function initAllLanguageTestPanel(){
   window.SOS_BRIDGE_DEV_TEST_CONTEXT = {
     languageOptions,
+    priorityLanguageOptions,
+    priorityCountryCodes: PRIORITY_COUNTRY_CODES.slice(),
     phrasePacks,
     escapeHtml
   };
@@ -5310,6 +5807,8 @@ function initAllLanguageTestPanel(){
 
 
 function init(){
+  setupAppFlowScreens();
+  bindFlowNavigation();
   on("startBtn","click",showApp);
   on("changeLangBtn","click",showLanguage);
   on("languageSearch","input",renderLanguageList);
@@ -5354,10 +5853,15 @@ function init(){
       renderMedicalCardPreview();
     });
   });
-  on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",saveMedicalCard); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency); on("agreeLocationBtn","click",agreeLocationConsent); on("manualLocationBtn","click",chooseManualLocation);
+  on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",()=>{ saveMedicalCard(); showFlowScreen("screen-medical-result"); }); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency); on("flowEmergencyConfirmBtn","click",showEmergency); on("agreeLocationBtn","click",agreeLocationConsent); on("manualLocationBtn","click",chooseManualLocation);
   $("emergencyModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="emergencyModal") hideEmergency(); }));
   $("locationConsentModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="locationConsentModal") hideLocationConsent(); }));
-  document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{ if(btn.dataset.nav) scrollToId(btn.dataset.nav); if(btn.dataset.action) openService(btn.dataset.action); })));
+  document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{
+    if(btn.dataset.nav === "serviceSection") showFlowScreen("screen-home");
+    else if(btn.dataset.nav === "aiCarePanel") openService("symptom");
+    else if(btn.dataset.nav) scrollToId(btn.dataset.nav);
+    if(btn.dataset.action) openService(btn.dataset.action);
+  })));
   renderAll();
   initAllLanguageTestPanel();
 }
