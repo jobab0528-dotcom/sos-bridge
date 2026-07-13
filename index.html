@@ -82,7 +82,7 @@
     .flow-nav.single{grid-template-columns:1fr}
     .flow-card{display:grid;gap:12px}
     body.flow-app-active{height:100dvh;overflow:hidden}
-    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px calc(88px + var(--safe-bottom))}
+    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px 78px}
     body.flow-app-active #appPage>.topbar{position:relative;top:auto;z-index:20;margin:0 0 10px;padding:0;background:transparent;backdrop-filter:none}
     body.flow-app-active #appPage>.container{width:min(960px,100%);max-width:960px;min-height:0;height:100%;overflow:hidden;display:block}
     body.flow-app-active .app-flow-screen{height:100%;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 12px;align-content:start}
@@ -91,12 +91,34 @@
     body.flow-app-active .app-flow-screen>#serviceSection{box-shadow:0 10px 28px rgba(148,163,184,.20)}
     body.flow-app-active .flow-nav,
     body.flow-app-active #triageActions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(248,250,252,0),#f8fafc 22%);padding-top:12px}
+    body.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:8px;margin-top:10px}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage{padding-bottom:calc(12px + var(--safe-bottom))}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .bottom-nav{display:none!important}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage>.topbar{margin-bottom:6px}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .app-header-bar{padding:8px!important;border-radius:18px!important}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview{gap:8px;margin-top:0!important}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview>.result-box,
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview>.notice.amber.small{display:none}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-view-tabs{gap:6px}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-view-tab{border-radius:13px;padding:9px 8px}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-pass-card{border-radius:16px;padding:12px;box-shadow:0 6px 16px rgba(15,23,42,.07)}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-pass-head{gap:8px;padding-bottom:8px;margin-bottom:4px}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-pass-title{font-size:17px}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-pass-lang{font-size:11px;padding:4px 7px}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-pass-row{grid-template-columns:minmax(82px,.8fr) minmax(0,1.7fr);align-items:start;gap:8px;padding:6px 0}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-pass-label{font-size:12px;line-height:1.25}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] .medical-pass-value{font-size:15px;line-height:1.28}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview .step{gap:7px;border-radius:12px;padding:7px 9px;line-height:1.28}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview .step .check{font-size:11px}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview .step strong{font-size:13px!important}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview .step span span{font-size:14px!important;line-height:1.25}
     body.flow-app-active .service-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     body.flow-app-active .service{padding:12px;min-height:118px}
     body.flow-app-active .service-icon{width:42px;height:42px;border-radius:14px;font-size:23px;margin-bottom:8px}
     body.flow-app-active .service h3{font-size:15px;margin-bottom:4px}
     body.flow-app-active .service p{font-size:12px;line-height:1.35}
     body.flow-app-active #statusBox{margin-bottom:0;font-size:12px}
+    body.flow-app-active .content-pad{padding-bottom:78px!important}
     body.flow-app-active #triageSteps,
     body.flow-app-active #facilityList,
     body.flow-app-active #localPhraseList,
@@ -3036,6 +3058,7 @@ function setupAppFlowScreens(){
 
 function showLanguageFlowScreen(screenId){
   if($("languagePage")) $("languagePage").classList.add("flow-ui-active");
+  document.body.dataset.flowScreen = screenId;
   ["screen-country-select","screen-country-summary"].forEach(id => {
     const el = $(id);
     if(el) el.classList.toggle("hidden", id !== screenId);
@@ -3066,6 +3089,7 @@ function showFlowScreen(screenId, opts={}){
     flowHistory.push(currentFlowScreen);
   }
   currentFlowScreen = screenId;
+  document.body.dataset.flowScreen = screenId;
   if(stage === "app" && opts.browser !== false && window.history && window.history.pushState){
     window.history.pushState({sosBridgeFlowScreen: screenId}, "", window.location.href);
   }
@@ -3358,6 +3382,7 @@ function showLanguage(){
   if(wasAppStage && currentFlowScreen) returnFlowScreenAfterCountryChange = currentFlowScreen;
   stage="language";
   document.body.classList.remove("flow-app-active");
+  delete document.body.dataset.flowScreen;
   $("appPage").classList.add("hidden");
   $("languagePage").classList.remove("hidden");
   renderAll();
