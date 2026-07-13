@@ -23,7 +23,7 @@
       --safe-bottom:env(safe-area-inset-bottom,0px);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Inter,system-ui,sans-serif}
+    html,body{margin:0;min-height:100%;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Inter,system-ui,sans-serif}
     button,input,textarea{font:inherit}
     button{cursor:pointer;touch-action:manipulation}
     .hidden{display:none!important}
@@ -81,6 +81,36 @@
     @media (min-width:520px){.flow-nav{grid-template-columns:1fr 1fr}}
     .flow-nav.single{grid-template-columns:1fr}
     .flow-card{display:grid;gap:12px}
+    body.flow-app-active{height:100dvh;overflow:hidden}
+    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px calc(88px + var(--safe-bottom))}
+    body.flow-app-active #appPage>.topbar{position:relative;top:auto;z-index:20;margin:0 0 10px;padding:0;background:transparent;backdrop-filter:none}
+    body.flow-app-active #appPage>.container{width:min(960px,100%);max-width:960px;min-height:0;height:100%;overflow:hidden;display:block}
+    body.flow-app-active .app-flow-screen{height:100%;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 12px;align-content:start}
+    body.flow-app-active .app-flow-screen>.card,
+    body.flow-app-active .app-flow-screen>.flow-card,
+    body.flow-app-active .app-flow-screen>#serviceSection{box-shadow:0 10px 28px rgba(148,163,184,.20)}
+    body.flow-app-active .flow-nav,
+    body.flow-app-active #triageActions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(248,250,252,0),#f8fafc 22%);padding-top:12px}
+    body.flow-app-active .service-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    body.flow-app-active .service{padding:12px;min-height:118px}
+    body.flow-app-active .service-icon{width:42px;height:42px;border-radius:14px;font-size:23px;margin-bottom:8px}
+    body.flow-app-active .service h3{font-size:15px;margin-bottom:4px}
+    body.flow-app-active .service p{font-size:12px;line-height:1.35}
+    body.flow-app-active #statusBox{margin-bottom:0;font-size:12px}
+    body.flow-app-active #triageSteps,
+    body.flow-app-active #facilityList,
+    body.flow-app-active #localPhraseList,
+    body.flow-app-active #pharmacyPhraseList,
+    body.flow-app-active #medicalCardPreview{min-height:0}
+    .app-header-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px!important;border-radius:22px!important}
+    .app-country-pill{border:1px solid var(--border);background:#f8fafc;border-radius:18px;min-height:48px;padding:8px 10px;display:flex;align-items:center;gap:8px;text-align:left;min-width:0}
+    .app-country-pill .country-text{min-width:0;display:grid;gap:1px}
+    .app-country-pill strong{display:block;color:var(--navy);font-size:14px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .app-country-pill span.small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .app-emergency-mini{min-height:48px;width:48px;padding:0;border-radius:18px}
+    .app-change-mini{min-height:48px;border-radius:18px;padding:0 12px}
+    @media (max-width:420px){.app-header-bar{grid-template-columns:minmax(0,1fr) 48px 58px}.app-change-mini span:not(.keep-label){display:none}}
+    @media (min-width:900px){body.flow-app-active #appPage{padding-left:24px;padding-right:24px}body.flow-app-active #appPage>.container{width:min(920px,100%)}}
     .medical-tags{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
     .medical-tag{border:1px solid #ccfbf1;background:#f8fafc;color:#134e4a;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:950}
     .notice{margin:14px 0}
@@ -313,17 +343,16 @@
 
   <main id="appPage" class="page hidden content-pad">
     <div class="topbar">
-      <header class="topbar-inner between card" style="padding:14px 16px">
-        <div class="row">
-          <div class="logo">🩺</div>
-          <div>
-            <h2 style="margin-bottom:4px">SOS Bridge</h2>
-            <div id="appTag" class="small muted">해외에서도, 빠르고 안전하게</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button id="changeLangBtn" class="btn outline" type="button"><span id="topFlag">🇰🇷</span><span id="topNative">여행 국가 변경</span></button>
-        </div>
+      <header class="topbar-inner app-header-bar card" style="padding:14px 16px">
+        <button id="appCountryPill" class="app-country-pill" type="button" aria-label="여행 국가 변경">
+          <span id="topFlag">🇰🇷</span>
+          <span class="country-text">
+            <strong id="topCountryName">여행 국가를 선택하세요</strong>
+            <span id="topCountryMeta" class="small muted">국가를 선택하면 현지어와 응급번호를 표시합니다.</span>
+          </span>
+        </button>
+        <button id="headerEmergencyBtn" class="btn danger app-emergency-mini" type="button" aria-label="응급번호">🚑</button>
+        <button id="changeLangBtn" class="btn outline app-change-mini" type="button"><span class="keep-label">변경</span></button>
       </header>
     </div>
 
@@ -2847,6 +2876,7 @@ const FLOW_SCREEN_IDS = [
 let currentFlowScreen = "";
 let flowHistory = [];
 let flowScreensReady = false;
+let returnFlowScreenAfterCountryChange = "";
 
 function flowScrollTop(){
   window.scrollTo({top:0, left:0, behavior:"auto"});
@@ -3226,13 +3256,16 @@ function renderAppFlowSummary(){
       '<button class="btn primary" type="button" data-service="symptom">AI Care 시작</button>'+
       '<button class="btn outline" type="button" data-service="medicalCard">의료카드 보기</button>'+
       '<button class="btn outline" type="button" data-service="phrases">현지 문장 보기</button>'+
+      '<button class="btn outline" type="button" data-service="info">기타 도움</button>'+
     '</div>';
 }
 function renderServices(){
   const tx=t();
   $("serviceSelectTitle").textContent=tx.serviceSelect;
   renderAppFlowSummary();
-  $("serviceGrid").innerHTML = services.map(s => '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button"><div class="service-icon">'+s.icon+'</div><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+tx[s.descKey]+'</p></button>').join("");
+  const homeServiceKeys = ["symptom","phrases","medicalCard","hospital","pharmacy","emergency"];
+  const homeServices = services.filter(s => homeServiceKeys.includes(s.key));
+  $("serviceGrid").innerHTML = homeServices.map(s => '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button"><div class="service-icon">'+s.icon+'</div><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+tx[s.descKey]+'</p></button>').join("");
   document.querySelectorAll("[data-service]").forEach(btn => btn.addEventListener("click", () => safe(() => openService(btn.dataset.service))));
   document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", (btn.dataset.action && btn.dataset.action===activeService) || (btn.dataset.nav==="serviceSection" && activeService==="home") || (btn.dataset.nav==="aiCarePanel" && activeService==="symptom")));
 
@@ -3254,9 +3287,13 @@ function renderApp(){
   const displayCountry = hasTripCountrySelection ? (tripCountryName || tripOpt.countryKo) : "여행 국가 미선택";
   const displayLocalLanguage = hasTripCountrySelection ? (localOpt.languageNameKo || localOpt.languageKo || localOpt.native) : "여행 국가 선택 후 자동 설정";
   const displayEmergencyNumber = hasTripCountrySelection ? getTripEmergencyNumber() : "국가 선택 후 표시";
-  $("appTag").textContent=tx.appTag;
+  if($("appTag")) $("appTag").textContent=tx.appTag;
   $("topFlag").textContent=hasTripCountrySelection ? tripOpt.flag : "✈️";
-  $("topNative").textContent="여행 국가 변경";
+  if($("topNative")) $("topNative").textContent="여행 국가 변경";
+  if($("topCountryName")) $("topCountryName").textContent=hasTripCountrySelection ? displayCountry : "여행 국가를 선택하세요";
+  if($("topCountryMeta")) $("topCountryMeta").textContent=hasTripCountrySelection
+    ? (displayLocalLanguage+" · 응급번호 "+displayEmergencyNumber)
+    : "국가를 선택하면 현지어와 응급번호를 표시합니다.";
   $("sampleNotice").textContent="⚠️ "+tx.sampleNotice;
 
   if($("travelContextBox")){
@@ -3297,6 +3334,7 @@ function showApp(){
   saveTripInputs();
   stage="app";
   setupAppFlowScreens();
+  document.body.classList.add("flow-app-active");
   $("languagePage").classList.add("hidden");
   $("appPage").classList.remove("hidden");
   activeService="home";
@@ -3309,10 +3347,17 @@ function showApp(){
   }
 
   renderAll();
-  showFlowScreen("screen-home", {push:false, browser:false});
+  const returnScreen = returnFlowScreenAfterCountryChange && $(returnFlowScreenAfterCountryChange)
+    ? returnFlowScreenAfterCountryChange
+    : "screen-home";
+  returnFlowScreenAfterCountryChange = "";
+  showFlowScreen(returnScreen, {push:false, browser:false});
 }
 function showLanguage(){
+  const wasAppStage = stage === "app";
+  if(wasAppStage && currentFlowScreen) returnFlowScreenAfterCountryChange = currentFlowScreen;
   stage="language";
+  document.body.classList.remove("flow-app-active");
   $("appPage").classList.add("hidden");
   $("languagePage").classList.remove("hidden");
   renderAll();
@@ -4314,8 +4359,9 @@ function openService(key){
     hideFeatureSections();
     $("facilityCard").classList.add("hidden");
     $("localPhraseCard").classList.remove("hidden");
-    $("pharmacyPhraseCard").classList.add("hidden");
+    $("pharmacyPhraseCard").classList.remove("hidden");
     renderLocalPhraseCard();
+    renderPharmacyPhraseCard();
     showFlowScreen("screen-help-phrases");
     setStatus("현지어("+getLocalOption().native+")로 도움 문장을 표시합니다.");
     return;
@@ -5811,6 +5857,8 @@ function init(){
   bindFlowNavigation();
   on("startBtn","click",showApp);
   on("changeLangBtn","click",showLanguage);
+  on("appCountryPill","click",showLanguage);
+  on("headerEmergencyBtn","click",()=>openService("emergency"));
   on("languageSearch","input",renderLanguageList);
   on("userLangSelect","change",e=>{ selected="ko"; renderLanguagePage(); });
   on("tripCountrySelect","change",e=>{
