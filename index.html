@@ -12,53 +12,76 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <style>
     :root{
-      --navy:#062a60;
-      --teal:#0fa3a3;
-      --bg:#f8fafc;
-      --text:#0f172a;
-      --muted:#64748b;
-      --border:#e2e8f0;
-      --danger:#ef4444;
-      --amber:#f59e0b;
+      --color-primary:#1673e8;
+      --color-primary-dark:#102a54;
+      --color-primary-soft:#eef6ff;
+      --color-accent:#0f8faf;
+      --color-bg:#f5f8fc;
+      --color-surface:#ffffff;
+      --color-surface-muted:#f7faff;
+      --color-text:#10203f;
+      --color-text-secondary:#66758c;
+      --color-border:#dfe7f2;
+      --color-danger:#dc2626;
+      --color-warning:#f59e0b;
+      --radius-sm:10px;
+      --radius-md:14px;
+      --radius-lg:18px;
+      --shadow-card:0 10px 28px rgba(15,23,42,.08);
+      --shadow-soft:0 6px 18px rgba(15,23,42,.06);
+      --bottom-nav-height:76px;
       --safe-bottom:env(safe-area-inset-bottom,0px);
+      --navy:var(--color-primary-dark);
+      --teal:var(--color-accent);
+      --bg:var(--color-bg);
+      --text:var(--color-text);
+      --muted:var(--color-text-secondary);
+      --border:var(--color-border);
+      --danger:var(--color-danger);
+      --amber:var(--color-warning);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;min-height:100%;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Inter,system-ui,sans-serif}
+    html,body{margin:0;min-height:100%;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Inter,system-ui,sans-serif;font-size:15px}
     button,input,textarea{font:inherit}
     button{cursor:pointer;touch-action:manipulation}
     .hidden{display:none!important}
-    .page{min-height:100vh;min-height:100dvh;padding:18px 14px calc(24px + var(--safe-bottom))}
+    .page{min-height:100vh;min-height:100dvh;padding:16px 14px calc(22px + var(--safe-bottom))}
     .container{max-width:1060px;margin:0 auto}
-    .card{background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.9);border-radius:28px;box-shadow:0 16px 42px rgba(148,163,184,.28);padding:20px}
-    .logo{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--navy),var(--teal));display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 12px 28px rgba(15,118,110,.22);flex:none;position:relative}
-    .logo:after{content:"+";position:absolute;right:-4px;top:-5px;width:23px;height:23px;border-radius:99px;background:white;color:var(--teal);font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:center}
+    .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:18px}
+    .logo{width:50px;height:50px;border-radius:16px;background:var(--color-primary-soft);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:var(--shadow-soft);flex:none;position:relative}
+    .logo:after{content:"+";position:absolute;right:-4px;top:-5px;width:22px;height:22px;border-radius:99px;background:var(--color-primary);color:white;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center}
     .row{display:flex;align-items:center;gap:14px}
     .between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-    .eyebrow{font-size:11px;font-weight:900;color:var(--teal);letter-spacing:.24em;text-transform:uppercase;margin:0 0 5px}
+    .eyebrow{font-size:11px;font-weight:900;color:var(--color-accent);letter-spacing:.24em;text-transform:uppercase;margin:0 0 5px}
     h1,h2,h3,p{margin-top:0}
-    h1{font-size:clamp(30px,8vw,48px);line-height:1.08;margin-bottom:0;color:var(--navy);font-weight:950}
-    h2{font-size:25px;line-height:1.15;margin-bottom:14px;color:var(--navy);font-weight:950}
+    h1{font-size:clamp(26px,7vw,42px);line-height:1.1;margin-bottom:0;color:var(--navy);font-weight:950}
+    h2{font-size:23px;line-height:1.18;margin-bottom:14px;color:var(--navy);font-weight:950}
     h3{font-size:18px;line-height:1.25;margin-bottom:7px;color:var(--navy);font-weight:950}
     .muted{color:var(--muted);font-weight:700}
     .small{font-size:13px}
-    .desc{font-size:17px;line-height:1.65;color:#475569;font-weight:650}
-    .btn{border:0;border-radius:18px;padding:13px 15px;font-weight:950;transition:.12s;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;min-height:48px}
+    .desc{font-size:16px;line-height:1.58;color:#475569;font-weight:650}
+    .btn{border:0;border-radius:var(--radius-md);padding:12px 15px;font-weight:950;transition:.12s;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;min-height:48px}
     .btn:active{transform:scale(.98)}
     .btn:disabled{cursor:not-allowed;opacity:.55;transform:none}
-    .btn.primary{background:var(--navy);color:white}
-    .btn.soft{background:#ecfeff;color:var(--navy)}
+    .btn.primary{background:var(--color-primary);color:white;box-shadow:0 10px 22px rgba(22,115,232,.20)}
+    .btn.soft{background:var(--color-primary-soft);color:var(--navy)}
     .btn.outline{background:white;color:#334155;border:1px solid var(--border)}
     .btn.danger{background:var(--danger);color:white}
     .w-full{width:100%}
-    .selected-box,.notice{border-radius:22px;padding:14px;font-weight:800;line-height:1.55}
+    .selected-box,.notice{border-radius:var(--radius-md);padding:13px 14px;font-weight:800;line-height:1.55}
     .selected-box{background:#f8fafc;border:1px solid var(--border);margin:22px 0}
     .home-left-card{display:grid;gap:16px}
-    .setup-panel{border:1px solid var(--border);border-radius:22px;background:#fff;padding:15px;box-shadow:0 8px 22px rgba(148,163,184,.16)}
+    .setup-panel{border:1px solid var(--border);border-radius:var(--radius-lg);background:#fff;padding:15px;box-shadow:var(--shadow-soft)}
     .setup-panel.summary-empty{background:#f8fafc}
     .setup-panel.medical-prep{background:linear-gradient(180deg,#ffffff,#f0fdfa)}
     .summary-row{display:flex;align-items:flex-start;gap:12px}
-    .summary-flag{width:48px;height:48px;border-radius:16px;background:#ecfeff;display:flex;align-items:center;justify-content:center;font-size:30px;flex:none}
+    .summary-flag{width:58px;height:58px;border-radius:18px;background:var(--color-primary-soft);display:flex;align-items:center;justify-content:center;font-size:30px;flex:none;font-weight:950;color:var(--navy)}
     .summary-empty .summary-flag{background:#eef2f7;color:var(--muted);font-size:26px}
+    .country-summary-detail{display:grid;gap:10px;margin-top:10px}
+    .country-summary-detail>div:not(.support-status-row):not(.notice):not(.country-summary-note){display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #eef2f7;padding-bottom:8px}
+    .country-summary-detail>div:not(.support-status-row):not(.notice):not(.country-summary-note) span{font-size:12px;color:var(--muted);font-weight:900}
+    .country-summary-detail>div:not(.support-status-row):not(.notice):not(.country-summary-note) strong{font-size:14px;color:var(--navy);font-weight:950;text-align:right}
+    .country-summary-note{line-height:1.5}
     .city-panel{display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
     .home-helper{font-size:13px;line-height:1.55;color:var(--muted);font-weight:800;margin:0}
     .flow-stepper{display:grid;gap:8px;border:1px solid #dbeafe;background:#eff6ff;border-radius:22px;padding:13px}
@@ -70,11 +93,11 @@
     .flow-step-item.active{color:var(--navy)}
     .flow-step-item.done{color:#0f766e}
     .flow-dot{width:22px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:white;border:1px solid #bfdbfe;font-size:11px;font-weight:950;flex:none}
-    .flow-home-summary{display:grid;gap:8px;border:1px solid #ccfbf1;background:#f0fdfa;border-radius:22px;padding:14px;margin-bottom:14px}
+    .flow-home-summary{display:grid;gap:10px;border:1px solid #cfe0f5;background:linear-gradient(180deg,#fff,#f6faff);border-radius:var(--radius-lg);padding:15px;margin-bottom:14px}
     .flow-home-summary .flow-actions{display:flex;flex-wrap:wrap;gap:8px}
     .flow-home-summary .flow-actions button{flex:1 1 160px}
     .flow-screen{display:grid;gap:14px;width:100%}
-    .flow-screen-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border:1px solid var(--border);border-radius:22px;background:white;padding:14px;box-shadow:0 8px 22px rgba(148,163,184,.12)}
+    .flow-screen-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border:1px solid var(--border);border-radius:var(--radius-lg);background:white;padding:14px;box-shadow:var(--shadow-soft)}
     .flow-screen-header h2{margin:0 0 4px}
     .flow-screen-header p{margin:0}
     .flow-nav{display:grid;gap:10px;margin-top:12px}
@@ -82,18 +105,18 @@
     .flow-nav.single{grid-template-columns:1fr}
     .flow-card{display:grid;gap:12px}
     body.flow-app-active{height:100dvh;overflow:hidden}
-    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px 78px}
+    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px var(--bottom-nav-height)}
     body.flow-app-active #appPage>.topbar{position:relative;top:auto;z-index:20;margin:0 0 10px;padding:0;background:transparent;backdrop-filter:none}
     body.flow-app-active #appPage>.container{width:min(960px,100%);max-width:960px;min-height:0;height:100%;overflow:hidden;display:block}
     body.flow-app-active .app-flow-screen{height:100%;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 12px;align-content:start}
     body.flow-app-active .app-flow-screen>.card,
     body.flow-app-active .app-flow-screen>.flow-card,
-    body.flow-app-active .app-flow-screen>#serviceSection{box-shadow:0 10px 28px rgba(148,163,184,.20)}
+    body.flow-app-active .app-flow-screen>#serviceSection{box-shadow:var(--shadow-card)}
     body.flow-app-active .flow-nav,
-    body.flow-app-active #triageActions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(248,250,252,0),#f8fafc 22%);padding-top:12px}
+    body.flow-app-active #triageActions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:12px}
     body.flow-app-active[data-flow-screen="screen-ai-result"] #triageActions{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:0;margin-top:18px!important;padding-bottom:8px}
     body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:calc(108px + var(--safe-bottom))}
-    body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:calc(88px + var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(248,250,252,0),#f8fafc 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
+    body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:calc(var(--bottom-nav-height) + 10px + var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
     @media (max-height:640px){body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:12px}body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{display:none}}
     body.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:8px;margin-top:10px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage.content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
@@ -117,25 +140,25 @@
     body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview .step .check{font-size:11px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview .step strong{font-size:13px!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview .step span span{font-size:14px!important;line-height:1.25}
-    body.flow-app-active .service-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    body.flow-app-active .service{padding:12px;min-height:118px}
-    body.flow-app-active .service-icon{width:42px;height:42px;border-radius:14px;font-size:23px;margin-bottom:8px}
-    body.flow-app-active .service h3{font-size:15px;margin-bottom:4px}
+    body.flow-app-active .service-grid{grid-template-columns:1fr;gap:9px}
+    body.flow-app-active .service{padding:12px;min-height:76px}
+    body.flow-app-active .service-icon{width:40px;height:40px;border-radius:13px;font-size:22px;margin:0;flex:none}
+    body.flow-app-active .service h3{font-size:15px;margin:0 0 4px}
     body.flow-app-active .service p{font-size:12px;line-height:1.35}
     body.flow-app-active #statusBox{margin-bottom:0;font-size:12px}
-    body.flow-app-active .content-pad{padding-bottom:78px!important}
+    body.flow-app-active .content-pad{padding-bottom:var(--bottom-nav-height)!important}
     body.flow-app-active #triageSteps,
     body.flow-app-active #facilityList,
     body.flow-app-active #localPhraseList,
     body.flow-app-active #pharmacyPhraseList,
     body.flow-app-active #medicalCardPreview{min-height:0}
-    .app-header-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px!important;border-radius:22px!important}
-    .app-country-pill{border:1px solid var(--border);background:#f8fafc;border-radius:18px;min-height:48px;padding:8px 10px;display:flex;align-items:center;gap:8px;text-align:left;min-width:0}
+    .app-header-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px!important;border-radius:var(--radius-lg)!important}
+    .app-country-pill{border:1px solid var(--border);background:#fff;border-radius:var(--radius-md);min-height:48px;padding:8px 10px;display:flex;align-items:center;gap:8px;text-align:left;min-width:0;box-shadow:var(--shadow-soft)}
     .app-country-pill .country-text{min-width:0;display:grid;gap:1px}
     .app-country-pill strong{display:block;color:var(--navy);font-size:14px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .app-country-pill span.small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .app-emergency-mini{min-height:48px;width:48px;padding:0;border-radius:18px}
-    .app-change-mini{min-height:48px;border-radius:18px;padding:0 12px}
+    .app-emergency-mini{min-height:48px;width:48px;padding:0;border-radius:var(--radius-md)}
+    .app-change-mini{min-height:48px;border-radius:var(--radius-md);padding:0 12px}
     @media (max-width:420px){.app-header-bar{grid-template-columns:minmax(0,1fr) 48px 58px}.app-change-mini span:not(.keep-label){display:none}}
     @media (min-width:900px){body.flow-app-active #appPage{padding-left:24px;padding-right:24px}body.flow-app-active #appPage>.container{width:min(920px,100%)}}
     .medical-tags{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
@@ -147,7 +170,7 @@
     .notice.red{background:#fef2f2;color:#991b1b}
     .support-status-row{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.76);border:1px solid rgba(148,163,184,.28);border-radius:14px;padding:9px 10px}
     .support-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:950;white-space:nowrap}
-    .support-badge.supported{background:#dcfce7;color:#166534}
+    .support-badge.supported{background:#dff5ff;color:#1261a6}
     .support-badge.limited{background:#fef3c7;color:#92400e}
     .support-status-text{font-size:12px;font-weight:900;line-height:1.45;color:#475569}
     .emergency-verification-card{display:grid;gap:8px;line-height:1.55}
@@ -163,27 +186,37 @@
     @media (min-width:720px){.two{grid-template-columns:1fr 1fr}.home-grid{grid-template-columns:.9fr 1.1fr;align-items:stretch}.home-grid>.card{height:100%}.service-grid{grid-template-columns:1fr 1fr}.country-picker-card .language-grid{max-height:none;min-height:520px}}
     @media (min-width:900px){.country-picker-card .language-grid{min-height:calc(100dvh - 210px);max-height:calc(100dvh - 210px)}}
     @media (max-width:719px){.country-picker-card .language-grid{max-height:58vh;min-height:0}}
-    .search{display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--border);border-radius:18px;padding:12px 14px;margin-bottom:14px}
-    .input,.textarea,.search input{width:100%;border:1px solid var(--border);border-radius:18px;padding:13px 14px;outline:none;font-weight:760;background:white}
+    .search{display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:14px}
+    .input,.textarea,.search input{width:100%;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px 14px;outline:none;font-weight:760;background:white}
     .search input{border:0;padding:0;background:transparent}
     .textarea{min-height:115px;resize:vertical}
-    .input:focus,.textarea:focus,.search:focus-within{border-color:#14b8a6}
-    .language-grid{display:grid;gap:10px;max-height:58vh;overflow:auto;-webkit-overflow-scrolling:touch}
+    .input:focus,.textarea:focus,.search:focus-within{border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(22,115,232,.10)}
+    .language-grid{display:grid;gap:9px;max-height:58vh;overflow:auto;-webkit-overflow-scrolling:touch;padding-right:2px}
     @media (min-width:640px){.language-grid{grid-template-columns:1fr 1fr}}
     .country-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     @media (min-width:520px){.country-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    .country-card{position:relative;border:1px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);border-radius:20px;padding:13px 9px;min-height:104px;text-align:center;transition:.14s;box-shadow:0 7px 18px rgba(148,163,184,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+    .country-card{position:relative;border:1px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);border-radius:var(--radius-md);padding:13px 9px;min-height:104px;text-align:center;transition:.14s;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
     .country-card:active{transform:scale(.98)}
-    .country-card.selected{border:2px solid #0fa3a3;background:linear-gradient(180deg,#ecfeff,#f0fdfa);box-shadow:0 12px 28px rgba(15,163,163,.20)}
+    .country-card.selected{border:2px solid var(--color-primary);background:linear-gradient(180deg,#fff,#eef6ff);box-shadow:0 12px 28px rgba(22,115,232,.16)}
     .country-card.selected:after{content:"선택됨";position:absolute;top:7px;right:7px;background:var(--navy);color:white;border-radius:999px;padding:3px 7px;font-size:10px;font-weight:950}
     .country-flag{font-size:34px;line-height:1}
     .country-name{font-weight:950;color:var(--navy);font-size:14px}
     .country-sub{font-size:11px;color:var(--muted);font-weight:800;line-height:1.25}
-    .lang-btn,.service,.facility{border:1px solid var(--border);background:white;border-radius:20px;padding:14px;text-align:left;transition:.12s}
-    .lang-btn{display:flex;align-items:center;gap:12px}
-    .lang-btn.active,.service.active{border-color:#14b8a6;background:#f0fdfa}
-    .flag{font-size:38px}
-    .service-icon{width:52px;height:52px;border-radius:17px;background:linear-gradient(135deg,#ecfeff,#eff6ff);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px}
+    .lang-btn,.service,.facility{border:1px solid var(--border);background:white;border-radius:var(--radius-md);padding:14px;text-align:left;transition:.12s}
+    .lang-btn{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;min-height:74px}
+    .lang-btn.active,.service.active{border-color:var(--color-primary);background:#f7fbff;box-shadow:0 0 0 1px var(--color-primary),0 10px 22px rgba(22,115,232,.12)}
+    .flag{font-size:28px}
+    .country-code-chip{width:54px;height:54px;border-radius:16px;background:var(--color-primary-soft);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:950;letter-spacing:.03em}
+    .country-texts{min-width:0;display:grid;gap:2px}
+    .country-name-ko{font-size:15px;font-weight:950;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .country-name-en{font-size:12px;color:var(--muted);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .country-emergency{font-size:12px;color:#1261a6;font-weight:950;white-space:nowrap}
+    .country-list-notice{display:flex;align-items:center;gap:10px;background:#edf7ff;border:1px solid #d7eaff;color:#17456f;border-radius:var(--radius-md);padding:12px;font-size:13px;font-weight:850;line-height:1.45}
+    .service{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
+    .service-icon{width:44px;height:44px;border-radius:14px;background:var(--color-primary-soft);display:flex;align-items:center;justify-content:center;font-size:23px;margin-bottom:0}
+    .service-copy{min-width:0}
+    .service-arrow{color:#8aa0b9;font-size:22px;font-weight:900}
+    .service-badge{justify-self:end;align-self:start;background:#e7f0ff;color:var(--color-primary);border-radius:999px;padding:3px 7px;font-size:10px;font-weight:950}
     .topbar{position:sticky;top:0;z-index:20;margin:-18px -14px 16px;padding:14px;background:rgba(248,250,252,.9);backdrop-filter:blur(12px)}
     .topbar-inner{max-width:1060px;margin:0 auto}
     .map-box{position:relative;width:100%;height:clamp(360px,55vh,520px);min-height:360px;border-radius:24px;border:1px solid var(--border);overflow:hidden;background:#e2e8f0}
@@ -191,23 +224,23 @@
     #googleMap img,.gm-style img{max-width:none!important}
     .facility{box-shadow:0 4px 14px rgba(148,163,184,.12)}
     .facility-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .distance{background:var(--navy);color:white;padding:8px 10px;border-radius:14px;font-weight:950;white-space:nowrap;font-size:13px}
-    .step{display:flex;gap:10px;border:1px solid #f1f5f9;background:white;border-radius:16px;padding:12px;font-weight:760;line-height:1.45}
+    .distance{background:var(--navy);color:white;padding:8px 10px;border-radius:var(--radius-md);font-weight:950;white-space:nowrap;font-size:13px}
+    .step{display:flex;gap:10px;border:1px solid #f1f5f9;background:white;border-radius:var(--radius-md);padding:12px;font-weight:760;line-height:1.45}
     .check{color:var(--teal);font-weight:950}
-    .ai-panel{background:var(--navy);color:white}
-    .ai-panel h2{color:white}
-    .ai-panel .textarea{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15);color:white}
-    .ai-panel .textarea::placeholder{color:rgba(255,255,255,.55)}
-    .mic{background:rgba(255,255,255,.14);color:white}
+    .ai-panel{background:white;color:var(--text);border-color:#cfe0f5}
+    .ai-panel h2{color:var(--navy)}
+    .ai-panel .textarea{background:#fbfdff;border-color:var(--border);color:var(--text)}
+    .ai-panel .textarea::placeholder{color:#94a3b8}
+    .mic{background:var(--color-primary-soft);color:var(--navy)}
     .mic.listening{background:#ef4444}
-    .result-box{border-radius:22px;padding:15px;font-weight:850;line-height:1.55}
+    .result-box{border-radius:var(--radius-md);padding:15px;font-weight:850;line-height:1.55}
     .result-box.emergency{background:#fef2f2;color:#991b1b}
     .result-box.urgent{background:#fffbeb;color:#92400e}
     .result-box.mild{background:#f0fdfa;color:#134e4a}
     .medical-view-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .medical-view-tab{border:1px solid var(--border);background:white;color:#475569;border-radius:16px;padding:11px 10px;font-weight:950}
-    .medical-view-tab.active{background:var(--navy);border-color:var(--navy);color:white}
-    .medical-pass-card{border:1px solid #dbeafe;background:#ffffff;border-radius:22px;padding:16px;box-shadow:0 10px 26px rgba(15,23,42,.08)}
+    .medical-view-tab{border:1px solid var(--border);background:white;color:#475569;border-radius:var(--radius-md);padding:11px 10px;font-weight:950}
+    .medical-view-tab.active{background:var(--color-primary);border-color:var(--color-primary);color:white}
+    .medical-pass-card{border:1px solid #dbeafe;background:#ffffff;border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-card)}
     .medical-pass-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:10px}
     .medical-pass-title{font-size:20px;font-weight:950;color:var(--navy);margin:0}
     .medical-pass-lang{font-size:12px;font-weight:950;color:#0f766e;background:#ecfeff;border-radius:999px;padding:5px 9px;white-space:nowrap}
@@ -216,7 +249,7 @@
     .medical-pass-label{font-size:13px;font-weight:950;color:#475569}
     .medical-pass-value{font-size:20px;line-height:1.35;font-weight:950;color:#0f172a;word-break:break-word}
     .modal{position:fixed;inset:0;z-index:100;background:rgba(2,6,23,.58);display:flex;align-items:center;justify-content:center;padding:18px}
-    .modal-box{background:white;border-radius:30px;padding:22px;width:min(560px,100%);box-shadow:0 30px 80px rgba(15,23,42,.35);max-height:88vh;overflow:auto}
+    .modal-box{background:white;border-radius:var(--radius-lg);padding:22px;width:min(560px,100%);box-shadow:0 30px 80px rgba(15,23,42,.35);max-height:88vh;overflow:auto}
     .bottom-nav{
       position:fixed!important;
       left:0!important;
@@ -228,18 +261,18 @@
       border-top:1px solid var(--border);
       display:grid;
       grid-template-columns:repeat(5,1fr);
-      padding:8px 8px calc(10px + var(--safe-bottom));
+      padding:7px 8px calc(9px + var(--safe-bottom));
       backdrop-filter:blur(14px);
       -webkit-backdrop-filter:blur(14px);
-      box-shadow:0 -12px 30px rgba(15,23,42,.12);
+      box-shadow:0 -8px 24px rgba(15,23,42,.10);
       transform:translateZ(0);
       -webkit-transform:translateZ(0);
     }
-    .nav-btn{border:0;background:transparent;border-radius:16px;padding:8px 2px;font-size:11px;font-weight:900;color:#475569;min-height:58px}
-    .nav-btn .ico{display:block;font-size:22px;margin-bottom:3px}
-    .nav-btn.active{background:#ecfeff;color:var(--navy)}
-    .content-pad{padding-bottom:150px!important}
-    .legal-footer{width:min(1060px,100%);margin:24px auto 0;padding:20px;border:1px solid var(--border);border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 10px 28px rgba(148,163,184,.14)}
+    .nav-btn{border:0;background:transparent;border-radius:var(--radius-sm);padding:8px 2px;font-size:11px;font-weight:900;color:#64748b;min-height:56px}
+    .nav-btn .ico{display:block;font-size:21px;margin-bottom:3px}
+    .nav-btn.active{background:#eef6ff;color:var(--color-primary)}
+    .content-pad{padding-bottom:calc(var(--bottom-nav-height) + 28px)!important}
+    .legal-footer{width:min(1060px,100%);margin:24px auto 0;padding:20px;border:1px solid var(--border);border-radius:var(--radius-lg);background:rgba(255,255,255,.9);box-shadow:var(--shadow-soft)}
     .legal-footer p{margin:0 0 14px;color:#475569;font-size:13px;font-weight:850;line-height:1.7}
     .legal-footer p span{display:block}
     .legal-links{display:flex;flex-wrap:wrap;gap:10px}
@@ -320,10 +353,9 @@
         <h2 style="margin-bottom:8px">처음이라면 이렇게 사용하세요</h2>
         <div class="grid" style="margin-top:12px">
           <div class="step"><span class="check">1</span><span>여행 국가/지역을 선택하세요.</span></div>
-          <div class="step"><span class="check">2</span><span>여행 도시/지역을 입력하세요.</span></div>
-          <div class="step"><span class="check">3</span><span>의료카드를 미리 작성하세요.</span></div>
-          <div class="step"><span class="check">4</span><span>응급번호와 지원 상태를 확인하세요.</span></div>
-          <div class="step"><span class="check">5</span><span>필요할 때 현지어 도움 문장을 보여주세요.</span></div>
+          <div class="step"><span class="check">2</span><span>언어, 응급번호, 지원 상태를 확인하세요.</span></div>
+          <div class="step"><span class="check">3</span><span>필요한 서비스를 선택하세요.</span></div>
+          <div class="step"><span class="check">4</span><span>의료카드나 현지어 도움 문장을 바로 보여주세요.</span></div>
         </div>
         <p class="home-helper" style="margin-top:12px">응급 상황에서는 앱 사용보다 현지 응급번호, 가까운 의료기관, 숙소, 대사관/영사관의 도움을 우선하세요.</p>
       </div>
@@ -453,7 +485,7 @@
       <section id="aiCarePanel" class="card ai-panel">
         <div class="between" style="margin-bottom:10px">
           <div>
-            <p class="eyebrow" style="color:#99f6e4">AI Care</p>
+            <p class="eyebrow">AI Care</p>
             <h2 id="symptomTitle">증상 입력</h2>
           </div>
           <div style="font-size:42px">💓</div>
@@ -3209,8 +3241,21 @@ function renderLanguageList(){
     return;
   }
   grid.innerHTML =
-    '<div class="notice teal" style="margin:0 0 8px">우선 지원 '+publicOptions.length+'개 국가·지역입니다. 국가 또는 지역을 누르면 여행 설정과 현지어 도움 문장이 함께 바뀝니다.</div>' +
-    list.map(item => '<button class="lang-btn '+(hasTripCountrySelection && item.id===tripCountryId?'active':'')+'" data-trip-country="'+item.id+'" type="button"><span class="flag">'+item.flag+'</span><span><span style="display:block;font-weight:950;color:var(--navy)">'+escapeHtml(item.countryKo)+'</span><span class="small muted" style="display:block">'+escapeHtml(item.country)+'</span><span class="small muted" style="display:block;margin-top:3px">'+escapeHtml(countryMetaLine(item))+'</span>'+(item.safetyNotice || item.regionNotice ? '<span class="small" style="display:block;margin-top:5px;color:#b45309;font-weight:950">여행 안전 정보 확인 권장</span>' : '')+'</span></button>').join("");
+    '<div class="country-list-notice"><span style="font-size:24px">🌐</span><span><strong>우선 지원 '+publicOptions.length+'개 국가·지역</strong><br>여행 설정과 현지 도움 문장이 함께 제공됩니다.</span></div>' +
+    list.map(item => {
+      const active = hasTripCountrySelection && item.id===tripCountryId;
+      const supportLimited = isLimitedEmergencySupport(item);
+      const code = item.countryCode || String(item.id || "").toUpperCase();
+      return '<button class="lang-btn '+(active?'active':'')+'" data-trip-country="'+item.id+'" type="button">'+
+        '<span class="country-code-chip">'+escapeHtml(code)+'</span>'+
+        '<span class="country-texts">'+
+          '<span class="country-name-ko">'+escapeHtml(item.countryKo)+'</span>'+
+          '<span class="country-name-en">'+escapeHtml(item.country)+'</span>'+
+          '<span class="country-emergency">응급번호 '+escapeHtml(getEmergencyNumber(item.id))+'</span>'+
+        '</span>'+
+        '<span class="support-badge '+(supportLimited ? "limited" : "supported")+'">'+(supportLimited ? "제한" : "정식")+'</span>'+
+      '</button>';
+    }).join("");
 
   document.querySelectorAll("[data-trip-country]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.tripCountry))));
 }
@@ -3227,14 +3272,15 @@ function renderLanguagePage(){
     emergencyData.lastVerified ? "확인일: "+emergencyData.lastVerified : ""
   ].filter(Boolean).join(" · ") : "";
   $("tripSummaryPanel").classList.toggle("summary-empty", !hasTrip);
-  $("selectedFlag").textContent=hasTrip ? tripOpt.flag : "✈️";
+  $("selectedFlag").textContent=hasTrip ? (tripOpt.countryCode || tripOpt.id || "").toUpperCase() : "✈️";
   $("selectedNative").textContent=hasTrip ? tripOpt.countryKo : "아직 여행 국가/지역을 선택하지 않았습니다.";
   $("selectedCountry").innerHTML=hasTrip
-    ? '<div style="display:grid;gap:8px;margin-top:8px">'+
-        '<div><strong>현지어:</strong> '+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+'</div>'+
-        '<div><strong>대표 응급번호:</strong> '+escapeHtml(getTripEmergencyNumber())+'</div>'+
+    ? '<div class="country-summary-detail">'+
+        '<div><span>영어명</span><strong>'+escapeHtml(tripOpt.country || "")+'</strong></div>'+
+        '<div><span>현지어</span><strong>'+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+'</strong></div>'+
+        '<div><span>대표 응급번호</span><strong>'+escapeHtml(getTripEmergencyNumber())+'</strong></div>'+
         supportStatusHtml(emergencyData)+
-        '<div class="small muted">응급 상황에서는 현지 응급번호와 가까운 의료기관의 도움을 우선하세요.</div>'+
+        '<div class="country-summary-note small muted">응급 상황에서는 현지 응급번호와 가까운 의료기관의 도움을 우선하세요.</div>'+
         (sourceText ? '<details class="small muted"><summary style="cursor:pointer;font-weight:950">출처와 확인일 보기</summary><div style="margin-top:4px">'+escapeHtml(sourceText)+'</div></details>' : '')+
         countryNoticeHtml(tripOpt)+
       '</div>'
@@ -3259,13 +3305,7 @@ function renderAppFlowSummary(){
       '<div><p class="eyebrow" style="margin-bottom:4px">Current Flow</p><h3 style="margin:0">'+escapeHtml((tripCountryName || tripOpt.countryKo || "여행 국가 미선택"))+'에서 필요한 기능을 선택하세요</h3></div>'+
       '<span class="support-badge '+(isLimitedEmergencySupport(tripOpt) ? "limited" : "supported")+'">'+(isLimitedEmergencySupport(tripOpt) ? "제한 지원" : "정식 지원")+'</span>'+
     '</div>'+
-    '<p class="home-helper">현지어: '+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+' · 응급번호: '+escapeHtml(emergencyLabel)+'</p>'+
-    '<div class="flow-actions">'+
-      '<button class="btn primary" type="button" data-service="symptom">AI Care 시작</button>'+
-      '<button class="btn outline" type="button" data-service="medicalCard">의료카드 보기</button>'+
-      '<button class="btn outline" type="button" data-service="phrases">현지 문장 보기</button>'+
-      '<button class="btn outline" type="button" data-service="info">기타 도움</button>'+
-    '</div>';
+    '<p class="home-helper">현지어: '+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+' · 응급번호: '+escapeHtml(emergencyLabel)+'</p>';
 }
 function renderServices(){
   const tx=t();
@@ -3273,7 +3313,14 @@ function renderServices(){
   renderAppFlowSummary();
   const homeServiceKeys = ["symptom","phrases","medicalCard","hospital","pharmacy","emergency"];
   const homeServices = services.filter(s => homeServiceKeys.includes(s.key));
-  $("serviceGrid").innerHTML = homeServices.map(s => '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button"><div class="service-icon">'+s.icon+'</div><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+tx[s.descKey]+'</p></button>').join("");
+  $("serviceGrid").innerHTML = homeServices.map(s => {
+    const recommended = s.key === "symptom";
+    return '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button">'+
+      '<div class="service-icon">'+s.icon+'</div>'+
+      '<div class="service-copy"><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+tx[s.descKey]+'</p></div>'+
+      (recommended ? '<span class="service-badge">추천</span>' : '<span class="service-arrow">›</span>')+
+    '</button>';
+  }).join("");
   document.querySelectorAll("[data-service]").forEach(btn => btn.addEventListener("click", () => safe(() => openService(btn.dataset.service))));
   document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", (btn.dataset.action && btn.dataset.action===activeService) || (btn.dataset.nav==="serviceSection" && activeService==="home") || (btn.dataset.nav==="aiCarePanel" && activeService==="symptom")));
 
