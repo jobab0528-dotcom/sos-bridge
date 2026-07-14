@@ -92,6 +92,9 @@
     body.flow-app-active .flow-nav,
     body.flow-app-active #triageActions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(248,250,252,0),#f8fafc 22%);padding-top:12px}
     body.flow-app-active[data-flow-screen="screen-ai-result"] #triageActions{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:0;margin-top:18px!important;padding-bottom:8px}
+    body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:calc(108px + var(--safe-bottom))}
+    body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:calc(88px + var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(248,250,252,0),#f8fafc 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
+    @media (max-height:640px){body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:12px}body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{display:none}}
     body.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:8px;margin-top:10px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage.content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"]::after{content:"";position:fixed;left:0;right:0;bottom:0;height:max(8px,var(--safe-bottom));background:var(--bg);z-index:4;pointer-events:none}
@@ -2971,7 +2974,9 @@ function setupAppFlowScreens(){
 
   const screenAiInput = makeFlowScreen(root, "screen-ai-input", "AI Care 증상 입력", "증상을 한국어로 입력하면 응급도 참고 안내를 준비합니다.");
   appendExisting(screenAiInput, "aiCarePanel");
-  screenAiInput.appendChild(makeFlowNav([{label:"홈으로", attr:'data-flow-screen="screen-home"'}], true));
+  const aiInputHomeNav = makeFlowNav([{label:"홈으로", attr:'data-flow-screen="screen-home"'}], true);
+  aiInputHomeNav.classList.add("ai-input-home-nav");
+  screenAiInput.appendChild(aiInputHomeNav);
 
   const screenAiResult = makeFlowScreen(root, "screen-ai-result", "AI Care 결과", "결과를 확인하고 다음 행동을 선택하세요.");
   appendExisting(screenAiResult, "resultSection");
@@ -4412,11 +4417,7 @@ function openService(key){
     return;
   }
   if(key==="emergency"){
-    hideFeatureSections();
-    $("facilityCard").classList.add("hidden");
-    renderEmergencyInfoCard();
-    showFlowScreen("screen-emergency");
-    setStatus((tx.emergencyNumberSample||"Local ambulance number sample")+": "+getTripEmergencyNumber());
+    openCurrentEmergencyDialer("primary");
     return;
   }
   if(key==="symptom"){
