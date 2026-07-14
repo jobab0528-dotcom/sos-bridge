@@ -5741,19 +5741,56 @@ function uniqueList(items){
 }
 
 function callEmergencyNumber(){
-  if(isLimitedEmergencySupport(getTripOption())){
+  openCurrentEmergencyDialer("primary", {fallbackToScreen:false});
+}
+
+function normalizeEmergencyDialNumber(raw){
+  const text = String(raw || "").trim();
+  if(!text || text === "현지 응급번호 확인 필요" || !/\d/.test(text)) return "";
+  const first = text.split(/\s*(?:\/|,|;|\||또는|\bor\b)\s*/i).find(part => /\d/.test(part)) || "";
+  let number = first.replace(/[^\d+]/g, "");
+  if(!number || !/\d/.test(number)) return "";
+  const hasLeadingPlus = number.charAt(0) === "+";
+  number = number.replace(/\+/g, "");
+  return hasLeadingPlus ? "+" + number : number;
+}
+
+function getCurrentEmergencyDialNumber(type="primary"){
+  const opt = getTripOption();
+  const data = getEmergencyNumbersData(opt);
+  if(data && data.status === "needs-verification") return "";
+  const legacy = opt && opt.emergencyNumber;
+  const values = type === "ambulance"
+    ? [data && data.ambulance, data && data.primary, legacy]
+    : [data && data.primary, data && data.ambulance, legacy];
+  for(const value of values){
+    const normalized = normalizeEmergencyDialNumber(value);
+    if(normalized) return normalized;
+  }
+  return "";
+}
+
+function showEmergencyDialUnavailable(fallbackToScreen=true){
+  if(fallbackToScreen){
+    hideFeatureSections();
+    $("facilityCard").classList.add("hidden");
+    renderEmergencyInfoCard();
+    showFlowScreen("screen-emergency");
+  }else{
     showEmergency();
-    setStatus("제한 지원 국가입니다. 현지 공공기관, 숙소, 대사관 또는 영사관, 여행자 보험사에 즉시 확인하세요.");
-    return;
   }
-  const raw = String(getTripEmergencyNumber() || "").split("/")[0].trim();
-  const tel = raw.replace(/[^\d+]/g, "");
-  if(tel){
-    window.location.href = "tel:" + tel;
-    setStatus("현지 응급번호 전화 앱을 열었습니다. 연결되지 않으면 번호를 직접 입력하세요: "+getTripEmergencyNumber());
-    return;
+  setStatus("확인된 전화번호가 없습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에 확인하세요.");
+}
+
+function openCurrentEmergencyDialer(type="primary", opts={}){
+  const number = getCurrentEmergencyDialNumber(type);
+  if(number){
+    window.location.href = "tel:" + number;
+    setStatus("현지 응급번호 전화 앱을 열었습니다. 연결되지 않으면 번호를 직접 입력하세요: "+number);
+    return true;
   }
-  showEmergency();
+  showEmergencyDialUnavailable(opts.fallbackToScreen !== false);
+  return false;
 }
 
 function openHospitalFromTriage(){
@@ -5884,7 +5921,7 @@ function init(){
   on("startBtn","click",showApp);
   on("changeLangBtn","click",showLanguage);
   on("appCountryPill","click",showLanguage);
-  on("headerEmergencyBtn","click",()=>openService("emergency"));
+  on("headerEmergencyBtn","click",()=>openCurrentEmergencyDialer("ambulance"));
   on("languageSearch","input",renderLanguageList);
   on("userLangSelect","change",e=>{ selected="ko"; renderLanguagePage(); });
   on("tripCountrySelect","change",e=>{
@@ -5934,7 +5971,8 @@ function init(){
     if(btn.dataset.nav === "serviceSection") showFlowScreen("screen-home");
     else if(btn.dataset.nav === "aiCarePanel") openService("symptom");
     else if(btn.dataset.nav) scrollToId(btn.dataset.nav);
-    if(btn.dataset.action) openService(btn.dataset.action);
+    if(btn.dataset.action === "emergency") openCurrentEmergencyDialer("primary");
+    else if(btn.dataset.action) openService(btn.dataset.action);
   })));
   renderAll();
   initAllLanguageTestPanel();
