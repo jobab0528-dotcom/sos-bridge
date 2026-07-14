@@ -415,6 +415,110 @@
       return runAllLanguageTest("all");
     }
 
+    const prescriptionSourceKo = String(context.prescriptionSourceKo || "처방전이 필요합니다.");
+    const prescriptionStatements = context.prescriptionStatements && typeof context.prescriptionStatements === "object"
+      ? context.prescriptionStatements
+      : {};
+    const prescriptionHumanReviewCodes = new Set(["he", "hi", "km", "lo", "mt", "my", "si"]);
+
+    function prescriptionAuditTargets(){
+      const seen = new Set();
+      return priorityLanguageOptions.filter((country) => {
+        const code = String(country && country.languageCode || "").trim().toLowerCase();
+        if(!code || seen.has(code)) return false;
+        seen.add(code);
+        return true;
+      });
+    }
+
+    function prescriptionStatementForAudit(languageCode){
+      const normalized = String(languageCode || "").trim().toLowerCase();
+      return String(prescriptionStatements[normalized] || prescriptionStatements[normalized.split("-")[0]] || "").trim();
+    }
+
+    function evaluatePrescriptionPhrase(country){
+      const languageCode = String(country && country.languageCode || "").trim().toLowerCase();
+      const localPhraseLocal = prescriptionStatementForAudit(languageCode);
+      const blockReasons = [];
+      const reviewReasons = [];
+      if(prescriptionSourceKo !== "처방전이 필요합니다.") blockReasons.push("한국어 원문이 지정된 선언문과 다름");
+      if(!localPhraseLocal) blockReasons.push("대표 언어 문장이 없음");
+      if(/[?？¿؟]/.test(localPhraseLocal)) blockReasons.push("의문문 문장부호가 남아 있음");
+      if(languageCode === "ko" && localPhraseLocal !== "처방전이 필요합니다.") blockReasons.push("한국어 문장 불일치");
+      if(languageCode === "en" && localPhraseLocal !== "I need a prescription.") blockReasons.push("영어 문장 불일치");
+      if(prescriptionHumanReviewCodes.has(languageCode)) reviewReasons.push("의료 현장 표현의 자연스러움 원어민 검수 권장");
+      return {
+        country: [country.countryNameKo || country.countryKo, country.countryNameEn || country.country].filter(Boolean).join(" / "),
+        languageName: [country.languageNameKo || country.languageKo, country.languageNameEn].filter(Boolean).join(" / "),
+        languageCode,
+        title: "처방전 필요",
+        localPhraseKo: prescriptionSourceKo,
+        localPhraseLocal,
+        status: blockReasons.length ? "BLOCK" : reviewReasons.length ? "HUMAN_REVIEW" : "PASS",
+        reason: blockReasons.concat(reviewReasons).join(" / ") || "1인칭 선언문 정적 검증 통과"
+      };
+    }
+
+    function renderPrescriptionAuditRows(rows){
+      const tbody = $("sos-prescription-audit-rows");
+      if(!tbody) return;
+      tbody.innerHTML = rows.map((row) => {
+        const color = row.status === "PASS" ? "#047857" : row.status === "HUMAN_REVIEW" ? "#b45309" : "#b91c1c";
+        return '<tr>'+
+          '<td style="padding:8px;border:1px solid var(--border);font-weight:950;color:'+color+'">'+escapeHtml(row.status)+'</td>'+
+          devTestCell(row.country)+devTestCell(row.languageName)+devTestCell(row.languageCode)+devTestCell(row.title)+
+          devTestCell(row.localPhraseKo)+devTestCell(row.localPhraseLocal)+devTestCell(row.reason)+
+        '</tr>';
+      }).join("");
+    }
+
+    function runPrescriptionPhraseMockAudit(){
+      const rows = prescriptionAuditTargets().map(evaluatePrescriptionPhrase);
+      renderPrescriptionAuditRows(rows);
+      const passed = rows.filter((row) => row.status === "PASS").length;
+      const review = rows.filter((row) => row.status === "HUMAN_REVIEW").length;
+      const blocked = rows.filter((row) => row.status === "BLOCK").length;
+      const summary = $("sos-prescription-audit-summary");
+      if(summary) summary.textContent = "처방전 문장 모의 검사: 총 "+rows.length+"개 · PASS "+passed+"개 · HUMAN_REVIEW "+review+"개 · BLOCK "+blocked+"개";
+      return rows;
+    }
+
+    function createPrescriptionPhraseAuditPanel(){
+      if($("sos-prescription-audit-panel")) return;
+      const panel = $("sos-dev-test-panel");
+      if(!panel) return;
+      panel.insertAdjacentHTML("beforeend",
+        '<section id="sos-prescription-audit-panel" class="card" style="margin-top:18px">'+
+          '<p class="eyebrow" style="margin-bottom:6px">Pharmacy Phrase QA</p>'+
+          '<h2 style="margin-top:0">처방전 문장 의미 검사</h2>'+
+          '<p class="small muted" style="line-height:1.6">62개 우선 국가의 고유 대표 언어를 API 호출 없이 검사합니다. 제목·한국어 원문·현지어 문장과 PASS / HUMAN_REVIEW / BLOCK 판정을 함께 표시합니다.</p>'+
+          '<button id="run-prescription-phrase-mock-test" class="btn outline w-full" type="button">처방전 문장 모의 검사 실행</button>'+
+          '<div id="sos-prescription-audit-summary" class="notice teal small" style="margin-top:12px">처방전 문장 모의 검사: 아직 실행하지 않음</div>'+
+          '<div style="overflow:auto;margin-top:12px">'+
+            '<table style="width:100%;border-collapse:collapse;min-width:1040px;font-size:12px">'+
+              '<thead><tr style="background:#f8fafc;color:var(--navy);text-align:left">'+
+                '<th style="padding:9px;border:1px solid var(--border)">판정</th><th style="padding:9px;border:1px solid var(--border)">국가</th>'+
+                '<th style="padding:9px;border:1px solid var(--border)">언어명</th><th style="padding:9px;border:1px solid var(--border)">languageCode</th>'+
+                '<th style="padding:9px;border:1px solid var(--border)">제목</th><th style="padding:9px;border:1px solid var(--border)">localPhraseKo</th>'+
+                '<th style="padding:9px;border:1px solid var(--border)">localPhraseLocal</th><th style="padding:9px;border:1px solid var(--border)">이유</th>'+
+              '</tr></thead><tbody id="sos-prescription-audit-rows"></tbody>'+
+            '</table>'+
+          '</div>'+
+        '</section>'
+      );
+    }
+
+    function bindPrescriptionPhraseAuditButton(){
+      const button = $("run-prescription-phrase-mock-test");
+      if(button) button.addEventListener("click", runPrescriptionPhraseMockAudit);
+    }
+
+    window.SOS_BRIDGE_PRESCRIPTION_AUDIT_DEV = {
+      targets: prescriptionAuditTargets,
+      evaluate: evaluatePrescriptionPhrase,
+      runMock: runPrescriptionPhraseMockAudit
+    };
+
     const aiCareAuditStorageKey = "sosBridgeAiCareSemanticAudit:v1";
     let aiCareAuditRows = [];
 
@@ -1148,8 +1252,10 @@
     }
 
     createAllLanguageTestPanel();
+    createPrescriptionPhraseAuditPanel();
     createAiCareSemanticAuditPanel();
     bindAllLanguageTestButtons();
+    bindPrescriptionPhraseAuditButton();
     bindAiCareSemanticAuditButtons();
     }catch(error){
       console.error("developer-test.js runtime error", error);

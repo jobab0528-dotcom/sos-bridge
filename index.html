@@ -118,7 +118,7 @@
     body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:max(8px,var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
     @media (max-height:640px){body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:12px}body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{display:none}}
     body.flow-app-active[data-flow-screen="screen-help-phrases"] #appPage.content-pad{padding-bottom:0!important}
-    body.flow-app-active #screen-help-phrases{grid-template-rows:auto minmax(0,1fr) auto;gap:12px;overflow:hidden;padding-bottom:0}
+    body.flow-app-active #screen-help-phrases{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto;height:100%;min-height:0;gap:12px;overflow:hidden!important;padding-bottom:0}
     body.flow-app-active #screen-help-phrases>.help-phrases-scroll{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:grid;gap:14px;align-content:start;padding:0 2px 12px 0}
     body.flow-app-active #screen-help-phrases>.help-phrases-home-nav{position:static;bottom:auto;z-index:auto;flex-shrink:0;margin:0;padding:10px 0 max(8px,var(--safe-bottom));background:var(--bg);grid-template-columns:1fr}
     body.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:8px;margin-top:10px}
@@ -2680,25 +2680,46 @@ function getEmergencyNumber(id){
 const getSpeechLang = id => speechLangs[getCountryLanguageCode(id)] || speechLangs[mapLocale(id)] || "en-US";
 
 const langAliases = {"en-us":"en","en-gb":"en","en-ca":"en","en-ie":"en","en-sg":"en","es-mx":"es","de-at":"de","de-ch":"de","ar-sa":"ar","ar-ae":"ar","ar-ma":"ar","ar-eg":"ar","nl-be":"nl","zh-tw":"zh","zh-hant":"zh","pt-br":"pt","fil":"en"};
+const PRESCRIPTION_SOURCE_KO = "처방전이 필요합니다.";
+const PRESCRIPTION_STATEMENTS = {
+  ar:"أحتاج إلى وصفة طبية.", bg:"Нуждая се от рецепта.", cs:"Potřebuji lékařský předpis.", da:"Jeg har brug for en recept.",
+  de:"Ich brauche ein Rezept.", el:"Χρειάζομαι συνταγή.", en:"I need a prescription.", es:"Necesito una receta médica.",
+  et:"Mul on vaja retsepti.", fi:"Tarvitsen reseptin.", fil:"Kailangan ko ng reseta.", tl:"Kailangan ko ng reseta.",
+  fr:"J'ai besoin d'une ordonnance.", he:"אני זקוק/ה למרשם רפואי.", hi:"मुझे डॉक्टर की पर्ची चाहिए।", hr:"Trebam recept.",
+  hu:"Receptre van szükségem.", id:"Saya memerlukan resep.", is:"Ég þarf lyfseðil.", it:"Ho bisogno di una prescrizione medica.",
+  ja:"処方箋が必要です。", km:"ខ្ញុំត្រូវការវេជ្ជបញ្ជា។", ko:PRESCRIPTION_SOURCE_KO, lo:"ຂ້ອຍຕ້ອງການໃບສັ່ງຢາ.",
+  lt:"Man reikia recepto.", lv:"Man ir nepieciešama recepte.", ms:"Saya memerlukan preskripsi.", mt:"Għandi bżonn riċetta tat-tabib.",
+  my:"ဆရာဝန်ဆေးညွှန်း လိုအပ်ပါတယ်။", nl:"Ik heb een recept nodig.", no:"Jeg trenger resept.", pl:"Potrzebuję recepty.",
+  pt:"Preciso de uma receita médica.", "pt-br":"Preciso de uma receita médica.", ro:"Am nevoie de o rețetă.", si:"මට වෛද්‍ය වට්ටෝරුවක් අවශ්‍යයි.",
+  sk:"Potrebujem lekársky predpis.", sl:"Potrebujem recept.", sv:"Jag behöver ett recept.", th:"ฉันต้องการใบสั่งยา",
+  tr:"Reçeteye ihtiyacım var.", vi:"Tôi cần đơn thuốc.", zh:"我需要处方。", "zh-tw":"我需要處方箋。"
+};
+function prescriptionStatementForLanguageCode(languageCode){
+  const normalized = String(languageCode || "").trim().toLowerCase();
+  return PRESCRIPTION_STATEMENTS[normalized] || PRESCRIPTION_STATEMENTS[normalized.split("-")[0]] || "";
+}
+function isQuestionLikePrescription(value){
+  return /[?？¿؟]/.test(String(value || ""));
+}
 const phrasePacks = {
-  ko:{help:"도와주세요.", ambulance:"구급차를 불러 주세요.", hospital:"병원에 가야 합니다.", pharmacy:"약국이 필요합니다.", pain:"통증이 있습니다.", allergy:"알레르기가 있습니다.", medication:"복용 중인 약이 있습니다.", fever:"열이 있습니다.", stomach:"복통이 있습니다.", stabbed:"칼이나 물체에 찔렸습니다.", accident:"교통사고를 당했습니다.", pharmacyQ:"이 증상에 처방전 없이 살 수 있는 약이 있나요?", dosage:"복용 방법을 알려 주세요.", prescription:"처방전이 필요한가요?"},
-  en:{help:"Please help me.", ambulance:"Please call an ambulance.", hospital:"I need to go to a hospital.", pharmacy:"I need a pharmacy.", pain:"I have pain.", allergy:"I have an allergy.", medication:"I take medication.", fever:"I have a fever.", stomach:"I have stomach pain.", stabbed:"I was stabbed or injured by an object.", accident:"I was in a traffic accident.", pharmacyQ:"Is there any over-the-counter medicine for this symptom?", dosage:"Please tell me how to take this medicine.", prescription:"Do I need a prescription?"},
-  fr:{help:"Aidez-moi, s'il vous plaît.", ambulance:"Appelez une ambulance, s'il vous plaît.", hospital:"Je dois aller à l'hôpital.", pharmacy:"J'ai besoin d'une pharmacie.", pain:"J'ai mal.", allergy:"J'ai une allergie.", medication:"Je prends des médicaments.", fever:"J'ai de la fièvre.", stomach:"J'ai mal au ventre.", stabbed:"J'ai été blessé par un couteau ou un objet.", accident:"J'ai eu un accident de la route.", pharmacyQ:"Existe-t-il un médicament sans ordonnance pour ce symptôme ?", dosage:"Veuillez m'expliquer comment prendre ce médicament.", prescription:"Faut-il une ordonnance ?"},
-  es:{help:"Por favor, ayúdeme.", ambulance:"Por favor, llame a una ambulancia.", hospital:"Necesito ir a un hospital.", pharmacy:"Necesito una farmacia.", pain:"Tengo dolor.", allergy:"Tengo alergia.", medication:"Tomo medicamentos.", fever:"Tengo fiebre.", stomach:"Tengo dolor de estómago.", stabbed:"Me han apuñalado o herido con un objeto.", accident:"Tuve un accidente de tráfico.", pharmacyQ:"¿Hay algún medicamento sin receta para este síntoma?", dosage:"Por favor, dígame cómo tomar este medicamento.", prescription:"¿Necesito receta médica?"},
-  ja:{help:"助けてください。", ambulance:"救急車を呼んでください。", hospital:"病院に行く必要があります。", pharmacy:"薬局が必要です。", pain:"痛みがあります。", allergy:"アレルギーがあります。", medication:"服用中の薬があります。", fever:"熱があります。", stomach:"腹痛があります。", stabbed:"刃物または物でけがをしました。", accident:"交通事故に遭いました。", pharmacyQ:"この症状に使える市販薬はありますか？", dosage:"この薬の飲み方を教えてください。", prescription:"処方箋が必要ですか？"},
-  vi:{help:"Làm ơn giúp tôi.", ambulance:"Vui lòng gọi xe cứu thương.", hospital:"Tôi cần đến bệnh viện.", pharmacy:"Tôi cần nhà thuốc.", pain:"Tôi bị đau.", allergy:"Tôi bị dị ứng.", medication:"Tôi đang dùng thuốc.", fever:"Tôi bị sốt.", stomach:"Tôi bị đau bụng.", stabbed:"Tôi bị đâm hoặc bị thương bởi một vật.", accident:"Tôi bị tai nạn giao thông.", pharmacyQ:"Có thuốc không cần đơn cho triệu chứng này không?", dosage:"Vui lòng hướng dẫn cách dùng thuốc này.", prescription:"Tôi có cần đơn thuốc không?"},
-  zh:{help:"请帮助我。", ambulance:"请叫救护车。", hospital:"我需要去医院。", pharmacy:"我需要药店。", pain:"我有疼痛。", allergy:"我有过敏。", medication:"我正在服药。", fever:"我发烧了。", stomach:"我肚子痛。", stabbed:"我被刀或物体刺伤了。", accident:"我发生了交通事故。", pharmacyQ:"这种症状有非处方药吗？", dosage:"请告诉我怎么服用这种药。", prescription:"需要处方吗？"},
-  de:{help:"Bitte helfen Sie mir.", ambulance:"Bitte rufen Sie einen Krankenwagen.", hospital:"Ich muss ins Krankenhaus.", pharmacy:"Ich brauche eine Apotheke.", pain:"Ich habe Schmerzen.", allergy:"Ich habe eine Allergie.", medication:"Ich nehme Medikamente.", fever:"Ich habe Fieber.", stomach:"Ich habe Bauchschmerzen.", stabbed:"Ich wurde mit einem Messer oder Gegenstand verletzt.", accident:"Ich hatte einen Verkehrsunfall.", pharmacyQ:"Gibt es ein rezeptfreies Medikament für dieses Symptom?", dosage:"Bitte erklären Sie mir, wie ich dieses Medikament einnehmen soll.", prescription:"Brauche ich ein Rezept?"},
-  it:{help:"Mi aiuti, per favore.", ambulance:"Chiami un'ambulanza, per favore.", hospital:"Devo andare in ospedale.", pharmacy:"Ho bisogno di una farmacia.", pain:"Ho dolore.", allergy:"Ho un'allergia.", medication:"Prendo farmaci.", fever:"Ho la febbre.", stomach:"Ho mal di pancia.", stabbed:"Sono stato ferito da un coltello o da un oggetto.", accident:"Ho avuto un incidente stradale.", pharmacyQ:"C'è un farmaco da banco per questo sintomo?", dosage:"Mi spieghi come prendere questo medicinale.", prescription:"Serve una ricetta?"},
-  tr:{help:"Lütfen bana yardım edin.", ambulance:"Lütfen ambulans çağırın.", hospital:"Hastaneye gitmem gerekiyor.", pharmacy:"Eczaneye ihtiyacım var.", pain:"Ağrım var.", allergy:"Alerjim var.", medication:"İlaç kullanıyorum.", fever:"Ateşim var.", stomach:"Karın ağrım var.", stabbed:"Bıçakla veya bir cisimle yaralandım.", accident:"Trafik kazası geçirdim.", pharmacyQ:"Bu belirti için reçetesiz ilaç var mı?", dosage:"Bu ilacı nasıl kullanacağımı söyler misiniz?", prescription:"Reçete gerekli mi?"},
-  th:{help:"กรุณาช่วยฉันด้วย", ambulance:"กรุณาเรียกรถพยาบาล", hospital:"ฉันต้องไปโรงพยาบาล", pharmacy:"ฉันต้องการร้านขายยา", pain:"ฉันมีอาการปวด", allergy:"ฉันมีอาการแพ้", medication:"ฉันกำลังกินยาอยู่", fever:"ฉันมีไข้", stomach:"ฉันปวดท้อง", stabbed:"ฉันถูกแทงหรือบาดเจ็บจากวัตถุ", accident:"ฉันประสบอุบัติเหตุทางถนน", pharmacyQ:"มียาที่ซื้อได้โดยไม่ต้องมีใบสั่งแพทย์สำหรับอาการนี้ไหม", dosage:"กรุณาบอกวิธีใช้ยานี้", prescription:"ต้องมีใบสั่งแพทย์ไหม"},
-  pt:{help:"Por favor, ajude-me.", ambulance:"Por favor, chame uma ambulância.", hospital:"Preciso ir a um hospital.", pharmacy:"Preciso de uma farmácia.", pain:"Estou com dor.", allergy:"Tenho alergia.", medication:"Tomo medicamentos.", fever:"Estou com febre.", stomach:"Estou com dor abdominal.", stabbed:"Fui ferido por uma faca ou objeto.", accident:"Sofri um acidente de trânsito.", pharmacyQ:"Existe algum remédio sem receita para este sintoma?", dosage:"Por favor, explique como tomar este medicamento.", prescription:"Preciso de receita médica?"},
-  nl:{help:"Help mij alstublieft.", ambulance:"Bel alstublieft een ambulance.", hospital:"Ik moet naar een ziekenhuis.", pharmacy:"Ik heb een apotheek nodig.", pain:"Ik heb pijn.", allergy:"Ik heb een allergie.", medication:"Ik gebruik medicijnen.", fever:"Ik heb koorts.", stomach:"Ik heb buikpijn.", stabbed:"Ik ben verwond door een mes of voorwerp.", accident:"Ik heb een verkeersongeval gehad.", pharmacyQ:"Is er een vrij verkrijgbaar medicijn voor dit symptoom?", dosage:"Kunt u uitleggen hoe ik dit medicijn moet innemen?", prescription:"Heb ik een recept nodig?"},
-  ms:{help:"Tolong bantu saya.", ambulance:"Tolong panggil ambulans.", hospital:"Saya perlu pergi ke hospital.", pharmacy:"Saya perlukan farmasi.", pain:"Saya sakit.", allergy:"Saya ada alahan.", medication:"Saya sedang mengambil ubat.", fever:"Saya demam.", stomach:"Saya sakit perut.", stabbed:"Saya cedera akibat pisau atau objek.", accident:"Saya mengalami kemalangan jalan raya.", pharmacyQ:"Ada ubat tanpa preskripsi untuk simptom ini?", dosage:"Tolong terangkan cara mengambil ubat ini.", prescription:"Perlukah preskripsi?"},
-  id:{help:"Tolong bantu saya.", ambulance:"Tolong panggil ambulans.", hospital:"Saya perlu ke rumah sakit.", pharmacy:"Saya perlu apotek.", pain:"Saya merasa sakit.", allergy:"Saya punya alergi.", medication:"Saya sedang minum obat.", fever:"Saya demam.", stomach:"Saya sakit perut.", stabbed:"Saya ditusuk atau terluka oleh benda.", accident:"Saya mengalami kecelakaan lalu lintas.", pharmacyQ:"Apakah ada obat bebas untuk gejala ini?", dosage:"Tolong jelaskan cara minum obat ini.", prescription:"Apakah perlu resep?"},
-  ar:{help:"من فضلك ساعدني.", ambulance:"من فضلك اتصل بالإسعاف.", hospital:"أحتاج إلى الذهاب إلى المستشفى.", pharmacy:"أحتاج إلى صيدلية.", pain:"لدي ألم.", allergy:"لدي حساسية.", medication:"أتناول دواء.", fever:"لدي حمى.", stomach:"لدي ألم في البطن.", stabbed:"أُصبت بسكين أو بجسم.", accident:"تعرضت لحادث مروري.", pharmacyQ:"هل يوجد دواء بدون وصفة لهذه الأعراض؟", dosage:"من فضلك أخبرني كيف أستخدم هذا الدواء.", prescription:"هل أحتاج إلى وصفة طبية؟"},
-  pl:{help:"Proszę mi pomóc.", ambulance:"Proszę wezwać karetkę.", hospital:"Muszę iść do szpitala.", pharmacy:"Potrzebuję apteki.", pain:"Czuję ból.", allergy:"Mam alergię.", medication:"Biorę leki.", fever:"Mam gorączkę.", stomach:"Boli mnie brzuch.", stabbed:"Zostałem zraniony nożem lub przedmiotem.", accident:"Miałem wypadek drogowy.", pharmacyQ:"Czy jest lek bez recepty na ten objaw?", dosage:"Proszę powiedzieć, jak przyjmować ten lek.", prescription:"Czy potrzebuję recepty?"},
-  da:{help:"Hjælp mig venligst.", ambulance:"Ring venligst efter en ambulance.", hospital:"Jeg skal på hospitalet.", pharmacy:"Jeg har brug for et apotek.", pain:"Jeg har smerter.", allergy:"Jeg har allergi.", medication:"Jeg tager medicin.", fever:"Jeg har feber.", stomach:"Jeg har mavesmerter.", stabbed:"Jeg er blevet såret af en kniv eller genstand.", accident:"Jeg har været i en trafikulykke.", pharmacyQ:"Findes der håndkøbsmedicin til dette symptom?", dosage:"Forklar venligst, hvordan jeg tager denne medicin.", prescription:"Skal jeg have recept?"}
+  ko:{help:"도와주세요.", ambulance:"구급차를 불러 주세요.", hospital:"병원에 가야 합니다.", pharmacy:"약국이 필요합니다.", pain:"통증이 있습니다.", allergy:"알레르기가 있습니다.", medication:"복용 중인 약이 있습니다.", fever:"열이 있습니다.", stomach:"복통이 있습니다.", stabbed:"칼이나 물체에 찔렸습니다.", accident:"교통사고를 당했습니다.", pharmacyQ:"이 증상에 처방전 없이 살 수 있는 약이 있나요?", dosage:"복용 방법을 알려 주세요.", prescription:PRESCRIPTION_SOURCE_KO},
+  en:{help:"Please help me.", ambulance:"Please call an ambulance.", hospital:"I need to go to a hospital.", pharmacy:"I need a pharmacy.", pain:"I have pain.", allergy:"I have an allergy.", medication:"I take medication.", fever:"I have a fever.", stomach:"I have stomach pain.", stabbed:"I was stabbed or injured by an object.", accident:"I was in a traffic accident.", pharmacyQ:"Is there any over-the-counter medicine for this symptom?", dosage:"Please tell me how to take this medicine.", prescription:PRESCRIPTION_STATEMENTS.en},
+  fr:{help:"Aidez-moi, s'il vous plaît.", ambulance:"Appelez une ambulance, s'il vous plaît.", hospital:"Je dois aller à l'hôpital.", pharmacy:"J'ai besoin d'une pharmacie.", pain:"J'ai mal.", allergy:"J'ai une allergie.", medication:"Je prends des médicaments.", fever:"J'ai de la fièvre.", stomach:"J'ai mal au ventre.", stabbed:"J'ai été blessé par un couteau ou un objet.", accident:"J'ai eu un accident de la route.", pharmacyQ:"Existe-t-il un médicament sans ordonnance pour ce symptôme ?", dosage:"Veuillez m'expliquer comment prendre ce médicament.", prescription:PRESCRIPTION_STATEMENTS.fr},
+  es:{help:"Por favor, ayúdeme.", ambulance:"Por favor, llame a una ambulancia.", hospital:"Necesito ir a un hospital.", pharmacy:"Necesito una farmacia.", pain:"Tengo dolor.", allergy:"Tengo alergia.", medication:"Tomo medicamentos.", fever:"Tengo fiebre.", stomach:"Tengo dolor de estómago.", stabbed:"Me han apuñalado o herido con un objeto.", accident:"Tuve un accidente de tráfico.", pharmacyQ:"¿Hay algún medicamento sin receta para este síntoma?", dosage:"Por favor, dígame cómo tomar este medicamento.", prescription:PRESCRIPTION_STATEMENTS.es},
+  ja:{help:"助けてください。", ambulance:"救急車を呼んでください。", hospital:"病院に行く必要があります。", pharmacy:"薬局が必要です。", pain:"痛みがあります。", allergy:"アレルギーがあります。", medication:"服用中の薬があります。", fever:"熱があります。", stomach:"腹痛があります。", stabbed:"刃物または物でけがをしました。", accident:"交通事故に遭いました。", pharmacyQ:"この症状に使える市販薬はありますか？", dosage:"この薬の飲み方を教えてください。", prescription:PRESCRIPTION_STATEMENTS.ja},
+  vi:{help:"Làm ơn giúp tôi.", ambulance:"Vui lòng gọi xe cứu thương.", hospital:"Tôi cần đến bệnh viện.", pharmacy:"Tôi cần nhà thuốc.", pain:"Tôi bị đau.", allergy:"Tôi bị dị ứng.", medication:"Tôi đang dùng thuốc.", fever:"Tôi bị sốt.", stomach:"Tôi bị đau bụng.", stabbed:"Tôi bị đâm hoặc bị thương bởi một vật.", accident:"Tôi bị tai nạn giao thông.", pharmacyQ:"Có thuốc không cần đơn cho triệu chứng này không?", dosage:"Vui lòng hướng dẫn cách dùng thuốc này.", prescription:PRESCRIPTION_STATEMENTS.vi},
+  zh:{help:"请帮助我。", ambulance:"请叫救护车。", hospital:"我需要去医院。", pharmacy:"我需要药店。", pain:"我有疼痛。", allergy:"我有过敏。", medication:"我正在服药。", fever:"我发烧了。", stomach:"我肚子痛。", stabbed:"我被刀或物体刺伤了。", accident:"我发生了交通事故。", pharmacyQ:"这种症状有非处方药吗？", dosage:"请告诉我怎么服用这种药。", prescription:PRESCRIPTION_STATEMENTS.zh},
+  de:{help:"Bitte helfen Sie mir.", ambulance:"Bitte rufen Sie einen Krankenwagen.", hospital:"Ich muss ins Krankenhaus.", pharmacy:"Ich brauche eine Apotheke.", pain:"Ich habe Schmerzen.", allergy:"Ich habe eine Allergie.", medication:"Ich nehme Medikamente.", fever:"Ich habe Fieber.", stomach:"Ich habe Bauchschmerzen.", stabbed:"Ich wurde mit einem Messer oder Gegenstand verletzt.", accident:"Ich hatte einen Verkehrsunfall.", pharmacyQ:"Gibt es ein rezeptfreies Medikament für dieses Symptom?", dosage:"Bitte erklären Sie mir, wie ich dieses Medikament einnehmen soll.", prescription:PRESCRIPTION_STATEMENTS.de},
+  it:{help:"Mi aiuti, per favore.", ambulance:"Chiami un'ambulanza, per favore.", hospital:"Devo andare in ospedale.", pharmacy:"Ho bisogno di una farmacia.", pain:"Ho dolore.", allergy:"Ho un'allergia.", medication:"Prendo farmaci.", fever:"Ho la febbre.", stomach:"Ho mal di pancia.", stabbed:"Sono stato ferito da un coltello o da un oggetto.", accident:"Ho avuto un incidente stradale.", pharmacyQ:"C'è un farmaco da banco per questo sintomo?", dosage:"Mi spieghi come prendere questo medicinale.", prescription:PRESCRIPTION_STATEMENTS.it},
+  tr:{help:"Lütfen bana yardım edin.", ambulance:"Lütfen ambulans çağırın.", hospital:"Hastaneye gitmem gerekiyor.", pharmacy:"Eczaneye ihtiyacım var.", pain:"Ağrım var.", allergy:"Alerjim var.", medication:"İlaç kullanıyorum.", fever:"Ateşim var.", stomach:"Karın ağrım var.", stabbed:"Bıçakla veya bir cisimle yaralandım.", accident:"Trafik kazası geçirdim.", pharmacyQ:"Bu belirti için reçetesiz ilaç var mı?", dosage:"Bu ilacı nasıl kullanacağımı söyler misiniz?", prescription:PRESCRIPTION_STATEMENTS.tr},
+  th:{help:"กรุณาช่วยฉันด้วย", ambulance:"กรุณาเรียกรถพยาบาล", hospital:"ฉันต้องไปโรงพยาบาล", pharmacy:"ฉันต้องการร้านขายยา", pain:"ฉันมีอาการปวด", allergy:"ฉันมีอาการแพ้", medication:"ฉันกำลังกินยาอยู่", fever:"ฉันมีไข้", stomach:"ฉันปวดท้อง", stabbed:"ฉันถูกแทงหรือบาดเจ็บจากวัตถุ", accident:"ฉันประสบอุบัติเหตุทางถนน", pharmacyQ:"มียาที่ซื้อได้โดยไม่ต้องมีใบสั่งแพทย์สำหรับอาการนี้ไหม", dosage:"กรุณาบอกวิธีใช้ยานี้", prescription:PRESCRIPTION_STATEMENTS.th},
+  pt:{help:"Por favor, ajude-me.", ambulance:"Por favor, chame uma ambulância.", hospital:"Preciso ir a um hospital.", pharmacy:"Preciso de uma farmácia.", pain:"Estou com dor.", allergy:"Tenho alergia.", medication:"Tomo medicamentos.", fever:"Estou com febre.", stomach:"Estou com dor abdominal.", stabbed:"Fui ferido por uma faca ou objeto.", accident:"Sofri um acidente de trânsito.", pharmacyQ:"Existe algum remédio sem receita para este sintoma?", dosage:"Por favor, explique como tomar este medicamento.", prescription:PRESCRIPTION_STATEMENTS.pt},
+  nl:{help:"Help mij alstublieft.", ambulance:"Bel alstublieft een ambulance.", hospital:"Ik moet naar een ziekenhuis.", pharmacy:"Ik heb een apotheek nodig.", pain:"Ik heb pijn.", allergy:"Ik heb een allergie.", medication:"Ik gebruik medicijnen.", fever:"Ik heb koorts.", stomach:"Ik heb buikpijn.", stabbed:"Ik ben verwond door een mes of voorwerp.", accident:"Ik heb een verkeersongeval gehad.", pharmacyQ:"Is er een vrij verkrijgbaar medicijn voor dit symptoom?", dosage:"Kunt u uitleggen hoe ik dit medicijn moet innemen?", prescription:PRESCRIPTION_STATEMENTS.nl},
+  ms:{help:"Tolong bantu saya.", ambulance:"Tolong panggil ambulans.", hospital:"Saya perlu pergi ke hospital.", pharmacy:"Saya perlukan farmasi.", pain:"Saya sakit.", allergy:"Saya ada alahan.", medication:"Saya sedang mengambil ubat.", fever:"Saya demam.", stomach:"Saya sakit perut.", stabbed:"Saya cedera akibat pisau atau objek.", accident:"Saya mengalami kemalangan jalan raya.", pharmacyQ:"Ada ubat tanpa preskripsi untuk simptom ini?", dosage:"Tolong terangkan cara mengambil ubat ini.", prescription:PRESCRIPTION_STATEMENTS.ms},
+  id:{help:"Tolong bantu saya.", ambulance:"Tolong panggil ambulans.", hospital:"Saya perlu ke rumah sakit.", pharmacy:"Saya perlu apotek.", pain:"Saya merasa sakit.", allergy:"Saya punya alergi.", medication:"Saya sedang minum obat.", fever:"Saya demam.", stomach:"Saya sakit perut.", stabbed:"Saya ditusuk atau terluka oleh benda.", accident:"Saya mengalami kecelakaan lalu lintas.", pharmacyQ:"Apakah ada obat bebas untuk gejala ini?", dosage:"Tolong jelaskan cara minum obat ini.", prescription:PRESCRIPTION_STATEMENTS.id},
+  ar:{help:"من فضلك ساعدني.", ambulance:"من فضلك اتصل بالإسعاف.", hospital:"أحتاج إلى الذهاب إلى المستشفى.", pharmacy:"أحتاج إلى صيدلية.", pain:"لدي ألم.", allergy:"لدي حساسية.", medication:"أتناول دواء.", fever:"لدي حمى.", stomach:"لدي ألم في البطن.", stabbed:"أُصبت بسكين أو بجسم.", accident:"تعرضت لحادث مروري.", pharmacyQ:"هل يوجد دواء بدون وصفة لهذه الأعراض؟", dosage:"من فضلك أخبرني كيف أستخدم هذا الدواء.", prescription:PRESCRIPTION_STATEMENTS.ar},
+  pl:{help:"Proszę mi pomóc.", ambulance:"Proszę wezwać karetkę.", hospital:"Muszę iść do szpitala.", pharmacy:"Potrzebuję apteki.", pain:"Czuję ból.", allergy:"Mam alergię.", medication:"Biorę leki.", fever:"Mam gorączkę.", stomach:"Boli mnie brzuch.", stabbed:"Zostałem zraniony nożem lub przedmiotem.", accident:"Miałem wypadek drogowy.", pharmacyQ:"Czy jest lek bez recepty na ten objaw?", dosage:"Proszę powiedzieć, jak przyjmować ten lek.", prescription:PRESCRIPTION_STATEMENTS.pl},
+  da:{help:"Hjælp mig venligst.", ambulance:"Ring venligst efter en ambulance.", hospital:"Jeg skal på hospitalet.", pharmacy:"Jeg har brug for et apotek.", pain:"Jeg har smerter.", allergy:"Jeg har allergi.", medication:"Jeg tager medicin.", fever:"Jeg har feber.", stomach:"Jeg har mavesmerter.", stabbed:"Jeg er blevet såret af en kniv eller genstand.", accident:"Jeg har været i en trafikulykke.", pharmacyQ:"Findes der håndkøbsmedicin til dette symptom?", dosage:"Forklar venligst, hvordan jeg tager denne medicin.", prescription:PRESCRIPTION_STATEMENTS.da}
 };
 function getBaseLang(id){
   const code = String(getCountryLanguageCode(id) || id || "en").toLowerCase();
@@ -2719,11 +2740,16 @@ function helpPhraseCacheKey(keys, id=localLangId){
   });
 }
 
-function normalizePhraseTranslations(data, keys){
+function normalizePhraseTranslations(data, keys, languageCode){
   const source = data && (data.translations || data.phrases || data);
   const normalized = {};
   keys.forEach((key) => {
-    const value = String((source && source[key]) || "").trim();
+    let value = String((source && source[key]) || "").trim();
+    if(key === "prescription"){
+      const declarative = prescriptionStatementForLanguageCode(languageCode);
+      if(declarative) value = declarative;
+      else if(isQuestionLikePrescription(value)) value = "";
+    }
     if(value) normalized[key] = value;
   });
   return normalized;
@@ -2754,7 +2780,7 @@ async function requestHelpPhraseTranslations(keys, section){
     });
     const data = await res.json().catch(() => ({}));
     if(!res.ok) throw new Error(data.error || data.detail || "translation failed");
-    const normalized = normalizePhraseTranslations(data, keys);
+    const normalized = normalizePhraseTranslations(data, keys, selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId));
     if(keys.some((key) => !normalized[key])) throw new Error("missing translated phrase");
     helpPhraseTranslationCache[cacheKey] = normalized;
     helpPhraseTranslationStatus[cacheKey] = "done";
@@ -3975,7 +4001,7 @@ function escapeHtml(v){ return String(v||"").replace(/[&<>"']/g, c => ({'&':'&am
 
 
 function phraseTitleKo(key){
-  const labels={help:"도움 요청", ambulance:"구급차 요청", hospital:"병원 요청", pharmacy:"약국 요청", pain:"통증 설명", allergy:"알레르기", medication:"복용약", fever:"발열", stomach:"복통", stabbed:"찔림/상처", accident:"교통사고", pharmacyQ:"일반의약품 상담", dosage:"복용 방법", prescription:"처방전 확인"};
+  const labels={help:"도움 요청", ambulance:"구급차 요청", hospital:"병원 요청", pharmacy:"약국 요청", pain:"통증 설명", allergy:"알레르기", medication:"복용약", fever:"발열", stomach:"복통", stabbed:"찔림/상처", accident:"교통사고", pharmacyQ:"일반의약품 상담", dosage:"복용 방법", prescription:"처방전 필요"};
   return labels[key] || key;
 }
 function phraseBox(title, localText, userText){
@@ -4413,6 +4439,8 @@ function renderEmergencyInfoCard(){
 function renderPharmacyPhraseCard(){
   if(!$("pharmacyPhraseList")) return;
   const userPack=getPhrasePack("ko"), localOpt=getLocalOption();
+  const selectedCountry=getSelectedCountryForTranslation();
+  const prescriptionLanguageCode=selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId);
   $("pharmacyPhraseTitle").textContent="약국에서 보여줄 문장 · "+localOpt.native;
   const keys=["pharmacy","pharmacyQ","dosage","prescription","allergy","medication","fever","stomach"];
   const translated = getTranslatedPhrasePack(keys, "pharmacy");
@@ -4422,7 +4450,12 @@ function renderPharmacyPhraseCard(){
       ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>'
       : "";
   const pack = translated.pack || phrasePacks.ko;
-  $("pharmacyPhraseList").innerHTML = notice + keys.map(k => phraseBox(k, pack[k] || phrasePacks.ko[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
+  $("pharmacyPhraseList").innerHTML = notice + keys.map(k => {
+    const localText = k === "prescription"
+      ? (prescriptionStatementForLanguageCode(prescriptionLanguageCode) || pack[k] || phrasePacks.ko[k] || phrasePacks.en[k])
+      : (pack[k] || phrasePacks.ko[k] || phrasePacks.en[k]);
+    return phraseBox(k, localText, userPack[k] || phrasePacks.ko[k] || "");
+  }).join("");
 }
 function hideFeatureSections(){
   ["localPhraseCard","medicalCardSection","emergencyInfoCard","pharmacyPhraseCard","hospitalFinderCard","infoGuideCard"].forEach(id=>{ const el=$(id); if(el) el.classList.add("hidden"); });
@@ -5980,6 +6013,8 @@ function initAllLanguageTestPanel(){
     priorityLanguageOptions,
     priorityCountryCodes: PRIORITY_COUNTRY_CODES.slice(),
     phrasePacks,
+    prescriptionSourceKo: PRESCRIPTION_SOURCE_KO,
+    prescriptionStatements: {...PRESCRIPTION_STATEMENTS},
     escapeHtml
   };
 }
