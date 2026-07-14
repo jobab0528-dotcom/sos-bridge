@@ -29,7 +29,6 @@
       --radius-lg:18px;
       --shadow-card:0 10px 28px rgba(15,23,42,.08);
       --shadow-soft:0 6px 18px rgba(15,23,42,.06);
-      --bottom-nav-height:76px;
       --safe-bottom:env(safe-area-inset-bottom,0px);
       --navy:var(--color-primary-dark);
       --teal:var(--color-accent);
@@ -105,7 +104,7 @@
     .flow-nav.single{grid-template-columns:1fr}
     .flow-card{display:grid;gap:12px}
     body.flow-app-active{height:100dvh;overflow:hidden}
-    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px var(--bottom-nav-height)}
+    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px max(8px,var(--safe-bottom))}
     body.flow-app-active #appPage>.topbar{position:relative;top:auto;z-index:20;margin:0 0 10px;padding:0;background:transparent;backdrop-filter:none}
     body.flow-app-active #appPage>.container{width:min(960px,100%);max-width:960px;min-height:0;height:100%;overflow:hidden;display:block}
     body.flow-app-active .app-flow-screen{height:100%;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 12px;align-content:start}
@@ -115,13 +114,13 @@
     body.flow-app-active .flow-nav,
     body.flow-app-active #triageActions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:12px}
     body.flow-app-active[data-flow-screen="screen-ai-result"] #triageActions{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:0;margin-top:18px!important;padding-bottom:8px}
-    body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:calc(108px + var(--safe-bottom))}
-    body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:calc(var(--bottom-nav-height) + 10px + var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
+    body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:calc(70px + var(--safe-bottom))}
+    body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:max(8px,var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
     @media (max-height:640px){body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:12px}body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{display:none}}
     body.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:8px;margin-top:10px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage.content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"]::after{content:"";position:fixed;left:0;right:0;bottom:0;height:max(8px,var(--safe-bottom));background:var(--bg);z-index:4;pointer-events:none}
-    body.flow-app-active[data-flow-screen="screen-medical-result"] .bottom-nav{display:none!important}
+    body.flow-app-active .bottom-nav{display:none!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage>.topbar{margin-bottom:6px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] .app-header-bar{padding:8px!important;border-radius:18px!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview{gap:8px;margin-top:0!important}
@@ -146,7 +145,7 @@
     body.flow-app-active .service h3{font-size:15px;margin:0 0 4px}
     body.flow-app-active .service p{font-size:12px;line-height:1.35}
     body.flow-app-active #statusBox{margin-bottom:0;font-size:12px}
-    body.flow-app-active .content-pad{padding-bottom:var(--bottom-nav-height)!important}
+    body.flow-app-active .content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
     body.flow-app-active #triageSteps,
     body.flow-app-active #facilityList,
     body.flow-app-active #localPhraseList,
@@ -273,7 +272,7 @@
     .nav-btn{border:0;background:transparent;border-radius:var(--radius-sm);padding:8px 2px;font-size:11px;font-weight:900;color:#64748b;min-height:56px}
     .nav-btn .ico{display:block;font-size:21px;margin-bottom:3px}
     .nav-btn.active{background:#eef6ff;color:var(--color-primary)}
-    .content-pad{padding-bottom:calc(var(--bottom-nav-height) + 28px)!important}
+    .content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
     .legal-footer{width:min(1060px,100%);margin:24px auto 0;padding:20px;border:1px solid var(--border);border-radius:var(--radius-lg);background:rgba(255,255,255,.9);box-shadow:var(--shadow-soft)}
     .legal-footer p{margin:0 0 14px;color:#475569;font-size:13px;font-weight:850;line-height:1.7}
     .legal-footer p span{display:block}
