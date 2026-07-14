@@ -117,6 +117,10 @@
     body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:calc(70px + var(--safe-bottom))}
     body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:max(8px,var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
     @media (max-height:640px){body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:12px}body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{display:none}}
+    body.flow-app-active[data-flow-screen="screen-help-phrases"] #appPage.content-pad{padding-bottom:0!important}
+    body.flow-app-active #screen-help-phrases{grid-template-rows:auto minmax(0,1fr) auto;gap:12px;overflow:hidden;padding-bottom:0}
+    body.flow-app-active #screen-help-phrases>.help-phrases-scroll{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:grid;gap:14px;align-content:start;padding:0 2px 12px 0}
+    body.flow-app-active #screen-help-phrases>.help-phrases-home-nav{position:static;bottom:auto;z-index:auto;flex-shrink:0;margin:0;padding:10px 0 max(8px,var(--safe-bottom));background:var(--bg);grid-template-columns:1fr}
     body.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:8px;margin-top:10px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage.content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"]::after{content:"";position:fixed;left:0;right:0;bottom:0;height:max(8px,var(--safe-bottom));background:var(--bg);z-index:4;pointer-events:none}
@@ -563,7 +567,7 @@
       <p class="muted">SOS Bridge는 가까운 병원과 약국을 찾기 위해 현재 위치를 사용할 수 있습니다. 위치정보는 병원·약국 검색 목적에만 사용됩니다.</p>
       <div class="grid">
         <button id="agreeLocationBtn" class="btn primary w-full" type="button">동의하고 현재 위치 사용</button>
-        <button id="manualLocationBtn" class="btn outline w-full" type="button">직접 도시/지역 입력하기</button>
+        <button id="manualLocationBtn" class="btn outline w-full hidden" type="button" aria-hidden="true" tabindex="-1">직접 도시/지역 입력하기</button>
       </div>
     </div>
   </div>
@@ -2998,9 +3002,16 @@ function setupAppFlowScreens(){
   appendExisting(screenAiResult, "resultSection");
 
   const screenHelp = makeFlowScreen(root, "screen-help-phrases", "현지 도움 문장", "현지 의료진, 약사, 주변 사람에게 보여줄 문장을 확인합니다.");
-  appendExisting(screenHelp, "localPhraseCard");
-  appendExisting(screenHelp, "pharmacyPhraseCard");
-  screenHelp.appendChild(makeFlowNav([{label:"홈으로", attr:'data-flow-screen="screen-home"'}], true));
+  const helpPhrasesScroll = document.createElement("div");
+  helpPhrasesScroll.className = "help-phrases-scroll";
+  appendExisting(helpPhrasesScroll, "localPhraseCard");
+  appendExisting(helpPhrasesScroll, "pharmacyPhraseCard");
+  screenHelp.appendChild(helpPhrasesScroll);
+  const helpPhrasesHomeNav = makeFlowNav([{label:"홈으로", attr:'data-flow-screen="screen-home"'}], true);
+  helpPhrasesHomeNav.classList.add("help-phrases-home-nav");
+  const helpPhrasesHomeBtn = helpPhrasesHomeNav.querySelector("button");
+  if(helpPhrasesHomeBtn) helpPhrasesHomeBtn.id = "helpPhrasesHomeBtn";
+  screenHelp.appendChild(helpPhrasesHomeNav);
 
   const oldMedical = $("medicalCardSection");
   if(oldMedical) oldMedical.classList.add("hidden");
@@ -3773,14 +3784,27 @@ function startGpsAfterConsent(type, recommendation=null){
   renderFacilityList();
   setStatus("GPS 확인 중...");
 
-  const fallbackToTripPlace = async () => useTripPlaceForLocation(type, recommendation);
+  const showGpsError = () => {
+    isLoading=false;
+    facilities=[];
+    locationData=null;
+    const message = "현재 위치를 확인할 수 없습니다. 브라우저 설정에서 위치 권한을 허용한 뒤 다시 시도해 주세요.";
+    setStatus(message);
+    $("facilityList").innerHTML =
+      '<div class="notice amber">'+message+'</div>'+
+      '<div class="two">'+
+        '<button id="retryCurrentLocationBtn" class="btn primary w-full" type="button">다시 시도</button>'+
+        '<button class="btn outline w-full" type="button" data-flow-screen="screen-home">홈으로</button>'+
+      '</div>';
+    on("retryCurrentLocationBtn", "click", () => requestGps(type, recommendation));
+  };
 
-  if(!window.isSecureContext){ fallbackToTripPlace(); return; }
-  if(!navigator.geolocation){ fallbackToTripPlace(); return; }
+  if(!window.isSecureContext){ showGpsError(); return; }
+  if(!navigator.geolocation){ showGpsError(); return; }
 
   navigator.geolocation.getCurrentPosition(
     pos=>applyLocation(type,{latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,source:"gps"},"GPS OK.", recommendation),
-    err=>fallbackToTripPlace(),
+    err=>showGpsError(),
     {enableHighAccuracy:true,timeout:10000,maximumAge:15000}
   );
 }
