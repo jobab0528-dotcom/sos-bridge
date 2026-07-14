@@ -93,7 +93,8 @@
     body.flow-app-active #triageActions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(248,250,252,0),#f8fafc 22%);padding-top:12px}
     body.flow-app-active[data-flow-screen="screen-ai-result"] #triageActions{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:0;margin-top:18px!important;padding-bottom:8px}
     body.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:8px;margin-top:10px}
-    body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage{padding-bottom:calc(12px + var(--safe-bottom))}
+    body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage.content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
+    body.flow-app-active[data-flow-screen="screen-medical-result"]::after{content:"";position:fixed;left:0;right:0;bottom:0;height:max(8px,var(--safe-bottom));background:var(--bg);z-index:4;pointer-events:none}
     body.flow-app-active[data-flow-screen="screen-medical-result"] .bottom-nav{display:none!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage>.topbar{margin-bottom:6px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] .app-header-bar{padding:8px!important;border-radius:18px!important}
