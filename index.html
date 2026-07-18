@@ -311,6 +311,17 @@
       outline:3px solid rgba(23,105,210,.28);
       outline-offset:2px;
     }
+    .visually-hidden{
+      position:absolute!important;
+      width:1px!important;
+      height:1px!important;
+      padding:0!important;
+      margin:-1px!important;
+      overflow:hidden!important;
+      clip:rect(0,0,0,0)!important;
+      white-space:nowrap!important;
+      border:0!important;
+    }
     .sos-modern-ui .card{border-color:var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
     .sos-modern-ui .btn{min-height:48px;border-radius:var(--radius-md)}
 
@@ -346,29 +357,103 @@
     }
     .sos-modern-ui #screen-country-select:not(.hidden){
       display:grid;
-      grid-template-rows:auto auto auto minmax(0,1fr);
-      align-content:start;
-      gap:0;
+      grid-template-rows:auto minmax(0,1fr);
+      align-content:stretch;
+      gap:14px;
     }
+    .sos-modern-ui .country-select-header{display:grid;gap:9px;min-width:0}
+    .sos-modern-ui .country-brand{color:var(--color-primary);font-size:17px;font-weight:950;letter-spacing:-.04em}
+    .sos-modern-ui .country-brand span{color:var(--color-primary-dark)}
+    .sos-modern-ui .country-title-block{display:grid;gap:6px}
+    .sos-modern-ui .country-title-block .eyebrow{margin:0;color:var(--color-primary);font-size:11px;letter-spacing:.15em}
+    .sos-modern-ui .country-title-block h1{margin:0;color:var(--color-primary-dark);font-size:clamp(25px,7vw,32px);line-height:1.15;word-break:keep-all}
+    .sos-modern-ui .country-title-block>p:not(.eyebrow){margin:0;color:var(--color-text-secondary);font-size:14px;font-weight:750;line-height:1.45;word-break:keep-all}
+    .sos-modern-ui .country-search-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+    .sos-modern-ui .country-search-field{min-height:50px;margin:1px 0 0;padding:11px 14px;border-color:var(--color-border);box-shadow:var(--shadow-soft)}
+    .sos-modern-ui .country-search-field input{min-width:0;font-size:15px}
+    .sos-modern-ui .country-select-scroll{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:0;
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      padding:1px 3px max(10px,env(safe-area-inset-bottom)) 1px;
+    }
+    .sos-modern-ui .country-group{display:grid;gap:9px}
+    .sos-modern-ui .country-section-heading,.sos-modern-ui .country-results-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .sos-modern-ui .country-section-heading h2,.sos-modern-ui .country-results-heading strong{margin:0;color:var(--color-primary-dark);font-size:15px;font-weight:950}
+    .sos-modern-ui .country-section-heading span,.sos-modern-ui .country-results-heading span{color:var(--color-text-secondary);font-size:11px;font-weight:850;white-space:nowrap}
+    .sos-modern-ui .popular-country-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+    .sos-modern-ui #countryQuickGrid .country-card{
+      display:grid;
+      grid-template-columns:36px minmax(0,1fr);
+      align-items:center;
+      justify-items:start;
+      gap:9px;
+      min-width:0;
+      min-height:70px;
+      height:100%;
+      padding:10px 11px;
+      overflow:hidden;
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-sm);
+      background:var(--color-surface);
+      box-shadow:var(--shadow-soft);
+      text-align:left;
+    }
+    .sos-modern-ui #countryQuickGrid .country-card.selected:after{display:none}
+    .sos-modern-ui #countryQuickGrid .country-flag{width:36px;font-size:29px;line-height:1;text-align:center}
+    .sos-modern-ui #countryQuickGrid .country-card-copy{display:grid;gap:3px;min-width:0;width:100%}
+    .sos-modern-ui #countryQuickGrid .country-name{overflow:hidden;color:var(--color-primary-dark);font-size:14px;font-weight:950;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
+    .sos-modern-ui #countryQuickGrid .country-sub{overflow:hidden;color:var(--color-text-secondary);font-size:11px;font-weight:750;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+    .sos-modern-ui .country-list-toggle{flex:none;min-height:48px;border-color:var(--color-border);background:var(--color-surface);color:var(--color-primary-dark)}
     .sos-modern-ui #screen-country-select .language-grid{
       min-height:0;
       max-height:none;
-      overflow-x:hidden;
-      overflow-y:auto;
-      overscroll-behavior:contain;
-      padding:0 3px 12px 0;
+      overflow:visible;
+      padding:0;
     }
+    .sos-modern-ui #screen-country-select .language-grid[hidden],.sos-modern-ui #popularCountrySection[hidden],.sos-modern-ui #toggleAllCountriesBtn[hidden]{display:none!important}
+    .sos-modern-ui #screen-country-select .country-results-heading{grid-column:1/-1;padding:2px 1px}
+    .sos-modern-ui #screen-country-select .language-grid>.notice{grid-column:1/-1}
     .sos-modern-ui #screen-country-summary:not(.hidden){
       display:grid;
-      grid-template-rows:auto auto auto minmax(0,1fr) auto;
-      align-content:start;
-      overflow-x:hidden;
-      overflow-y:auto;
-      overscroll-behavior:contain;
+      grid-template-rows:auto minmax(0,1fr) auto;
+      align-content:stretch;
+      gap:10px;
+      overflow:hidden;
     }
-    .sos-modern-ui #screen-country-summary .desc{margin-top:4px!important;font-size:14px;line-height:1.5}
-    .sos-modern-ui #screen-country-summary .setup-panel{padding:14px;border-radius:var(--radius-md);box-shadow:none}
-    .sos-modern-ui #screen-country-summary #startBtn{align-self:end}
+    .sos-modern-ui .summary-top-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+    .sos-modern-ui .summary-nav-button{min-height:44px;padding:7px 2px;border:0;background:transparent;color:var(--color-primary-dark);font-size:14px;font-weight:900;text-decoration:underline;text-underline-offset:3px}
+    .sos-modern-ui .summary-scroll{min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:2px}
+    .sos-modern-ui #screen-country-summary .country-summary-card{display:grid;gap:13px;padding:clamp(18px,4vw,24px);border:1px solid var(--color-border);border-radius:22px;background:var(--color-surface);box-shadow:var(--shadow-card)}
+    .sos-modern-ui #screen-country-summary .summary-row{align-items:flex-start;gap:14px}
+    .sos-modern-ui #screen-country-summary .summary-flag{width:auto;height:auto;min-width:52px;border-radius:0;background:transparent;font-size:48px;line-height:1}
+    .sos-modern-ui #screen-country-summary .country-summary-heading{display:grid;gap:4px;min-width:0;padding-top:2px}
+    .sos-modern-ui #screen-country-summary .country-summary-code{color:var(--color-primary);font-size:12px;font-weight:950;letter-spacing:.14em}
+    .sos-modern-ui #screen-country-summary #selectedNative{margin:0;color:var(--color-primary-dark);font-size:clamp(24px,6vw,31px);line-height:1.15;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-content{display:grid;gap:12px;min-width:0;color:var(--color-text)}
+    .sos-modern-ui .country-summary-english{margin:0;color:var(--color-primary-dark);font-size:17px;font-weight:850;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-language{margin:0;color:var(--color-text-secondary);font-size:14px;font-weight:750;line-height:1.45;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-emergency{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:var(--radius-sm);background:var(--color-primary-soft)}
+    .sos-modern-ui .country-summary-emergency span{color:#315b83;font-size:13px;font-weight:850}
+    .sos-modern-ui .country-summary-emergency strong{color:var(--color-primary-dark);font-size:23px;font-weight:950;text-align:right;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-support{display:grid;gap:8px}
+    .sos-modern-ui .country-summary-support .support-status-row{padding:0;border:0;background:transparent}
+    .sos-modern-ui .country-summary-support .support-status-text{display:none}
+    .sos-modern-ui .country-summary-support .support-badge.supported{background:#dcfce7;color:#166534}
+    .sos-modern-ui .country-summary-scope{margin:0;color:var(--color-text-secondary);font-size:13px;font-weight:750;line-height:1.5}
+    .sos-modern-ui .country-summary-meta{display:grid;gap:8px}
+    .sos-modern-ui .country-summary-meta>div{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:start}
+    .sos-modern-ui .country-summary-meta span{color:var(--color-text-secondary);font-size:12px;font-weight:850}
+    .sos-modern-ui .country-summary-meta strong{min-width:0;color:var(--color-text);font-size:13px;font-weight:800;line-height:1.45;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-divider{width:100%;height:1px;margin:1px 0;border:0;background:var(--color-border)}
+    .sos-modern-ui .country-summary-safety{display:grid;gap:4px;margin:0;color:var(--color-text-secondary);font-size:12px;font-weight:720;line-height:1.55}
+    .sos-modern-ui .summary-action{flex:none;padding:10px 2px max(2px,env(safe-area-inset-bottom));border-top:1px solid var(--color-border);background:var(--color-surface)}
+    .sos-modern-ui #screen-country-summary #startBtn{min-height:50px}
     .sos-modern-ui .lang-btn{min-height:70px;padding:11px 12px;border-radius:var(--radius-md);box-shadow:none}
     .sos-modern-ui .country-list-flag{font-size:30px}
 
@@ -505,15 +590,15 @@
       line-height:1;
     }
     .sos-modern-ui #serviceGrid .service-copy{grid-column:1;grid-row:1;min-width:0;align-self:center}
-    .sos-modern-ui #serviceGrid .service h3{margin:0 0 3px;font-size:clamp(14px,3.7vw,17px);line-height:1.2;word-break:keep-all}
+    .sos-modern-ui #serviceGrid .service h3{margin:0 0 6px;font-size:clamp(14px,3.7vw,17px);line-height:1.2;word-break:keep-all}
     .sos-modern-ui #serviceGrid .service p{
       display:-webkit-box;
       margin:0;
       overflow:hidden;
       color:var(--color-text-secondary);
-      font-size:clamp(10px,2.75vw,12px);
+      font-size:clamp(14px,3.7vw,15px);
       font-weight:750;
-      line-height:1.28;
+      line-height:1.4;
       -webkit-box-orient:vertical;
       -webkit-line-clamp:2;
     }
@@ -600,31 +685,24 @@
 <body class="sos-modern-ui">
   <main id="languagePage" class="page">
     <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:stretch">
-      <div id="screen-country-summary" class="card home-left-card flow-screen language-flow-screen">
-        <div class="between" style="gap:12px;margin-bottom:12px">
-          <button id="countrySummaryBackBtn" class="btn outline" type="button" data-flow-screen="screen-country-select">이전</button>
-          <span class="small muted" style="font-weight:950">국가 확인</span>
+      <div id="screen-country-summary" class="card home-left-card flow-screen language-flow-screen" aria-labelledby="chooseTitle">
+        <div class="summary-top-nav">
+          <button id="countrySummaryBackBtn" class="summary-nav-button" type="button" data-flow-screen="screen-country-select">‹ 이전</button>
+          <button class="summary-nav-button" type="button" data-flow-screen="screen-country-select">국가 변경</button>
         </div>
-        <div class="row">
-          <div class="logo">🩺</div>
-          <div>
-            <p class="eyebrow">SOS Bridge</p>
-            <h1 id="chooseTitle">여행 설정</h1>
-          </div>
-        </div>
-        <p id="chooseDesc" class="desc" style="margin-top:24px">
-          SOS Bridge는 한국인이 해외여행 중 갑자기 아프거나 다쳤을 때, 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 도와주는 해외여행 응급 의료 도우미입니다.
-        </p>
-
-        <div id="tripSummaryPanel" class="setup-panel summary-empty">
-          <div class="summary-row">
-            <div id="selectedFlag" class="summary-flag">✈️</div>
-            <div>
-              <div id="currentLangLabel" class="small muted">현재 여행 설정</div>
-              <h3 id="selectedNative" style="margin:2px 0">아직 여행 국가를 선택하지 않았습니다.</h3>
-              <div id="selectedCountry" class="small muted">우선 지원 62개 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.</div>
+        <div class="summary-scroll">
+          <h1 id="chooseTitle" class="visually-hidden">선택 국가 확인</h1>
+          <p id="chooseDesc" class="visually-hidden">선택한 국가의 응급번호와 현지 언어를 확인하세요.</p>
+          <article id="tripSummaryPanel" class="setup-panel summary-empty country-summary-card">
+            <div class="summary-row">
+              <div id="selectedFlag" class="summary-flag">✈️</div>
+              <div class="country-summary-heading">
+                <div id="currentLangLabel" class="country-summary-code">--</div>
+                <h2 id="selectedNative">아직 여행 국가를 선택하지 않았습니다.</h2>
+              </div>
             </div>
-          </div>
+            <div id="selectedCountry" class="country-summary-content">우선 지원 62개 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.</div>
+          </article>
         </div>
 
         <div class="grid hidden">
@@ -633,18 +711,36 @@
           <select id="localLangSelect" class="input" style="display:none"></select>
         </div>
 
-        <button id="startBtn" class="btn primary w-full" type="button">서비스 시작</button>
+        <div class="summary-action">
+          <button id="startBtn" class="btn primary w-full" type="button">서비스 시작</button>
+        </div>
       </div>
 
-      <div id="screen-country-select" class="card country-picker-card flow-screen language-flow-screen">
-        <p class="eyebrow">Travel Country</p>
-        <h2 style="margin-bottom:12px">우선 지원 국가/지역 선택</h2>
-        <p class="small muted" style="line-height:1.55;margin-top:-4px">일반 화면에는 정식 우선 지원 62개 국가·지역만 표시합니다.</p>
-        <div class="search">
-          <span>🔎</span>
-          <input id="languageSearch" placeholder="국가명, 지역명, 영어명, 언어명으로 검색" />
+      <div id="screen-country-select" class="card country-picker-card flow-screen language-flow-screen" aria-labelledby="countrySelectTitle">
+        <header class="country-select-header">
+          <div class="country-brand" aria-label="SOS Bridge"><span>SOS</span>Bridge</div>
+          <div class="country-title-block">
+            <p class="eyebrow">TRAVEL COUNTRY</p>
+            <h1 id="countrySelectTitle">여행 국가를 선택하세요</h1>
+            <p>응급번호와 현지 언어를 여행지에 맞춰 준비합니다.</p>
+          </div>
+          <label class="country-search-label" for="languageSearch">국가 검색</label>
+          <div class="search country-search-field">
+            <span aria-hidden="true">🔎</span>
+            <input id="languageSearch" type="search" autocomplete="off" placeholder="국가명 또는 국가 코드 검색" />
+          </div>
+        </header>
+        <div id="countrySelectScroll" class="country-select-scroll">
+          <section id="popularCountrySection" class="country-group" aria-labelledby="popularCountryTitle">
+            <div class="country-section-heading">
+              <h2 id="popularCountryTitle">자주 찾는 국가</h2>
+              <span>우선 지원</span>
+            </div>
+            <div id="countryQuickGrid" class="country-grid popular-country-grid"></div>
+          </section>
+          <button id="toggleAllCountriesBtn" class="btn outline w-full country-list-toggle" type="button" aria-expanded="false">전체 62개 국가 보기</button>
+          <div id="languageGrid" class="language-grid" hidden></div>
         </div>
-        <div id="languageGrid" class="language-grid"></div>
       </div>
     </section>
 
@@ -3545,20 +3641,43 @@ function selectTripCountry(id){
 function renderCountryQuickGrid(){
   const el = $("countryQuickGrid");
   if(!el) return;
-  const priority = ["ja","en-us","vi","th","fr","es","it","en-gb","zh","en-sg"];
-  const quick = priority.map(id => languageOptions.find(item => item.id === id)).filter(Boolean);
-  const list = quick.length ? quick : languageOptions.slice(0,10);
+  const popularCountryCodes = ["JP","US","TH","VN","CN","FR","GB","AU"];
+  const publicOptions = getPublicCountryOptions();
+  const list = popularCountryCodes
+    .map(code => publicOptions.find(item => String(item.countryCode || "").toUpperCase() === code))
+    .filter(Boolean);
   el.innerHTML = list.map(item => {
     const flag = countryCodeToFlagEmoji(item.countryCode) || item.flag || "";
+    const countryNameKo = item.countryKo || item.countryNameKo || "";
+    const countryNameEn = item.country || item.countryNameEn || "";
     return (
-    '<button class="country-card '+(item.id===tripCountryId?'selected':'')+'" data-country-card="'+item.id+'" type="button" aria-label="'+escapeHtml(item.countryKo)+' 선택">'+
-      (flag ? '<span class="country-flag" role="img" aria-label="'+escapeHtml(item.countryKo)+' 국기">'+flag+'</span>' : '')+
-      '<span class="country-name">'+escapeHtml(item.countryKo)+'</span>'+
-      '<span class="country-sub">'+escapeHtml(item.languageKo)+' · '+escapeHtml(getEmergencyNumber(item.id))+'</span>'+
+    '<button class="country-card '+(item.id===tripCountryId?'selected':'')+'" data-country-card="'+item.id+'" type="button" aria-label="'+escapeHtml(countryNameKo)+' 선택">'+
+      '<span class="country-flag" '+(flag ? 'role="img" aria-label="'+escapeHtml(countryNameKo)+' 국기"' : 'aria-hidden="true"')+'>'+(flag || escapeHtml(item.countryCode || ""))+'</span>'+
+      '<span class="country-card-copy">'+
+        '<span class="country-name">'+escapeHtml(countryNameKo)+'</span>'+
+        '<span class="country-sub">'+escapeHtml(countryNameEn)+'</span>'+
+      '</span>'+
     '</button>'
     );
   }).join("");
   document.querySelectorAll("[data-country-card]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.countryCard))));
+}
+
+function toggleAllPriorityCountries(){
+  const button = $("toggleAllCountriesBtn");
+  if(!button) return;
+  const expanded = button.getAttribute("aria-expanded") !== "true";
+  button.setAttribute("aria-expanded", String(expanded));
+  renderLanguageList();
+  const scroll = $("countrySelectScroll");
+  if(scroll) scroll.scrollTop = 0;
+}
+
+function handleLanguageSearchInput(){
+  const input = $("languageSearch");
+  const button = $("toggleAllCountriesBtn");
+  if(input && button && !input.value.trim()) button.setAttribute("aria-expanded", "false");
+  renderLanguageList();
 }
 
 function countryNoticeHtml(item){
@@ -3588,18 +3707,37 @@ function renderLanguageList(){
   const q = rawQuery.toLowerCase();
   const normalizedQ = normalizeCountryText(rawQuery);
   const publicOptions = getPublicCountryOptions();
+  const popularSection = $("popularCountrySection");
+  const toggleButton = $("toggleAllCountriesBtn");
+  const isSearching = Boolean(rawQuery);
+  const isExpanded = toggleButton && toggleButton.getAttribute("aria-expanded") === "true";
+  const showCountryList = isSearching || isExpanded;
+  const isExactCountryCodeQuery = /^[a-z]{2}$/i.test(rawQuery);
   const list = q
-    ? publicOptions.filter(item => countrySearchCandidates(item).some(v => String(v).toLowerCase().includes(q) || normalizeCountryText(v).includes(normalizedQ)))
+    ? publicOptions.filter(item => isExactCountryCodeQuery
+        ? String(item.countryCode || "").toLowerCase() === q
+        : countrySearchCandidates(item).some(v => String(v).toLowerCase().includes(q) || normalizeCountryText(v).includes(normalizedQ)))
     : publicOptions;
 
   const grid = $("languageGrid");
   if(!grid) return;
+  if(popularSection) popularSection.hidden = showCountryList;
+  if(toggleButton){
+    toggleButton.hidden = isSearching;
+    toggleButton.textContent = isExpanded ? "자주 찾는 국가로 돌아가기" : "전체 62개 국가 보기";
+  }
+  grid.hidden = !showCountryList;
+  if(!showCountryList){
+    grid.innerHTML = "";
+    renderCountryQuickGrid();
+    return;
+  }
   if(!list.length){
-    grid.innerHTML = '<div class="notice amber">우선 지원 62개 국가·지역 안에서 검색 결과가 없습니다. 국가명, 지역명 또는 언어명을 다시 입력해 주세요.</div>';
+    grid.innerHTML = '<div class="notice amber">우선 지원 62개 국가·지역 안에서 검색 결과가 없습니다. 국가명 또는 국가 코드를 다시 입력해 주세요.</div>';
     return;
   }
   grid.innerHTML =
-    '<div class="country-list-notice"><span style="font-size:24px">🌐</span><span><strong>우선 지원 '+publicOptions.length+'개 국가·지역</strong><br>여행 설정과 현지 도움 문장이 함께 제공됩니다.</span></div>' +
+    '<div class="country-results-heading"><strong>'+(isSearching ? "검색 결과" : "전체 "+publicOptions.length+"개 국가·지역")+'</strong><span>'+(isSearching ? list.length+"개" : "가나다순")+'</span></div>' +
     list.map(item => {
       const active = hasTripCountrySelection && item.id===tripCountryId;
       const supportLimited = isLimitedEmergencySupport(item);
@@ -3626,13 +3764,12 @@ function renderLanguagePage(){
   const tripOpt=getTripOption(), localOpt=getLocalOption();
   $("chooseTitle").textContent="선택 국가 확인";
   $("chooseDesc").textContent="선택한 국가/지역의 현지어와 응급번호를 확인한 뒤 서비스를 시작하세요.";
-  $("currentLangLabel").textContent="선택한 국가/지역";
   const hasTrip = !!hasTripCountrySelection;
   const emergencyData = getEmergencyNumbersData(tripOpt);
-  const sourceText = hasTrip && emergencyData ? [
-    emergencyData.sourceName ? "출처: "+emergencyData.sourceName : "",
-    emergencyData.lastVerified ? "확인일: "+emergencyData.lastVerified : ""
-  ].filter(Boolean).join(" · ") : "";
+  const languageNameKo = localOpt.languageNameKo || localOpt.languageKo || "";
+  const languageNative = localOpt.languageNative || localOpt.native || localOpt.languageNameEn || "";
+  const languageLabel = [languageNameKo, languageNative].filter((value, index, values) => value && values.indexOf(value) === index).join(" · ");
+  const emergencyLabel = hasUsableEmergencyNumbers(emergencyData) ? getTripEmergencyNumber() : "확인 필요";
   $("tripSummaryPanel").classList.toggle("summary-empty", !hasTrip);
   const selectedFlag = $("selectedFlag");
   const selectedFlagEmoji = hasTrip ? countryCodeToFlagEmoji(tripOpt.countryCode) : "";
@@ -3644,21 +3781,27 @@ function renderLanguagePage(){
     selectedFlag.removeAttribute("role");
     selectedFlag.removeAttribute("aria-label");
   }
+  $("currentLangLabel").textContent=hasTrip ? String(tripOpt.countryCode || "").toUpperCase() : "--";
   $("selectedNative").textContent=hasTrip ? tripOpt.countryKo : "아직 여행 국가/지역을 선택하지 않았습니다.";
   $("selectedCountry").innerHTML=hasTrip
-    ? '<div class="country-summary-detail">'+
-        '<div><span>영어명</span><strong>'+escapeHtml(tripOpt.country || "")+'</strong></div>'+
-        '<div><span>현지어</span><strong>'+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+'</strong></div>'+
-        '<div><span>대표 응급번호</span><strong>'+escapeHtml(getTripEmergencyNumber())+'</strong></div>'+
-        supportStatusHtml(emergencyData)+
-        '<div class="country-summary-note small muted">응급 상황에서는 현지 응급번호와 가까운 의료기관의 도움을 우선하세요.</div>'+
-        (sourceText ? '<details class="small muted"><summary style="cursor:pointer;font-weight:950">출처와 확인일 보기</summary><div style="margin-top:4px">'+escapeHtml(sourceText)+'</div></details>' : '')+
-        countryNoticeHtml(tripOpt)+
-      '</div>'
+    ? '<p class="country-summary-english">'+escapeHtml(tripOpt.country || tripOpt.countryNameEn || "")+'</p>'+
+        '<p class="country-summary-language">'+escapeHtml(languageLabel)+'</p>'+
+        '<div class="country-summary-emergency"><span>대표 응급번호</span><strong>'+escapeHtml(emergencyLabel)+'</strong></div>'+
+        '<div class="country-summary-support">'+
+          supportStatusHtml(emergencyData)+
+          '<p class="country-summary-scope">응급번호, 현지 문장, 의료카드, 위치 기반 기관 검색을 제공합니다.</p>'+
+        '</div>'+
+        '<div class="country-summary-meta">'+
+          '<div><span>출처</span><strong>'+escapeHtml((emergencyData && emergencyData.sourceName) || "확인 필요")+'</strong></div>'+
+          '<div><span>확인일</span><strong>'+escapeHtml((emergencyData && emergencyData.lastVerified) || "확인 필요")+'</strong></div>'+
+        '</div>'+
+        '<hr class="country-summary-divider">'+
+        '<p class="country-summary-safety"><span>응급 상황에서는 앱 안내보다 현지 응급기관의 지시를 우선하세요.</span><span>번호가 연결되지 않으면 숙소나 주변 사람에게 즉시 도움을 요청하세요.</span></p>'+
+        countryNoticeHtml(tripOpt)
     : "우선 지원 62개 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.";
   $("startBtn").disabled=!hasTrip;
   $("startBtn").innerHTML=hasTrip ? "서비스 시작" : "우선 지원 국가/지역에서 여행지를 선택하세요";
-  $("languageSearch").placeholder="우선 지원 국가명, 지역명, 영어명, 언어명으로 검색";
+  $("languageSearch").placeholder="국가명 또는 국가 코드 검색";
   renderSetupSelects();
   syncInitialTripInputs(false);
   renderSetupFlowStatus();
@@ -3684,11 +3827,20 @@ function renderServices(){
   renderAppFlowSummary();
   const homeServiceKeys = ["symptom","phrases","medicalCard","hospital","pharmacy","emergency"];
   const homeServices = homeServiceKeys.map(key => services.find(service => service.key === key)).filter(Boolean);
+  const currentEmergencyNumber = getCurrentEmergencyDialNumber("primary");
+  const serviceDescriptions = {
+    symptom: "증상에 따른 응급도와 다음 행동 참고 안내",
+    phrases: "의료진에게 바로 보여주기",
+    medicalCard: "건강 정보를 한 장에",
+    hospital: "현재 위치에서 거리순",
+    pharmacy: "현재 위치에서 거리순",
+    emergency: currentEmergencyNumber ? currentEmergencyNumber+"로 즉시 전화" : "응급번호 확인 필요"
+  };
   $("serviceGrid").innerHTML = homeServices.map(s => {
     const recommended = s.key === "symptom";
     return '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button">'+
       '<div class="service-icon" aria-hidden="true">'+s.icon+'</div>'+
-      '<div class="service-copy"><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+tx[s.descKey]+'</p></div>'+
+      '<div class="service-copy"><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+escapeHtml(serviceDescriptions[s.key] || tx[s.descKey])+'</p></div>'+
       (recommended ? '<span class="service-badge">추천</span>' : '<span class="service-arrow">›</span>')+
     '</button>';
   }).join("");
@@ -6339,7 +6491,8 @@ function init(){
   on("changeLangBtn","click",showLanguage);
   on("appCountryPill","click",showLanguage);
   on("headerEmergencyBtn","click",()=>openCurrentEmergencyDialer("ambulance"));
-  on("languageSearch","input",renderLanguageList);
+  on("languageSearch","input",handleLanguageSearchInput);
+  on("toggleAllCountriesBtn","click",toggleAllPriorityCountries);
   on("userLangSelect","change",e=>{ selected="ko"; renderLanguagePage(); });
   on("tripCountrySelect","change",e=>{
     tripCountryId=e.target.value;
