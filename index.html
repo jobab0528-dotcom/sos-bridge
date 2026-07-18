@@ -288,10 +288,316 @@
     #languagePage.flow-ui-active .pwa-guide-grid{display:none}
     @media (min-width:720px){.pwa-guide-grid{grid-template-columns:1fr 1fr}}
     @media (max-width:520px){.legal-footer{padding:18px}.legal-links a{flex:1 1 calc(50% - 10px);white-space:normal;text-align:center}.legal-links a:last-child{flex-basis:100%}}
+    /* SOS Bridge visual refresh: 운영 로직과 분리된 MVP 참고 UI 레이어 */
+    .sos-modern-ui{
+      --color-primary:#1769d2;
+      --color-primary-dark:#0b2445;
+      --color-primary-soft:#eaf3ff;
+      --color-bg:#eef2f6;
+      --color-surface:#fff;
+      --color-surface-muted:#f7f9fc;
+      --color-text:#172033;
+      --color-text-secondary:#66758a;
+      --color-border:#dbe2ea;
+      --color-danger:#c62828;
+      --radius-sm:12px;
+      --radius-md:14px;
+      --radius-lg:16px;
+      --shadow-card:0 6px 20px rgba(20,38,63,.07);
+      --shadow-soft:0 3px 12px rgba(20,38,63,.05);
+      background:var(--color-bg);
+    }
+    .sos-modern-ui :where(button,a,input,textarea):focus-visible{
+      outline:3px solid rgba(23,105,210,.28);
+      outline-offset:2px;
+    }
+    .sos-modern-ui .card{border-color:var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
+    .sos-modern-ui .btn{min-height:48px;border-radius:var(--radius-md)}
+
+    /* 국가 선택·확인 단계도 body가 아니라 화면 안쪽만 스크롤한다. */
+    .sos-modern-ui:not(.flow-app-active){height:100dvh;min-height:100dvh;overflow:hidden}
+    .sos-modern-ui:not(.flow-app-active) #languagePage{
+      width:min(100%,768px);
+      height:100dvh;
+      min-height:0;
+      margin:0 auto;
+      padding:0;
+      overflow:hidden;
+      background:var(--color-bg);
+    }
+    .sos-modern-ui #languagePage.flow-ui-active>.home-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr);
+      width:100%;
+      height:100%;
+      min-height:0!important;
+      padding:clamp(10px,2.4vw,18px);
+      overflow:hidden;
+    }
+    .sos-modern-ui #languagePage.flow-ui-active>.pwa-guide-grid,
+    .sos-modern-ui #languagePage.flow-ui-active>.legal-footer{display:none}
+    .sos-modern-ui #languagePage .language-flow-screen{
+      width:100%;
+      height:100%;
+      min-height:0;
+      overflow:hidden;
+      padding:clamp(14px,3vw,22px);
+      box-shadow:var(--shadow-card);
+    }
+    .sos-modern-ui #screen-country-select:not(.hidden){
+      display:grid;
+      grid-template-rows:auto auto auto minmax(0,1fr);
+      align-content:start;
+      gap:0;
+    }
+    .sos-modern-ui #screen-country-select .language-grid{
+      min-height:0;
+      max-height:none;
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      padding:0 3px 12px 0;
+    }
+    .sos-modern-ui #screen-country-summary:not(.hidden){
+      display:grid;
+      grid-template-rows:auto auto auto minmax(0,1fr) auto;
+      align-content:start;
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+    }
+    .sos-modern-ui #screen-country-summary .desc{margin-top:4px!important;font-size:14px;line-height:1.5}
+    .sos-modern-ui #screen-country-summary .setup-panel{padding:14px;border-radius:var(--radius-md);box-shadow:none}
+    .sos-modern-ui #screen-country-summary #startBtn{align-self:end}
+    .sos-modern-ui .lang-btn{min-height:70px;padding:11px 12px;border-radius:var(--radius-md);box-shadow:none}
+    .sos-modern-ui .country-list-flag{font-size:30px}
+
+    /* 100dvh 앱 셸: 공통 헤더 + 한 개의 화면 viewport */
+    .sos-modern-ui.flow-app-active{
+      height:100dvh;
+      min-height:100dvh;
+      overflow:hidden;
+      background:var(--color-bg);
+    }
+    .sos-modern-ui.flow-app-active #appPage{
+      grid-template-rows:auto minmax(0,1fr);
+      width:min(100%,768px);
+      height:100dvh;
+      min-height:0;
+      margin:0 auto;
+      padding:0;
+      overflow:hidden;
+      background:var(--color-bg);
+      border-inline:1px solid rgba(199,208,219,.72);
+      box-shadow:0 0 28px rgba(20,38,63,.06);
+    }
+    .sos-modern-ui.flow-app-active #appPage>.topbar{
+      z-index:20;
+      margin:0;
+      padding:max(7px,env(safe-area-inset-top,0px)) 12px 7px;
+      background:#fff;
+      border-bottom:1px solid var(--color-border);
+    }
+    .sos-modern-ui .app-header-bar{
+      min-height:58px;
+      padding:0!important;
+      border:0;
+      border-radius:0!important;
+      box-shadow:none;
+      background:#fff;
+    }
+    .sos-modern-ui .app-country-pill{min-height:48px;padding:6px 9px;border-radius:var(--radius-sm);box-shadow:none}
+    .sos-modern-ui .app-country-pill strong{font-size:14px}
+    .sos-modern-ui .app-country-pill span.small{font-size:11px}
+    .sos-modern-ui .app-emergency-mini,
+    .sos-modern-ui .app-change-mini{min-height:48px;border-radius:var(--radius-sm);box-shadow:none}
+    .sos-modern-ui.flow-app-active #appPage>.container{
+      width:100%;
+      max-width:none;
+      height:100%;
+      min-height:0;
+      padding:0;
+      overflow:hidden;
+    }
+    .sos-modern-ui.flow-app-active .app-flow-screen{
+      height:100%;
+      min-height:0;
+      padding:10px 14px max(12px,var(--safe-bottom));
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      scrollbar-gutter:stable;
+    }
+    .sos-modern-ui .flow-screen-header{
+      padding:11px 12px;
+      border-radius:var(--radius-md);
+      box-shadow:none;
+    }
+    .sos-modern-ui .flow-screen-header h2{font-size:clamp(18px,4.8vw,22px);margin-bottom:3px}
+    .sos-modern-ui .flow-screen-header .btn{min-height:44px;padding:9px 12px;white-space:nowrap;flex:none}
+    .sos-modern-ui #analyzeBtn{background:var(--color-primary)!important}
+    .sos-modern-ui.flow-app-active .app-flow-screen>.card,
+    .sos-modern-ui.flow-app-active .app-flow-screen>.flow-card,
+    .sos-modern-ui.flow-app-active .app-flow-screen>#serviceSection{box-shadow:var(--shadow-card)}
+
+    /* 서비스 홈: 1-2-2-1 카드 구조, 화면 자체 스크롤 없음 */
+    .sos-modern-ui.flow-app-active #screen-home:not(.hidden){
+      display:grid!important;
+      grid-template-rows:minmax(0,1fr);
+      height:100%;
+      min-height:0;
+      padding:10px 14px max(10px,var(--safe-bottom));
+      overflow:hidden;
+    }
+    .sos-modern-ui.flow-app-active #screen-home>#sampleNotice,
+    .sos-modern-ui.flow-app-active #screen-home>#travelContextBox,
+    .sos-modern-ui.flow-app-active #screen-home #appFlowSummary,
+    .sos-modern-ui.flow-app-active #screen-home #statusBox{display:none}
+    .sos-modern-ui.flow-app-active #screen-home>#serviceSection{
+      display:grid;
+      grid-template-rows:auto auto minmax(0,1fr) auto;
+      gap:clamp(5px,1.1dvh,9px);
+      height:100%;
+      min-height:0;
+      padding:clamp(11px,2.4vw,16px);
+      overflow:hidden;
+      align-content:stretch;
+    }
+    .sos-modern-ui #serviceSection>.eyebrow{margin:0;color:var(--color-primary);letter-spacing:.19em}
+    .sos-modern-ui #serviceSelectTitle{margin:0;font-size:clamp(21px,5.8vw,28px);line-height:1.13}
+    .sos-modern-ui.flow-app-active #serviceGrid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-rows:repeat(4,minmax(0,1fr));
+      gap:clamp(7px,1.2dvh,10px);
+      min-height:0;
+      height:100%;
+    }
+    .sos-modern-ui #serviceGrid .service{
+      position:relative;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:center;
+      gap:7px;
+      min-width:0;
+      min-height:0;
+      height:100%;
+      padding:clamp(9px,2.3vw,14px);
+      overflow:hidden;
+      border-radius:var(--radius-md);
+      box-shadow:0 3px 12px rgba(20,38,63,.05);
+    }
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"]{order:1;grid-column:1/-1;background:var(--color-primary);border-color:var(--color-primary);color:#fff}
+    .sos-modern-ui #serviceGrid .service[data-service="phrases"]{order:2}
+    .sos-modern-ui #serviceGrid .service[data-service="medicalCard"]{order:3}
+    .sos-modern-ui #serviceGrid .service[data-service="hospital"]{order:4}
+    .sos-modern-ui #serviceGrid .service[data-service="pharmacy"]{order:5}
+    .sos-modern-ui #serviceGrid .service[data-service="emergency"]{order:6;grid-column:1/-1;background:var(--color-danger);border-color:var(--color-danger);color:#fff}
+    .sos-modern-ui #serviceGrid .service-icon{
+      grid-column:2;
+      grid-row:1;
+      width:clamp(32px,9vw,44px);
+      height:clamp(32px,9vw,44px);
+      margin:0;
+      border-radius:var(--radius-sm);
+      background:var(--color-primary-soft);
+      font-size:clamp(21px,6.5vw,30px);
+      line-height:1;
+    }
+    .sos-modern-ui #serviceGrid .service-copy{grid-column:1;grid-row:1;min-width:0;align-self:center}
+    .sos-modern-ui #serviceGrid .service h3{margin:0 0 3px;font-size:clamp(14px,3.7vw,17px);line-height:1.2;word-break:keep-all}
+    .sos-modern-ui #serviceGrid .service p{
+      display:-webkit-box;
+      margin:0;
+      overflow:hidden;
+      color:var(--color-text-secondary);
+      font-size:clamp(10px,2.75vw,12px);
+      font-weight:750;
+      line-height:1.28;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+    }
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"] h3,
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"] p,
+    .sos-modern-ui #serviceGrid .service[data-service="emergency"] h3,
+    .sos-modern-ui #serviceGrid .service[data-service="emergency"] p{color:#fff}
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"] .service-icon,
+    .sos-modern-ui #serviceGrid .service[data-service="emergency"] .service-icon{background:rgba(255,255,255,.17)}
+    .sos-modern-ui #serviceGrid .service-arrow{display:none}
+    .sos-modern-ui #serviceGrid .service-badge{
+      position:absolute;
+      top:7px;
+      right:7px;
+      z-index:2;
+      background:rgba(255,255,255,.94);
+      color:var(--color-primary);
+      font-size:9px;
+    }
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"] .service-icon{margin-top:13px}
+    .sos-modern-ui .home-legal-links{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      min-height:28px;
+      overflow:hidden;
+      white-space:nowrap;
+    }
+    .sos-modern-ui .home-legal-links a{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:2px 5px;
+      color:#52647b;
+      font-size:clamp(9px,2.55vw,11px);
+      font-weight:850;
+      text-decoration:none;
+    }
+    .sos-modern-ui .home-legal-links a+a:before{content:"·";margin-right:7px;color:#9aa8b9}
+
+    /* 긴 화면은 중앙 콘텐츠만 스크롤하고 화면별 action 계약은 유지한다. */
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases:not(.hidden){padding:0;gap:10px}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases>.flow-screen-header{margin:10px 14px 0}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases>.help-phrases-scroll{padding:0 14px 12px}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases>.help-phrases-home-nav{padding:8px 14px max(8px,var(--safe-bottom));box-shadow:0 -5px 16px rgba(20,38,63,.05)}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-ai-result"] #triageActions,
+    .sos-modern-ui.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;background:transparent}
+    .sos-modern-ui .flow-card{gap:10px}
+    .sos-modern-ui .modal{padding:16px;background:rgba(11,36,69,.56)}
+    .sos-modern-ui .modal-box{width:min(420px,100%);max-height:min(88dvh,620px);padding:18px;border-radius:var(--radius-lg)}
+    .sos-modern-ui #locationConsentModal .modal-box>.grid{gap:0}
+    .sos-modern-ui #manualLocationBtn{display:none!important}
+
+    @media (max-width:420px){
+      .sos-modern-ui.flow-app-active #appPage{border-inline:0}
+      .sos-modern-ui .app-header-bar{grid-template-columns:minmax(0,1fr) 48px 56px}
+      .sos-modern-ui .app-change-mini{padding:0 9px}
+      .sos-modern-ui #screen-country-select .language-grid{grid-template-columns:1fr}
+    }
+    @media (max-height:760px){
+      .sos-modern-ui.flow-app-active #appPage>.topbar{padding-top:5px;padding-bottom:5px}
+      .sos-modern-ui .app-header-bar{min-height:52px}
+      .sos-modern-ui .app-country-pill,
+      .sos-modern-ui .app-emergency-mini,
+      .sos-modern-ui .app-change-mini{min-height:44px}
+      .sos-modern-ui.flow-app-active #screen-home:not(.hidden){padding-top:7px;padding-bottom:max(7px,var(--safe-bottom))}
+      .sos-modern-ui.flow-app-active #screen-home>#serviceSection{padding:9px;gap:4px}
+      .sos-modern-ui #serviceGrid .service{padding:8px}
+      .sos-modern-ui #serviceGrid .service p{-webkit-line-clamp:1}
+      .sos-modern-ui .home-legal-links,.sos-modern-ui .home-legal-links a{min-height:24px}
+    }
+    @media (min-width:769px){
+      .sos-modern-ui.flow-app-active #appPage,
+      .sos-modern-ui:not(.flow-app-active) #languagePage{border-inline:1px solid var(--color-border)}
+      .sos-modern-ui.flow-app-active .app-flow-screen{padding-inline:18px}
+      .sos-modern-ui.flow-app-active #screen-home:not(.hidden){padding-inline:18px}
+    }
+    @media (prefers-reduced-motion:reduce){.sos-modern-ui *{scroll-behavior:auto!important;transition:none!important}}
+
     .debug{font-size:12px;white-space:pre-wrap}
   </style>
 </head>
-<body>
+<body class="sos-modern-ui">
   <main id="languagePage" class="page">
     <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:stretch">
       <div id="screen-country-summary" class="card home-left-card flow-screen language-flow-screen">
@@ -410,7 +716,11 @@
         <div id="appFlowSummary" class="flow-home-summary"></div>
         <div id="serviceGrid" class="grid service-grid"></div>
         <div id="statusBox" class="notice navy">병원찾기는 증상에 맞는 병원을 가까운 순으로 보여주고, 약국찾기는 가까운 순으로 50개를 보여줍니다. AI Care는 GPT API를 이용해 사고 유형, 신체부위, 위험 신호를 종합해 응급도 참고 안내를 제공합니다.</div>
-        </div>
+        <nav class="home-legal-links" aria-label="서비스 법적 안내">
+          <a href="./privacy.html">개인정보처리방침</a>
+          <a href="./terms.html">이용약관</a>
+          <a href="./disclaimer.html">면책 안내</a>
+        </nav>
       </section>
 
       <section id="localPhraseCard" class="card hidden">
@@ -3370,14 +3680,14 @@ function renderAppFlowSummary(){
 }
 function renderServices(){
   const tx=t();
-  $("serviceSelectTitle").textContent=tx.serviceSelect;
+  $("serviceSelectTitle").textContent="어떤 도움이 필요한가요?";
   renderAppFlowSummary();
   const homeServiceKeys = ["symptom","phrases","medicalCard","hospital","pharmacy","emergency"];
-  const homeServices = services.filter(s => homeServiceKeys.includes(s.key));
+  const homeServices = homeServiceKeys.map(key => services.find(service => service.key === key)).filter(Boolean);
   $("serviceGrid").innerHTML = homeServices.map(s => {
     const recommended = s.key === "symptom";
     return '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button">'+
-      '<div class="service-icon">'+s.icon+'</div>'+
+      '<div class="service-icon" aria-hidden="true">'+s.icon+'</div>'+
       '<div class="service-copy"><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+tx[s.descKey]+'</p></div>'+
       (recommended ? '<span class="service-badge">추천</span>' : '<span class="service-arrow">›</span>')+
     '</button>';
