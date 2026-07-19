@@ -176,6 +176,7 @@
     .support-status-row{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.76);border:1px solid rgba(148,163,184,.28);border-radius:14px;padding:9px 10px}
     .support-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:950;white-space:nowrap}
     .support-badge.supported{background:#dff5ff;color:#1261a6}
+    .support-badge.conditional{background:#e0f2fe;color:#075985}
     .support-badge.limited{background:#fef3c7;color:#92400e}
     .support-status-text{font-size:12px;font-weight:900;line-height:1.45;color:#475569}
     .emergency-verification-card{display:grid;gap:8px;line-height:1.55}
@@ -217,7 +218,19 @@
     .country-texts{min-width:0;display:grid;gap:2px}
     .country-name-ko{font-size:15px;font-weight:950;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .country-name-en{font-size:12px;color:var(--muted);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .country-emergency{font-size:12px;color:#1261a6;font-weight:950;white-space:nowrap}
+    .country-emergency{display:grid;gap:1px;min-width:0;font-size:12px;color:#1261a6;font-weight:950}
+    .country-emergency-main,.country-emergency-secondary{overflow-wrap:anywhere}
+    .country-emergency-secondary{color:var(--muted);font-size:11px;font-weight:800;line-height:1.3}
+    .country-card-status{display:grid;justify-items:end;gap:4px;align-self:center}
+    .emergency-role-action-list{display:grid;gap:7px;margin-top:9px}
+    .emergency-number-action{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;min-height:44px;padding:9px 11px;border:1px solid rgba(185,28,28,.24);border-radius:12px;background:#fff;color:var(--navy);font:inherit;text-align:left}
+    .emergency-number-action span{min-width:0;font-size:12px;font-weight:850;line-height:1.35}
+    .emergency-number-action strong{color:#b91c1c;font-size:17px;font-weight:950;white-space:nowrap}
+    .emergency-condition-copy{display:grid;gap:5px;margin-top:9px;color:#475569;line-height:1.5}
+    .emergency-condition-copy p{margin:0}
+    .emergency-service-areas{margin-top:7px;padding:8px 10px;border:1px solid #bae6fd;border-radius:10px;background:#f0f9ff;color:#315b83}
+    .emergency-service-areas summary{cursor:pointer;font-weight:900}
+    .emergency-service-areas p{margin:6px 0 0;font-size:12px;line-height:1.55}
     .country-list-notice{display:flex;align-items:center;gap:10px;background:#edf7ff;border:1px solid #d7eaff;color:#17456f;border-radius:var(--radius-md);padding:12px;font-size:13px;font-weight:850;line-height:1.45}
     .service{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
     .service-icon{width:44px;height:44px;border-radius:14px;background:var(--color-primary-soft);display:flex;align-items:center;justify-content:center;font-size:23px;margin-bottom:0}
@@ -409,6 +422,7 @@
     .sos-modern-ui #countryQuickGrid .country-card-copy{display:grid;gap:3px;min-width:0;width:100%}
     .sos-modern-ui #countryQuickGrid .country-name{overflow:hidden;color:var(--color-primary-dark);font-size:14px;font-weight:950;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
     .sos-modern-ui #countryQuickGrid .country-sub{overflow:hidden;color:var(--color-text-secondary);font-size:11px;font-weight:750;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+    .sos-modern-ui #countryQuickGrid .country-card-emergency{overflow:hidden;color:var(--color-primary);font-size:10px;font-weight:900;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
     .sos-modern-ui .country-list-toggle{flex:none;min-height:48px;border-color:var(--color-border);background:var(--color-surface);color:var(--color-primary-dark)}
     .sos-modern-ui #screen-country-select .language-grid{
       min-height:0;
@@ -438,13 +452,19 @@
     .sos-modern-ui .country-summary-content{display:grid;gap:12px;min-width:0;color:var(--color-text)}
     .sos-modern-ui .country-summary-english{margin:0;color:var(--color-primary-dark);font-size:17px;font-weight:850;overflow-wrap:anywhere}
     .sos-modern-ui .country-summary-language{margin:0;color:var(--color-text-secondary);font-size:14px;font-weight:750;line-height:1.45;overflow-wrap:anywhere}
-    .sos-modern-ui .country-summary-emergency{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:var(--radius-sm);background:var(--color-primary-soft)}
+    .sos-modern-ui .country-summary-emergency-list{display:grid;gap:7px}
+    .sos-modern-ui .country-summary-emergency{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);background:var(--color-primary-soft)}
     .sos-modern-ui .country-summary-emergency span{color:#315b83;font-size:13px;font-weight:850}
-    .sos-modern-ui .country-summary-emergency strong{color:var(--color-primary-dark);font-size:23px;font-weight:950;text-align:right;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-emergency strong{color:var(--color-primary-dark);font-size:20px;font-weight:950;text-align:right;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-conditions{display:grid;gap:7px;padding:11px 12px;border:1px solid #bae6fd;border-radius:var(--radius-sm);background:#f0f9ff}
+    .sos-modern-ui .country-summary-conditions p{margin:0;color:#315b83;font-size:12px;font-weight:760;line-height:1.55}
+    .sos-modern-ui .country-summary-conditions .warning{color:#92400e}
+    .sos-modern-ui .country-summary-conditions .emergency-service-areas{margin-top:0}
     .sos-modern-ui .country-summary-support{display:grid;gap:8px}
     .sos-modern-ui .country-summary-support .support-status-row{padding:0;border:0;background:transparent}
     .sos-modern-ui .country-summary-support .support-status-text{display:none}
     .sos-modern-ui .country-summary-support .support-badge.supported{background:#dcfce7;color:#166534}
+    .sos-modern-ui .country-summary-support .support-badge.conditional{background:#e0f2fe;color:#075985}
     .sos-modern-ui .country-summary-scope{margin:0;color:var(--color-text-secondary);font-size:13px;font-weight:750;line-height:1.5}
     .sos-modern-ui .country-summary-meta{display:grid;gap:8px}
     .sos-modern-ui .country-summary-meta>div{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:start}
@@ -3011,30 +3031,126 @@ function getEmergencyNumbersData(id){
 function hasUsableEmergencyNumbers(data){
   return Boolean(data && data.status !== "needs-verification" && (data.primary || data.police || data.ambulance || data.fire));
 }
+function isConditionalEmergencySupport(item){
+  const data = getEmergencyNumbersData(item);
+  return Boolean(data && data.status === "verified-conditional");
+}
 function isLimitedEmergencySupport(item){
   const data = getEmergencyNumbersData(item);
   return Boolean(data && data.status === "needs-verification");
 }
-function supportStatusHtml(data){
+function emergencySupportMeta(data){
+  if(data && data.status === "verified-conditional"){
+    return {className:"conditional", shortLabel:"조건부", label:"조건부 지원", text:"공식 번호와 이용 범위를 함께 확인하세요."};
+  }
   if(data && data.status === "needs-verification"){
-    return ''+
-      '<div class="support-status-row">'+
-        '<span class="support-badge limited">제한 지원 국가</span>'+
-        '<span class="support-status-text">도움 요청 문장, 의료카드, 병원·약국 검색은 계속 사용할 수 있습니다.</span>'+
-      '</div>';
+    return {className:"limited", shortLabel:"제한", label:"제한 지원 국가", text:"도움 요청 문장, 의료카드, 병원·약국 검색은 계속 사용할 수 있습니다."};
   }
   if(data && data.status === "verified"){
-    return ''+
-      '<div class="support-status-row">'+
-        '<span class="support-badge supported">정식 지원 국가</span>'+
-        '<span class="support-status-text">공식·공공 출처 기반 응급번호를 제공합니다.</span>'+
-      '</div>';
+    return {className:"supported", shortLabel:"정식", label:"정식 지원 국가", text:"공식·공공 출처 기반 응급번호를 제공합니다."};
   }
+  return {className:"limited", shortLabel:"확인", label:"응급번호 확인 필요", text:"출국 전 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요."};
+}
+function supportStatusHtml(data){
+  const meta = emergencySupportMeta(data);
   return ''+
     '<div class="support-status-row">'+
-      '<span class="support-badge limited">응급번호 확인 필요</span>'+
-      '<span class="support-status-text">출국 전 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.</span>'+
+      '<span class="support-badge '+meta.className+'">'+meta.label+'</span>'+
+      '<span class="support-status-text">'+meta.text+'</span>'+
     '</div>';
+}
+function emergencyAlternates(data){
+  return Array.isArray(data && data.alternates)
+    ? data.alternates.filter(item => item && String(item.number || "").trim())
+    : [];
+}
+function emergencyRoleRows(data, includeServices=false){
+  if(!data || typeof data !== "object") return [];
+  const rows = [];
+  const primary = String(data.primary || "").trim();
+  const ambulance = String(data.ambulance || "").trim();
+  if(primary && ambulance && primary === ambulance){
+    rows.push({role:"primary-ambulance", label:data.primaryLabelKo || data.ambulanceLabelKo || "응급번호", number:primary});
+  }else{
+    if(primary) rows.push({role:"primary", label:data.primaryLabelKo || "통합·일반 긴급번호", number:primary});
+    if(ambulance) rows.push({role:"ambulance", label:data.ambulanceLabelKo || "구급차", number:ambulance});
+  }
+  emergencyAlternates(data).forEach((item, index) => rows.push({
+    role:"alternate",
+    alternateIndex:index,
+    label:item.labelKo || "보조 번호",
+    number:String(item.number).trim()
+  }));
+  if(includeServices){
+    const police = String(data.police || "").trim();
+    const fire = String(data.fire || "").trim();
+    if(police) rows.push({role:"police", label:"경찰", number:police});
+    if(fire) rows.push({role:"fire", label:"소방", number:fire});
+  }
+  return rows;
+}
+function emergencyServiceAreasHtml(data){
+  const areas = Array.isArray(data && data.serviceAreas) ? data.serviceAreas.filter(Boolean) : [];
+  if(!areas.length) return "";
+  return '<details class="emergency-service-areas"><summary>공식 안내 지원 지역 '+areas.length+'곳</summary><p>'+escapeHtml(areas.join(", "))+'</p></details>';
+}
+function emergencyConditionsHtml(data, className="emergency-condition-copy"){
+  if(!data) return "";
+  const parts = [];
+  if(data.scopeKo) parts.push('<p>'+escapeHtml(data.scopeKo)+'</p>');
+  if(data.warningKo) parts.push('<p class="warning">'+escapeHtml(data.warningKo)+'</p>');
+  const areas = emergencyServiceAreasHtml(data);
+  if(areas) parts.push(areas);
+  return parts.length ? '<div class="'+className+'">'+parts.join("")+'</div>' : "";
+}
+function emergencyRoleRowsHtml(data, opts={}){
+  const rows = emergencyRoleRows(data, opts.includeServices === true);
+  if(!rows.length) return "";
+  if(opts.actionable){
+    return '<div class="emergency-role-action-list">'+rows.map(row => {
+      const dialNumber = normalizeEmergencyDialNumber(row.number);
+      if(!dialNumber){
+        return '<div class="emergency-number-action"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></div>';
+      }
+      return '<button class="emergency-number-action" type="button" data-emergency-dial-number="'+escapeHtml(dialNumber)+'" aria-label="'+escapeHtml(row.label)+' '+escapeHtml(row.number)+' 전화 앱 열기"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></button>';
+    }).join("")+'</div>';
+  }
+  return '<div class="country-summary-emergency-list">'+rows.map(row =>
+    '<div class="country-summary-emergency"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></div>'
+  ).join("")+'</div>';
+}
+function shortEmergencyRoleLabel(label, fallback){
+  const value = String(label || "");
+  if(/SAMU/i.test(value)) return "SAMU";
+  if(/의료/.test(value)) return "의료";
+  if(/구조/.test(value)) return "구조";
+  if(/구급/.test(value)) return "구급차";
+  if(/통합|긴급/.test(value)) return "응급";
+  return fallback;
+}
+function emergencyListDisplay(item){
+  const data = getEmergencyNumbersData(item);
+  if(!hasUsableEmergencyNumbers(data)) return {main:"응급번호 확인 필요", secondary:""};
+  const ambulance = String(data.ambulance || data.primary || "").trim();
+  const primary = String(data.primary || "").trim();
+  const mainLabel = shortEmergencyRoleLabel(data.ambulanceLabelKo, "구급차");
+  let secondary = "";
+  if(primary && ambulance && primary !== ambulance){
+    secondary = shortEmergencyRoleLabel(data.primaryLabelKo, "응급")+" "+primary;
+  }else{
+    const alternates = emergencyAlternates(data);
+    if(alternates.length === 1){
+      secondary = shortEmergencyRoleLabel(alternates[0].labelKo, "추가")+" "+alternates[0].number;
+    }else if(alternates.length > 1){
+      secondary = "추가 번호 "+alternates.length+"개";
+    }
+  }
+  if(data.status === "verified-conditional"){
+    const condition = String(data.conditionLabelKo || "").trim()
+      || (Array.isArray(data.serviceAreas) && data.serviceAreas.length ? "지원 지역 확인" : "연결 제한 가능");
+    secondary = [secondary, condition].filter(Boolean).join(" · ");
+  }
+  return {main:[mainLabel, ambulance].filter(Boolean).join(" "), secondary};
 }
 function emergencyVerificationDetailHtml(data, margin){
   const reason = (data && data.notesKo) || emergencyVerificationNotice;
@@ -3052,6 +3168,16 @@ function emergencyNumbersDetailHtml(item, opts={}){
   const margin = opts.margin || "8px 0 0";
   if(!hasUsableEmergencyNumbers(data)){
     return emergencyVerificationDetailHtml(data, margin);
+  }
+  const hasStructuredRoles = Boolean(data.primaryLabelKo || data.ambulanceLabelKo || emergencyAlternates(data).length || data.scopeKo || data.warningKo || (Array.isArray(data.serviceAreas) && data.serviceAreas.length));
+  if(hasStructuredRoles){
+    const lines = [supportStatusHtml(data), emergencyRoleRowsHtml(data, {includeServices:true, actionable:true}), emergencyConditionsHtml(data)];
+    if(data.notesKo) lines.push('<div class="small muted" style="margin-top:6px">'+escapeHtml(data.notesKo)+'</div>');
+    if(data.sourceName || data.lastVerified){
+      const sourceText = [data.sourceName ? "출처: "+data.sourceName : "", data.lastVerified ? "확인일: "+data.lastVerified : ""].filter(Boolean).join(" · ");
+      lines.push('<div class="small muted" style="margin-top:4px">'+escapeHtml(sourceText)+'</div>');
+    }
+    return '<div class="notice red small" style="margin:'+margin+'">'+lines.join("")+'</div>';
   }
   const primary = String(data.primary || data.ambulance || data.police || data.fire || "").trim();
   const services = [
@@ -3650,12 +3776,14 @@ function renderCountryQuickGrid(){
     const flag = countryCodeToFlagEmoji(item.countryCode) || item.flag || "";
     const countryNameKo = item.countryKo || item.countryNameKo || "";
     const countryNameEn = item.country || item.countryNameEn || "";
+    const emergencyDisplay = emergencyListDisplay(item);
     return (
     '<button class="country-card '+(item.id===tripCountryId?'selected':'')+'" data-country-card="'+item.id+'" type="button" aria-label="'+escapeHtml(countryNameKo)+' 선택">'+
       '<span class="country-flag" '+(flag ? 'role="img" aria-label="'+escapeHtml(countryNameKo)+' 국기"' : 'aria-hidden="true"')+'>'+(flag || escapeHtml(item.countryCode || ""))+'</span>'+
       '<span class="country-card-copy">'+
         '<span class="country-name">'+escapeHtml(countryNameKo)+'</span>'+
         '<span class="country-sub">'+escapeHtml(countryNameEn)+'</span>'+
+        '<span class="country-card-emergency">'+escapeHtml(emergencyDisplay.main)+'</span>'+
       '</span>'+
     '</button>'
     );
@@ -3740,7 +3868,9 @@ function renderLanguageList(){
     '<div class="country-results-heading"><strong>'+(isSearching ? "검색 결과" : "전체 "+publicOptions.length+"개 국가·지역")+'</strong><span>'+(isSearching ? list.length+"개" : "가나다순")+'</span></div>' +
     list.map(item => {
       const active = hasTripCountrySelection && item.id===tripCountryId;
-      const supportLimited = isLimitedEmergencySupport(item);
+      const emergencyData = getEmergencyNumbersData(item);
+      const supportMeta = emergencySupportMeta(emergencyData);
+      const emergencyDisplay = emergencyListDisplay(item);
       const code = item.countryCode || String(item.id || "").toUpperCase();
       const flag = countryCodeToFlagEmoji(item.countryCode);
       return '<button class="lang-btn '+(active?'active':'')+'" data-trip-country="'+item.id+'" type="button">'+
@@ -3751,9 +3881,11 @@ function renderLanguageList(){
         '<span class="country-texts">'+
           '<span class="country-name-ko">'+escapeHtml(item.countryKo)+'</span>'+
           '<span class="country-name-en">'+escapeHtml(item.country)+'</span>'+
-          '<span class="country-emergency">응급번호 '+escapeHtml(getEmergencyNumber(item.id))+'</span>'+
+          '<span class="country-emergency"><span class="country-emergency-main">'+escapeHtml(emergencyDisplay.main)+'</span>'+
+            (emergencyDisplay.secondary ? '<span class="country-emergency-secondary">'+escapeHtml(emergencyDisplay.secondary)+'</span>' : '')+
+          '</span>'+
         '</span>'+
-        '<span class="support-badge '+(supportLimited ? "limited" : "supported")+'">'+(supportLimited ? "제한" : "정식")+'</span>'+
+        '<span class="country-card-status"><span class="support-badge '+supportMeta.className+'">'+supportMeta.shortLabel+'</span></span>'+
       '</button>';
     }).join("");
 
@@ -3769,7 +3901,6 @@ function renderLanguagePage(){
   const languageNameKo = localOpt.languageNameKo || localOpt.languageKo || "";
   const languageNative = localOpt.languageNative || localOpt.native || localOpt.languageNameEn || "";
   const languageLabel = [languageNameKo, languageNative].filter((value, index, values) => value && values.indexOf(value) === index).join(" · ");
-  const emergencyLabel = hasUsableEmergencyNumbers(emergencyData) ? getTripEmergencyNumber() : "확인 필요";
   $("tripSummaryPanel").classList.toggle("summary-empty", !hasTrip);
   const selectedFlag = $("selectedFlag");
   const selectedFlagEmoji = hasTrip ? countryCodeToFlagEmoji(tripOpt.countryCode) : "";
@@ -3786,7 +3917,8 @@ function renderLanguagePage(){
   $("selectedCountry").innerHTML=hasTrip
     ? '<p class="country-summary-english">'+escapeHtml(tripOpt.country || tripOpt.countryNameEn || "")+'</p>'+
         '<p class="country-summary-language">'+escapeHtml(languageLabel)+'</p>'+
-        '<div class="country-summary-emergency"><span>대표 응급번호</span><strong>'+escapeHtml(emergencyLabel)+'</strong></div>'+
+        emergencyRoleRowsHtml(emergencyData)+
+        emergencyConditionsHtml(emergencyData, "country-summary-conditions")+
         '<div class="country-summary-support">'+
           supportStatusHtml(emergencyData)+
           '<p class="country-summary-scope">응급번호, 현지 문장, 의료카드, 위치 기반 기관 검색을 제공합니다.</p>'+
@@ -3814,10 +3946,11 @@ function renderAppFlowSummary(){
   const tripOpt = getTripOption();
   const localOpt = getLocalOption();
   const emergencyLabel = getTripEmergencyNumber();
+  const supportMeta = emergencySupportMeta(getEmergencyNumbersData(tripOpt));
   el.innerHTML =
     '<div class="between">'+
       '<div><p class="eyebrow" style="margin-bottom:4px">Current Flow</p><h3 style="margin:0">'+escapeHtml((tripCountryName || tripOpt.countryKo || "여행 국가 미선택"))+'에서 필요한 기능을 선택하세요</h3></div>'+
-      '<span class="support-badge '+(isLimitedEmergencySupport(tripOpt) ? "limited" : "supported")+'">'+(isLimitedEmergencySupport(tripOpt) ? "제한 지원" : "정식 지원")+'</span>'+
+      '<span class="support-badge '+supportMeta.className+'">'+supportMeta.label+'</span>'+
     '</div>'+
     '<p class="home-helper">현지어: '+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+' · 응급번호: '+escapeHtml(emergencyLabel)+'</p>';
 }
@@ -6308,18 +6441,28 @@ function uniqueList(items){
 }
 
 function callEmergencyNumber(){
-  openCurrentEmergencyDialer("primary", {fallbackToScreen:false});
+  openCurrentEmergencyDialer("ambulance", {fallbackToScreen:false});
 }
 
 function normalizeEmergencyDialNumber(raw){
   const text = String(raw || "").trim();
   if(!text || text === "현지 응급번호 확인 필요" || !/\d/.test(text)) return "";
-  const first = text.split(/\s*(?:\/|,|;|\||또는|\bor\b)\s*/i).find(part => /\d/.test(part)) || "";
-  let number = first.replace(/[^\d+]/g, "");
+  if(/\s*(?:\/|,|;|\||또는|\bor\b)\s*/i.test(text)) return "";
+  let number = text.replace(/[^\d+]/g, "");
   if(!number || !/\d/.test(number)) return "";
   const hasLeadingPlus = number.charAt(0) === "+";
   number = number.replace(/\+/g, "");
   return hasLeadingPlus ? "+" + number : number;
+}
+
+function getEmergencyDialNumber(item, type="primary", alternateIndex=0){
+  const data = getEmergencyNumbersData(item);
+  if(!data || data.status === "needs-verification") return "";
+  if(type === "alternate"){
+    const alternate = emergencyAlternates(data)[alternateIndex];
+    return normalizeEmergencyDialNumber(alternate && alternate.number);
+  }
+  return normalizeEmergencyDialNumber(data[type]);
 }
 
 function getCurrentEmergencyDialNumber(type="primary"){
@@ -6351,6 +6494,11 @@ function showEmergencyDialUnavailable(fallbackToScreen=true){
 
 function openCurrentEmergencyDialer(type="primary", opts={}){
   const number = getCurrentEmergencyDialNumber(type);
+  return openEmergencyDialNumber(number, opts);
+}
+
+function openEmergencyDialNumber(raw, opts={}){
+  const number = normalizeEmergencyDialNumber(raw);
   if(number){
     window.location.href = "tel:" + number;
     setStatus("현지 응급번호 전화 앱을 열었습니다. 연결되지 않으면 번호를 직접 입력하세요: "+number);
@@ -6454,7 +6602,7 @@ function showEmergency(){
 function hideEmergency(){ $("emergencyModal").classList.add("hidden"); }
 function agreeEmergency(){
   hideEmergency();
-  callEmergencyNumber();
+  openCurrentEmergencyDialer("primary", {fallbackToScreen:false});
 }
 
 function showSpeech(msg){ $("speechStatus").textContent=msg; $("speechStatus").classList.remove("hidden"); }
@@ -6479,6 +6627,12 @@ function initAllLanguageTestPanel(){
     phrasePacks,
     prescriptionSourceKo: PRESCRIPTION_SOURCE_KO,
     prescriptionStatements: {...PRESCRIPTION_STATEMENTS},
+    getEmergencyNumbersData,
+    getEmergencyDialNumber,
+    getCurrentEmergencyDialNumber,
+    normalizeEmergencyDialNumber,
+    emergencyRoleRows,
+    emergencyListDisplay,
     escapeHtml
   };
 }
@@ -6536,6 +6690,12 @@ function init(){
   });
   on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",()=>{ saveMedicalCard(); showFlowScreen("screen-medical-result"); }); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency); on("flowEmergencyConfirmBtn","click",showEmergency); on("agreeLocationBtn","click",agreeLocationConsent); on("manualLocationBtn","click",chooseManualLocation);
   $("emergencyModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="emergencyModal") hideEmergency(); }));
+  document.addEventListener("click", e=>safe(()=>{
+    const button = e.target && e.target.closest ? e.target.closest("[data-emergency-dial-number]") : null;
+    if(!button) return;
+    e.preventDefault();
+    openEmergencyDialNumber(button.getAttribute("data-emergency-dial-number"), {fallbackToScreen:false});
+  }));
   $("locationConsentModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="locationConsentModal") hideLocationConsent(); }));
   document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{
     if(btn.dataset.nav === "serviceSection") showFlowScreen("screen-home");

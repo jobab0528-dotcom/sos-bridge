@@ -519,6 +519,141 @@
       runMock: runPrescriptionPhraseMockAudit
     };
 
+    const emergencyAuditCodes = ["ZA","LA","SA","MM","ID","KH","PE"];
+    const emergencyExpected = {
+      ZA:{primary:"112", ambulance:"10177"},
+      LA:{primary:"1195", ambulance:"1195", alternates:["0305257239","1623","02056668825"]},
+      SA:{primary:"911", ambulance:"997"},
+      MM:{primary:"192", ambulance:"192", warning:true},
+      ID:{primary:"119", ambulance:"119", alternates:["118"]},
+      KH:{primary:"119", ambulance:"119", status:"verified-conditional", scope:true, warning:true},
+      PE:{primary:"106", ambulance:"106", scope:true}
+    };
+    const emergencyNormalize = typeof context.normalizeEmergencyDialNumber === "function"
+      ? context.normalizeEmergencyDialNumber
+      : (value) => {
+        const text = String(value || "").trim();
+        if(!text || /\s*(?:\/|,|;|\||또는|\bor\b)\s*/i.test(text)) return "";
+        const number = text.replace(/[^\d+]/g, "");
+        return /^\+?\d+$/.test(number) ? number : "";
+      };
+    const emergencyDialNumber = typeof context.getEmergencyDialNumber === "function"
+      ? context.getEmergencyDialNumber
+      : (country, type, alternateIndex=0) => {
+        const data = country && country.emergencyNumbers || {};
+        const value = type === "alternate"
+          ? (Array.isArray(data.alternates) && data.alternates[alternateIndex] && data.alternates[alternateIndex].number)
+          : data[type];
+        return emergencyNormalize(value);
+      };
+
+    function emergencyAuditTargets(){
+      return emergencyAuditCodes.map((code) => languageOptions.find((country) => String(country && country.countryCode || "").toUpperCase() === code)).filter(Boolean);
+    }
+
+    function evaluateEmergencyNumberData(country){
+      const code = String(country && country.countryCode || "").toUpperCase();
+      const data = country && country.emergencyNumbers || {};
+      const expected = emergencyExpected[code] || {};
+      const reasons = [];
+      const primaryDial = emergencyDialNumber(country, "primary");
+      const ambulanceDial = emergencyDialNumber(country, "ambulance");
+      const alternateDialers = (Array.isArray(data.alternates) ? data.alternates : []).map((item, index) => emergencyDialNumber(country, "alternate", index));
+      const allDialers = [primaryDial, ambulanceDial].concat(alternateDialers).filter(Boolean);
+      const dataText = JSON.stringify(data);
+
+      if(primaryDial !== expected.primary) reasons.push("primary 불일치");
+      if(ambulanceDial !== expected.ambulance) reasons.push("ambulance 불일치");
+      (expected.alternates || []).forEach((number) => {
+        if(!alternateDialers.includes(number)) reasons.push("alternate 누락: "+number);
+      });
+      if(expected.warning && !String(data.warningKo || "").trim()) reasons.push("warningKo 없음");
+      if(expected.scope && !String(data.scopeKo || "").trim()) reasons.push("scopeKo 없음");
+      if(expected.status && data.status !== expected.status) reasons.push("status 불일치");
+      if(code === "ID" && String(country.emergencyNumber || "") !== "119") reasons.push("legacy emergencyNumber가 119가 아님");
+      if(code === "PE" && !(Array.isArray(data.serviceAreas) && data.serviceAreas.length)) reasons.push("SAMU 지원 지역 없음");
+      if(code === "LA" && /1624/.test(dataText)) reasons.push("금지 번호 1624 존재");
+      if(code === "KH" && !/프놈펜/.test(String(data.scopeKo || ""))) reasons.push("프놈펜 이용 범위 안내 없음");
+      if(code === "KH" && /전국(?:에서)?\s*(?:공통|동일|항상)|nationwide\s+(?:service|coverage|availability)/i.test(dataText)) reasons.push("이용 범위 보장 문구 존재");
+      if(/undefined|null/.test([data.primary,data.ambulance].join(" "))) reasons.push("undefined/null 문구 존재");
+      if(allDialers.some((number) => !/^\+?\d+$/.test(number))) reasons.push("tel 번호에 설명 문자 존재");
+      if(allDialers.some((number) => /[\/,;|]/.test(number))) reasons.push("tel 번호에 복수 번호 구분자 존재");
+      if(emergencyNormalize("112 / 10177") !== "") reasons.push("복수 번호 정규화 차단 실패");
+      if(emergencyNormalize("030 525 7239") !== "0305257239") reasons.push("공백 번호 정규화 실패");
+      if(emergencyNormalize("112(휴대전화)") !== "112") reasons.push("설명 포함 단일 번호 정규화 실패");
+
+      return {
+        code,
+        country:country.countryNameKo || country.countryKo || code,
+        primary:data.primary || "",
+        ambulance:data.ambulance || "",
+        alternates:(Array.isArray(data.alternates) ? data.alternates : []).map((item) => (item.labelKo || "보조")+" "+item.number).join(" / "),
+        primaryDial,
+        ambulanceDial,
+        status:data.status || "",
+        condition:[data.scopeKo,data.warningKo].filter(Boolean).join(" "),
+        result:reasons.length ? "BLOCK" : "PASS",
+        reason:reasons.join(" / ") || "역할별 번호·조건·tel 계약 통과"
+      };
+    }
+
+    function renderEmergencyNumberAuditRows(rows){
+      const tbody = $("sos-emergency-number-audit-rows");
+      if(!tbody) return;
+      tbody.innerHTML = rows.map((row) => {
+        const color = row.result === "PASS" ? "#047857" : "#b91c1c";
+        return '<tr>'+
+          '<td style="padding:8px;border:1px solid var(--border);font-weight:950;color:'+color+'">'+escapeHtml(row.result)+'</td>'+
+          devTestCell(row.code)+devTestCell(row.country)+devTestCell(row.primary)+devTestCell(row.ambulance)+devTestCell(row.alternates)+
+          devTestCell(row.primaryDial)+devTestCell(row.ambulanceDial)+devTestCell(row.status)+devTestCell(row.condition)+devTestCell(row.reason)+
+        '</tr>';
+      }).join("");
+    }
+
+    function runEmergencyNumberMockAudit(){
+      const rows = emergencyAuditTargets().map(evaluateEmergencyNumberData);
+      renderEmergencyNumberAuditRows(rows);
+      const blocked = rows.filter((row) => row.result === "BLOCK").length;
+      const summary = $("sos-emergency-number-audit-summary");
+      if(summary) summary.textContent = "응급번호 정적 검사: 총 "+rows.length+"개 · PASS "+(rows.length-blocked)+"개 · BLOCK "+blocked+"개 · 실제 전화 0회";
+      return rows;
+    }
+
+    function createEmergencyNumberAuditPanel(){
+      const panel = $("sos-dev-test-panel");
+      if(!panel || $("sos-emergency-number-audit-panel")) return;
+      panel.insertAdjacentHTML("beforeend",
+        '<section id="sos-emergency-number-audit-panel" class="card" style="margin-top:18px">'+
+          '<p class="eyebrow" style="margin-bottom:6px">Emergency Number QA</p>'+
+          '<h2 style="margin-top:0">7개국 의료 응급번호 역할 검사</h2>'+
+          '<p class="small muted" style="line-height:1.6">countries.js의 역할별 번호와 tel 정규화 반환값만 검사합니다. 실제 전화 앱이나 외부 API를 열지 않습니다.</p>'+
+          '<button id="run-emergency-number-mock-test" class="btn outline w-full" type="button">응급번호 정적 검사 실행</button>'+
+          '<div id="sos-emergency-number-audit-summary" class="notice teal small" style="margin-top:12px">응급번호 정적 검사: 아직 실행하지 않음</div>'+
+          '<div style="overflow:auto;margin-top:12px">'+
+            '<table style="width:100%;border-collapse:collapse;min-width:1380px;font-size:12px">'+
+              '<thead><tr style="background:#f8fafc;color:var(--navy);text-align:left">'+
+                '<th style="padding:9px;border:1px solid var(--border)">판정</th><th style="padding:9px;border:1px solid var(--border)">코드</th><th style="padding:9px;border:1px solid var(--border)">국가</th>'+
+                '<th style="padding:9px;border:1px solid var(--border)">primary</th><th style="padding:9px;border:1px solid var(--border)">ambulance</th><th style="padding:9px;border:1px solid var(--border)">alternates</th>'+
+                '<th style="padding:9px;border:1px solid var(--border)">primary tel</th><th style="padding:9px;border:1px solid var(--border)">ambulance tel</th><th style="padding:9px;border:1px solid var(--border)">상태</th>'+
+                '<th style="padding:9px;border:1px solid var(--border)">조건·주의</th><th style="padding:9px;border:1px solid var(--border)">결과</th>'+
+              '</tr></thead><tbody id="sos-emergency-number-audit-rows"></tbody>'+
+            '</table>'+
+          '</div>'+
+        '</section>'
+      );
+    }
+
+    function bindEmergencyNumberAuditButton(){
+      const button = $("run-emergency-number-mock-test");
+      if(button) button.addEventListener("click", runEmergencyNumberMockAudit);
+    }
+
+    window.SOS_BRIDGE_EMERGENCY_NUMBER_AUDIT_DEV = {
+      targets: emergencyAuditTargets,
+      evaluate: evaluateEmergencyNumberData,
+      runMock: runEmergencyNumberMockAudit
+    };
+
     const aiCareAuditStorageKey = "sosBridgeAiCareSemanticAudit:v1";
     let aiCareAuditRows = [];
 
@@ -1253,9 +1388,11 @@
 
     createAllLanguageTestPanel();
     createPrescriptionPhraseAuditPanel();
+    createEmergencyNumberAuditPanel();
     createAiCareSemanticAuditPanel();
     bindAllLanguageTestButtons();
     bindPrescriptionPhraseAuditButton();
+    bindEmergencyNumberAuditButton();
     bindAiCareSemanticAuditButtons();
     }catch(error){
       console.error("developer-test.js runtime error", error);

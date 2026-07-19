@@ -829,13 +829,19 @@
         "rank": 18,
         "emergencyNumbers": {
             "primary": "112",
+            "primaryLabelKo": "휴대전화 긴급번호",
             "police": "10111",
             "ambulance": "10177",
-            "fire": "10177",
-            "notesKo": "남아프리카공화국 기준 응급번호입니다. 휴대전화 모든 응급 112, 구급·소방 10177, 경찰 10111. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요. 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.",
-            "sourceName": "GOV.UK FCDO Foreign travel advice",
-            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/south-africa/getting-help",
-            "lastVerified": "2026-07-08",
+            "ambulanceLabelKo": "구급차",
+            "fire": "",
+            "scopeKo": "112는 휴대전화 긴급번호이며, 구급차 직통 번호는 10177입니다.",
+            "warningKo": "화재 신고 번호는 지역별로 다를 수 있으므로 관할 지방정부 안내를 확인하세요.",
+            "notesKo": "휴대전화 긴급번호 112, 구급차 10177, 경찰 10111입니다.",
+            "sourceName": "Western Cape Government",
+            "sourceTitle": "Know who you can call in an emergency",
+            "sourceDomain": "westerncape.gov.za",
+            "sourceUrl": "https://www.westerncape.gov.za/health-wellness/know-who-you-can-call-emergency",
+            "lastVerified": "2026-07-19",
             "status": "verified"
         },
         "countryCode": "ZA"
@@ -1619,12 +1625,39 @@
             "primary": "1195",
             "police": "1191",
             "ambulance": "1195",
+            "ambulanceLabelKo": "구급차",
+            "alternates": [
+                {
+                    "number": "030 525 7239",
+                    "labelKo": "구급차 대체 연락처"
+                },
+                {
+                    "number": "1623",
+                    "labelKo": "비엔티안 구조 서비스"
+                },
+                {
+                    "number": "020 5666 8825",
+                    "labelKo": "비엔티안 구조 서비스 대체 연락처"
+                },
+                {
+                    "number": "020 5996 6111",
+                    "labelKo": "라오 적십자 구조 서비스"
+                },
+                {
+                    "number": "020 2200 5563",
+                    "labelKo": "라오 적십자 구조 서비스 대체 연락처"
+                }
+            ],
             "fire": "1190",
-            "notesKo": "라오스 기준 응급번호입니다. 구급 1195, 경찰 1191, 소방 1190. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요. 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.",
-            "sourceName": "GOV.UK FCDO Foreign travel advice",
-            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/laos/getting-help",
-            "lastVerified": "2026-07-08",
-            "status": "verified"
+            "scopeKo": "지역과 구조 서비스에 따라 연결 번호가 다를 수 있습니다. 1623과 020 5666 8825는 비엔티안 구조 서비스 연락처입니다.",
+            "warningKo": "출동자가 비엔티안 구조 서비스 또는 라오 적십자 표시 유니폼을 착용했는지 확인하세요. 연결되지 않으면 숙소, 보험사 또는 가까운 병원에 즉시 도움을 요청하세요.",
+            "notesKo": "구급차 1195와 공식 안내에 함께 기재된 구조 서비스별 대체 연락처를 역할별로 제공합니다.",
+            "sourceName": "UK Foreign, Commonwealth & Development Office",
+            "sourceTitle": "Laos: Health - Emergency medical numbers",
+            "sourceDomain": "gov.uk",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/laos/health",
+            "lastVerified": "2026-07-19",
+            "status": "verified-conditional"
         },
         "countryCode": "LA"
     },
@@ -3178,12 +3211,17 @@
             "primary": "192",
             "police": "199",
             "ambulance": "192",
+            "ambulanceLabelKo": "구급차",
             "fire": "191",
-            "notesKo": "미얀마에서는 구급 192, 소방 191, 경찰 199 번호가 안내됩니다. 대표 응급번호는 192입니다. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.",
-            "sourceName": "FCDO Travel Advice - Myanmar (Burma) getting help",
-            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/myanmar/getting-help",
-            "lastVerified": "2026-07-08",
-            "status": "verified"
+            "scopeKo": "연결되지 않으면 가까운 병원, 숙소 또는 보험사에 즉시 도움을 요청하세요.",
+            "warningKo": "현지 의료·구급 서비스가 제한적이거나 연결이 어려울 수 있습니다.",
+            "notesKo": "구급차 192, 소방 191, 경찰 199가 공식 여행안내에 기재되어 있습니다.",
+            "sourceName": "UK Foreign, Commonwealth & Development Office",
+            "sourceTitle": "Myanmar (Burma): Health",
+            "sourceDomain": "gov.uk",
+            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/myanmar/health",
+            "lastVerified": "2026-07-19",
+            "status": "verified-conditional"
         },
         "countryCode": "MM"
     },
@@ -4489,13 +4527,19 @@
         "rank": 96,
         "emergencyNumbers": {
             "primary": "911",
-            "police": "911",
-            "ambulance": "911",
-            "fire": "911",
-            "notesKo": "사우디아라비아 기준 응급번호입니다. 911 사용 가능. 사우디 SIM이 없으면 112로 연락할 수 있습니다. 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요. 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관을 방문하세요.",
-            "sourceName": "GOV.UK FCDO Foreign travel advice",
-            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/saudi-arabia/getting-help",
-            "lastVerified": "2026-07-08",
+            "primaryLabelKo": "통합 긴급번호",
+            "police": "999",
+            "ambulance": "997",
+            "ambulanceLabelKo": "구급차",
+            "fire": "998",
+            "scopeKo": "의료 응급 시 구급차 직통 번호는 997입니다. 911은 공식 통합 긴급번호이며 운영 범위는 현지 안내를 확인하세요.",
+            "warningKo": "",
+            "notesKo": "통합 긴급번호 911, 구급차 997, 경찰 999, 민방위 998입니다.",
+            "sourceName": "Saudi National Portal",
+            "sourceTitle": "Emergency Contact Numbers in the Kingdom of Saudi Arabia",
+            "sourceDomain": "my.gov.sa",
+            "sourceUrl": "https://my.gov.sa/en/emergency-contact",
+            "lastVerified": "2026-07-19",
             "status": "verified"
         },
         "countryCode": "SA"
@@ -7441,7 +7485,7 @@
                 "native": "Indonesia"
             }
         ],
-        "emergencyNumber": "118",
+        "emergencyNumber": "119",
         "mapCountryQuery": "Indonesia",
         "aliasesKo": [],
         "aliasesEn": [],
@@ -7454,14 +7498,26 @@
         "native": "Bahasa Indonesia",
         "rank": 159,
         "emergencyNumbers": {
-            "primary": "118",
+            "primary": "119",
+            "primaryLabelKo": "의료 응급",
             "police": "110",
-            "ambulance": "118",
-            "fire": "112",
-            "notesKo": "구급 118, 경찰 110, 소방 112.",
-            "sourceName": "GOV.UK FCDO Foreign travel advice",
-            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/indonesia/getting-help",
-            "lastVerified": "2026-07-08",
+            "ambulance": "119",
+            "ambulanceLabelKo": "의료 응급·구급차",
+            "alternates": [
+                {
+                    "number": "118",
+                    "labelKo": "구급차·구조"
+                }
+            ],
+            "fire": "113",
+            "scopeKo": "119는 의료 응급, 118은 구급차·구조 서비스 번호입니다.",
+            "warningKo": "",
+            "notesKo": "의료 응급·구급차 119를 우선 안내하고 구급차·구조 118을 보조 번호로 제공합니다.",
+            "sourceName": "Australian Government Smartraveller",
+            "sourceTitle": "Indonesia Travel Advice & Safety - Local emergency contacts",
+            "sourceDomain": "smartraveller.gov.au",
+            "sourceUrl": "https://www.smartraveller.gov.au/destinations/asia/indonesia",
+            "lastVerified": "2026-07-19",
             "status": "verified"
         },
         "countryCode": "ID"
@@ -8331,12 +8387,27 @@
             "primary": "119",
             "police": "117",
             "ambulance": "119",
+            "ambulanceLabelKo": "구급차",
             "fire": "118",
             "notesKo": "경찰 117, 소방 118, 구급 119.",
-            "sourceName": "GOV.UK FCDO Foreign travel advice",
+            "sourceName": "UK Foreign, Commonwealth & Development Office",
+            "sourceTitle": "Cambodia: Getting help - Emergency services",
+            "sourceDomain": "gov.uk",
             "sourceUrl": "https://www.gov.uk/foreign-travel-advice/cambodia/getting-help",
-            "lastVerified": "2026-07-08",
-            "status": "verified"
+            "sourceNoteKo": "GOV.UK는 구급차 번호를 119로 안내하며 지역 범위를 별도로 명시하지 않습니다. Australian Government Smartraveller는 프놈펜에서는 119를 이용하고, 프놈펜 밖에서는 병원에 직접 연락하도록 안내합니다.",
+            "additionalSources": [
+                {
+                    "sourceName": "Australian Government Smartraveller",
+                    "sourceTitle": "Cambodia Travel Advice & Safety - Local emergency contacts",
+                    "sourceDomain": "smartraveller.gov.au",
+                    "sourceUrl": "https://www.smartraveller.gov.au/destinations/asia/cambodia"
+                }
+            ],
+            "conditionLabelKo": "지역 확인",
+            "scopeKo": "119는 프놈펜에서 안내되는 구급차 번호입니다. 프놈펜 밖에서는 가까운 병원에 직접 연락해야 할 수 있습니다.",
+            "warningKo": "연결되지 않으면 가까운 병원, 숙소 또는 여행자 보험사에 즉시 도움을 요청하세요.",
+            "lastVerified": "2026-07-19",
+            "status": "verified-conditional"
         },
         "countryCode": "KH"
     },
@@ -10139,12 +10210,35 @@
             "primary": "106",
             "police": "105",
             "ambulance": "106",
+            "ambulanceLabelKo": "SAMU 의료 응급",
             "fire": "116",
-            "notesKo": "경찰 105, 구급 106, 소방 116.",
-            "sourceName": "GOV.UK FCDO Foreign travel advice",
-            "sourceUrl": "https://www.gov.uk/foreign-travel-advice/peru/getting-help",
-            "lastVerified": "2026-07-08",
-            "status": "verified"
+            "serviceAreas": [
+                "Amazonas",
+                "Ancash",
+                "Ayacucho",
+                "Huancavelica",
+                "Huánuco",
+                "Junín",
+                "La Libertad",
+                "Loreto",
+                "Madre de Dios",
+                "Piura",
+                "Lima Región",
+                "Tacna",
+                "Tumbes",
+                "Ucayali",
+                "Lambayeque",
+                "Pasco"
+            ],
+            "scopeKo": "106은 페루 정부 공식 안내에 기재된 SAMU 지원 지역에서 이용할 수 있습니다.",
+            "warningKo": "지원되지 않는 지역에서는 가까운 병원이나 현지 의료기관에 직접 연락하세요.",
+            "notesKo": "SAMU 의료 응급 106은 공식 안내에 기재된 지원 지역에 적용됩니다.",
+            "sourceName": "Presidencia del Consejo de Ministros - Plataforma del Estado Peruano",
+            "sourceTitle": "Teléfonos de emergencia",
+            "sourceDomain": "gob.pe",
+            "sourceUrl": "https://www.gob.pe/547-telefonos-de-emergencia",
+            "lastVerified": "2026-07-19",
+            "status": "verified-conditional"
         },
         "countryCode": "PE"
     },

@@ -9,7 +9,7 @@
     :root{--bg:#eef7f6;--card:#fff;--navy:#123044;--teal:#0f766e;--muted:#64748b;--border:#dbe7e5;--amber:#fef3c7}
     *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;background:var(--bg);color:var(--navy);line-height:1.68}
     a{color:inherit}.shell{width:min(1080px,100%);margin:0 auto;padding:24px 16px 52px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.brand{display:flex;align-items:center;gap:10px;font-weight:950}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:grid;place-items:center;color:#fff;font-size:22px}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:0 18px 50px rgba(15,23,42,.08)}
-    h1{font-size:clamp(28px,5vw,42px);line-height:1.18;margin:8px 0 10px}h2{font-size:20px;margin:28px 0 8px}h3{font-size:16px;margin:0 0 6px}p{margin:8px 0}ul{margin:10px 0 0;padding-left:22px}li{margin:4px 0}.eyebrow{margin:0;color:var(--teal);font-weight:950;text-transform:uppercase;font-size:12px;letter-spacing:.08em}.lead{font-size:17px;color:#26465c}.notice{border-radius:14px;padding:14px 16px;margin:18px 0;background:#ecfeff;border:1px solid #bae6fd}.notice.amber{background:var(--amber);border-color:#fde68a}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}.stat{border:1px solid var(--border);border-radius:14px;padding:14px;background:#f8fafc}.stat strong{display:block;font-size:28px;color:var(--teal)}.limited-list{display:grid;gap:10px;margin-top:12px}.limited-item{border:1px solid #fde68a;background:#fffbeb;border-radius:14px;padding:13px}.small{font-size:13px;color:var(--muted)}.links,.actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 4px}.btn,.links a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:12px;text-decoration:none;font-weight:950;border:1px solid var(--teal);background:#fff;color:var(--teal)}.btn.primary{background:var(--teal);color:#fff}@media(max-width:720px){.top{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr}.card{padding:18px}.btn,.links a{width:100%}}
+    h1{font-size:clamp(28px,5vw,42px);line-height:1.18;margin:8px 0 10px}h2{font-size:20px;margin:28px 0 8px}h3{font-size:16px;margin:0 0 6px}p{margin:8px 0}ul{margin:10px 0 0;padding-left:22px}li{margin:4px 0}.eyebrow{margin:0;color:var(--teal);font-weight:950;text-transform:uppercase;font-size:12px;letter-spacing:.08em}.lead{font-size:17px;color:#26465c}.notice{border-radius:14px;padding:14px 16px;margin:18px 0;background:#ecfeff;border:1px solid #bae6fd}.notice.amber{background:var(--amber);border-color:#fde68a}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.stat{border:1px solid var(--border);border-radius:14px;padding:14px;background:#f8fafc}.stat strong{display:block;font-size:28px;color:var(--teal)}.source-list,.limited-list{display:grid;gap:10px;margin-top:12px}.source-item,.limited-item{border:1px solid var(--border);background:#f8fafc;border-radius:14px;padding:14px}.limited-item{border-color:#fde68a;background:#fffbeb}.source-numbers{display:grid;gap:5px;margin:10px 0}.source-number{display:flex;justify-content:space-between;gap:12px;padding:7px 9px;border-radius:9px;background:#fff}.source-number strong{white-space:nowrap}.source-meta{display:grid;gap:4px;margin-top:9px}.source-link{overflow-wrap:anywhere}.small{font-size:13px;color:var(--muted)}.links,.actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 4px}.btn,.links a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:12px;text-decoration:none;font-weight:950;border:1px solid var(--teal);background:#fff;color:var(--teal)}.btn.primary{background:var(--teal);color:#fff}@media(max-width:720px){.top{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:18px}.btn,.links a{width:100%}.source-number{align-items:flex-start;flex-direction:column;gap:2px}}
   </style>
   <script src="./countries.js"></script>
 </head>
@@ -44,7 +44,8 @@
       <h2>2. 현재 지원 현황</h2>
       <div class="stats">
         <div class="stat"><span class="small">전체 국가/지역</span><strong id="totalCount">230</strong></div>
-        <div class="stat"><span class="small">정식 지원 국가</span><strong id="verifiedCount">215</strong></div>
+        <div class="stat"><span class="small">정식 지원 국가</span><strong id="verifiedCount">211</strong></div>
+        <div class="stat"><span class="small">조건부 지원 국가</span><strong id="conditionalCount">4</strong></div>
         <div class="stat"><span class="small">제한 지원 국가</span><strong id="limitedCount">15</strong></div>
       </div>
       <p class="small">이 수치는 페이지가 열릴 때 countries.js 데이터를 기준으로 계산합니다. 데이터를 불러오지 못하면 현재 검증된 기준값을 표시합니다.</p>
@@ -76,16 +77,22 @@
         <li>응급상황에서는 주변 사람에게 즉시 도움을 요청하세요.</li>
       </ul>
 
-      <h2>6. 제한 지원 국가 목록</h2>
+      <h2>6. 의료 응급번호 역할 분리 대상</h2>
+      <p>아래 7개 국가의 번호·역할·조건·출처는 countries.js의 동일 데이터를 사용합니다.</p>
+      <div id="priorityEmergencySources" class="source-list">
+        <div class="source-item">응급번호 출처를 불러오는 중입니다.</div>
+      </div>
+
+      <h2>7. 제한 지원 국가 목록</h2>
       <p>아래 목록은 현재 countries.js에서 needs-verification 상태인 국가/지역입니다.</p>
       <div id="limitedList" class="limited-list">
         <div class="limited-item">제한 지원 국가 목록을 불러오는 중입니다.</div>
       </div>
 
-      <h2>7. 마지막 확인일</h2>
+      <h2>8. 마지막 확인일</h2>
       <p>정식 지원 국가의 확인일은 countries.js의 lastVerified 필드가 있는 경우 앱 화면에 표시됩니다. 필드가 없는 정보는 새로 임의 생성하지 않습니다.</p>
 
-      <h2>8. 문의</h2>
+      <h2>9. 문의</h2>
       <p>응급번호 출처 및 지원 범위 관련 문의: <a href="mailto:fare0528@gmail.com">fare0528@gmail.com</a></p>
 
       <div class="links">
@@ -95,7 +102,7 @@
         <a href="./install.html">홈 화면 추가 안내</a>
       </div>
       <div class="actions"><a class="btn primary" href="./index.html">앱으로 돌아가기</a></div>
-      <p class="small">최종 업데이트: 2026년 7월 9일</p>
+      <p class="small">최종 업데이트: 2026년 7월 19일</p>
     </article>
   </main>
   <script>
@@ -108,11 +115,75 @@
       }
       var countries = (window.SOS_BRIDGE_COUNTRIES || []);
       var verified = countries.filter(function(country){ return country.emergencyNumbers && country.emergencyNumbers.status === "verified"; });
+      var conditional = countries.filter(function(country){ return country.emergencyNumbers && country.emergencyNumbers.status === "verified-conditional"; });
       var limited = countries.filter(function(country){ return country.emergencyNumbers && country.emergencyNumbers.status === "needs-verification"; });
       if(countries.length){
         document.getElementById("totalCount").textContent = countries.length;
         document.getElementById("verifiedCount").textContent = verified.length;
+        document.getElementById("conditionalCount").textContent = conditional.length;
         document.getElementById("limitedCount").textContent = limited.length;
+      }
+      var targetCodes = ["ZA","LA","SA","MM","ID","KH","PE"];
+      var sourceList = document.getElementById("priorityEmergencySources");
+      var targetCountries = targetCodes.map(function(code){
+        return countries.find(function(country){ return country.countryCode === code; });
+      }).filter(Boolean);
+      function sourceDomain(numbers){
+        if(numbers.sourceDomain) return numbers.sourceDomain;
+        try{ return new URL(numbers.sourceUrl).hostname.replace(/^www\./, ""); }catch(error){ return ""; }
+      }
+      function sourceNumberRows(numbers){
+        var rows = [];
+        var primary = text(numbers.primary).trim();
+        var ambulance = text(numbers.ambulance).trim();
+        if(primary && ambulance && primary === ambulance){
+          rows.push({label:numbers.primaryLabelKo || numbers.ambulanceLabelKo || "응급번호", number:primary});
+        }else{
+          if(primary) rows.push({label:numbers.primaryLabelKo || "통합·일반 긴급번호", number:primary});
+          if(ambulance) rows.push({label:numbers.ambulanceLabelKo || "구급차", number:ambulance});
+        }
+        (Array.isArray(numbers.alternates) ? numbers.alternates : []).forEach(function(item){
+          if(item && item.number) rows.push({label:item.labelKo || "보조 번호", number:item.number});
+        });
+        return rows;
+      }
+      function additionalSourceRows(numbers){
+        return (Array.isArray(numbers.additionalSources) ? numbers.additionalSources : []).map(function(source){
+          var sourceUrl = /^https:\/\//.test(text(source.sourceUrl)) ? text(source.sourceUrl) : "";
+          return '<div class="source-meta small">'+
+            '<span><strong>추가 출처 기관:</strong> '+escapeHtml(source.sourceName || "미확인")+'</span>'+
+            '<span><strong>추가 출처 페이지:</strong> '+escapeHtml(source.sourceTitle || "미확인")+'</span>'+
+            '<span><strong>공식 도메인:</strong> '+escapeHtml(source.sourceDomain || "미확인")+'</span>'+
+            (sourceUrl ? '<a class="source-link" href="'+escapeHtml(sourceUrl)+'" target="_blank" rel="noopener noreferrer">추가 공식 원문 보기</a>' : '')+
+          '</div>';
+        }).join("");
+      }
+      if(sourceList){
+        sourceList.innerHTML = targetCountries.map(function(country){
+          var numbers = country.emergencyNumbers || {};
+          var numberRows = sourceNumberRows(numbers).map(function(row){
+            return '<div class="source-number"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></div>';
+          }).join("");
+          var conditions = [numbers.scopeKo, numbers.warningKo].filter(Boolean).join(" ");
+          var areas = Array.isArray(numbers.serviceAreas) && numbers.serviceAreas.length
+            ? '<p><strong>공식 안내 지원 지역:</strong> '+escapeHtml(numbers.serviceAreas.join(", "))+'</p>'
+            : "";
+          var sourceUrl = /^https:\/\//.test(text(numbers.sourceUrl)) ? text(numbers.sourceUrl) : "";
+          return '<section class="source-item">'+
+            '<h3>'+escapeHtml(displayKo(country))+' / '+escapeHtml(displayEn(country))+' ('+escapeHtml(country.countryCode)+')</h3>'+
+            '<div class="source-numbers">'+numberRows+'</div>'+
+            (conditions ? '<p><strong>조건·주의:</strong> '+escapeHtml(conditions)+'</p>' : '')+
+            (numbers.sourceNoteKo ? '<p><strong>공식 안내 차이:</strong> '+escapeHtml(numbers.sourceNoteKo)+'</p>' : '')+
+            areas+
+            '<div class="source-meta small">'+
+              '<span><strong>출처 기관:</strong> '+escapeHtml(numbers.sourceName || "미확인")+'</span>'+
+              '<span><strong>출처 페이지:</strong> '+escapeHtml(numbers.sourceTitle || "미확인")+'</span>'+
+              '<span><strong>공식 도메인:</strong> '+escapeHtml(sourceDomain(numbers) || "미확인")+'</span>'+
+              '<span><strong>확인일:</strong> '+escapeHtml(numbers.lastVerified || "미확인")+'</span>'+
+              (sourceUrl ? '<a class="source-link" href="'+escapeHtml(sourceUrl)+'" target="_blank" rel="noopener noreferrer">공식 원문 보기</a>' : '')+
+            '</div>'+additionalSourceRows(numbers)+
+          '</section>';
+        }).join("") || '<div class="source-item">대상 국가 출처 데이터를 불러오지 못했습니다.</div>';
       }
       var list = document.getElementById("limitedList");
       if(!list) return;
