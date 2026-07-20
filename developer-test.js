@@ -654,6 +654,292 @@
       runMock: runEmergencyNumberMockAudit
     };
 
+    const countryListCardAuditCodes = ["FR","ZA","SA","LV","AR","ID","LA","MM","KH","PE","LK","IE","GB"];
+    const countryListCardExpected = {
+      FR:{number:"15", label:"구급차", additional:"추가 긴급번호", status:"정식"},
+      ZA:{number:"10177", label:"구급차", additional:"추가 긴급번호", status:"정식"},
+      SA:{number:"997", label:"구급차", additional:"추가 긴급번호", status:"정식"},
+      LV:{number:"113", label:"구급차", additional:"추가 긴급번호", status:"정식"},
+      AR:{number:"107", label:"구급차", additional:"추가 긴급번호", status:"정식"},
+      ID:{number:"119", label:"의료", additional:"추가 연락처", status:"정식"},
+      LA:{number:"1195", label:"구급차", additional:"추가 연락처", status:"조건부", conditional:true},
+      MM:{number:"192", label:"구급차", additional:"", status:"조건부", conditional:true},
+      KH:{number:"119", label:"구급차", additional:"", status:"조건부", conditional:true},
+      PE:{number:"106", label:"SAMU", additional:"", status:"조건부", conditional:true},
+      LK:{number:"1990", label:"구급차", additional:"추가 긴급번호", status:"정식"},
+      IE:{number:"112", label:"구급차", additional:"추가 긴급번호", status:"정식"},
+      GB:{number:"999", label:"구급차", additional:"추가 긴급번호", status:"정식"}
+    };
+    const countryListDisplay = typeof context.getCountryListEmergencyDisplay === "function"
+      ? context.getCountryListEmergencyDisplay
+      : () => ({main:"응급번호 확인 필요", number:"", label:"", additionalBadgeLabel:"", statusLabel:"확인 필요", compactNotice:""});
+    const countryListDial = typeof context.getCountryEmergencyDialNumber === "function"
+      ? context.getCountryEmergencyDialNumber
+      : (country) => countryListDisplay(country).number;
+
+    function countryListCardAuditTargets(){
+      return countryListCardAuditCodes.map((code) => languageOptions.find((country) => String(country && country.countryCode || "").toUpperCase() === code)).filter(Boolean);
+    }
+
+    function evaluateCountryListCard(country){
+      const code = String(country && country.countryCode || "").toUpperCase();
+      const expected = countryListCardExpected[code] || {};
+      const display = countryListDisplay(country);
+      const dial = countryListDial(country, "ambulance");
+      const reasons = [];
+      const badgeCount = 1 + (display.additionalBadgeLabel ? 1 : 0);
+      const numericTokens = String(display.main || "").match(/\d+/g) || [];
+      const displayText = JSON.stringify(display);
+
+      if(display.number !== expected.number) reasons.push("대표 번호 불일치");
+      if(display.number !== dial) reasons.push("목록 번호와 ambulance resolver 불일치");
+      if(expected.label && display.label !== expected.label) reasons.push("번호 라벨 불일치");
+      if(display.additionalBadgeLabel !== expected.additional) reasons.push("추가 번호 badge 불일치");
+      if(display.statusLabel !== expected.status) reasons.push("상태 badge 불일치");
+      if(Boolean(display.conditional) !== Boolean(expected.conditional)) reasons.push("조건부 상태 불일치");
+      if(/[\/,;|()]/.test(String(display.number || ""))) reasons.push("대표 번호에 복합 문자열 존재");
+      if(/undefined|null/.test(String(display.number))) reasons.push("대표 번호에 undefined/null 존재");
+      if(/\d/.test(String(display.additionalBadgeLabel || ""))) reasons.push("추가 번호 badge에 숫자 존재");
+      if(numericTokens.length > 1) reasons.push("목록 main에 두 번째 번호 존재");
+      if(badgeCount > 2) reasons.push("badge 2개 초과");
+      if(String(display.compactNotice || "").length > 12) reasons.push("compactNotice 길이 초과");
+      if(/scopeKo|warningKo|serviceAreas|sourceUrl|lastVerified/.test(displayText)) reasons.push("상세 데이터가 목록 formatter에 포함됨");
+
+      return {
+        result:reasons.length ? "BLOCK" : "PASS",
+        code,
+        country:country.countryNameKo || country.countryKo || code,
+        label:display.label || "",
+        number:display.number || "응급번호 확인 필요",
+        additional:display.additionalBadgeLabel || "없음",
+        compactNotice:display.compactNotice || "없음",
+        status:display.statusLabel || "",
+        dial:dial || "없음",
+        reason:reasons.join(" / ") || "단일 대표 번호·badge·resolver 계약 통과"
+      };
+    }
+
+    function renderCountryListCardAuditRows(rows){
+      const tbody = $("sos-country-list-card-audit-rows");
+      if(!tbody) return;
+      tbody.innerHTML = rows.map((row) => {
+        const color = row.result === "PASS" ? "#047857" : "#b91c1c";
+        return '<tr>'+
+          '<td style="padding:8px;border:1px solid var(--border);font-weight:950;color:'+color+'">'+escapeHtml(row.result)+'</td>'+
+          devTestCell(row.code)+devTestCell(row.country)+devTestCell(row.label)+devTestCell(row.number)+devTestCell(row.additional)+
+          devTestCell(row.compactNotice)+devTestCell(row.status)+devTestCell(row.dial)+devTestCell(row.reason)+
+        '</tr>';
+      }).join("");
+    }
+
+    function runCountryListCardAudit(){
+      const rows = countryListCardAuditTargets().map(evaluateCountryListCard);
+      renderCountryListCardAuditRows(rows);
+      const blocked = rows.filter((row) => row.result === "BLOCK").length;
+      const summary = $("sos-country-list-card-audit-summary");
+      if(summary) summary.textContent = "국가 목록 카드 검사: 총 "+rows.length+"개 · PASS "+(rows.length-blocked)+"개 · BLOCK "+blocked+"개 · 실제 전화 0회";
+      return rows;
+    }
+
+    const compoundEmergencySeparatorPattern = /\s*(?:\/|,|;|\||또는|\bor\b)\s*/i;
+    const emergencyDialNumberCandidates = typeof context.emergencyDialNumberCandidates === "function"
+      ? context.emergencyDialNumberCandidates
+      : (value) => [String(value || "").trim()].filter(Boolean);
+    const resolveEmergencyDialNumberValue = typeof context.resolveEmergencyDialNumberValue === "function"
+      ? context.resolveEmergencyDialNumberValue
+      : context.normalizeEmergencyDialNumber;
+
+    function emergencyNumberFieldEntries(country){
+      const data = context.getEmergencyNumbersData(country) || {};
+      const rows = [
+        {path:"emergencyNumber", value:country && country.emergencyNumber},
+        {path:"emergencyNumbers.primary", value:data.primary},
+        {path:"emergencyNumbers.ambulance", value:data.ambulance},
+        {path:"emergencyNumbers.police", value:data.police},
+        {path:"emergencyNumbers.fire", value:data.fire}
+      ];
+      const alternates = Array.isArray(data.alternates) ? data.alternates : [];
+      alternates.forEach((entry, index) => rows.push({
+        path:"emergencyNumbers.alternates["+index+"].number",
+        value:entry && entry.number
+      }));
+      return rows.filter((row) => typeof row.value === "string" && /\d/.test(row.value));
+    }
+
+    function previousSingleNumberCountryDial(country, type="ambulance"){
+      const data = context.getEmergencyNumbersData(country) || {};
+      const values = type === "ambulance"
+        ? [data.ambulance, data.primary, country && country.emergencyNumber]
+        : [data.primary, data.ambulance, country && country.emergencyNumber];
+      for(const value of values){
+        const normalized = context.normalizeEmergencyDialNumber(value);
+        if(normalized) return normalized;
+      }
+      return "";
+    }
+
+    function runCompoundEmergencyNumberAudit(){
+      const priorityCodes = new Set(context.priorityCountryCodes || []);
+      const compoundRows = [];
+      const validButUnavailable = [];
+      const representativeDelimiterErrors = [];
+      const listResolverMismatches = [];
+      const singleNumberRegressions = [];
+      const spacedNumberSplitErrors = [];
+
+      languageOptions.forEach((country) => {
+        const code = String(country && country.countryCode || "").toUpperCase();
+        const data = context.getEmergencyNumbersData(country) || {};
+        const display = countryListDisplay(country);
+        const dial = countryListDial(country, "ambulance");
+        const fields = emergencyNumberFieldEntries(country);
+
+        fields.forEach((field) => {
+          if(compoundEmergencySeparatorPattern.test(field.value)){
+            compoundRows.push({
+              code,
+              priority:priorityCodes.has(code),
+              path:field.path,
+              original:field.value,
+              fieldRepresentative:resolveEmergencyDialNumberValue(field.value),
+              countryRepresentative:dial
+            });
+          }else if(/\s/.test(field.value)){
+            const candidates = emergencyDialNumberCandidates(field.value);
+            if(candidates.length !== 1 || resolveEmergencyDialNumberValue(field.value) !== context.normalizeEmergencyDialNumber(field.value)){
+              spacedNumberSplitErrors.push(code+":"+field.path);
+            }
+          }
+        });
+
+        const hasValidCandidate = [data.ambulance, data.primary, country && country.emergencyNumber]
+          .some((value) => Boolean(resolveEmergencyDialNumberValue(value)));
+        if(data.status !== "needs-verification" && hasValidCandidate && !display.number) validButUnavailable.push(code);
+        if(compoundEmergencySeparatorPattern.test(String(display.number || ""))) representativeDelimiterErrors.push(code);
+        if(display.number !== dial) listResolverMismatches.push(code);
+
+        const previousDial = previousSingleNumberCountryDial(country, "ambulance");
+        if(previousDial && previousDial !== dial) singleNumberRegressions.push(code+":"+previousDial+"→"+dial);
+      });
+
+      const byCode = (code) => languageOptions.find((country) => String(country && country.countryCode || "").toUpperCase() === code);
+      const required = [
+        {code:"IE", number:"112", original:"112 / 999"},
+        {code:"GB", number:"999", original:"999 / 112"},
+        {code:"LK", number:"1990", original:"011 2691111 / 1990"}
+      ].map((target) => {
+        const country = byCode(target.code);
+        const data = context.getEmergencyNumbersData(country) || {};
+        const display = countryListDisplay(country);
+        const dial = countryListDial(country, "ambulance");
+        const detailOriginal = String(data.ambulance || country && country.emergencyNumber || "");
+        return {
+          code:target.code,
+          pass:display.number === target.number && dial === target.number && display.additionalBadgeLabel === "추가 긴급번호" && detailOriginal === target.original,
+          display:display.number,
+          dial,
+          detailOriginal,
+          additional:display.additionalBadgeLabel
+        };
+      });
+
+      const parserFixtureFailures = [
+        {raw:"030 525 7239", expected:"0305257239", count:1},
+        {raw:"011 2691111", expected:"0112691111", count:1},
+        {raw:"020 5666 8825", expected:"02056668825", count:1},
+        {raw:"+44 999", expected:"+44999", count:1},
+        {raw:"112 / 999", expected:"112", count:2},
+        {raw:"999 or 112", expected:"999", count:2},
+        {raw:"112, 999", expected:"112", count:2},
+        {raw:"112 또는 999", expected:"112", count:2}
+      ].filter((fixture) => resolveEmergencyDialNumberValue(fixture.raw) !== fixture.expected || emergencyDialNumberCandidates(fixture.raw).length !== fixture.count);
+
+      const blocked = validButUnavailable.length + representativeDelimiterErrors.length + listResolverMismatches.length + singleNumberRegressions.length + spacedNumberSplitErrors.length + parserFixtureFailures.length + required.filter((row) => !row.pass).length;
+      const result = {
+        result:blocked ? "BLOCK" : "PASS",
+        compoundFieldCount:compoundRows.length,
+        compoundCountryCount:new Set(compoundRows.map((row) => row.code)).size,
+        priorityCompoundCountries:[...new Set(compoundRows.filter((row) => row.priority).map((row) => row.code))],
+        validButUnavailable,
+        priorityValidButUnavailable:validButUnavailable.filter((code) => priorityCodes.has(code)),
+        representativeDelimiterErrors,
+        priorityRepresentativeDelimiterErrors:representativeDelimiterErrors.filter((code) => priorityCodes.has(code)),
+        listResolverMismatches,
+        priorityListResolverMismatches:listResolverMismatches.filter((code) => priorityCodes.has(code)),
+        singleNumberRegressions,
+        spacedNumberSplitErrors,
+        parserFixtureFailures,
+        required,
+        rows:compoundRows,
+        actualCalls:0
+      };
+
+      const summary = $("sos-compound-number-audit-summary");
+      if(summary){
+        summary.textContent = "복합 응급번호 전수 검사: "+result.result+" · "+result.compoundCountryCount+"개국 / "+result.compoundFieldCount+"개 필드 · 확인 필요 오류 "+validButUnavailable.length+" · 목록/resolver 불일치 "+listResolverMismatches.length+" · 대표번호 구분자 오류 "+representativeDelimiterErrors.length+" · 기존 단일번호 회귀 "+singleNumberRegressions.length+" · 공백 분리 오류 "+spacedNumberSplitErrors.length+" · parser fixture 실패 "+parserFixtureFailures.length+" · 필수국가 실패 "+required.filter((row) => !row.pass).length+" · 실제 전화 0회";
+      }
+      const tbody = $("sos-compound-number-audit-rows");
+      if(tbody){
+        tbody.innerHTML = compoundRows.map((row) => '<tr>'+devTestCell(row.code)+devTestCell(row.priority ? "우선 62" : "전체 230")+devTestCell(row.path)+devTestCell(row.original)+devTestCell(row.fieldRepresentative)+devTestCell(row.countryRepresentative)+'</tr>').join("");
+      }
+      return result;
+    }
+
+    function createCountryListCardAuditPanel(){
+      const panel = $("sos-dev-test-panel");
+      if(!panel || $("sos-country-list-card-audit-panel")) return;
+      panel.insertAdjacentHTML("beforeend",
+        '<section id="sos-country-list-card-audit-panel" class="card" style="margin-top:18px">'+
+          '<p class="eyebrow" style="margin-bottom:6px">Country List Card QA</p>'+
+          '<h2 style="margin-top:0">국가 목록 대표번호·badge 검사</h2>'+
+          '<p class="small muted" style="line-height:1.6">12개 주요 국가의 목록 formatter와 ambulance resolver 반환값을 API·전화 실행 없이 비교합니다.</p>'+
+          '<button id="run-country-list-card-audit" class="btn outline w-full" type="button">국가 목록 카드 정적 검사 실행</button>'+
+          '<div id="sos-country-list-card-audit-summary" class="notice teal small" style="margin-top:12px">국가 목록 카드 검사: 아직 실행하지 않음</div>'+
+          '<div style="overflow:auto;margin-top:12px">'+
+            '<table style="width:100%;border-collapse:collapse;min-width:1180px;font-size:12px">'+
+              '<thead><tr style="background:#f8fafc;color:var(--navy);text-align:left">'+
+                '<th style="padding:9px;border:1px solid var(--border)">판정</th><th style="padding:9px;border:1px solid var(--border)">코드</th><th style="padding:9px;border:1px solid var(--border)">국가</th>'+
+                '<th style="padding:9px;border:1px solid var(--border)">라벨</th><th style="padding:9px;border:1px solid var(--border)">대표 번호</th><th style="padding:9px;border:1px solid var(--border)">추가 badge</th>'+
+                '<th style="padding:9px;border:1px solid var(--border)">compactNotice</th><th style="padding:9px;border:1px solid var(--border)">상태</th><th style="padding:9px;border:1px solid var(--border)">resolver</th><th style="padding:9px;border:1px solid var(--border)">결과</th>'+
+              '</tr></thead><tbody id="sos-country-list-card-audit-rows"></tbody>'+
+            '</table>'+
+          '</div>'+
+          '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">'+
+            '<h3 style="margin:0">복합 응급번호 전수 검사</h3>'+
+            '<p class="small muted" style="line-height:1.6">230개 국가의 응급번호 필드를 검사하고 목록 대표번호와 실제 resolver를 비교합니다. 실제 전화는 실행하지 않습니다.</p>'+
+            '<button id="run-compound-number-audit" class="btn outline w-full" type="button">복합 응급번호 전수 검사 실행</button>'+
+            '<div id="sos-compound-number-audit-summary" class="notice teal small" style="margin-top:12px">복합 응급번호 전수 검사: 아직 실행하지 않음</div>'+
+            '<div style="overflow:auto;margin-top:12px">'+
+              '<table style="width:100%;border-collapse:collapse;min-width:920px;font-size:12px">'+
+                '<thead><tr style="background:#f8fafc;color:var(--navy);text-align:left"><th style="padding:9px;border:1px solid var(--border)">코드</th><th style="padding:9px;border:1px solid var(--border)">범위</th><th style="padding:9px;border:1px solid var(--border)">필드</th><th style="padding:9px;border:1px solid var(--border)">원본</th><th style="padding:9px;border:1px solid var(--border)">필드 첫 번호</th><th style="padding:9px;border:1px solid var(--border)">목록/resolver 번호</th></tr></thead>'+
+                '<tbody id="sos-compound-number-audit-rows"></tbody>'+
+              '</table>'+
+            '</div>'+
+          '</div>'+
+        '</section>'
+      );
+    }
+
+    function bindCountryListCardAuditButton(){
+      const button = $("run-country-list-card-audit");
+      if(button) button.addEventListener("click", runCountryListCardAudit);
+      const compoundButton = $("run-compound-number-audit");
+      if(compoundButton) compoundButton.addEventListener("click", runCompoundEmergencyNumberAudit);
+    }
+
+    window.SOS_BRIDGE_COUNTRY_LIST_CARD_AUDIT_DEV = {
+      targets:countryListCardAuditTargets,
+      evaluate:evaluateCountryListCard,
+      runMock:runCountryListCardAudit,
+      runCompound:runCompoundEmergencyNumberAudit
+    };
+
+    window.SOS_BRIDGE_COMPOUND_NUMBER_AUDIT_DEV = {
+      fields:emergencyNumberFieldEntries,
+      previousDial:previousSingleNumberCountryDial,
+      runMock:runCompoundEmergencyNumberAudit
+    };
+
     const aiCareAuditStorageKey = "sosBridgeAiCareSemanticAudit:v1";
     let aiCareAuditRows = [];
 
@@ -1389,10 +1675,12 @@
     createAllLanguageTestPanel();
     createPrescriptionPhraseAuditPanel();
     createEmergencyNumberAuditPanel();
+    createCountryListCardAuditPanel();
     createAiCareSemanticAuditPanel();
     bindAllLanguageTestButtons();
     bindPrescriptionPhraseAuditButton();
     bindEmergencyNumberAuditButton();
+    bindCountryListCardAuditButton();
     bindAiCareSemanticAuditButtons();
     }catch(error){
       console.error("developer-test.js runtime error", error);
