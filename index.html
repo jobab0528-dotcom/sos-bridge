@@ -429,8 +429,8 @@
     .sos-modern-ui .country-card__compact-text{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
     .sos-modern-ui .country-card__name-ko{color:var(--color-primary-dark);font-size:clamp(15px,4vw,19px);font-weight:900;line-height:1.1;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
     .sos-modern-ui .country-card__name-en{color:var(--color-text-secondary);font-size:clamp(11.5px,3.2vw,14px);font-weight:750;line-height:1.1;white-space:nowrap;word-break:normal;overflow:visible}
-    .sos-modern-ui #screen-country-select.country-select--popular .country-select-scroll{display:grid;grid-template-rows:minmax(0,1fr);gap:0;overflow:hidden;padding:0 2px;scroll-padding:0}
-    .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-self:start;width:100%;height:100%;max-height:422px;min-width:0;min-height:0;row-gap:8px;overflow:hidden}
+    .sos-modern-ui #screen-country-select.country-select--popular .country-select-scroll{display:grid;grid-template-rows:minmax(0,1fr);gap:0;width:100%;height:100%;min-height:0;overflow:hidden;padding:0 2px;scroll-padding:0}
+    .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-self:stretch;width:100%;height:100%;max-height:none;min-width:0;min-height:0;row-gap:8px;overflow:hidden}
     .sos-modern-ui .country-all-button-row{display:grid;min-width:0;min-height:0;padding-bottom:max(0px,env(safe-area-inset-bottom))}
     .sos-modern-ui .country-popular-state--expanded{display:block;height:auto;max-height:none;overflow:visible}
     .sos-modern-ui .country-popular-state--expanded .country-section-heading,
@@ -522,7 +522,7 @@
     html[data-viewport-height-band="medium"] .sos-modern-ui .country-title-block h1{font-size:clamp(23px,6vw,28px)}
     html[data-viewport-height-band="medium"] .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:13px;line-height:1.35}
     html[data-viewport-height-band="medium"] .sos-modern-ui .country-search-field{min-height:52px;padding-block:9px}
-    html[data-viewport-height-band="medium"] .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{row-gap:7px;max-height:400px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{align-self:stretch;max-height:none;row-gap:7px}
     html[data-viewport-height-band="medium"] .sos-modern-ui .popular-country-grid{gap:8px}
     html[data-viewport-height-band="medium"] .sos-modern-ui .country-card--compact{column-gap:8px;padding:8px 10px}
     html[data-viewport-height-band="medium"] .sos-modern-ui .country-list-toggle{min-height:52px}
@@ -530,15 +530,15 @@
     html[data-viewport-height-band="short"] .sos-modern-ui #languagePage.flow-ui-active>.home-grid{padding:4px}
     html[data-viewport-height-band="short"] .sos-modern-ui #languagePage #screen-country-select.language-flow-screen{padding:8px 10px}
     html[data-viewport-height-band="short"] .sos-modern-ui #screen-country-select:not(.hidden){gap:6px}
-    html[data-viewport-height-band="short"] .sos-modern-ui .country-select-header{gap:3px}
-    html[data-viewport-height-band="short"] .sos-modern-ui .country-brand{font-size:15px;line-height:1.1}
-    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block{gap:2px}
-    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block .eyebrow{font-size:9px;line-height:1.1}
-    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block h1{font-size:clamp(21px,5.8vw,24px);line-height:1.08}
-    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:11.5px;line-height:1.22}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-select-header{gap:4px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-brand{font-size:16px;line-height:1.1}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block{gap:3px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block .eyebrow{font-size:10px;line-height:1.1}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block h1{font-size:clamp(24px,6vw,26px);line-height:1.08}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:12.5px;line-height:1.25}
     html[data-viewport-height-band="short"] .sos-modern-ui .country-search-field{min-height:50px;margin:0;padding:8px 11px}
     html[data-viewport-height-band="short"] .sos-modern-ui .country-search-field input{font-size:13px}
-    html[data-viewport-height-band="short"] .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{row-gap:5px;max-height:330px}
+    html[data-viewport-height-band="short"] .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{align-self:stretch;max-height:none;row-gap:5px}
     html[data-viewport-height-band="short"] .sos-modern-ui .country-section-heading h2{font-size:13px}
     html[data-viewport-height-band="short"] .sos-modern-ui .country-section-heading span{font-size:9px}
     html[data-viewport-height-band="short"] .sos-modern-ui .popular-country-grid{column-gap:6px;row-gap:5px}
