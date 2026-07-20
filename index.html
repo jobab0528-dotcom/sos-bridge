@@ -29,6 +29,7 @@
       --radius-lg:18px;
       --shadow-card:0 10px 28px rgba(15,23,42,.08);
       --shadow-soft:0 6px 18px rgba(15,23,42,.06);
+      --app-viewport-height:100dvh;
       --safe-bottom:env(safe-area-inset-bottom,0px);
       --navy:var(--color-primary-dark);
       --teal:var(--color-accent);
@@ -103,8 +104,8 @@
     @media (min-width:520px){.flow-nav{grid-template-columns:1fr 1fr}}
     .flow-nav.single{grid-template-columns:1fr}
     .flow-card{display:grid;gap:12px}
-    body.flow-app-active{height:100dvh;overflow:hidden}
-    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px max(8px,var(--safe-bottom))}
+    body.flow-app-active{height:var(--app-viewport-height,100dvh);max-height:var(--app-viewport-height,100dvh);min-height:0;overflow:hidden}
+    body.flow-app-active #appPage{height:var(--app-viewport-height,100dvh);max-height:var(--app-viewport-height,100dvh);min-height:0;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px max(8px,var(--safe-bottom))}
     body.flow-app-active #appPage>.topbar{position:relative;top:auto;z-index:20;margin:0 0 10px;padding:0;background:transparent;backdrop-filter:none}
     body.flow-app-active #appPage>.container{width:min(960px,100%);max-width:960px;min-height:0;height:100%;overflow:hidden;display:block}
     body.flow-app-active .app-flow-screen{height:100%;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 12px;align-content:start}
@@ -339,10 +340,11 @@
     .sos-modern-ui .btn{min-height:48px;border-radius:var(--radius-md)}
 
     /* 국가 선택·확인 단계도 body가 아니라 화면 안쪽만 스크롤한다. */
-    .sos-modern-ui:not(.flow-app-active){height:100dvh;min-height:100dvh;overflow:hidden}
+    .sos-modern-ui:not(.flow-app-active){height:var(--app-viewport-height,100dvh);max-height:var(--app-viewport-height,100dvh);min-height:0;overflow:hidden}
     .sos-modern-ui:not(.flow-app-active) #languagePage{
       width:min(100%,768px);
-      height:100dvh;
+      height:var(--app-viewport-height,100dvh);
+      max-height:var(--app-viewport-height,100dvh);
       min-height:0;
       margin:0 auto;
       padding:0;
@@ -401,18 +403,18 @@
     .sos-modern-ui .country-section-heading,.sos-modern-ui .country-results-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .sos-modern-ui .country-section-heading h2,.sos-modern-ui .country-results-heading strong{margin:0;color:var(--color-primary-dark);font-size:15px;font-weight:950}
     .sos-modern-ui .country-section-heading span,.sos-modern-ui .country-results-heading span{color:var(--color-text-secondary);font-size:11px;font-weight:850;white-space:nowrap}
-    .sos-modern-ui .popular-country-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:max-content;align-items:stretch;gap:10px;width:100%;min-width:0;overflow:visible}
+    .sos-modern-ui .popular-country-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));align-items:stretch;gap:10px;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden}
     .sos-modern-ui .country-card--compact{
       display:grid;
-      grid-template-columns:36px minmax(0,1fr);
+      grid-template-columns:30px minmax(0,1fr);
       align-items:center;
-      column-gap:10px;
+      column-gap:7px;
       width:100%;
       min-width:0;
-      min-height:78px;
-      height:auto;
+      min-height:0;
+      height:100%;
       margin:0;
-      padding:11px 12px;
+      padding:9px 8px;
       box-sizing:border-box;
       overflow:visible;
       position:relative;
@@ -423,12 +425,17 @@
       text-align:left;
     }
     .sos-modern-ui .country-card--compact:active{transform:none}
-    .sos-modern-ui .country-card--compact .country-card__flag{display:block;min-width:0;font-size:32px;line-height:1;text-align:center}
+    .sos-modern-ui .country-card--compact .country-card__flag{display:block;min-width:0;font-size:30px;line-height:1;text-align:center}
     .sos-modern-ui .country-card__compact-text{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
-    .sos-modern-ui .country-card__name-ko{color:var(--color-primary-dark);font-size:clamp(16px,4.2vw,19px);font-weight:900;line-height:1.15;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
-    .sos-modern-ui .country-card__name-en{color:var(--color-text-secondary);font-size:clamp(13px,3.5vw,15px);font-weight:750;line-height:1.18;white-space:normal;word-break:normal;overflow-wrap:anywhere}
-    .sos-modern-ui #screen-country-select.country-select--popular .country-select-scroll{gap:9px;overflow-y:hidden;padding-top:6px;padding-bottom:max(4px,env(safe-area-inset-bottom))}
-    .sos-modern-ui #screen-country-select.country-select--popular .country-group{gap:8px}
+    .sos-modern-ui .country-card__name-ko{color:var(--color-primary-dark);font-size:clamp(15px,4vw,19px);font-weight:900;line-height:1.1;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+    .sos-modern-ui .country-card__name-en{color:var(--color-text-secondary);font-size:clamp(11.5px,3.2vw,14px);font-weight:750;line-height:1.1;white-space:nowrap;word-break:normal;overflow:visible}
+    .sos-modern-ui #screen-country-select.country-select--popular .country-select-scroll{display:grid;grid-template-rows:minmax(0,1fr);gap:0;overflow:hidden;padding:0 2px;scroll-padding:0}
+    .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-self:start;width:100%;height:100%;max-height:422px;min-width:0;min-height:0;row-gap:8px;overflow:hidden}
+    .sos-modern-ui .country-all-button-row{display:grid;min-width:0;min-height:0;padding-bottom:max(0px,env(safe-area-inset-bottom))}
+    .sos-modern-ui .country-popular-state--expanded{display:block;height:auto;max-height:none;overflow:visible}
+    .sos-modern-ui .country-popular-state--expanded .country-section-heading,
+    .sos-modern-ui .country-popular-state--expanded .popular-country-grid{display:none}
+    .sos-modern-ui .country-popular-state--expanded .country-all-button-row{padding-bottom:0}
     .sos-modern-ui .country-option-card{
       display:grid;
       grid-template-columns:60px minmax(0,1fr) auto;
@@ -465,7 +472,7 @@
     .sos-modern-ui .country-option-card__notice{margin-top:2px;color:#64748b;font-size:11px;font-weight:850;line-height:1.25;white-space:nowrap}
     .sos-modern-ui .country-option-card__status{align-self:center;justify-self:end;min-width:0;max-width:72px;margin-left:0}
     .sos-modern-ui .country-option-card__status .support-badge{max-width:100%;padding:4px 7px;font-size:11px;line-height:1;white-space:nowrap}
-    .sos-modern-ui .country-list-toggle{flex:none;min-height:48px;border-color:var(--color-border);background:var(--color-surface);color:var(--color-primary-dark)}
+    .sos-modern-ui .country-list-toggle{flex:none;width:100%;min-height:54px;border-color:var(--color-border);background:var(--color-surface);color:var(--color-primary-dark)}
     .sos-modern-ui #screen-country-select .language-grid{
       display:grid;
       grid-auto-rows:max-content;
@@ -495,18 +502,52 @@
       .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:11px;line-height:1.22}
       .sos-modern-ui .country-search-field{min-height:40px;margin:0;padding:7px 10px}
       .sos-modern-ui .country-search-field input{font-size:13px}
-      .sos-modern-ui #screen-country-select.country-select--popular .country-select-scroll{gap:5px;padding:3px 1px max(3px,env(safe-area-inset-bottom))}
-      .sos-modern-ui #screen-country-select.country-select--popular .country-group{gap:5px}
+      .sos-modern-ui #screen-country-select.country-select--popular .country-select-scroll{gap:0;padding:0 1px}
+      .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{row-gap:5px}
       .sos-modern-ui .country-section-heading h2{font-size:13px}
       .sos-modern-ui .country-section-heading span{font-size:9px}
       .sos-modern-ui .popular-country-grid{column-gap:6px;row-gap:5px}
-      .sos-modern-ui .country-card--compact{grid-template-columns:28px minmax(0,1fr);column-gap:6px;min-height:54px;padding:6px 7px}
+      .sos-modern-ui .country-card--compact{grid-template-columns:28px minmax(0,1fr);column-gap:6px;min-height:0;padding:6px 7px}
       .sos-modern-ui .country-card--compact .country-card__flag{font-size:26px}
       .sos-modern-ui .country-card__compact-text{gap:1px}
       .sos-modern-ui .country-card__name-ko{font-size:14px;line-height:1.08}
       .sos-modern-ui .country-card__name-en{font-size:11px;line-height:1.1}
-      .sos-modern-ui .country-list-toggle{min-height:42px;padding:7px 10px;font-size:13px}
+      .sos-modern-ui .country-list-toggle{min-height:50px;padding:7px 10px;font-size:13px}
     }
+    html[data-viewport-height-band="medium"] .sos-modern-ui #languagePage.flow-ui-active>.home-grid{padding:8px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui #languagePage #screen-country-select.language-flow-screen{padding:11px 13px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui #screen-country-select:not(.hidden){gap:9px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-select-header{gap:6px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-title-block{gap:4px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-title-block h1{font-size:clamp(23px,6vw,28px)}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:13px;line-height:1.35}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-search-field{min-height:52px;padding-block:9px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{row-gap:7px;max-height:400px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .popular-country-grid{gap:8px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-card--compact{column-gap:8px;padding:8px 10px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-list-toggle{min-height:52px}
+
+    html[data-viewport-height-band="short"] .sos-modern-ui #languagePage.flow-ui-active>.home-grid{padding:4px}
+    html[data-viewport-height-band="short"] .sos-modern-ui #languagePage #screen-country-select.language-flow-screen{padding:8px 10px}
+    html[data-viewport-height-band="short"] .sos-modern-ui #screen-country-select:not(.hidden){gap:6px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-select-header{gap:3px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-brand{font-size:15px;line-height:1.1}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block{gap:2px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block .eyebrow{font-size:9px;line-height:1.1}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block h1{font-size:clamp(21px,5.8vw,24px);line-height:1.08}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:11.5px;line-height:1.22}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-search-field{min-height:50px;margin:0;padding:8px 11px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-search-field input{font-size:13px}
+    html[data-viewport-height-band="short"] .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{row-gap:5px;max-height:330px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-section-heading h2{font-size:13px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-section-heading span{font-size:9px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .popular-country-grid{column-gap:6px;row-gap:5px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card--compact{grid-template-columns:28px minmax(0,1fr);column-gap:6px;min-height:0;height:100%;padding:6px 7px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card--compact .country-card__flag{font-size:27px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card__compact-text{gap:1px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card__name-ko{font-size:clamp(15px,4vw,17px);line-height:1.08}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card__name-en{font-size:clamp(11px,3vw,12.5px);line-height:1.08}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-list-toggle{min-height:50px;padding:8px 10px;font-size:13px}
     .sos-modern-ui #screen-country-summary:not(.hidden){
       display:grid;
       grid-template-rows:auto minmax(0,1fr) auto;
@@ -553,15 +594,17 @@
 
     /* 100dvh 앱 셸: 공통 헤더 + 한 개의 화면 viewport */
     .sos-modern-ui.flow-app-active{
-      height:100dvh;
-      min-height:100dvh;
+      height:var(--app-viewport-height,100dvh);
+      max-height:var(--app-viewport-height,100dvh);
+      min-height:0;
       overflow:hidden;
       background:var(--color-bg);
     }
     .sos-modern-ui.flow-app-active #appPage{
       grid-template-rows:auto minmax(0,1fr);
       width:min(100%,768px);
-      height:100dvh;
+      height:var(--app-viewport-height,100dvh);
+      max-height:var(--app-viewport-height,100dvh);
       min-height:0;
       margin:0 auto;
       padding:0;
@@ -778,7 +821,7 @@
 </head>
 <body class="sos-modern-ui">
   <main id="languagePage" class="page">
-    <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:stretch">
+    <section class="container grid home-grid" style="align-items:stretch">
       <div id="screen-country-summary" class="card home-left-card flow-screen language-flow-screen" aria-labelledby="chooseTitle">
         <div class="summary-top-nav">
           <button id="countrySummaryBackBtn" class="summary-nav-button" type="button" data-flow-screen="screen-country-select">‹ 이전</button>
@@ -825,14 +868,16 @@
           </div>
         </header>
         <div id="countrySelectScroll" class="country-select-scroll">
-          <section id="popularCountrySection" class="country-group" aria-labelledby="popularCountryTitle">
+          <section id="popularCountrySection" class="country-group country-popular-state" aria-labelledby="popularCountryTitle">
             <div class="country-section-heading">
               <h2 id="popularCountryTitle">자주 찾는 국가</h2>
               <span>우선 지원</span>
             </div>
             <div id="countryQuickGrid" class="country-grid popular-country-grid"></div>
+            <div class="country-all-button-row">
+              <button id="toggleAllCountriesBtn" class="btn outline w-full country-list-toggle" type="button" aria-expanded="false">전체 62개 국가 보기</button>
+            </div>
           </section>
-          <button id="toggleAllCountriesBtn" class="btn outline w-full country-list-toggle" type="button" aria-expanded="false">전체 62개 국가 보기</button>
           <div id="languageGrid" class="language-grid" hidden></div>
         </div>
       </div>
@@ -1078,6 +1123,35 @@
 <script>
 (function(){
 "use strict";
+
+let appViewportHeightFrame = 0;
+function updateAppViewportHeight(){
+  const visualHeight = Number(window.visualViewport?.height);
+  const innerHeightFallback = Number(window.innerHeight);
+  const viewportHeight = Number.isFinite(visualHeight) && visualHeight > 0
+    ? visualHeight
+    : innerHeightFallback;
+  if(!Number.isFinite(viewportHeight) || viewportHeight <= 0) return;
+  document.documentElement.style.setProperty("--app-viewport-height", Math.floor(viewportHeight)+"px");
+  document.documentElement.dataset.viewportHeightBand = viewportHeight < 680
+    ? "short"
+    : viewportHeight < 780
+      ? "medium"
+      : "tall";
+}
+function scheduleAppViewportHeightUpdate(){
+  if(appViewportHeightFrame) cancelAnimationFrame(appViewportHeightFrame);
+  appViewportHeightFrame = requestAnimationFrame(() => {
+    appViewportHeightFrame = 0;
+    updateAppViewportHeight();
+  });
+}
+function initAppViewportHeightSync(){
+  updateAppViewportHeight();
+  window.addEventListener("resize", scheduleAppViewportHeightUpdate, {passive:true});
+  window.addEventListener("orientationchange", scheduleAppViewportHeightUpdate, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener("resize", scheduleAppViewportHeightUpdate, {passive:true});
+}
 
 const countrySource = Array.isArray(window.SOS_BRIDGE_COUNTRIES) ? window.SOS_BRIDGE_COUNTRIES : [];
 const countryCollator = new Intl.Collator("ko-KR");
@@ -4064,7 +4138,10 @@ function renderLanguageList(){
     countrySelectScreen.classList.toggle("country-select--popular", !showCountryList);
     countrySelectScreen.classList.toggle("country-select--detailed", showCountryList);
   }
-  if(popularSection) popularSection.hidden = showCountryList;
+  if(popularSection){
+    popularSection.hidden = isSearching;
+    popularSection.classList.toggle("country-popular-state--expanded", Boolean(isExpanded && !isSearching));
+  }
   if(toggleButton){
     toggleButton.hidden = isSearching;
     toggleButton.textContent = isExpanded ? "자주 찾는 국가로 돌아가기" : "전체 62개 국가 보기";
@@ -6830,6 +6907,7 @@ function initAllLanguageTestPanel(){
 
 
 function init(){
+  initAppViewportHeightSync();
   setupAppFlowScreens();
   bindFlowNavigation();
   on("startBtn","click",showApp);
