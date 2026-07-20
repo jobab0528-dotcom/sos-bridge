@@ -29,7 +29,7 @@
       --radius-lg:18px;
       --shadow-card:0 10px 28px rgba(15,23,42,.08);
       --shadow-soft:0 6px 18px rgba(15,23,42,.06);
-      --bottom-nav-height:76px;
+      --app-viewport-height:100dvh;
       --safe-bottom:env(safe-area-inset-bottom,0px);
       --navy:var(--color-primary-dark);
       --teal:var(--color-accent);
@@ -104,8 +104,8 @@
     @media (min-width:520px){.flow-nav{grid-template-columns:1fr 1fr}}
     .flow-nav.single{grid-template-columns:1fr}
     .flow-card{display:grid;gap:12px}
-    body.flow-app-active{height:100dvh;overflow:hidden}
-    body.flow-app-active #appPage{height:100dvh;min-height:100dvh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px var(--bottom-nav-height)}
+    body.flow-app-active{height:var(--app-viewport-height,100dvh);max-height:var(--app-viewport-height,100dvh);min-height:0;overflow:hidden}
+    body.flow-app-active #appPage{height:var(--app-viewport-height,100dvh);max-height:var(--app-viewport-height,100dvh);min-height:0;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr);padding:8px 12px max(8px,var(--safe-bottom))}
     body.flow-app-active #appPage>.topbar{position:relative;top:auto;z-index:20;margin:0 0 10px;padding:0;background:transparent;backdrop-filter:none}
     body.flow-app-active #appPage>.container{width:min(960px,100%);max-width:960px;min-height:0;height:100%;overflow:hidden;display:block}
     body.flow-app-active .app-flow-screen{height:100%;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 12px;align-content:start}
@@ -115,13 +115,19 @@
     body.flow-app-active .flow-nav,
     body.flow-app-active #triageActions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:12px}
     body.flow-app-active[data-flow-screen="screen-ai-result"] #triageActions{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:0;margin-top:18px!important;padding-bottom:8px}
-    body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:calc(108px + var(--safe-bottom))}
-    body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:calc(var(--bottom-nav-height) + 10px + var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
+    body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:calc(70px + var(--safe-bottom))}
+    body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{position:fixed;left:max(12px,calc((100vw - 960px)/2 + 12px));right:max(12px,calc((100vw - 960px)/2 + 12px));bottom:max(8px,var(--safe-bottom));z-index:9998;background:linear-gradient(180deg,rgba(245,248,252,0),var(--bg) 22%);padding-top:10px;margin-top:0;grid-template-columns:1fr}
     @media (max-height:640px){body.flow-app-active[data-flow-screen="screen-ai-input"] #screen-ai-input{padding-bottom:12px}body.flow-app-active[data-flow-screen="screen-ai-input"] .ai-input-home-nav{display:none}}
+    body.flow-app-active[data-flow-screen="screen-help-phrases"] #appPage.content-pad{padding-bottom:0!important}
+    body.flow-app-active[data-flow-screen="screen-help-phrases"] #appPage>.container{position:relative;min-height:0;height:100%;overflow:hidden}
+    body.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases:not(.hidden){position:absolute;inset:0;display:grid!important;grid-template-rows:auto minmax(0,1fr) auto;width:100%;height:100%;min-height:0;max-height:100%;gap:12px;overflow:hidden!important;padding:0}
+    body.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases>.help-phrases-scroll{display:grid;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;gap:14px;align-content:start;padding:0 0 14px}
+    body.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases>.help-phrases-home-nav{position:relative;bottom:auto;z-index:10;flex-shrink:0;width:100%;margin:0;padding:8px 16px max(8px,var(--safe-bottom));background:var(--color-surface,#fff);border-top:1px solid var(--color-border,#e5eaf2);box-sizing:border-box;grid-template-columns:1fr}
+    body.flow-app-active[data-flow-screen="screen-help-phrases"] #helpPhrasesHomeBtn{width:100%;min-height:52px;margin:0}
     body.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;bottom:auto;z-index:auto;background:transparent;padding-top:8px;margin-top:10px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage.content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"]::after{content:"";position:fixed;left:0;right:0;bottom:0;height:max(8px,var(--safe-bottom));background:var(--bg);z-index:4;pointer-events:none}
-    body.flow-app-active[data-flow-screen="screen-medical-result"] .bottom-nav{display:none!important}
+    body.flow-app-active .bottom-nav{display:none!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #appPage>.topbar{margin-bottom:6px}
     body.flow-app-active[data-flow-screen="screen-medical-result"] .app-header-bar{padding:8px!important;border-radius:18px!important}
     body.flow-app-active[data-flow-screen="screen-medical-result"] #medicalCardPreview{gap:8px;margin-top:0!important}
@@ -146,7 +152,7 @@
     body.flow-app-active .service h3{font-size:15px;margin:0 0 4px}
     body.flow-app-active .service p{font-size:12px;line-height:1.35}
     body.flow-app-active #statusBox{margin-bottom:0;font-size:12px}
-    body.flow-app-active .content-pad{padding-bottom:var(--bottom-nav-height)!important}
+    body.flow-app-active .content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
     body.flow-app-active #triageSteps,
     body.flow-app-active #facilityList,
     body.flow-app-active #localPhraseList,
@@ -171,6 +177,7 @@
     .support-status-row{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.76);border:1px solid rgba(148,163,184,.28);border-radius:14px;padding:9px 10px}
     .support-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:950;white-space:nowrap}
     .support-badge.supported{background:#dff5ff;color:#1261a6}
+    .support-badge.conditional{background:#e0f2fe;color:#075985}
     .support-badge.limited{background:#fef3c7;color:#92400e}
     .support-status-text{font-size:12px;font-weight:900;line-height:1.45;color:#475569}
     .emergency-verification-card{display:grid;gap:8px;line-height:1.55}
@@ -196,9 +203,9 @@
     .country-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     @media (min-width:520px){.country-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     .country-card{position:relative;border:1px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);border-radius:var(--radius-md);padding:13px 9px;min-height:104px;text-align:center;transition:.14s;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
-    .country-card:active{transform:scale(.98)}
+    .country-card:active{transform:none}
     .country-card.selected{border:2px solid var(--color-primary);background:linear-gradient(180deg,#fff,#eef6ff);box-shadow:0 12px 28px rgba(22,115,232,.16)}
-    .country-card.selected:after{content:"선택됨";position:absolute;top:7px;right:7px;background:var(--navy);color:white;border-radius:999px;padding:3px 7px;font-size:10px;font-weight:950}
+    .country-card.selected:after{display:none}
     .country-flag{font-size:34px;line-height:1}
     .country-name{font-weight:950;color:var(--navy);font-size:14px}
     .country-sub{font-size:11px;color:var(--muted);font-weight:800;line-height:1.25}
@@ -206,11 +213,25 @@
     .lang-btn{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;min-height:74px}
     .lang-btn.active,.service.active{border-color:var(--color-primary);background:#f7fbff;box-shadow:0 0 0 1px var(--color-primary),0 10px 22px rgba(22,115,232,.12)}
     .flag{font-size:28px}
-    .country-code-chip{width:54px;height:54px;border-radius:16px;background:var(--color-primary-soft);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:950;letter-spacing:.03em}
+    .country-code-chip{width:54px;min-width:54px;display:grid;justify-items:center;align-content:center;gap:5px;color:var(--navy);font-weight:950;letter-spacing:.03em}
+    .country-list-flag{font-size:32px;line-height:1;display:block}
+    .country-code-text{font-size:11px;line-height:1;color:var(--muted)}
     .country-texts{min-width:0;display:grid;gap:2px}
     .country-name-ko{font-size:15px;font-weight:950;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .country-name-en{font-size:12px;color:var(--muted);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .country-emergency{font-size:12px;color:#1261a6;font-weight:950;white-space:nowrap}
+    .country-emergency{display:grid;gap:1px;min-width:0;font-size:12px;color:#1261a6;font-weight:950}
+    .country-emergency-main,.country-emergency-secondary{overflow-wrap:anywhere}
+    .country-emergency-secondary{color:var(--muted);font-size:11px;font-weight:800;line-height:1.3}
+    .country-card-status{display:grid;justify-items:end;gap:4px;align-self:center}
+    .emergency-role-action-list{display:grid;gap:7px;margin-top:9px}
+    .emergency-number-action{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;min-height:44px;padding:9px 11px;border:1px solid rgba(185,28,28,.24);border-radius:12px;background:#fff;color:var(--navy);font:inherit;text-align:left}
+    .emergency-number-action span{min-width:0;font-size:12px;font-weight:850;line-height:1.35}
+    .emergency-number-action strong{color:#b91c1c;font-size:17px;font-weight:950;white-space:nowrap}
+    .emergency-condition-copy{display:grid;gap:5px;margin-top:9px;color:#475569;line-height:1.5}
+    .emergency-condition-copy p{margin:0}
+    .emergency-service-areas{margin-top:7px;padding:8px 10px;border:1px solid #bae6fd;border-radius:10px;background:#f0f9ff;color:#315b83}
+    .emergency-service-areas summary{cursor:pointer;font-weight:900}
+    .emergency-service-areas p{margin:6px 0 0;font-size:12px;line-height:1.55}
     .country-list-notice{display:flex;align-items:center;gap:10px;background:#edf7ff;border:1px solid #d7eaff;color:#17456f;border-radius:var(--radius-md);padding:12px;font-size:13px;font-weight:850;line-height:1.45}
     .service{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
     .service-icon{width:44px;height:44px;border-radius:14px;background:var(--color-primary-soft);display:flex;align-items:center;justify-content:center;font-size:23px;margin-bottom:0}
@@ -271,7 +292,7 @@
     .nav-btn{border:0;background:transparent;border-radius:var(--radius-sm);padding:8px 2px;font-size:11px;font-weight:900;color:#64748b;min-height:56px}
     .nav-btn .ico{display:block;font-size:21px;margin-bottom:3px}
     .nav-btn.active{background:#eef6ff;color:var(--color-primary)}
-    .content-pad{padding-bottom:calc(var(--bottom-nav-height) + 28px)!important}
+    .content-pad{padding-bottom:max(8px,var(--safe-bottom))!important}
     .legal-footer{width:min(1060px,100%);margin:24px auto 0;padding:20px;border:1px solid var(--border);border-radius:var(--radius-lg);background:rgba(255,255,255,.9);box-shadow:var(--shadow-soft)}
     .legal-footer p{margin:0 0 14px;color:#475569;font-size:13px;font-weight:850;line-height:1.7}
     .legal-footer p span{display:block}
@@ -281,37 +302,544 @@
     #languagePage.flow-ui-active .pwa-guide-grid{display:none}
     @media (min-width:720px){.pwa-guide-grid{grid-template-columns:1fr 1fr}}
     @media (max-width:520px){.legal-footer{padding:18px}.legal-links a{flex:1 1 calc(50% - 10px);white-space:normal;text-align:center}.legal-links a:last-child{flex-basis:100%}}
+    /* SOS Bridge visual refresh: 운영 로직과 분리된 MVP 참고 UI 레이어 */
+    .sos-modern-ui{
+      --color-primary:#1769d2;
+      --color-primary-dark:#0b2445;
+      --color-primary-soft:#eaf3ff;
+      --color-bg:#eef2f6;
+      --color-surface:#fff;
+      --color-surface-muted:#f7f9fc;
+      --color-text:#172033;
+      --color-text-secondary:#66758a;
+      --color-border:#dbe2ea;
+      --color-danger:#c62828;
+      --radius-sm:12px;
+      --radius-md:14px;
+      --radius-lg:16px;
+      --shadow-card:0 6px 20px rgba(20,38,63,.07);
+      --shadow-soft:0 3px 12px rgba(20,38,63,.05);
+      background:var(--color-bg);
+    }
+    .sos-modern-ui :where(button,a,input,textarea):focus-visible{
+      outline:3px solid rgba(23,105,210,.28);
+      outline-offset:2px;
+    }
+    .visually-hidden{
+      position:absolute!important;
+      width:1px!important;
+      height:1px!important;
+      padding:0!important;
+      margin:-1px!important;
+      overflow:hidden!important;
+      clip:rect(0,0,0,0)!important;
+      white-space:nowrap!important;
+      border:0!important;
+    }
+    .sos-modern-ui .card{border-color:var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
+    .sos-modern-ui .btn{min-height:48px;border-radius:var(--radius-md)}
+
+    /* 국가 선택·확인 단계도 body가 아니라 화면 안쪽만 스크롤한다. */
+    .sos-modern-ui:not(.flow-app-active){height:var(--app-viewport-height,100dvh);max-height:var(--app-viewport-height,100dvh);min-height:0;overflow:hidden}
+    .sos-modern-ui:not(.flow-app-active) #languagePage{
+      width:min(100%,768px);
+      height:var(--app-viewport-height,100dvh);
+      max-height:var(--app-viewport-height,100dvh);
+      min-height:0;
+      margin:0 auto;
+      padding:0;
+      overflow:hidden;
+      background:var(--color-bg);
+    }
+    .sos-modern-ui #languagePage.flow-ui-active>.home-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr);
+      width:100%;
+      height:100%;
+      min-height:0!important;
+      padding:clamp(10px,2.4vw,18px);
+      overflow:hidden;
+    }
+    .sos-modern-ui #languagePage.flow-ui-active>.pwa-guide-grid,
+    .sos-modern-ui #languagePage.flow-ui-active>.legal-footer{display:none}
+    .sos-modern-ui #languagePage .language-flow-screen{
+      width:100%;
+      height:100%;
+      min-height:0;
+      overflow:hidden;
+      padding:clamp(14px,3vw,22px);
+      box-shadow:var(--shadow-card);
+    }
+    .sos-modern-ui #screen-country-select:not(.hidden){
+      display:grid;
+      grid-template-rows:auto minmax(0,1fr);
+      align-content:stretch;
+      gap:14px;
+    }
+    .sos-modern-ui .country-select-header{display:grid;gap:9px;min-width:0}
+    .sos-modern-ui .country-brand{color:var(--color-primary);font-size:17px;font-weight:950;letter-spacing:-.04em}
+    .sos-modern-ui .country-brand span{color:var(--color-primary-dark)}
+    .sos-modern-ui .country-title-block{display:grid;gap:6px}
+    .sos-modern-ui .country-title-block .eyebrow{margin:0;color:var(--color-primary);font-size:11px;letter-spacing:.15em}
+    .sos-modern-ui .country-title-block h1{margin:0;color:var(--color-primary-dark);font-size:clamp(25px,7vw,32px);line-height:1.15;word-break:keep-all}
+    .sos-modern-ui .country-title-block>p:not(.eyebrow){margin:0;color:var(--color-text-secondary);font-size:14px;font-weight:750;line-height:1.45;word-break:keep-all}
+    .sos-modern-ui .country-search-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+    .sos-modern-ui .country-search-field{min-height:50px;margin:1px 0 0;padding:11px 14px;border-color:var(--color-border);box-shadow:var(--shadow-soft)}
+    .sos-modern-ui .country-search-field input{min-width:0;font-size:15px}
+    .sos-modern-ui .country-select-scroll{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:0;
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      padding:12px 4px max(20px,env(safe-area-inset-bottom)) 2px;
+      scroll-padding-top:12px;
+      scroll-padding-bottom:max(20px,env(safe-area-inset-bottom));
+    }
+    .sos-modern-ui .country-group{display:grid;gap:12px;min-width:0}
+    .sos-modern-ui .country-section-heading,.sos-modern-ui .country-results-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .sos-modern-ui .country-section-heading h2,.sos-modern-ui .country-results-heading strong{margin:0;color:var(--color-primary-dark);font-size:15px;font-weight:950}
+    .sos-modern-ui .country-section-heading span,.sos-modern-ui .country-results-heading span{color:var(--color-text-secondary);font-size:11px;font-weight:850;white-space:nowrap}
+    .sos-modern-ui .popular-country-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));align-items:stretch;gap:10px;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden}
+    .sos-modern-ui .country-card--compact{
+      display:grid;
+      grid-template-columns:30px minmax(0,1fr);
+      align-items:center;
+      column-gap:7px;
+      width:100%;
+      min-width:0;
+      min-height:0;
+      height:100%;
+      margin:0;
+      padding:9px 8px;
+      box-sizing:border-box;
+      overflow:visible;
+      position:relative;
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-sm);
+      background:var(--color-surface);
+      box-shadow:var(--shadow-soft);
+      text-align:left;
+    }
+    .sos-modern-ui .country-card--compact:active{transform:none}
+    .sos-modern-ui .country-card--compact .country-card__flag{display:block;min-width:0;font-size:30px;line-height:1;text-align:center}
+    .sos-modern-ui .country-card__compact-text{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
+    .sos-modern-ui .country-card__name-ko{color:var(--color-primary-dark);font-size:clamp(15px,4vw,19px);font-weight:900;line-height:1.1;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+    .sos-modern-ui .country-card__name-en{color:var(--color-text-secondary);font-size:clamp(11.5px,3.2vw,14px);font-weight:750;line-height:1.1;white-space:nowrap;word-break:normal;overflow:visible}
+    .sos-modern-ui #screen-country-select.country-select--popular .country-select-scroll{display:grid;grid-template-rows:minmax(0,1fr);gap:0;overflow:hidden;padding:0 2px;scroll-padding:0}
+    .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-self:start;width:100%;height:100%;max-height:422px;min-width:0;min-height:0;row-gap:8px;overflow:hidden}
+    .sos-modern-ui .country-all-button-row{display:grid;min-width:0;min-height:0;padding-bottom:max(0px,env(safe-area-inset-bottom))}
+    .sos-modern-ui .country-popular-state--expanded{display:block;height:auto;max-height:none;overflow:visible}
+    .sos-modern-ui .country-popular-state--expanded .country-section-heading,
+    .sos-modern-ui .country-popular-state--expanded .popular-country-grid{display:none}
+    .sos-modern-ui .country-popular-state--expanded .country-all-button-row{padding-bottom:0}
+    .sos-modern-ui .country-option-card{
+      display:grid;
+      grid-template-columns:60px minmax(0,1fr) auto;
+      column-gap:12px;
+      align-items:center;
+      width:100%;
+      min-width:0;
+      min-height:108px;
+      height:auto;
+      margin:0;
+      padding:14px 16px;
+      box-sizing:border-box;
+      overflow:visible;
+      position:relative;
+      flex-shrink:0;
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-sm);
+      background:var(--color-surface);
+      box-shadow:var(--shadow-soft);
+      text-align:left;
+    }
+    .sos-modern-ui .country-option-card:active{transform:none}
+    .sos-modern-ui .country-option-card__identity{display:grid;justify-items:center;align-content:center;gap:7px;width:100%;min-width:0;color:var(--color-primary-dark)}
+    .sos-modern-ui .country-option-card__flag{display:block;font-size:36px;line-height:1;text-align:center}
+    .sos-modern-ui .country-option-card__code{font-size:11px;font-weight:950;line-height:1;letter-spacing:.08em;color:var(--color-text-secondary);white-space:nowrap}
+    .sos-modern-ui .country-option-card__content{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;overflow-wrap:anywhere;word-break:keep-all}
+    .sos-modern-ui .country-option-card__name-ko{color:var(--color-primary-dark);font-size:clamp(17px,4.5vw,21px);font-weight:950;line-height:1.2;white-space:normal;overflow:visible;word-break:keep-all;overflow-wrap:anywhere}
+    .sos-modern-ui .country-option-card__name-en{color:var(--color-text-secondary);font-size:clamp(14px,3.8vw,17px);font-weight:750;line-height:1.25;white-space:normal;overflow:visible;overflow-wrap:anywhere}
+    .sos-modern-ui .country-option-card__emergency{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px;min-width:0;margin-top:2px;color:var(--color-primary);font-size:13px;font-weight:850;line-height:1.2}
+    .sos-modern-ui .country-option-card__emergency-number{font-weight:950;white-space:nowrap}
+    .sos-modern-ui .country-option-card__emergency.is-unavailable{color:var(--color-text-secondary);font-size:12px;white-space:normal}
+    .sos-modern-ui .country-option-card__meta{display:flex;flex-wrap:wrap;gap:5px;min-width:0;margin-top:4px}
+    .sos-modern-ui .country-option-card__meta-badge{display:inline-flex;align-items:center;max-width:100%;padding:4px 7px;border-radius:999px;background:#edf4ff;color:#315b83;font-size:11px;font-weight:900;line-height:1;white-space:nowrap}
+    .sos-modern-ui .country-option-card__notice{margin-top:2px;color:#64748b;font-size:11px;font-weight:850;line-height:1.25;white-space:nowrap}
+    .sos-modern-ui .country-option-card__status{align-self:center;justify-self:end;min-width:0;max-width:72px;margin-left:0}
+    .sos-modern-ui .country-option-card__status .support-badge{max-width:100%;padding:4px 7px;font-size:11px;line-height:1;white-space:nowrap}
+    .sos-modern-ui .country-list-toggle{flex:none;width:100%;min-height:54px;border-color:var(--color-border);background:var(--color-surface);color:var(--color-primary-dark)}
+    .sos-modern-ui #screen-country-select .language-grid{
+      display:grid;
+      grid-auto-rows:max-content;
+      align-items:start;
+      gap:10px;
+      min-height:0;
+      max-height:none;
+      overflow:visible;
+      padding:0;
+    }
+    .sos-modern-ui #screen-country-select .language-grid[hidden],.sos-modern-ui #popularCountrySection[hidden],.sos-modern-ui #toggleAllCountriesBtn[hidden]{display:none!important}
+    .sos-modern-ui #screen-country-select .country-results-heading{grid-column:1/-1;padding:2px 1px}
+    .sos-modern-ui #screen-country-select .language-grid>.notice{grid-column:1/-1}
+    @media (max-width:359px){
+      .sos-modern-ui .country-option-card{grid-template-columns:56px minmax(0,1fr) auto;column-gap:10px;padding:13px 12px}
+      .sos-modern-ui .country-option-card__notice{display:none}
+    }
+    @media (max-width:359px) and (max-height:620px){
+      .sos-modern-ui #languagePage.flow-ui-active>.home-grid{padding:4px}
+      .sos-modern-ui #languagePage #screen-country-select.language-flow-screen{padding:7px 9px}
+      .sos-modern-ui #screen-country-select:not(.hidden){gap:5px}
+      .sos-modern-ui .country-select-header{gap:3px}
+      .sos-modern-ui .country-brand{font-size:14px;line-height:1.1}
+      .sos-modern-ui .country-title-block{gap:2px}
+      .sos-modern-ui .country-title-block .eyebrow{font-size:9px;line-height:1.1}
+      .sos-modern-ui .country-title-block h1{font-size:21px;line-height:1.08}
+      .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:11px;line-height:1.22}
+      .sos-modern-ui .country-search-field{min-height:40px;margin:0;padding:7px 10px}
+      .sos-modern-ui .country-search-field input{font-size:13px}
+      .sos-modern-ui #screen-country-select.country-select--popular .country-select-scroll{gap:0;padding:0 1px}
+      .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{row-gap:5px}
+      .sos-modern-ui .country-section-heading h2{font-size:13px}
+      .sos-modern-ui .country-section-heading span{font-size:9px}
+      .sos-modern-ui .popular-country-grid{column-gap:6px;row-gap:5px}
+      .sos-modern-ui .country-card--compact{grid-template-columns:28px minmax(0,1fr);column-gap:6px;min-height:0;padding:6px 7px}
+      .sos-modern-ui .country-card--compact .country-card__flag{font-size:26px}
+      .sos-modern-ui .country-card__compact-text{gap:1px}
+      .sos-modern-ui .country-card__name-ko{font-size:14px;line-height:1.08}
+      .sos-modern-ui .country-card__name-en{font-size:11px;line-height:1.1}
+      .sos-modern-ui .country-list-toggle{min-height:50px;padding:7px 10px;font-size:13px}
+    }
+    html[data-viewport-height-band="medium"] .sos-modern-ui #languagePage.flow-ui-active>.home-grid{padding:8px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui #languagePage #screen-country-select.language-flow-screen{padding:11px 13px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui #screen-country-select:not(.hidden){gap:9px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-select-header{gap:6px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-title-block{gap:4px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-title-block h1{font-size:clamp(23px,6vw,28px)}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:13px;line-height:1.35}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-search-field{min-height:52px;padding-block:9px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{row-gap:7px;max-height:400px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .popular-country-grid{gap:8px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-card--compact{column-gap:8px;padding:8px 10px}
+    html[data-viewport-height-band="medium"] .sos-modern-ui .country-list-toggle{min-height:52px}
+
+    html[data-viewport-height-band="short"] .sos-modern-ui #languagePage.flow-ui-active>.home-grid{padding:4px}
+    html[data-viewport-height-band="short"] .sos-modern-ui #languagePage #screen-country-select.language-flow-screen{padding:8px 10px}
+    html[data-viewport-height-band="short"] .sos-modern-ui #screen-country-select:not(.hidden){gap:6px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-select-header{gap:3px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-brand{font-size:15px;line-height:1.1}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block{gap:2px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block .eyebrow{font-size:9px;line-height:1.1}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block h1{font-size:clamp(21px,5.8vw,24px);line-height:1.08}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-title-block>p:not(.eyebrow){font-size:11.5px;line-height:1.22}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-search-field{min-height:50px;margin:0;padding:8px 11px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-search-field input{font-size:13px}
+    html[data-viewport-height-band="short"] .sos-modern-ui #screen-country-select.country-select--popular .country-popular-state{row-gap:5px;max-height:330px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-section-heading h2{font-size:13px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-section-heading span{font-size:9px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .popular-country-grid{column-gap:6px;row-gap:5px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card--compact{grid-template-columns:28px minmax(0,1fr);column-gap:6px;min-height:0;height:100%;padding:6px 7px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card--compact .country-card__flag{font-size:27px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card__compact-text{gap:1px}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card__name-ko{font-size:clamp(15px,4vw,17px);line-height:1.08}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-card__name-en{font-size:clamp(11px,3vw,12.5px);line-height:1.08}
+    html[data-viewport-height-band="short"] .sos-modern-ui .country-list-toggle{min-height:50px;padding:8px 10px;font-size:13px}
+    .sos-modern-ui #screen-country-summary:not(.hidden){
+      display:grid;
+      grid-template-rows:auto minmax(0,1fr) auto;
+      align-content:stretch;
+      gap:10px;
+      overflow:hidden;
+    }
+    .sos-modern-ui .summary-top-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+    .sos-modern-ui .summary-nav-button{min-height:44px;padding:7px 2px;border:0;background:transparent;color:var(--color-primary-dark);font-size:14px;font-weight:900;text-decoration:underline;text-underline-offset:3px}
+    .sos-modern-ui .summary-scroll{min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:2px}
+    .sos-modern-ui #screen-country-summary .country-summary-card{display:grid;gap:13px;padding:clamp(18px,4vw,24px);border:1px solid var(--color-border);border-radius:22px;background:var(--color-surface);box-shadow:var(--shadow-card)}
+    .sos-modern-ui #screen-country-summary .summary-row{align-items:flex-start;gap:14px}
+    .sos-modern-ui #screen-country-summary .summary-flag{width:auto;height:auto;min-width:52px;border-radius:0;background:transparent;font-size:48px;line-height:1}
+    .sos-modern-ui #screen-country-summary .country-summary-heading{display:grid;gap:4px;min-width:0;padding-top:2px}
+    .sos-modern-ui #screen-country-summary .country-summary-code{color:var(--color-primary);font-size:12px;font-weight:950;letter-spacing:.14em}
+    .sos-modern-ui #screen-country-summary #selectedNative{margin:0;color:var(--color-primary-dark);font-size:clamp(24px,6vw,31px);line-height:1.15;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-content{display:grid;gap:12px;min-width:0;color:var(--color-text)}
+    .sos-modern-ui .country-summary-english{margin:0;color:var(--color-primary-dark);font-size:17px;font-weight:850;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-language{margin:0;color:var(--color-text-secondary);font-size:14px;font-weight:750;line-height:1.45;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-emergency-list{display:grid;gap:7px}
+    .sos-modern-ui .country-summary-emergency{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);background:var(--color-primary-soft)}
+    .sos-modern-ui .country-summary-emergency span{color:#315b83;font-size:13px;font-weight:850}
+    .sos-modern-ui .country-summary-emergency strong{color:var(--color-primary-dark);font-size:20px;font-weight:950;text-align:right;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-conditions{display:grid;gap:7px;padding:11px 12px;border:1px solid #bae6fd;border-radius:var(--radius-sm);background:#f0f9ff}
+    .sos-modern-ui .country-summary-conditions p{margin:0;color:#315b83;font-size:12px;font-weight:760;line-height:1.55}
+    .sos-modern-ui .country-summary-conditions .warning{color:#92400e}
+    .sos-modern-ui .country-summary-conditions .emergency-service-areas{margin-top:0}
+    .sos-modern-ui .country-summary-support{display:grid;gap:8px}
+    .sos-modern-ui .country-summary-support .support-status-row{padding:0;border:0;background:transparent}
+    .sos-modern-ui .country-summary-support .support-status-text{display:none}
+    .sos-modern-ui .country-summary-support .support-badge.supported{background:#dcfce7;color:#166534}
+    .sos-modern-ui .country-summary-support .support-badge.conditional{background:#e0f2fe;color:#075985}
+    .sos-modern-ui .country-summary-scope{margin:0;color:var(--color-text-secondary);font-size:13px;font-weight:750;line-height:1.5}
+    .sos-modern-ui .country-summary-meta{display:grid;gap:8px}
+    .sos-modern-ui .country-summary-meta>div{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:start}
+    .sos-modern-ui .country-summary-meta span{color:var(--color-text-secondary);font-size:12px;font-weight:850}
+    .sos-modern-ui .country-summary-meta strong{min-width:0;color:var(--color-text);font-size:13px;font-weight:800;line-height:1.45;overflow-wrap:anywhere}
+    .sos-modern-ui .country-summary-divider{width:100%;height:1px;margin:1px 0;border:0;background:var(--color-border)}
+    .sos-modern-ui .country-summary-safety{display:grid;gap:4px;margin:0;color:var(--color-text-secondary);font-size:12px;font-weight:720;line-height:1.55}
+    .sos-modern-ui .summary-action{flex:none;padding:10px 2px max(2px,env(safe-area-inset-bottom));border-top:1px solid var(--color-border);background:var(--color-surface)}
+    .sos-modern-ui #screen-country-summary #startBtn{min-height:50px}
+    .sos-modern-ui .lang-btn:not(.country-option-card){min-height:70px;padding:11px 12px;border-radius:var(--radius-md);box-shadow:none}
+    .sos-modern-ui .country-list-flag{font-size:30px}
+
+    /* 100dvh 앱 셸: 공통 헤더 + 한 개의 화면 viewport */
+    .sos-modern-ui.flow-app-active{
+      height:var(--app-viewport-height,100dvh);
+      max-height:var(--app-viewport-height,100dvh);
+      min-height:0;
+      overflow:hidden;
+      background:var(--color-bg);
+    }
+    .sos-modern-ui.flow-app-active #appPage{
+      grid-template-rows:auto minmax(0,1fr);
+      width:min(100%,768px);
+      height:var(--app-viewport-height,100dvh);
+      max-height:var(--app-viewport-height,100dvh);
+      min-height:0;
+      margin:0 auto;
+      padding:0;
+      overflow:hidden;
+      background:var(--color-bg);
+      border-inline:1px solid rgba(199,208,219,.72);
+      box-shadow:0 0 28px rgba(20,38,63,.06);
+    }
+    .sos-modern-ui.flow-app-active #appPage>.topbar{
+      z-index:20;
+      margin:0;
+      padding:max(7px,env(safe-area-inset-top,0px)) 12px 7px;
+      background:#fff;
+      border-bottom:1px solid var(--color-border);
+    }
+    .sos-modern-ui .app-header-bar{
+      min-height:58px;
+      padding:0!important;
+      border:0;
+      border-radius:0!important;
+      box-shadow:none;
+      background:#fff;
+    }
+    .sos-modern-ui .app-country-pill{min-height:48px;padding:6px 9px;border-radius:var(--radius-sm);box-shadow:none}
+    .sos-modern-ui .app-country-pill strong{font-size:14px}
+    .sos-modern-ui .app-country-pill span.small{font-size:11px}
+    .sos-modern-ui .app-emergency-mini,
+    .sos-modern-ui .app-change-mini{min-height:48px;border-radius:var(--radius-sm);box-shadow:none}
+    .sos-modern-ui.flow-app-active #appPage>.container{
+      width:100%;
+      max-width:none;
+      height:100%;
+      min-height:0;
+      padding:0;
+      overflow:hidden;
+    }
+    .sos-modern-ui.flow-app-active .app-flow-screen{
+      height:100%;
+      min-height:0;
+      padding:10px 14px max(12px,var(--safe-bottom));
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      scrollbar-gutter:stable;
+    }
+    .sos-modern-ui .flow-screen-header{
+      padding:11px 12px;
+      border-radius:var(--radius-md);
+      box-shadow:none;
+    }
+    .sos-modern-ui .flow-screen-header h2{font-size:clamp(18px,4.8vw,22px);margin-bottom:3px}
+    .sos-modern-ui .flow-screen-header .btn{min-height:44px;padding:9px 12px;white-space:nowrap;flex:none}
+    .sos-modern-ui #analyzeBtn{background:var(--color-primary)!important}
+    .sos-modern-ui.flow-app-active .app-flow-screen>.card,
+    .sos-modern-ui.flow-app-active .app-flow-screen>.flow-card,
+    .sos-modern-ui.flow-app-active .app-flow-screen>#serviceSection{box-shadow:var(--shadow-card)}
+
+    /* 서비스 홈: 1-2-2-1 카드 구조, 화면 자체 스크롤 없음 */
+    .sos-modern-ui.flow-app-active #screen-home:not(.hidden){
+      display:grid!important;
+      grid-template-rows:minmax(0,1fr);
+      height:100%;
+      min-height:0;
+      padding:10px 14px max(10px,var(--safe-bottom));
+      overflow:hidden;
+    }
+    .sos-modern-ui.flow-app-active #screen-home>#sampleNotice,
+    .sos-modern-ui.flow-app-active #screen-home>#travelContextBox,
+    .sos-modern-ui.flow-app-active #screen-home #appFlowSummary,
+    .sos-modern-ui.flow-app-active #screen-home #statusBox{display:none}
+    .sos-modern-ui.flow-app-active #screen-home>#serviceSection{
+      display:grid;
+      grid-template-rows:auto auto minmax(0,1fr) auto;
+      gap:clamp(5px,1.1dvh,9px);
+      height:100%;
+      min-height:0;
+      padding:clamp(11px,2.4vw,16px);
+      overflow:hidden;
+      align-content:stretch;
+    }
+    .sos-modern-ui #serviceSection>.eyebrow{margin:0;color:var(--color-primary);letter-spacing:.19em}
+    .sos-modern-ui #serviceSelectTitle{margin:0;font-size:clamp(21px,5.8vw,28px);line-height:1.13}
+    .sos-modern-ui.flow-app-active #serviceGrid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-rows:repeat(4,minmax(0,1fr));
+      gap:clamp(7px,1.2dvh,10px);
+      min-height:0;
+      height:100%;
+    }
+    .sos-modern-ui #serviceGrid .service{
+      position:relative;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:center;
+      gap:7px;
+      min-width:0;
+      min-height:0;
+      height:100%;
+      padding:clamp(9px,2.3vw,14px);
+      overflow:hidden;
+      border-radius:var(--radius-md);
+      box-shadow:0 3px 12px rgba(20,38,63,.05);
+    }
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"]{order:1;grid-column:1/-1;background:var(--color-primary);border-color:var(--color-primary);color:#fff}
+    .sos-modern-ui #serviceGrid .service[data-service="phrases"]{order:2}
+    .sos-modern-ui #serviceGrid .service[data-service="medicalCard"]{order:3}
+    .sos-modern-ui #serviceGrid .service[data-service="hospital"]{order:4}
+    .sos-modern-ui #serviceGrid .service[data-service="pharmacy"]{order:5}
+    .sos-modern-ui #serviceGrid .service[data-service="emergency"]{order:6;grid-column:1/-1;background:var(--color-danger);border-color:var(--color-danger);color:#fff}
+    .sos-modern-ui #serviceGrid .service-icon{
+      grid-column:2;
+      grid-row:1;
+      width:clamp(32px,9vw,44px);
+      height:clamp(32px,9vw,44px);
+      margin:0;
+      border-radius:var(--radius-sm);
+      background:var(--color-primary-soft);
+      font-size:clamp(21px,6.5vw,30px);
+      line-height:1;
+    }
+    .sos-modern-ui #serviceGrid .service-copy{grid-column:1;grid-row:1;min-width:0;align-self:center}
+    .sos-modern-ui #serviceGrid .service h3{margin:0 0 6px;font-size:clamp(14px,3.7vw,17px);line-height:1.2;word-break:keep-all}
+    .sos-modern-ui #serviceGrid .service p{
+      display:-webkit-box;
+      margin:0;
+      overflow:hidden;
+      color:var(--color-text-secondary);
+      font-size:clamp(14px,3.7vw,15px);
+      font-weight:750;
+      line-height:1.4;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+    }
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"] h3,
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"] p,
+    .sos-modern-ui #serviceGrid .service[data-service="emergency"] h3,
+    .sos-modern-ui #serviceGrid .service[data-service="emergency"] p{color:#fff}
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"] .service-icon,
+    .sos-modern-ui #serviceGrid .service[data-service="emergency"] .service-icon{background:rgba(255,255,255,.17)}
+    .sos-modern-ui #serviceGrid .service-arrow{display:none}
+    .sos-modern-ui #serviceGrid .service-badge{
+      position:absolute;
+      top:7px;
+      right:7px;
+      z-index:2;
+      background:rgba(255,255,255,.94);
+      color:var(--color-primary);
+      font-size:9px;
+    }
+    .sos-modern-ui #serviceGrid .service[data-service="symptom"] .service-icon{margin-top:13px}
+    .sos-modern-ui .home-legal-links{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      min-height:28px;
+      overflow:hidden;
+      white-space:nowrap;
+    }
+    .sos-modern-ui .home-legal-links a{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:2px 5px;
+      color:#52647b;
+      font-size:clamp(9px,2.55vw,11px);
+      font-weight:850;
+      text-decoration:none;
+    }
+    .sos-modern-ui .home-legal-links a+a:before{content:"·";margin-right:7px;color:#9aa8b9}
+
+    /* 긴 화면은 중앙 콘텐츠만 스크롤하고 화면별 action 계약은 유지한다. */
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases:not(.hidden){padding:0;gap:10px}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases>.flow-screen-header{margin:10px 14px 0}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases>.help-phrases-scroll{padding:0 14px 12px}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-help-phrases"] #screen-help-phrases>.help-phrases-home-nav{padding:8px 14px max(8px,var(--safe-bottom));box-shadow:0 -5px 16px rgba(20,38,63,.05)}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-ai-result"] #triageActions,
+    .sos-modern-ui.flow-app-active[data-flow-screen^="screen-medical-"] .flow-nav{position:static;background:transparent}
+    .sos-modern-ui .flow-card{gap:10px}
+    .sos-modern-ui .modal{padding:16px;background:rgba(11,36,69,.56)}
+    .sos-modern-ui .modal-box{width:min(420px,100%);max-height:min(88dvh,620px);padding:18px;border-radius:var(--radius-lg)}
+    .sos-modern-ui #locationConsentModal .modal-box>.grid{gap:0}
+    .sos-modern-ui #manualLocationBtn{display:none!important}
+
+    @media (max-width:420px){
+      .sos-modern-ui.flow-app-active #appPage{border-inline:0}
+      .sos-modern-ui .app-header-bar{grid-template-columns:minmax(0,1fr) 48px 56px}
+      .sos-modern-ui .app-change-mini{padding:0 9px}
+      .sos-modern-ui #screen-country-select .language-grid{grid-template-columns:1fr}
+    }
+    @media (max-height:760px){
+      .sos-modern-ui.flow-app-active #appPage>.topbar{padding-top:5px;padding-bottom:5px}
+      .sos-modern-ui .app-header-bar{min-height:52px}
+      .sos-modern-ui .app-country-pill,
+      .sos-modern-ui .app-emergency-mini,
+      .sos-modern-ui .app-change-mini{min-height:44px}
+      .sos-modern-ui.flow-app-active #screen-home:not(.hidden){padding-top:7px;padding-bottom:max(7px,var(--safe-bottom))}
+      .sos-modern-ui.flow-app-active #screen-home>#serviceSection{padding:9px;gap:4px}
+      .sos-modern-ui #serviceGrid .service{padding:8px}
+      .sos-modern-ui #serviceGrid .service p{-webkit-line-clamp:1}
+      .sos-modern-ui .home-legal-links,.sos-modern-ui .home-legal-links a{min-height:24px}
+    }
+    @media (min-width:769px){
+      .sos-modern-ui.flow-app-active #appPage,
+      .sos-modern-ui:not(.flow-app-active) #languagePage{border-inline:1px solid var(--color-border)}
+      .sos-modern-ui.flow-app-active .app-flow-screen{padding-inline:18px}
+      .sos-modern-ui.flow-app-active #screen-home:not(.hidden){padding-inline:18px}
+    }
+    @media (prefers-reduced-motion:reduce){.sos-modern-ui *{scroll-behavior:auto!important;transition:none!important}}
+
     .debug{font-size:12px;white-space:pre-wrap}
   </style>
 </head>
-<body>
+<body class="sos-modern-ui">
   <main id="languagePage" class="page">
-    <section class="container grid home-grid" style="min-height:calc(100dvh - 40px);align-items:stretch">
-      <div id="screen-country-summary" class="card home-left-card flow-screen language-flow-screen">
-        <div class="between" style="gap:12px;margin-bottom:12px">
-          <button id="countrySummaryBackBtn" class="btn outline" type="button" data-flow-screen="screen-country-select">이전</button>
-          <span class="small muted" style="font-weight:950">국가 확인</span>
+    <section class="container grid home-grid" style="align-items:stretch">
+      <div id="screen-country-summary" class="card home-left-card flow-screen language-flow-screen" aria-labelledby="chooseTitle">
+        <div class="summary-top-nav">
+          <button id="countrySummaryBackBtn" class="summary-nav-button" type="button" data-flow-screen="screen-country-select">‹ 이전</button>
+          <button class="summary-nav-button" type="button" data-flow-screen="screen-country-select">국가 변경</button>
         </div>
-        <div class="row">
-          <div class="logo">🩺</div>
-          <div>
-            <p class="eyebrow">SOS Bridge</p>
-            <h1 id="chooseTitle">여행 설정</h1>
-          </div>
-        </div>
-        <p id="chooseDesc" class="desc" style="margin-top:24px">
-          SOS Bridge는 한국인이 해외여행 중 갑자기 아프거나 다쳤을 때, 한국어로 상황을 이해하고 현지어로 도움을 요청할 수 있게 도와주는 해외여행 응급 의료 도우미입니다.
-        </p>
-
-        <div id="tripSummaryPanel" class="setup-panel summary-empty">
-          <div class="summary-row">
-            <div id="selectedFlag" class="summary-flag">✈️</div>
-            <div>
-              <div id="currentLangLabel" class="small muted">현재 여행 설정</div>
-              <h3 id="selectedNative" style="margin:2px 0">아직 여행 국가를 선택하지 않았습니다.</h3>
-              <div id="selectedCountry" class="small muted">우선 지원 62개 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.</div>
+        <div class="summary-scroll">
+          <h1 id="chooseTitle" class="visually-hidden">선택 국가 확인</h1>
+          <p id="chooseDesc" class="visually-hidden">선택한 국가의 응급번호와 현지 언어를 확인하세요.</p>
+          <article id="tripSummaryPanel" class="setup-panel summary-empty country-summary-card">
+            <div class="summary-row">
+              <div id="selectedFlag" class="summary-flag">✈️</div>
+              <div class="country-summary-heading">
+                <div id="currentLangLabel" class="country-summary-code">--</div>
+                <h2 id="selectedNative">아직 여행 국가를 선택하지 않았습니다.</h2>
+              </div>
             </div>
-          </div>
+            <div id="selectedCountry" class="country-summary-content">우선 지원 62개 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.</div>
+          </article>
         </div>
 
         <div class="grid hidden">
@@ -320,18 +848,38 @@
           <select id="localLangSelect" class="input" style="display:none"></select>
         </div>
 
-        <button id="startBtn" class="btn primary w-full" type="button">서비스 시작</button>
+        <div class="summary-action">
+          <button id="startBtn" class="btn primary w-full" type="button">서비스 시작</button>
+        </div>
       </div>
 
-      <div id="screen-country-select" class="card country-picker-card flow-screen language-flow-screen">
-        <p class="eyebrow">Travel Country</p>
-        <h2 style="margin-bottom:12px">우선 지원 국가/지역 선택</h2>
-        <p class="small muted" style="line-height:1.55;margin-top:-4px">일반 화면에는 정식 우선 지원 62개 국가·지역만 표시합니다.</p>
-        <div class="search">
-          <span>🔎</span>
-          <input id="languageSearch" placeholder="국가명, 지역명, 영어명, 언어명으로 검색" />
+      <div id="screen-country-select" class="card country-picker-card flow-screen language-flow-screen" aria-labelledby="countrySelectTitle">
+        <header class="country-select-header">
+          <div class="country-brand" aria-label="SOS Bridge"><span>SOS</span>Bridge</div>
+          <div class="country-title-block">
+            <p class="eyebrow">TRAVEL COUNTRY</p>
+            <h1 id="countrySelectTitle">여행 국가를 선택하세요</h1>
+            <p>응급번호와 현지 언어를 여행지에 맞춰 준비합니다.</p>
+          </div>
+          <label class="country-search-label" for="languageSearch">국가 검색</label>
+          <div class="search country-search-field">
+            <span aria-hidden="true">🔎</span>
+            <input id="languageSearch" type="search" autocomplete="off" placeholder="국가명 또는 국가 코드 검색" />
+          </div>
+        </header>
+        <div id="countrySelectScroll" class="country-select-scroll">
+          <section id="popularCountrySection" class="country-group country-popular-state" aria-labelledby="popularCountryTitle">
+            <div class="country-section-heading">
+              <h2 id="popularCountryTitle">자주 찾는 국가</h2>
+              <span>우선 지원</span>
+            </div>
+            <div id="countryQuickGrid" class="country-grid popular-country-grid"></div>
+            <div class="country-all-button-row">
+              <button id="toggleAllCountriesBtn" class="btn outline w-full country-list-toggle" type="button" aria-expanded="false">전체 62개 국가 보기</button>
+            </div>
+          </section>
+          <div id="languageGrid" class="language-grid" hidden></div>
         </div>
-        <div id="languageGrid" class="language-grid"></div>
       </div>
     </section>
 
@@ -403,7 +951,11 @@
         <div id="appFlowSummary" class="flow-home-summary"></div>
         <div id="serviceGrid" class="grid service-grid"></div>
         <div id="statusBox" class="notice navy">병원찾기는 증상에 맞는 병원을 가까운 순으로 보여주고, 약국찾기는 가까운 순으로 50개를 보여줍니다. AI Care는 GPT API를 이용해 사고 유형, 신체부위, 위험 신호를 종합해 응급도 참고 안내를 제공합니다.</div>
-        </div>
+        <nav class="home-legal-links" aria-label="서비스 법적 안내">
+          <a href="./privacy.html">개인정보처리방침</a>
+          <a href="./terms.html">이용약관</a>
+          <a href="./disclaimer.html">면책 안내</a>
+        </nav>
       </section>
 
       <section id="localPhraseCard" class="card hidden">
@@ -562,7 +1114,7 @@
       <p class="muted">SOS Bridge는 가까운 병원과 약국을 찾기 위해 현재 위치를 사용할 수 있습니다. 위치정보는 병원·약국 검색 목적에만 사용됩니다.</p>
       <div class="grid">
         <button id="agreeLocationBtn" class="btn primary w-full" type="button">동의하고 현재 위치 사용</button>
-        <button id="manualLocationBtn" class="btn outline w-full" type="button">직접 도시/지역 입력하기</button>
+        <button id="manualLocationBtn" class="btn outline w-full hidden" type="button" aria-hidden="true" tabindex="-1">직접 도시/지역 입력하기</button>
       </div>
     </div>
   </div>
@@ -572,13 +1124,47 @@
 (function(){
 "use strict";
 
+let appViewportHeightFrame = 0;
+function updateAppViewportHeight(){
+  const visualHeight = Number(window.visualViewport?.height);
+  const innerHeightFallback = Number(window.innerHeight);
+  const viewportHeight = Number.isFinite(visualHeight) && visualHeight > 0
+    ? visualHeight
+    : innerHeightFallback;
+  if(!Number.isFinite(viewportHeight) || viewportHeight <= 0) return;
+  document.documentElement.style.setProperty("--app-viewport-height", Math.floor(viewportHeight)+"px");
+  document.documentElement.dataset.viewportHeightBand = viewportHeight < 680
+    ? "short"
+    : viewportHeight < 780
+      ? "medium"
+      : "tall";
+}
+function scheduleAppViewportHeightUpdate(){
+  if(appViewportHeightFrame) cancelAnimationFrame(appViewportHeightFrame);
+  appViewportHeightFrame = requestAnimationFrame(() => {
+    appViewportHeightFrame = 0;
+    updateAppViewportHeight();
+  });
+}
+function initAppViewportHeightSync(){
+  updateAppViewportHeight();
+  window.addEventListener("resize", scheduleAppViewportHeightUpdate, {passive:true});
+  window.addEventListener("orientationchange", scheduleAppViewportHeightUpdate, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener("resize", scheduleAppViewportHeightUpdate, {passive:true});
+}
+
 const countrySource = Array.isArray(window.SOS_BRIDGE_COUNTRIES) ? window.SOS_BRIDGE_COUNTRIES : [];
 const countryCollator = new Intl.Collator("ko-KR");
+function countryCodeToFlagEmoji(countryCode){
+  const code = String(countryCode || "").trim().toUpperCase();
+  if(!/^[A-Z]{2}$/.test(code)) return "";
+  return String.fromCodePoint(...Array.from(code, char => 127397 + char.charCodeAt(0)));
+}
 const languageOptions = countrySource.map((item, index) => ({
   ...item,
   id: item.id || (item.languageCode || "country") + "-" + index,
   rank: index + 1,
-  flag: item.flag || "??",
+  flag: countryCodeToFlagEmoji(item.countryCode) || item.flag || "",
   countryCode: item.countryCode || "",
   countryKo: item.countryNameKo || item.countryKo || "",
   country: item.countryNameEn || item.country || "",
@@ -598,6 +1184,7 @@ const PRIORITY_COUNTRY_CODES = [
   "AU","HK"
 ];
 const priorityCountryCodeSet = new Set(PRIORITY_COUNTRY_CODES);
+const POPULAR_COUNTRY_CODES = ["JP","US","TH","VN","CN","FR","GB","AU"];
 function isPriorityCountryOption(item){
   return Boolean(item && priorityCountryCodeSet.has(String(item.countryCode || "").toUpperCase()));
 }
@@ -2593,30 +3180,206 @@ function getEmergencyNumbersData(id){
 function hasUsableEmergencyNumbers(data){
   return Boolean(data && data.status !== "needs-verification" && (data.primary || data.police || data.ambulance || data.fire));
 }
+function isConditionalEmergencySupport(item){
+  const data = getEmergencyNumbersData(item);
+  return Boolean(data && data.status === "verified-conditional");
+}
 function isLimitedEmergencySupport(item){
   const data = getEmergencyNumbersData(item);
   return Boolean(data && data.status === "needs-verification");
 }
-function supportStatusHtml(data){
+function emergencySupportMeta(data){
+  if(data && data.status === "verified-conditional"){
+    return {className:"conditional", shortLabel:"조건부", label:"조건부 지원", text:"공식 번호와 이용 범위를 함께 확인하세요."};
+  }
   if(data && data.status === "needs-verification"){
-    return ''+
-      '<div class="support-status-row">'+
-        '<span class="support-badge limited">제한 지원 국가</span>'+
-        '<span class="support-status-text">도움 요청 문장, 의료카드, 병원·약국 검색은 계속 사용할 수 있습니다.</span>'+
-      '</div>';
+    return {className:"limited", shortLabel:"제한", label:"제한 지원 국가", text:"도움 요청 문장, 의료카드, 병원·약국 검색은 계속 사용할 수 있습니다."};
   }
   if(data && data.status === "verified"){
-    return ''+
-      '<div class="support-status-row">'+
-        '<span class="support-badge supported">정식 지원 국가</span>'+
-        '<span class="support-status-text">공식·공공 출처 기반 응급번호를 제공합니다.</span>'+
-      '</div>';
+    return {className:"supported", shortLabel:"정식", label:"정식 지원 국가", text:"공식·공공 출처 기반 응급번호를 제공합니다."};
   }
+  return {className:"limited", shortLabel:"확인", label:"응급번호 확인 필요", text:"출국 전 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요."};
+}
+function supportStatusHtml(data){
+  const meta = emergencySupportMeta(data);
   return ''+
     '<div class="support-status-row">'+
-      '<span class="support-badge limited">응급번호 확인 필요</span>'+
-      '<span class="support-status-text">출국 전 현지 공공기관, 숙소, 대사관 또는 영사관에서 최신 정보를 확인하세요.</span>'+
+      '<span class="support-badge '+meta.className+'">'+meta.label+'</span>'+
+      '<span class="support-status-text">'+meta.text+'</span>'+
     '</div>';
+}
+function emergencyAlternates(data){
+  return Array.isArray(data && data.alternates)
+    ? data.alternates.filter(item => item && String(item.number || "").trim())
+    : [];
+}
+function emergencyRoleRows(data, includeServices=false){
+  if(!data || typeof data !== "object") return [];
+  const rows = [];
+  const primary = String(data.primary || "").trim();
+  const ambulance = String(data.ambulance || "").trim();
+  if(primary && ambulance && primary === ambulance){
+    rows.push({role:"primary-ambulance", label:data.primaryLabelKo || data.ambulanceLabelKo || "응급번호", number:primary});
+  }else{
+    if(primary) rows.push({role:"primary", label:data.primaryLabelKo || "통합·일반 긴급번호", number:primary});
+    if(ambulance) rows.push({role:"ambulance", label:data.ambulanceLabelKo || "구급차", number:ambulance});
+  }
+  emergencyAlternates(data).forEach((item, index) => rows.push({
+    role:"alternate",
+    alternateIndex:index,
+    label:item.labelKo || "보조 번호",
+    number:String(item.number).trim()
+  }));
+  if(includeServices){
+    const police = String(data.police || "").trim();
+    const fire = String(data.fire || "").trim();
+    if(police) rows.push({role:"police", label:"경찰", number:police});
+    if(fire) rows.push({role:"fire", label:"소방", number:fire});
+  }
+  return rows;
+}
+function emergencyServiceAreasHtml(data){
+  const areas = Array.isArray(data && data.serviceAreas) ? data.serviceAreas.filter(Boolean) : [];
+  if(!areas.length) return "";
+  return '<details class="emergency-service-areas"><summary>공식 안내 지원 지역 '+areas.length+'곳</summary><p>'+escapeHtml(areas.join(", "))+'</p></details>';
+}
+function emergencyConditionsHtml(data, className="emergency-condition-copy"){
+  if(!data) return "";
+  const parts = [];
+  if(data.scopeKo) parts.push('<p>'+escapeHtml(data.scopeKo)+'</p>');
+  if(data.warningKo) parts.push('<p class="warning">'+escapeHtml(data.warningKo)+'</p>');
+  const areas = emergencyServiceAreasHtml(data);
+  if(areas) parts.push(areas);
+  return parts.length ? '<div class="'+className+'">'+parts.join("")+'</div>' : "";
+}
+function emergencyRoleRowsHtml(data, opts={}){
+  const rows = emergencyRoleRows(data, opts.includeServices === true);
+  if(!rows.length) return "";
+  if(opts.actionable){
+    return '<div class="emergency-role-action-list">'+rows.map(row => {
+      const dialNumber = normalizeEmergencyDialNumber(row.number);
+      if(!dialNumber){
+        return '<div class="emergency-number-action"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></div>';
+      }
+      return '<button class="emergency-number-action" type="button" data-emergency-dial-number="'+escapeHtml(dialNumber)+'" aria-label="'+escapeHtml(row.label)+' '+escapeHtml(row.number)+' 전화 앱 열기"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></button>';
+    }).join("")+'</div>';
+  }
+  return '<div class="country-summary-emergency-list">'+rows.map(row =>
+    '<div class="country-summary-emergency"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></div>'
+  ).join("")+'</div>';
+}
+function shortEmergencyRoleLabel(label, fallback){
+  const value = String(label || "");
+  if(/SAMU/i.test(value)) return "SAMU";
+  if(/의료/.test(value)) return "의료";
+  if(/구조/.test(value)) return "구조";
+  if(/구급/.test(value)) return "구급차";
+  if(/통합|긴급/.test(value)) return "응급";
+  return fallback;
+}
+function getCountryEmergencyDialNumber(item, type="ambulance"){
+  const option = item && typeof item === "object" ? item : getCountryById(item);
+  const data = getEmergencyNumbersData(option);
+  if(!option || !data || data.status === "needs-verification") return "";
+  const legacy = option.emergencyNumber;
+  const values = type === "ambulance"
+    ? [data.ambulance, data.primary, legacy]
+    : [data.primary, data.ambulance, legacy];
+  return resolveEmergencyDialNumberValues(values);
+}
+function hasCompositeEmergencyNumber(value){
+  const text = String(value || "").trim();
+  return /\d/.test(text) && /\s*(?:\/|,|;|\||또는|\bor\b)\s*/i.test(text);
+}
+function emergencyDialNumberCandidates(raw){
+  const text = String(raw || "").trim();
+  if(!text) return [];
+  if(!hasCompositeEmergencyNumber(text)) return [text];
+  return text
+    .split(/\s*(?:\/|,|;|\||또는|\bor\b)\s*/i)
+    .map(candidate => candidate.trim())
+    .filter(Boolean);
+}
+function resolveEmergencyDialNumberValue(raw){
+  for(const candidate of emergencyDialNumberCandidates(raw)){
+    const normalized = normalizeEmergencyDialNumber(candidate);
+    if(normalized) return normalized;
+  }
+  return "";
+}
+function resolveEmergencyDialNumberValues(values){
+  const candidates = Array.isArray(values) ? values : [values];
+  for(const value of candidates){
+    const normalized = normalizeEmergencyDialNumber(value);
+    if(normalized) return normalized;
+  }
+  for(const value of candidates){
+    const resolved = resolveEmergencyDialNumberValue(value);
+    if(resolved) return resolved;
+  }
+  return "";
+}
+function getCountryListEmergencyDisplay(item){
+  const option = item && typeof item === "object" ? item : getCountryById(item);
+  const data = getEmergencyNumbersData(option);
+  const supportMeta = emergencySupportMeta(data);
+  const number = getCountryEmergencyDialNumber(option, "ambulance");
+  const label = number ? shortEmergencyRoleLabel(data && data.ambulanceLabelKo, "구급차") : "";
+  const primary = resolveEmergencyDialNumberValue(data && data.primary);
+  const ambulance = resolveEmergencyDialNumberValue(data && data.ambulance);
+  const alternates = emergencyAlternates(data);
+  const alternateNumbers = alternates.map(entry => resolveEmergencyDialNumberValue(entry.number)).filter(Boolean);
+  const validNumbers = [...new Set([primary, ambulance].concat(alternateNumbers).filter(Boolean))];
+  const additionalValidNumbers = validNumbers.filter(candidate => candidate !== number);
+  const canDial = Boolean(data && data.status !== "needs-verification");
+  const hasAlternateContacts = canDial && alternates.some(entry => /\d/.test(String(entry && entry.number || "")));
+  const hasCompositeEmergency = [data && data.primary, data && data.ambulance]
+    .some(value => canDial && hasCompositeEmergencyNumber(value));
+  const hasAdditionalEmergencyNumbers = canDial && (additionalValidNumbers.some(candidate => !alternateNumbers.includes(candidate))
+    || hasCompositeEmergency);
+  const hasAdditionalNumbers = hasAdditionalEmergencyNumbers || hasAlternateContacts;
+  const additionalBadgeLabel = hasAdditionalEmergencyNumbers && hasAlternateContacts
+    ? "추가 번호"
+    : hasAlternateContacts
+      ? "추가 연락처"
+      : hasAdditionalEmergencyNumbers
+        ? "추가 긴급번호"
+        : "";
+  const conditional = Boolean(data && data.status === "verified-conditional");
+  let compactNotice = "";
+  if(conditional){
+    if(Array.isArray(data.serviceAreas) && data.serviceAreas.length){
+      compactNotice = "지원 지역 확인";
+    }else if(/지역/.test(String(data.conditionLabelKo || ""))){
+      compactNotice = "이용 지역 확인";
+    }else if(alternates.length){
+      compactNotice = "지역별 연결 확인";
+    }else if(/연결/.test(String(data.warningKo || ""))){
+      compactNotice = "연결 제한 가능";
+    }else{
+      compactNotice = "이용 범위 확인";
+    }
+  }
+  const statusLabel = data && data.status === "needs-verification" ? "확인 필요" : supportMeta.shortLabel;
+  const main = number ? [label, number].filter(Boolean).join(" ") : "응급번호 확인 필요";
+  return {
+    label,
+    number,
+    main,
+    secondary:compactNotice,
+    hasAdditionalNumbers,
+    hasAdditionalEmergencyNumbers,
+    hasAlternateContacts,
+    additionalBadgeLabel,
+    conditional,
+    status:data && data.status || "needs-verification",
+    statusLabel,
+    statusClass:supportMeta.className,
+    compactNotice
+  };
+}
+function emergencyListDisplay(item){
+  return getCountryListEmergencyDisplay(item);
 }
 function emergencyVerificationDetailHtml(data, margin){
   const reason = (data && data.notesKo) || emergencyVerificationNotice;
@@ -2634,6 +3397,16 @@ function emergencyNumbersDetailHtml(item, opts={}){
   const margin = opts.margin || "8px 0 0";
   if(!hasUsableEmergencyNumbers(data)){
     return emergencyVerificationDetailHtml(data, margin);
+  }
+  const hasStructuredRoles = Boolean(data.primaryLabelKo || data.ambulanceLabelKo || emergencyAlternates(data).length || data.scopeKo || data.warningKo || (Array.isArray(data.serviceAreas) && data.serviceAreas.length));
+  if(hasStructuredRoles){
+    const lines = [supportStatusHtml(data), emergencyRoleRowsHtml(data, {includeServices:true, actionable:true}), emergencyConditionsHtml(data)];
+    if(data.notesKo) lines.push('<div class="small muted" style="margin-top:6px">'+escapeHtml(data.notesKo)+'</div>');
+    if(data.sourceName || data.lastVerified){
+      const sourceText = [data.sourceName ? "출처: "+data.sourceName : "", data.lastVerified ? "확인일: "+data.lastVerified : ""].filter(Boolean).join(" · ");
+      lines.push('<div class="small muted" style="margin-top:4px">'+escapeHtml(sourceText)+'</div>');
+    }
+    return '<div class="notice red small" style="margin:'+margin+'">'+lines.join("")+'</div>';
   }
   const primary = String(data.primary || data.ambulance || data.police || data.fire || "").trim();
   const services = [
@@ -2670,25 +3443,46 @@ function getEmergencyNumber(id){
 const getSpeechLang = id => speechLangs[getCountryLanguageCode(id)] || speechLangs[mapLocale(id)] || "en-US";
 
 const langAliases = {"en-us":"en","en-gb":"en","en-ca":"en","en-ie":"en","en-sg":"en","es-mx":"es","de-at":"de","de-ch":"de","ar-sa":"ar","ar-ae":"ar","ar-ma":"ar","ar-eg":"ar","nl-be":"nl","zh-tw":"zh","zh-hant":"zh","pt-br":"pt","fil":"en"};
+const PRESCRIPTION_SOURCE_KO = "처방전이 필요합니다.";
+const PRESCRIPTION_STATEMENTS = {
+  ar:"أحتاج إلى وصفة طبية.", bg:"Нуждая се от рецепта.", cs:"Potřebuji lékařský předpis.", da:"Jeg har brug for en recept.",
+  de:"Ich brauche ein Rezept.", el:"Χρειάζομαι συνταγή.", en:"I need a prescription.", es:"Necesito una receta médica.",
+  et:"Mul on vaja retsepti.", fi:"Tarvitsen reseptin.", fil:"Kailangan ko ng reseta.", tl:"Kailangan ko ng reseta.",
+  fr:"J'ai besoin d'une ordonnance.", he:"אני זקוק/ה למרשם רפואי.", hi:"मुझे डॉक्टर की पर्ची चाहिए।", hr:"Trebam recept.",
+  hu:"Receptre van szükségem.", id:"Saya memerlukan resep.", is:"Ég þarf lyfseðil.", it:"Ho bisogno di una prescrizione medica.",
+  ja:"処方箋が必要です。", km:"ខ្ញុំត្រូវការវេជ្ជបញ្ជា។", ko:PRESCRIPTION_SOURCE_KO, lo:"ຂ້ອຍຕ້ອງການໃບສັ່ງຢາ.",
+  lt:"Man reikia recepto.", lv:"Man ir nepieciešama recepte.", ms:"Saya memerlukan preskripsi.", mt:"Għandi bżonn riċetta tat-tabib.",
+  my:"ဆရာဝန်ဆေးညွှန်း လိုအပ်ပါတယ်။", nl:"Ik heb een recept nodig.", no:"Jeg trenger resept.", pl:"Potrzebuję recepty.",
+  pt:"Preciso de uma receita médica.", "pt-br":"Preciso de uma receita médica.", ro:"Am nevoie de o rețetă.", si:"මට වෛද්‍ය වට්ටෝරුවක් අවශ්‍යයි.",
+  sk:"Potrebujem lekársky predpis.", sl:"Potrebujem recept.", sv:"Jag behöver ett recept.", th:"ฉันต้องการใบสั่งยา",
+  tr:"Reçeteye ihtiyacım var.", vi:"Tôi cần đơn thuốc.", zh:"我需要处方。", "zh-tw":"我需要處方箋。"
+};
+function prescriptionStatementForLanguageCode(languageCode){
+  const normalized = String(languageCode || "").trim().toLowerCase();
+  return PRESCRIPTION_STATEMENTS[normalized] || PRESCRIPTION_STATEMENTS[normalized.split("-")[0]] || "";
+}
+function isQuestionLikePrescription(value){
+  return /[?？¿؟]/.test(String(value || ""));
+}
 const phrasePacks = {
-  ko:{help:"도와주세요.", ambulance:"구급차를 불러 주세요.", hospital:"병원에 가야 합니다.", pharmacy:"약국이 필요합니다.", pain:"통증이 있습니다.", allergy:"알레르기가 있습니다.", medication:"복용 중인 약이 있습니다.", fever:"열이 있습니다.", stomach:"복통이 있습니다.", stabbed:"칼이나 물체에 찔렸습니다.", accident:"교통사고를 당했습니다.", pharmacyQ:"이 증상에 처방전 없이 살 수 있는 약이 있나요?", dosage:"복용 방법을 알려 주세요.", prescription:"처방전이 필요한가요?"},
-  en:{help:"Please help me.", ambulance:"Please call an ambulance.", hospital:"I need to go to a hospital.", pharmacy:"I need a pharmacy.", pain:"I have pain.", allergy:"I have an allergy.", medication:"I take medication.", fever:"I have a fever.", stomach:"I have stomach pain.", stabbed:"I was stabbed or injured by an object.", accident:"I was in a traffic accident.", pharmacyQ:"Is there any over-the-counter medicine for this symptom?", dosage:"Please tell me how to take this medicine.", prescription:"Do I need a prescription?"},
-  fr:{help:"Aidez-moi, s'il vous plaît.", ambulance:"Appelez une ambulance, s'il vous plaît.", hospital:"Je dois aller à l'hôpital.", pharmacy:"J'ai besoin d'une pharmacie.", pain:"J'ai mal.", allergy:"J'ai une allergie.", medication:"Je prends des médicaments.", fever:"J'ai de la fièvre.", stomach:"J'ai mal au ventre.", stabbed:"J'ai été blessé par un couteau ou un objet.", accident:"J'ai eu un accident de la route.", pharmacyQ:"Existe-t-il un médicament sans ordonnance pour ce symptôme ?", dosage:"Veuillez m'expliquer comment prendre ce médicament.", prescription:"Faut-il une ordonnance ?"},
-  es:{help:"Por favor, ayúdeme.", ambulance:"Por favor, llame a una ambulancia.", hospital:"Necesito ir a un hospital.", pharmacy:"Necesito una farmacia.", pain:"Tengo dolor.", allergy:"Tengo alergia.", medication:"Tomo medicamentos.", fever:"Tengo fiebre.", stomach:"Tengo dolor de estómago.", stabbed:"Me han apuñalado o herido con un objeto.", accident:"Tuve un accidente de tráfico.", pharmacyQ:"¿Hay algún medicamento sin receta para este síntoma?", dosage:"Por favor, dígame cómo tomar este medicamento.", prescription:"¿Necesito receta médica?"},
-  ja:{help:"助けてください。", ambulance:"救急車を呼んでください。", hospital:"病院に行く必要があります。", pharmacy:"薬局が必要です。", pain:"痛みがあります。", allergy:"アレルギーがあります。", medication:"服用中の薬があります。", fever:"熱があります。", stomach:"腹痛があります。", stabbed:"刃物または物でけがをしました。", accident:"交通事故に遭いました。", pharmacyQ:"この症状に使える市販薬はありますか？", dosage:"この薬の飲み方を教えてください。", prescription:"処方箋が必要ですか？"},
-  vi:{help:"Làm ơn giúp tôi.", ambulance:"Vui lòng gọi xe cứu thương.", hospital:"Tôi cần đến bệnh viện.", pharmacy:"Tôi cần nhà thuốc.", pain:"Tôi bị đau.", allergy:"Tôi bị dị ứng.", medication:"Tôi đang dùng thuốc.", fever:"Tôi bị sốt.", stomach:"Tôi bị đau bụng.", stabbed:"Tôi bị đâm hoặc bị thương bởi một vật.", accident:"Tôi bị tai nạn giao thông.", pharmacyQ:"Có thuốc không cần đơn cho triệu chứng này không?", dosage:"Vui lòng hướng dẫn cách dùng thuốc này.", prescription:"Tôi có cần đơn thuốc không?"},
-  zh:{help:"请帮助我。", ambulance:"请叫救护车。", hospital:"我需要去医院。", pharmacy:"我需要药店。", pain:"我有疼痛。", allergy:"我有过敏。", medication:"我正在服药。", fever:"我发烧了。", stomach:"我肚子痛。", stabbed:"我被刀或物体刺伤了。", accident:"我发生了交通事故。", pharmacyQ:"这种症状有非处方药吗？", dosage:"请告诉我怎么服用这种药。", prescription:"需要处方吗？"},
-  de:{help:"Bitte helfen Sie mir.", ambulance:"Bitte rufen Sie einen Krankenwagen.", hospital:"Ich muss ins Krankenhaus.", pharmacy:"Ich brauche eine Apotheke.", pain:"Ich habe Schmerzen.", allergy:"Ich habe eine Allergie.", medication:"Ich nehme Medikamente.", fever:"Ich habe Fieber.", stomach:"Ich habe Bauchschmerzen.", stabbed:"Ich wurde mit einem Messer oder Gegenstand verletzt.", accident:"Ich hatte einen Verkehrsunfall.", pharmacyQ:"Gibt es ein rezeptfreies Medikament für dieses Symptom?", dosage:"Bitte erklären Sie mir, wie ich dieses Medikament einnehmen soll.", prescription:"Brauche ich ein Rezept?"},
-  it:{help:"Mi aiuti, per favore.", ambulance:"Chiami un'ambulanza, per favore.", hospital:"Devo andare in ospedale.", pharmacy:"Ho bisogno di una farmacia.", pain:"Ho dolore.", allergy:"Ho un'allergia.", medication:"Prendo farmaci.", fever:"Ho la febbre.", stomach:"Ho mal di pancia.", stabbed:"Sono stato ferito da un coltello o da un oggetto.", accident:"Ho avuto un incidente stradale.", pharmacyQ:"C'è un farmaco da banco per questo sintomo?", dosage:"Mi spieghi come prendere questo medicinale.", prescription:"Serve una ricetta?"},
-  tr:{help:"Lütfen bana yardım edin.", ambulance:"Lütfen ambulans çağırın.", hospital:"Hastaneye gitmem gerekiyor.", pharmacy:"Eczaneye ihtiyacım var.", pain:"Ağrım var.", allergy:"Alerjim var.", medication:"İlaç kullanıyorum.", fever:"Ateşim var.", stomach:"Karın ağrım var.", stabbed:"Bıçakla veya bir cisimle yaralandım.", accident:"Trafik kazası geçirdim.", pharmacyQ:"Bu belirti için reçetesiz ilaç var mı?", dosage:"Bu ilacı nasıl kullanacağımı söyler misiniz?", prescription:"Reçete gerekli mi?"},
-  th:{help:"กรุณาช่วยฉันด้วย", ambulance:"กรุณาเรียกรถพยาบาล", hospital:"ฉันต้องไปโรงพยาบาล", pharmacy:"ฉันต้องการร้านขายยา", pain:"ฉันมีอาการปวด", allergy:"ฉันมีอาการแพ้", medication:"ฉันกำลังกินยาอยู่", fever:"ฉันมีไข้", stomach:"ฉันปวดท้อง", stabbed:"ฉันถูกแทงหรือบาดเจ็บจากวัตถุ", accident:"ฉันประสบอุบัติเหตุทางถนน", pharmacyQ:"มียาที่ซื้อได้โดยไม่ต้องมีใบสั่งแพทย์สำหรับอาการนี้ไหม", dosage:"กรุณาบอกวิธีใช้ยานี้", prescription:"ต้องมีใบสั่งแพทย์ไหม"},
-  pt:{help:"Por favor, ajude-me.", ambulance:"Por favor, chame uma ambulância.", hospital:"Preciso ir a um hospital.", pharmacy:"Preciso de uma farmácia.", pain:"Estou com dor.", allergy:"Tenho alergia.", medication:"Tomo medicamentos.", fever:"Estou com febre.", stomach:"Estou com dor abdominal.", stabbed:"Fui ferido por uma faca ou objeto.", accident:"Sofri um acidente de trânsito.", pharmacyQ:"Existe algum remédio sem receita para este sintoma?", dosage:"Por favor, explique como tomar este medicamento.", prescription:"Preciso de receita médica?"},
-  nl:{help:"Help mij alstublieft.", ambulance:"Bel alstublieft een ambulance.", hospital:"Ik moet naar een ziekenhuis.", pharmacy:"Ik heb een apotheek nodig.", pain:"Ik heb pijn.", allergy:"Ik heb een allergie.", medication:"Ik gebruik medicijnen.", fever:"Ik heb koorts.", stomach:"Ik heb buikpijn.", stabbed:"Ik ben verwond door een mes of voorwerp.", accident:"Ik heb een verkeersongeval gehad.", pharmacyQ:"Is er een vrij verkrijgbaar medicijn voor dit symptoom?", dosage:"Kunt u uitleggen hoe ik dit medicijn moet innemen?", prescription:"Heb ik een recept nodig?"},
-  ms:{help:"Tolong bantu saya.", ambulance:"Tolong panggil ambulans.", hospital:"Saya perlu pergi ke hospital.", pharmacy:"Saya perlukan farmasi.", pain:"Saya sakit.", allergy:"Saya ada alahan.", medication:"Saya sedang mengambil ubat.", fever:"Saya demam.", stomach:"Saya sakit perut.", stabbed:"Saya cedera akibat pisau atau objek.", accident:"Saya mengalami kemalangan jalan raya.", pharmacyQ:"Ada ubat tanpa preskripsi untuk simptom ini?", dosage:"Tolong terangkan cara mengambil ubat ini.", prescription:"Perlukah preskripsi?"},
-  id:{help:"Tolong bantu saya.", ambulance:"Tolong panggil ambulans.", hospital:"Saya perlu ke rumah sakit.", pharmacy:"Saya perlu apotek.", pain:"Saya merasa sakit.", allergy:"Saya punya alergi.", medication:"Saya sedang minum obat.", fever:"Saya demam.", stomach:"Saya sakit perut.", stabbed:"Saya ditusuk atau terluka oleh benda.", accident:"Saya mengalami kecelakaan lalu lintas.", pharmacyQ:"Apakah ada obat bebas untuk gejala ini?", dosage:"Tolong jelaskan cara minum obat ini.", prescription:"Apakah perlu resep?"},
-  ar:{help:"من فضلك ساعدني.", ambulance:"من فضلك اتصل بالإسعاف.", hospital:"أحتاج إلى الذهاب إلى المستشفى.", pharmacy:"أحتاج إلى صيدلية.", pain:"لدي ألم.", allergy:"لدي حساسية.", medication:"أتناول دواء.", fever:"لدي حمى.", stomach:"لدي ألم في البطن.", stabbed:"أُصبت بسكين أو بجسم.", accident:"تعرضت لحادث مروري.", pharmacyQ:"هل يوجد دواء بدون وصفة لهذه الأعراض؟", dosage:"من فضلك أخبرني كيف أستخدم هذا الدواء.", prescription:"هل أحتاج إلى وصفة طبية؟"},
-  pl:{help:"Proszę mi pomóc.", ambulance:"Proszę wezwać karetkę.", hospital:"Muszę iść do szpitala.", pharmacy:"Potrzebuję apteki.", pain:"Czuję ból.", allergy:"Mam alergię.", medication:"Biorę leki.", fever:"Mam gorączkę.", stomach:"Boli mnie brzuch.", stabbed:"Zostałem zraniony nożem lub przedmiotem.", accident:"Miałem wypadek drogowy.", pharmacyQ:"Czy jest lek bez recepty na ten objaw?", dosage:"Proszę powiedzieć, jak przyjmować ten lek.", prescription:"Czy potrzebuję recepty?"},
-  da:{help:"Hjælp mig venligst.", ambulance:"Ring venligst efter en ambulance.", hospital:"Jeg skal på hospitalet.", pharmacy:"Jeg har brug for et apotek.", pain:"Jeg har smerter.", allergy:"Jeg har allergi.", medication:"Jeg tager medicin.", fever:"Jeg har feber.", stomach:"Jeg har mavesmerter.", stabbed:"Jeg er blevet såret af en kniv eller genstand.", accident:"Jeg har været i en trafikulykke.", pharmacyQ:"Findes der håndkøbsmedicin til dette symptom?", dosage:"Forklar venligst, hvordan jeg tager denne medicin.", prescription:"Skal jeg have recept?"}
+  ko:{help:"도와주세요.", ambulance:"구급차를 불러 주세요.", hospital:"병원에 가야 합니다.", pharmacy:"약국이 필요합니다.", pain:"통증이 있습니다.", allergy:"알레르기가 있습니다.", medication:"복용 중인 약이 있습니다.", fever:"열이 있습니다.", stomach:"복통이 있습니다.", stabbed:"칼이나 물체에 찔렸습니다.", accident:"교통사고를 당했습니다.", pharmacyQ:"이 증상에 처방전 없이 살 수 있는 약이 있나요?", dosage:"복용 방법을 알려 주세요.", prescription:PRESCRIPTION_SOURCE_KO},
+  en:{help:"Please help me.", ambulance:"Please call an ambulance.", hospital:"I need to go to a hospital.", pharmacy:"I need a pharmacy.", pain:"I have pain.", allergy:"I have an allergy.", medication:"I take medication.", fever:"I have a fever.", stomach:"I have stomach pain.", stabbed:"I was stabbed or injured by an object.", accident:"I was in a traffic accident.", pharmacyQ:"Is there any over-the-counter medicine for this symptom?", dosage:"Please tell me how to take this medicine.", prescription:PRESCRIPTION_STATEMENTS.en},
+  fr:{help:"Aidez-moi, s'il vous plaît.", ambulance:"Appelez une ambulance, s'il vous plaît.", hospital:"Je dois aller à l'hôpital.", pharmacy:"J'ai besoin d'une pharmacie.", pain:"J'ai mal.", allergy:"J'ai une allergie.", medication:"Je prends des médicaments.", fever:"J'ai de la fièvre.", stomach:"J'ai mal au ventre.", stabbed:"J'ai été blessé par un couteau ou un objet.", accident:"J'ai eu un accident de la route.", pharmacyQ:"Existe-t-il un médicament sans ordonnance pour ce symptôme ?", dosage:"Veuillez m'expliquer comment prendre ce médicament.", prescription:PRESCRIPTION_STATEMENTS.fr},
+  es:{help:"Por favor, ayúdeme.", ambulance:"Por favor, llame a una ambulancia.", hospital:"Necesito ir a un hospital.", pharmacy:"Necesito una farmacia.", pain:"Tengo dolor.", allergy:"Tengo alergia.", medication:"Tomo medicamentos.", fever:"Tengo fiebre.", stomach:"Tengo dolor de estómago.", stabbed:"Me han apuñalado o herido con un objeto.", accident:"Tuve un accidente de tráfico.", pharmacyQ:"¿Hay algún medicamento sin receta para este síntoma?", dosage:"Por favor, dígame cómo tomar este medicamento.", prescription:PRESCRIPTION_STATEMENTS.es},
+  ja:{help:"助けてください。", ambulance:"救急車を呼んでください。", hospital:"病院に行く必要があります。", pharmacy:"薬局が必要です。", pain:"痛みがあります。", allergy:"アレルギーがあります。", medication:"服用中の薬があります。", fever:"熱があります。", stomach:"腹痛があります。", stabbed:"刃物または物でけがをしました。", accident:"交通事故に遭いました。", pharmacyQ:"この症状に使える市販薬はありますか？", dosage:"この薬の飲み方を教えてください。", prescription:PRESCRIPTION_STATEMENTS.ja},
+  vi:{help:"Làm ơn giúp tôi.", ambulance:"Vui lòng gọi xe cứu thương.", hospital:"Tôi cần đến bệnh viện.", pharmacy:"Tôi cần nhà thuốc.", pain:"Tôi bị đau.", allergy:"Tôi bị dị ứng.", medication:"Tôi đang dùng thuốc.", fever:"Tôi bị sốt.", stomach:"Tôi bị đau bụng.", stabbed:"Tôi bị đâm hoặc bị thương bởi một vật.", accident:"Tôi bị tai nạn giao thông.", pharmacyQ:"Có thuốc không cần đơn cho triệu chứng này không?", dosage:"Vui lòng hướng dẫn cách dùng thuốc này.", prescription:PRESCRIPTION_STATEMENTS.vi},
+  zh:{help:"请帮助我。", ambulance:"请叫救护车。", hospital:"我需要去医院。", pharmacy:"我需要药店。", pain:"我有疼痛。", allergy:"我有过敏。", medication:"我正在服药。", fever:"我发烧了。", stomach:"我肚子痛。", stabbed:"我被刀或物体刺伤了。", accident:"我发生了交通事故。", pharmacyQ:"这种症状有非处方药吗？", dosage:"请告诉我怎么服用这种药。", prescription:PRESCRIPTION_STATEMENTS.zh},
+  de:{help:"Bitte helfen Sie mir.", ambulance:"Bitte rufen Sie einen Krankenwagen.", hospital:"Ich muss ins Krankenhaus.", pharmacy:"Ich brauche eine Apotheke.", pain:"Ich habe Schmerzen.", allergy:"Ich habe eine Allergie.", medication:"Ich nehme Medikamente.", fever:"Ich habe Fieber.", stomach:"Ich habe Bauchschmerzen.", stabbed:"Ich wurde mit einem Messer oder Gegenstand verletzt.", accident:"Ich hatte einen Verkehrsunfall.", pharmacyQ:"Gibt es ein rezeptfreies Medikament für dieses Symptom?", dosage:"Bitte erklären Sie mir, wie ich dieses Medikament einnehmen soll.", prescription:PRESCRIPTION_STATEMENTS.de},
+  it:{help:"Mi aiuti, per favore.", ambulance:"Chiami un'ambulanza, per favore.", hospital:"Devo andare in ospedale.", pharmacy:"Ho bisogno di una farmacia.", pain:"Ho dolore.", allergy:"Ho un'allergia.", medication:"Prendo farmaci.", fever:"Ho la febbre.", stomach:"Ho mal di pancia.", stabbed:"Sono stato ferito da un coltello o da un oggetto.", accident:"Ho avuto un incidente stradale.", pharmacyQ:"C'è un farmaco da banco per questo sintomo?", dosage:"Mi spieghi come prendere questo medicinale.", prescription:PRESCRIPTION_STATEMENTS.it},
+  tr:{help:"Lütfen bana yardım edin.", ambulance:"Lütfen ambulans çağırın.", hospital:"Hastaneye gitmem gerekiyor.", pharmacy:"Eczaneye ihtiyacım var.", pain:"Ağrım var.", allergy:"Alerjim var.", medication:"İlaç kullanıyorum.", fever:"Ateşim var.", stomach:"Karın ağrım var.", stabbed:"Bıçakla veya bir cisimle yaralandım.", accident:"Trafik kazası geçirdim.", pharmacyQ:"Bu belirti için reçetesiz ilaç var mı?", dosage:"Bu ilacı nasıl kullanacağımı söyler misiniz?", prescription:PRESCRIPTION_STATEMENTS.tr},
+  th:{help:"กรุณาช่วยฉันด้วย", ambulance:"กรุณาเรียกรถพยาบาล", hospital:"ฉันต้องไปโรงพยาบาล", pharmacy:"ฉันต้องการร้านขายยา", pain:"ฉันมีอาการปวด", allergy:"ฉันมีอาการแพ้", medication:"ฉันกำลังกินยาอยู่", fever:"ฉันมีไข้", stomach:"ฉันปวดท้อง", stabbed:"ฉันถูกแทงหรือบาดเจ็บจากวัตถุ", accident:"ฉันประสบอุบัติเหตุทางถนน", pharmacyQ:"มียาที่ซื้อได้โดยไม่ต้องมีใบสั่งแพทย์สำหรับอาการนี้ไหม", dosage:"กรุณาบอกวิธีใช้ยานี้", prescription:PRESCRIPTION_STATEMENTS.th},
+  pt:{help:"Por favor, ajude-me.", ambulance:"Por favor, chame uma ambulância.", hospital:"Preciso ir a um hospital.", pharmacy:"Preciso de uma farmácia.", pain:"Estou com dor.", allergy:"Tenho alergia.", medication:"Tomo medicamentos.", fever:"Estou com febre.", stomach:"Estou com dor abdominal.", stabbed:"Fui ferido por uma faca ou objeto.", accident:"Sofri um acidente de trânsito.", pharmacyQ:"Existe algum remédio sem receita para este sintoma?", dosage:"Por favor, explique como tomar este medicamento.", prescription:PRESCRIPTION_STATEMENTS.pt},
+  nl:{help:"Help mij alstublieft.", ambulance:"Bel alstublieft een ambulance.", hospital:"Ik moet naar een ziekenhuis.", pharmacy:"Ik heb een apotheek nodig.", pain:"Ik heb pijn.", allergy:"Ik heb een allergie.", medication:"Ik gebruik medicijnen.", fever:"Ik heb koorts.", stomach:"Ik heb buikpijn.", stabbed:"Ik ben verwond door een mes of voorwerp.", accident:"Ik heb een verkeersongeval gehad.", pharmacyQ:"Is er een vrij verkrijgbaar medicijn voor dit symptoom?", dosage:"Kunt u uitleggen hoe ik dit medicijn moet innemen?", prescription:PRESCRIPTION_STATEMENTS.nl},
+  ms:{help:"Tolong bantu saya.", ambulance:"Tolong panggil ambulans.", hospital:"Saya perlu pergi ke hospital.", pharmacy:"Saya perlukan farmasi.", pain:"Saya sakit.", allergy:"Saya ada alahan.", medication:"Saya sedang mengambil ubat.", fever:"Saya demam.", stomach:"Saya sakit perut.", stabbed:"Saya cedera akibat pisau atau objek.", accident:"Saya mengalami kemalangan jalan raya.", pharmacyQ:"Ada ubat tanpa preskripsi untuk simptom ini?", dosage:"Tolong terangkan cara mengambil ubat ini.", prescription:PRESCRIPTION_STATEMENTS.ms},
+  id:{help:"Tolong bantu saya.", ambulance:"Tolong panggil ambulans.", hospital:"Saya perlu ke rumah sakit.", pharmacy:"Saya perlu apotek.", pain:"Saya merasa sakit.", allergy:"Saya punya alergi.", medication:"Saya sedang minum obat.", fever:"Saya demam.", stomach:"Saya sakit perut.", stabbed:"Saya ditusuk atau terluka oleh benda.", accident:"Saya mengalami kecelakaan lalu lintas.", pharmacyQ:"Apakah ada obat bebas untuk gejala ini?", dosage:"Tolong jelaskan cara minum obat ini.", prescription:PRESCRIPTION_STATEMENTS.id},
+  ar:{help:"من فضلك ساعدني.", ambulance:"من فضلك اتصل بالإسعاف.", hospital:"أحتاج إلى الذهاب إلى المستشفى.", pharmacy:"أحتاج إلى صيدلية.", pain:"لدي ألم.", allergy:"لدي حساسية.", medication:"أتناول دواء.", fever:"لدي حمى.", stomach:"لدي ألم في البطن.", stabbed:"أُصبت بسكين أو بجسم.", accident:"تعرضت لحادث مروري.", pharmacyQ:"هل يوجد دواء بدون وصفة لهذه الأعراض؟", dosage:"من فضلك أخبرني كيف أستخدم هذا الدواء.", prescription:PRESCRIPTION_STATEMENTS.ar},
+  pl:{help:"Proszę mi pomóc.", ambulance:"Proszę wezwać karetkę.", hospital:"Muszę iść do szpitala.", pharmacy:"Potrzebuję apteki.", pain:"Czuję ból.", allergy:"Mam alergię.", medication:"Biorę leki.", fever:"Mam gorączkę.", stomach:"Boli mnie brzuch.", stabbed:"Zostałem zraniony nożem lub przedmiotem.", accident:"Miałem wypadek drogowy.", pharmacyQ:"Czy jest lek bez recepty na ten objaw?", dosage:"Proszę powiedzieć, jak przyjmować ten lek.", prescription:PRESCRIPTION_STATEMENTS.pl},
+  da:{help:"Hjælp mig venligst.", ambulance:"Ring venligst efter en ambulance.", hospital:"Jeg skal på hospitalet.", pharmacy:"Jeg har brug for et apotek.", pain:"Jeg har smerter.", allergy:"Jeg har allergi.", medication:"Jeg tager medicin.", fever:"Jeg har feber.", stomach:"Jeg har mavesmerter.", stabbed:"Jeg er blevet såret af en kniv eller genstand.", accident:"Jeg har været i en trafikulykke.", pharmacyQ:"Findes der håndkøbsmedicin til dette symptom?", dosage:"Forklar venligst, hvordan jeg tager denne medicin.", prescription:PRESCRIPTION_STATEMENTS.da}
 };
 function getBaseLang(id){
   const code = String(getCountryLanguageCode(id) || id || "en").toLowerCase();
@@ -2709,11 +3503,16 @@ function helpPhraseCacheKey(keys, id=localLangId){
   });
 }
 
-function normalizePhraseTranslations(data, keys){
+function normalizePhraseTranslations(data, keys, languageCode){
   const source = data && (data.translations || data.phrases || data);
   const normalized = {};
   keys.forEach((key) => {
-    const value = String((source && source[key]) || "").trim();
+    let value = String((source && source[key]) || "").trim();
+    if(key === "prescription"){
+      const declarative = prescriptionStatementForLanguageCode(languageCode);
+      if(declarative) value = declarative;
+      else if(isQuestionLikePrescription(value)) value = "";
+    }
     if(value) normalized[key] = value;
   });
   return normalized;
@@ -2744,7 +3543,7 @@ async function requestHelpPhraseTranslations(keys, section){
     });
     const data = await res.json().catch(() => ({}));
     if(!res.ok) throw new Error(data.error || data.detail || "translation failed");
-    const normalized = normalizePhraseTranslations(data, keys);
+    const normalized = normalizePhraseTranslations(data, keys, selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId));
     if(keys.some((key) => !normalized[key])) throw new Error("missing translated phrase");
     helpPhraseTranslationCache[cacheKey] = normalized;
     helpPhraseTranslationStatus[cacheKey] = "done";
@@ -2992,9 +3791,16 @@ function setupAppFlowScreens(){
   appendExisting(screenAiResult, "resultSection");
 
   const screenHelp = makeFlowScreen(root, "screen-help-phrases", "현지 도움 문장", "현지 의료진, 약사, 주변 사람에게 보여줄 문장을 확인합니다.");
-  appendExisting(screenHelp, "localPhraseCard");
-  appendExisting(screenHelp, "pharmacyPhraseCard");
-  screenHelp.appendChild(makeFlowNav([{label:"홈으로", attr:'data-flow-screen="screen-home"'}], true));
+  const helpPhrasesScroll = document.createElement("div");
+  helpPhrasesScroll.className = "help-phrases-scroll";
+  appendExisting(helpPhrasesScroll, "localPhraseCard");
+  appendExisting(helpPhrasesScroll, "pharmacyPhraseCard");
+  screenHelp.appendChild(helpPhrasesScroll);
+  const helpPhrasesHomeNav = makeFlowNav([{label:"홈으로", attr:'data-flow-screen="screen-home"'}], true);
+  helpPhrasesHomeNav.classList.add("help-phrases-home-nav");
+  const helpPhrasesHomeBtn = helpPhrasesHomeNav.querySelector("button");
+  if(helpPhrasesHomeBtn) helpPhrasesHomeBtn.id = "helpPhrasesHomeBtn";
+  screenHelp.appendChild(helpPhrasesHomeNav);
 
   const oldMedical = $("medicalCardSection");
   if(oldMedical) oldMedical.classList.add("hidden");
@@ -3187,20 +3993,88 @@ function selectTripCountry(id){
   bindHospitalFinderButtons();
 }
 
+function createCountryOptionCard(item, options={}){
+  const isCompact = options.variant === "compact";
+  const active = hasTripCountrySelection && item.id === tripCountryId;
+  const code = item.countryCode || String(item.id || "").toUpperCase();
+  const flag = countryCodeToFlagEmoji(item.countryCode) || item.flag || "";
+  const countryNameKo = item.countryKo || item.countryNameKo || "";
+  const countryNameEn = item.country || item.countryNameEn || "";
+  if(isCompact){
+    const compactClassName = ["country-card", "country-card--compact", active ? "selected" : ""].filter(Boolean).join(" ");
+    return '<button class="'+compactClassName+'" data-country-card="'+escapeHtml(item.id)+'" data-country-code="'+escapeHtml(code)+'" data-card-variant="compact" type="button" aria-label="'+escapeHtml([countryNameKo, countryNameEn, "선택"].filter(Boolean).join(", "))+'" aria-pressed="'+String(active)+'">'+
+      '<span class="country-card__flag" aria-hidden="true">'+escapeHtml(flag)+'</span>'+
+      '<span class="country-card__compact-text">'+
+        '<span class="country-card__name-ko">'+escapeHtml(countryNameKo)+'</span>'+
+        '<span class="country-card__name-en">'+escapeHtml(countryNameEn)+'</span>'+
+      '</span>'+
+    '</button>';
+  }
+  const display = getCountryListEmergencyDisplay(item);
+  const stateClass = active ? "active" : "";
+  const className = ["lang-btn", "country-option-card", stateClass].filter(Boolean).join(" ");
+  const emergencyHtml = display.number
+    ? '<span class="country-option-card__emergency"><span class="country-option-card__emergency-label">'+escapeHtml(display.label)+'</span><strong class="country-option-card__emergency-number">'+escapeHtml(display.number)+'</strong></span>'
+    : '<span class="country-option-card__emergency is-unavailable">응급번호 확인 필요</span>';
+  const metaHtml = display.additionalBadgeLabel
+    ? '<span class="country-option-card__meta"><span class="country-option-card__meta-badge">'+escapeHtml(display.additionalBadgeLabel)+'</span></span>'
+    : "";
+  const noticeHtml = display.compactNotice
+    ? '<span class="country-option-card__notice">'+escapeHtml(display.compactNotice)+'</span>'
+    : "";
+  const statusAria = display.statusLabel === "정식"
+    ? "정식 지원"
+    : display.statusLabel === "조건부"
+      ? "조건부 지원"
+      : display.statusLabel;
+  const ariaLabel = [
+    countryNameKo,
+    countryNameEn,
+    display.number ? display.label+" "+display.number : "응급번호 확인 필요",
+    display.additionalBadgeLabel ? display.additionalBadgeLabel+" 있음" : "",
+    display.compactNotice ? display.compactNotice+" 필요" : "",
+    statusAria
+  ].filter(Boolean).join(", ");
+  return '<button class="'+className+'" data-trip-country="'+escapeHtml(item.id)+'" data-country-code="'+escapeHtml(code)+'" data-card-variant="detailed" data-list-emergency-number="'+escapeHtml(display.number)+'" type="button" aria-label="'+escapeHtml(ariaLabel)+'">'+
+    '<span class="country-option-card__identity">'+
+      '<span class="country-option-card__flag" aria-hidden="true">'+escapeHtml(flag)+'</span>'+
+      '<span class="country-option-card__code">'+escapeHtml(code)+'</span>'+
+    '</span>'+
+    '<span class="country-option-card__content">'+
+      '<span class="country-option-card__name-ko">'+escapeHtml(countryNameKo)+'</span>'+
+      '<span class="country-option-card__name-en">'+escapeHtml(countryNameEn)+'</span>'+
+      emergencyHtml+metaHtml+noticeHtml+
+    '</span>'+
+    '<span class="country-option-card__status"><span class="support-badge '+escapeHtml(display.statusClass)+'">'+escapeHtml(display.statusLabel)+'</span></span>'+
+  '</button>';
+}
+
 function renderCountryQuickGrid(){
   const el = $("countryQuickGrid");
   if(!el) return;
-  const priority = ["ja","en-us","vi","th","fr","es","it","en-gb","zh","en-sg"];
-  const quick = priority.map(id => languageOptions.find(item => item.id === id)).filter(Boolean);
-  const list = quick.length ? quick : languageOptions.slice(0,10);
-  el.innerHTML = list.map(item =>
-    '<button class="country-card '+(item.id===tripCountryId?'selected':'')+'" data-country-card="'+item.id+'" type="button" aria-label="'+escapeHtml(item.countryKo)+' 선택">'+
-      '<span class="country-flag">'+item.flag+'</span>'+
-      '<span class="country-name">'+escapeHtml(item.countryKo)+'</span>'+
-      '<span class="country-sub">'+escapeHtml(item.languageKo)+' · '+escapeHtml(getEmergencyNumber(item.id))+'</span>'+
-    '</button>'
-  ).join("");
+  const publicOptions = getPublicCountryOptions();
+  const list = POPULAR_COUNTRY_CODES
+    .map(code => publicOptions.find(item => String(item.countryCode || "").toUpperCase() === code))
+    .filter(Boolean);
+  el.innerHTML = list.map(item => createCountryOptionCard(item, {variant:"compact"})).join("");
   document.querySelectorAll("[data-country-card]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.countryCard))));
+}
+
+function toggleAllPriorityCountries(){
+  const button = $("toggleAllCountriesBtn");
+  if(!button) return;
+  const expanded = button.getAttribute("aria-expanded") !== "true";
+  button.setAttribute("aria-expanded", String(expanded));
+  renderLanguageList();
+  const scroll = $("countrySelectScroll");
+  if(scroll) scroll.scrollTop = 0;
+}
+
+function handleLanguageSearchInput(){
+  const input = $("languageSearch");
+  const button = $("toggleAllCountriesBtn");
+  if(input && button && !input.value.trim()) button.setAttribute("aria-expanded", "false");
+  renderLanguageList();
 }
 
 function countryNoticeHtml(item){
@@ -3230,32 +4104,62 @@ function renderLanguageList(){
   const q = rawQuery.toLowerCase();
   const normalizedQ = normalizeCountryText(rawQuery);
   const publicOptions = getPublicCountryOptions();
+  const popularSection = $("popularCountrySection");
+  const toggleButton = $("toggleAllCountriesBtn");
+  const isSearching = Boolean(rawQuery);
+  const isExpanded = toggleButton && toggleButton.getAttribute("aria-expanded") === "true";
+  const showCountryList = isSearching || isExpanded;
+  const isExactCountryCodeQuery = /^[a-z]{2}$/i.test(rawQuery);
+  const exactCountryMatches = q ? publicOptions.filter(item => {
+    const exactCandidates = [
+      item.countryKo,
+      item.countryNameKo,
+      item.country,
+      item.countryNameEn,
+      item.countryCode,
+      ...(Array.isArray(item.aliasesKo) ? item.aliasesKo : []),
+      ...(Array.isArray(item.aliasesEn) ? item.aliasesEn : [])
+    ].filter(Boolean);
+    return exactCandidates.some(value => String(value).toLowerCase() === q || normalizeCountryText(value) === normalizedQ);
+  }) : [];
   const list = q
-    ? publicOptions.filter(item => countrySearchCandidates(item).some(v => String(v).toLowerCase().includes(q) || normalizeCountryText(v).includes(normalizedQ)))
+    ? (exactCountryMatches.length
+        ? exactCountryMatches
+        : publicOptions.filter(item => isExactCountryCodeQuery
+          ? String(item.countryCode || "").toLowerCase() === q
+          : countrySearchCandidates(item).some(v => String(v).toLowerCase().includes(q) || normalizeCountryText(v).includes(normalizedQ))))
     : publicOptions;
 
   const grid = $("languageGrid");
+  const countrySelectScreen = $("screen-country-select");
+  const scroll = $("countrySelectScroll");
   if(!grid) return;
+  if(countrySelectScreen){
+    countrySelectScreen.classList.toggle("country-select--popular", !showCountryList);
+    countrySelectScreen.classList.toggle("country-select--detailed", showCountryList);
+  }
+  if(popularSection){
+    popularSection.hidden = isSearching;
+    popularSection.classList.toggle("country-popular-state--expanded", Boolean(isExpanded && !isSearching));
+  }
+  if(toggleButton){
+    toggleButton.hidden = isSearching;
+    toggleButton.textContent = isExpanded ? "자주 찾는 국가로 돌아가기" : "전체 62개 국가 보기";
+  }
+  grid.hidden = !showCountryList;
+  if(!showCountryList){
+    grid.innerHTML = "";
+    renderCountryQuickGrid();
+    if(scroll) scroll.scrollTop = 0;
+    return;
+  }
   if(!list.length){
-    grid.innerHTML = '<div class="notice amber">우선 지원 62개 국가·지역 안에서 검색 결과가 없습니다. 국가명, 지역명 또는 언어명을 다시 입력해 주세요.</div>';
+    grid.innerHTML = '<div class="notice amber">우선 지원 62개 국가·지역 안에서 검색 결과가 없습니다. 국가명 또는 국가 코드를 다시 입력해 주세요.</div>';
     return;
   }
   grid.innerHTML =
-    '<div class="country-list-notice"><span style="font-size:24px">🌐</span><span><strong>우선 지원 '+publicOptions.length+'개 국가·지역</strong><br>여행 설정과 현지 도움 문장이 함께 제공됩니다.</span></div>' +
-    list.map(item => {
-      const active = hasTripCountrySelection && item.id===tripCountryId;
-      const supportLimited = isLimitedEmergencySupport(item);
-      const code = item.countryCode || String(item.id || "").toUpperCase();
-      return '<button class="lang-btn '+(active?'active':'')+'" data-trip-country="'+item.id+'" type="button">'+
-        '<span class="country-code-chip">'+escapeHtml(code)+'</span>'+
-        '<span class="country-texts">'+
-          '<span class="country-name-ko">'+escapeHtml(item.countryKo)+'</span>'+
-          '<span class="country-name-en">'+escapeHtml(item.country)+'</span>'+
-          '<span class="country-emergency">응급번호 '+escapeHtml(getEmergencyNumber(item.id))+'</span>'+
-        '</span>'+
-        '<span class="support-badge '+(supportLimited ? "limited" : "supported")+'">'+(supportLimited ? "제한" : "정식")+'</span>'+
-      '</button>';
-    }).join("");
+    '<div class="country-results-heading"><strong>'+(isSearching ? "검색 결과" : "전체 "+publicOptions.length+"개 국가·지역")+'</strong><span>'+(isSearching ? list.length+"개" : "가나다순")+'</span></div>' +
+    list.map(item => createCountryOptionCard(item, {variant:"detailed"})).join("");
 
   document.querySelectorAll("[data-trip-country]").forEach(btn => btn.addEventListener("click", () => safe(() => selectTripCountry(btn.dataset.tripCountry))));
 }
@@ -3264,30 +4168,44 @@ function renderLanguagePage(){
   const tripOpt=getTripOption(), localOpt=getLocalOption();
   $("chooseTitle").textContent="선택 국가 확인";
   $("chooseDesc").textContent="선택한 국가/지역의 현지어와 응급번호를 확인한 뒤 서비스를 시작하세요.";
-  $("currentLangLabel").textContent="선택한 국가/지역";
   const hasTrip = !!hasTripCountrySelection;
   const emergencyData = getEmergencyNumbersData(tripOpt);
-  const sourceText = hasTrip && emergencyData ? [
-    emergencyData.sourceName ? "출처: "+emergencyData.sourceName : "",
-    emergencyData.lastVerified ? "확인일: "+emergencyData.lastVerified : ""
-  ].filter(Boolean).join(" · ") : "";
+  const languageNameKo = localOpt.languageNameKo || localOpt.languageKo || "";
+  const languageNative = localOpt.languageNative || localOpt.native || localOpt.languageNameEn || "";
+  const languageLabel = [languageNameKo, languageNative].filter((value, index, values) => value && values.indexOf(value) === index).join(" · ");
   $("tripSummaryPanel").classList.toggle("summary-empty", !hasTrip);
-  $("selectedFlag").textContent=hasTrip ? (tripOpt.countryCode || tripOpt.id || "").toUpperCase() : "✈️";
+  const selectedFlag = $("selectedFlag");
+  const selectedFlagEmoji = hasTrip ? countryCodeToFlagEmoji(tripOpt.countryCode) : "";
+  selectedFlag.textContent=hasTrip ? (selectedFlagEmoji || (tripOpt.countryCode || tripOpt.id || "").toUpperCase()) : "✈️";
+  if(hasTrip && selectedFlagEmoji){
+    selectedFlag.setAttribute("role", "img");
+    selectedFlag.setAttribute("aria-label", (tripOpt.countryKo || "선택 국가")+" 국기");
+  }else{
+    selectedFlag.removeAttribute("role");
+    selectedFlag.removeAttribute("aria-label");
+  }
+  $("currentLangLabel").textContent=hasTrip ? String(tripOpt.countryCode || "").toUpperCase() : "--";
   $("selectedNative").textContent=hasTrip ? tripOpt.countryKo : "아직 여행 국가/지역을 선택하지 않았습니다.";
   $("selectedCountry").innerHTML=hasTrip
-    ? '<div class="country-summary-detail">'+
-        '<div><span>영어명</span><strong>'+escapeHtml(tripOpt.country || "")+'</strong></div>'+
-        '<div><span>현지어</span><strong>'+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+'</strong></div>'+
-        '<div><span>대표 응급번호</span><strong>'+escapeHtml(getTripEmergencyNumber())+'</strong></div>'+
-        supportStatusHtml(emergencyData)+
-        '<div class="country-summary-note small muted">응급 상황에서는 현지 응급번호와 가까운 의료기관의 도움을 우선하세요.</div>'+
-        (sourceText ? '<details class="small muted"><summary style="cursor:pointer;font-weight:950">출처와 확인일 보기</summary><div style="margin-top:4px">'+escapeHtml(sourceText)+'</div></details>' : '')+
-        countryNoticeHtml(tripOpt)+
-      '</div>'
+    ? '<p class="country-summary-english">'+escapeHtml(tripOpt.country || tripOpt.countryNameEn || "")+'</p>'+
+        '<p class="country-summary-language">'+escapeHtml(languageLabel)+'</p>'+
+        emergencyRoleRowsHtml(emergencyData)+
+        emergencyConditionsHtml(emergencyData, "country-summary-conditions")+
+        '<div class="country-summary-support">'+
+          supportStatusHtml(emergencyData)+
+          '<p class="country-summary-scope">응급번호, 현지 문장, 의료카드, 위치 기반 기관 검색을 제공합니다.</p>'+
+        '</div>'+
+        '<div class="country-summary-meta">'+
+          '<div><span>출처</span><strong>'+escapeHtml((emergencyData && emergencyData.sourceName) || "확인 필요")+'</strong></div>'+
+          '<div><span>확인일</span><strong>'+escapeHtml((emergencyData && emergencyData.lastVerified) || "확인 필요")+'</strong></div>'+
+        '</div>'+
+        '<hr class="country-summary-divider">'+
+        '<p class="country-summary-safety"><span>응급 상황에서는 앱 안내보다 현지 응급기관의 지시를 우선하세요.</span><span>번호가 연결되지 않으면 숙소나 주변 사람에게 즉시 도움을 요청하세요.</span></p>'+
+        countryNoticeHtml(tripOpt)
     : "우선 지원 62개 국가/지역 목록에서 여행 국가 또는 지역을 선택하세요.";
   $("startBtn").disabled=!hasTrip;
   $("startBtn").innerHTML=hasTrip ? "서비스 시작" : "우선 지원 국가/지역에서 여행지를 선택하세요";
-  $("languageSearch").placeholder="우선 지원 국가명, 지역명, 영어명, 언어명으로 검색";
+  $("languageSearch").placeholder="국가명 또는 국가 코드 검색";
   renderSetupSelects();
   syncInitialTripInputs(false);
   renderSetupFlowStatus();
@@ -3300,24 +4218,34 @@ function renderAppFlowSummary(){
   const tripOpt = getTripOption();
   const localOpt = getLocalOption();
   const emergencyLabel = getTripEmergencyNumber();
+  const supportMeta = emergencySupportMeta(getEmergencyNumbersData(tripOpt));
   el.innerHTML =
     '<div class="between">'+
       '<div><p class="eyebrow" style="margin-bottom:4px">Current Flow</p><h3 style="margin:0">'+escapeHtml((tripCountryName || tripOpt.countryKo || "여행 국가 미선택"))+'에서 필요한 기능을 선택하세요</h3></div>'+
-      '<span class="support-badge '+(isLimitedEmergencySupport(tripOpt) ? "limited" : "supported")+'">'+(isLimitedEmergencySupport(tripOpt) ? "제한 지원" : "정식 지원")+'</span>'+
+      '<span class="support-badge '+supportMeta.className+'">'+supportMeta.label+'</span>'+
     '</div>'+
     '<p class="home-helper">현지어: '+escapeHtml(localOpt.languageNameKo || localOpt.languageKo || localOpt.native || "")+' · 응급번호: '+escapeHtml(emergencyLabel)+'</p>';
 }
 function renderServices(){
   const tx=t();
-  $("serviceSelectTitle").textContent=tx.serviceSelect;
+  $("serviceSelectTitle").textContent="어떤 도움이 필요한가요?";
   renderAppFlowSummary();
   const homeServiceKeys = ["symptom","phrases","medicalCard","hospital","pharmacy","emergency"];
-  const homeServices = services.filter(s => homeServiceKeys.includes(s.key));
+  const homeServices = homeServiceKeys.map(key => services.find(service => service.key === key)).filter(Boolean);
+  const currentEmergencyNumber = getCurrentEmergencyDialNumber("primary");
+  const serviceDescriptions = {
+    symptom: "증상에 따른 응급도와 다음 행동 참고 안내",
+    phrases: "의료진에게 바로 보여주기",
+    medicalCard: "건강 정보를 한 장에",
+    hospital: "현재 위치에서 거리순",
+    pharmacy: "현재 위치에서 거리순",
+    emergency: currentEmergencyNumber ? currentEmergencyNumber+"로 즉시 전화" : "응급번호 확인 필요"
+  };
   $("serviceGrid").innerHTML = homeServices.map(s => {
     const recommended = s.key === "symptom";
     return '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button">'+
-      '<div class="service-icon">'+s.icon+'</div>'+
-      '<div class="service-copy"><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+tx[s.descKey]+'</p></div>'+
+      '<div class="service-icon" aria-hidden="true">'+s.icon+'</div>'+
+      '<div class="service-copy"><h3>'+tx[s.titleKey]+'</h3><p class="small muted">'+escapeHtml(serviceDescriptions[s.key] || tx[s.descKey])+'</p></div>'+
       (recommended ? '<span class="service-badge">추천</span>' : '<span class="service-arrow">›</span>')+
     '</button>';
   }).join("");
@@ -3751,14 +4679,27 @@ function startGpsAfterConsent(type, recommendation=null){
   renderFacilityList();
   setStatus("GPS 확인 중...");
 
-  const fallbackToTripPlace = async () => useTripPlaceForLocation(type, recommendation);
+  const showGpsError = () => {
+    isLoading=false;
+    facilities=[];
+    locationData=null;
+    const message = "현재 위치를 확인할 수 없습니다. 브라우저 설정에서 위치 권한을 허용한 뒤 다시 시도해 주세요.";
+    setStatus(message);
+    $("facilityList").innerHTML =
+      '<div class="notice amber">'+message+'</div>'+
+      '<div class="two">'+
+        '<button id="retryCurrentLocationBtn" class="btn primary w-full" type="button">다시 시도</button>'+
+        '<button class="btn outline w-full" type="button" data-flow-screen="screen-home">홈으로</button>'+
+      '</div>';
+    on("retryCurrentLocationBtn", "click", () => requestGps(type, recommendation));
+  };
 
-  if(!window.isSecureContext){ fallbackToTripPlace(); return; }
-  if(!navigator.geolocation){ fallbackToTripPlace(); return; }
+  if(!window.isSecureContext){ showGpsError(); return; }
+  if(!navigator.geolocation){ showGpsError(); return; }
 
   navigator.geolocation.getCurrentPosition(
     pos=>applyLocation(type,{latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,source:"gps"},"GPS OK.", recommendation),
-    err=>fallbackToTripPlace(),
+    err=>showGpsError(),
     {enableHighAccuracy:true,timeout:10000,maximumAge:15000}
   );
 }
@@ -3929,7 +4870,7 @@ function escapeHtml(v){ return String(v||"").replace(/[&<>"']/g, c => ({'&':'&am
 
 
 function phraseTitleKo(key){
-  const labels={help:"도움 요청", ambulance:"구급차 요청", hospital:"병원 요청", pharmacy:"약국 요청", pain:"통증 설명", allergy:"알레르기", medication:"복용약", fever:"발열", stomach:"복통", stabbed:"찔림/상처", accident:"교통사고", pharmacyQ:"일반의약품 상담", dosage:"복용 방법", prescription:"처방전 확인"};
+  const labels={help:"도움 요청", ambulance:"구급차 요청", hospital:"병원 요청", pharmacy:"약국 요청", pain:"통증 설명", allergy:"알레르기", medication:"복용약", fever:"발열", stomach:"복통", stabbed:"찔림/상처", accident:"교통사고", pharmacyQ:"일반의약품 상담", dosage:"복용 방법", prescription:"처방전 필요"};
   return labels[key] || key;
 }
 function phraseBox(title, localText, userText){
@@ -4367,6 +5308,8 @@ function renderEmergencyInfoCard(){
 function renderPharmacyPhraseCard(){
   if(!$("pharmacyPhraseList")) return;
   const userPack=getPhrasePack("ko"), localOpt=getLocalOption();
+  const selectedCountry=getSelectedCountryForTranslation();
+  const prescriptionLanguageCode=selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId);
   $("pharmacyPhraseTitle").textContent="약국에서 보여줄 문장 · "+localOpt.native;
   const keys=["pharmacy","pharmacyQ","dosage","prescription","allergy","medication","fever","stomach"];
   const translated = getTranslatedPhrasePack(keys, "pharmacy");
@@ -4376,7 +5319,12 @@ function renderPharmacyPhraseCard(){
       ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>'
       : "";
   const pack = translated.pack || phrasePacks.ko;
-  $("pharmacyPhraseList").innerHTML = notice + keys.map(k => phraseBox(k, pack[k] || phrasePacks.ko[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
+  $("pharmacyPhraseList").innerHTML = notice + keys.map(k => {
+    const localText = k === "prescription"
+      ? (prescriptionStatementForLanguageCode(prescriptionLanguageCode) || pack[k] || phrasePacks.ko[k] || phrasePacks.en[k])
+      : (pack[k] || phrasePacks.ko[k] || phrasePacks.en[k]);
+    return phraseBox(k, localText, userPack[k] || phrasePacks.ko[k] || "");
+  }).join("");
 }
 function hideFeatureSections(){
   ["localPhraseCard","medicalCardSection","emergencyInfoCard","pharmacyPhraseCard","hospitalFinderCard","infoGuideCard"].forEach(id=>{ const el=$(id); if(el) el.classList.add("hidden"); });
@@ -5765,33 +6713,33 @@ function uniqueList(items){
 }
 
 function callEmergencyNumber(){
-  openCurrentEmergencyDialer("primary", {fallbackToScreen:false});
+  openCurrentEmergencyDialer("ambulance", {fallbackToScreen:false});
 }
 
 function normalizeEmergencyDialNumber(raw){
   const text = String(raw || "").trim();
   if(!text || text === "현지 응급번호 확인 필요" || !/\d/.test(text)) return "";
-  const first = text.split(/\s*(?:\/|,|;|\||또는|\bor\b)\s*/i).find(part => /\d/.test(part)) || "";
-  let number = first.replace(/[^\d+]/g, "");
+  if(/\s*(?:\/|,|;|\||또는|\bor\b)\s*/i.test(text)) return "";
+  let number = text.replace(/[^\d+]/g, "");
   if(!number || !/\d/.test(number)) return "";
   const hasLeadingPlus = number.charAt(0) === "+";
   number = number.replace(/\+/g, "");
   return hasLeadingPlus ? "+" + number : number;
 }
 
+function getEmergencyDialNumber(item, type="primary", alternateIndex=0){
+  const data = getEmergencyNumbersData(item);
+  if(!data || data.status === "needs-verification") return "";
+  if(type === "alternate"){
+    const alternate = emergencyAlternates(data)[alternateIndex];
+    return resolveEmergencyDialNumberValue(alternate && alternate.number);
+  }
+  return resolveEmergencyDialNumberValue(data[type]);
+}
+
 function getCurrentEmergencyDialNumber(type="primary"){
   const opt = getTripOption();
-  const data = getEmergencyNumbersData(opt);
-  if(data && data.status === "needs-verification") return "";
-  const legacy = opt && opt.emergencyNumber;
-  const values = type === "ambulance"
-    ? [data && data.ambulance, data && data.primary, legacy]
-    : [data && data.primary, data && data.ambulance, legacy];
-  for(const value of values){
-    const normalized = normalizeEmergencyDialNumber(value);
-    if(normalized) return normalized;
-  }
-  return "";
+  return getCountryEmergencyDialNumber(opt, type);
 }
 
 function showEmergencyDialUnavailable(fallbackToScreen=true){
@@ -5808,6 +6756,11 @@ function showEmergencyDialUnavailable(fallbackToScreen=true){
 
 function openCurrentEmergencyDialer(type="primary", opts={}){
   const number = getCurrentEmergencyDialNumber(type);
+  return openEmergencyDialNumber(number, opts);
+}
+
+function openEmergencyDialNumber(raw, opts={}){
+  const number = normalizeEmergencyDialNumber(raw);
   if(number){
     window.location.href = "tel:" + number;
     setStatus("현지 응급번호 전화 앱을 열었습니다. 연결되지 않으면 번호를 직접 입력하세요: "+number);
@@ -5911,7 +6864,7 @@ function showEmergency(){
 function hideEmergency(){ $("emergencyModal").classList.add("hidden"); }
 function agreeEmergency(){
   hideEmergency();
-  callEmergencyNumber();
+  openCurrentEmergencyDialer("primary", {fallbackToScreen:false});
 }
 
 function showSpeech(msg){ $("speechStatus").textContent=msg; $("speechStatus").classList.remove("hidden"); }
@@ -5933,20 +6886,36 @@ function initAllLanguageTestPanel(){
     languageOptions,
     priorityLanguageOptions,
     priorityCountryCodes: PRIORITY_COUNTRY_CODES.slice(),
+    popularCountryCodes: POPULAR_COUNTRY_CODES.slice(),
     phrasePacks,
+    prescriptionSourceKo: PRESCRIPTION_SOURCE_KO,
+    prescriptionStatements: {...PRESCRIPTION_STATEMENTS},
+    getEmergencyNumbersData,
+    getEmergencyDialNumber,
+    getCurrentEmergencyDialNumber,
+    getCountryEmergencyDialNumber,
+    getCountryListEmergencyDisplay,
+    emergencyDialNumberCandidates,
+    resolveEmergencyDialNumberValue,
+    resolveEmergencyDialNumberValues,
+    normalizeEmergencyDialNumber,
+    emergencyRoleRows,
+    emergencyListDisplay,
     escapeHtml
   };
 }
 
 
 function init(){
+  initAppViewportHeightSync();
   setupAppFlowScreens();
   bindFlowNavigation();
   on("startBtn","click",showApp);
   on("changeLangBtn","click",showLanguage);
   on("appCountryPill","click",showLanguage);
   on("headerEmergencyBtn","click",()=>openCurrentEmergencyDialer("ambulance"));
-  on("languageSearch","input",renderLanguageList);
+  on("languageSearch","input",handleLanguageSearchInput);
+  on("toggleAllCountriesBtn","click",toggleAllPriorityCountries);
   on("userLangSelect","change",e=>{ selected="ko"; renderLanguagePage(); });
   on("tripCountrySelect","change",e=>{
     tripCountryId=e.target.value;
@@ -5990,6 +6959,12 @@ function init(){
   });
   on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",()=>{ saveMedicalCard(); showFlowScreen("screen-medical-result"); }); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency); on("flowEmergencyConfirmBtn","click",showEmergency); on("agreeLocationBtn","click",agreeLocationConsent); on("manualLocationBtn","click",chooseManualLocation);
   $("emergencyModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="emergencyModal") hideEmergency(); }));
+  document.addEventListener("click", e=>safe(()=>{
+    const button = e.target && e.target.closest ? e.target.closest("[data-emergency-dial-number]") : null;
+    if(!button) return;
+    e.preventDefault();
+    openEmergencyDialNumber(button.getAttribute("data-emergency-dial-number"), {fallbackToScreen:false});
+  }));
   $("locationConsentModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="locationConsentModal") hideLocationConsent(); }));
   document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{
     if(btn.dataset.nav === "serviceSection") showFlowScreen("screen-home");
