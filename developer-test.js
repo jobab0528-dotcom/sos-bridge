@@ -741,6 +741,98 @@
       return rows;
     }
 
+    const popularCountryAuditCodes = Array.isArray(context.popularCountryCodes)
+      ? context.popularCountryCodes.slice()
+      : ["JP","US","TH","VN","CN","FR","GB","AU"];
+
+    function rectsOverlap(first, second){
+      if(!first || !second) return false;
+      return Math.max(0, Math.min(first.right, second.right) - Math.max(first.left, second.left))
+        * Math.max(0, Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)) > 0.25;
+    }
+
+    function runPopularCountryCompactAudit(){
+      const input = $("languageSearch");
+      const toggle = $("toggleAllCountriesBtn");
+      const scroll = $("countrySelectScroll");
+      const popularGrid = $("countryQuickGrid");
+      const detailedGrid = $("languageGrid");
+      const originalQuery = input ? input.value : "";
+      const originalExpanded = toggle ? toggle.getAttribute("aria-expanded") : "false";
+      const reasons = [];
+
+      if(input) input.value = "";
+      if(toggle) toggle.setAttribute("aria-expanded", "false");
+      if(input) input.dispatchEvent(new Event("input", {bubbles:true}));
+
+      const compactCards = popularGrid ? [...popularGrid.querySelectorAll('[data-card-variant="compact"]')] : [];
+      const compactCodes = compactCards.map((card) => card.getAttribute("data-country-code"));
+      const gridColumns = popularGrid ? getComputedStyle(popularGrid).gridTemplateColumns.split(" ").filter(Boolean) : [];
+      const compactRects = compactCards.map((card) => card.getBoundingClientRect());
+      const compactOverlap = compactRects.some((rect, index) => compactRects.slice(index + 1).some((other) => rectsOverlap(rect, other)));
+      const textOutside = compactCards.some((card) => {
+        const cardRect = card.getBoundingClientRect();
+        return [...card.querySelectorAll(".country-card__name-ko,.country-card__name-en")].some((node) => {
+          const rect = node.getBoundingClientRect();
+          return rect.left < cardRect.left - 0.5 || rect.right > cardRect.right + 0.5 || rect.top < cardRect.top - 0.5 || rect.bottom > cardRect.bottom + 0.5;
+        });
+      });
+
+      if(JSON.stringify(compactCodes) !== JSON.stringify(popularCountryAuditCodes)) reasons.push("인기 국가 코드 또는 순서 불일치");
+      if(compactCards.length !== 8) reasons.push("compact 카드 8개 아님");
+      if(gridColumns.length !== 2) reasons.push("초기 grid 2열 아님");
+      if(compactCards.some((card) => card.querySelector(".country-option-card__emergency,[data-list-emergency-number]"))) reasons.push("compact 카드에 응급번호 DOM 존재");
+      if(compactCards.some((card) => card.querySelector(".country-option-card__status,.support-badge"))) reasons.push("compact 카드에 상태 badge 존재");
+      if(compactCards.some((card) => card.querySelector(".country-option-card__meta,.country-option-card__meta-badge"))) reasons.push("compact 카드에 추가 번호 badge 존재");
+      if(compactCards.some((card) => !card.querySelector(".country-card__flag") || !card.querySelector(".country-card__name-ko") || !card.querySelector(".country-card__name-en") || !card.getAttribute("data-country-code"))) reasons.push("compact 필수 국가 정보 누락");
+      if(compactOverlap) reasons.push("compact 카드 겹침");
+      if(textOutside) reasons.push("compact 카드 텍스트 이탈");
+      if(scroll && scroll.scrollHeight > scroll.clientHeight + 1) reasons.push("초기 화면 내부 스크롤 필요");
+      if(toggle && (toggle.hidden || toggle.getBoundingClientRect().bottom > $("screen-country-select").getBoundingClientRect().bottom + 0.5)) reasons.push("전체 목록 버튼 미노출");
+
+      if(input){
+        input.value = "FR";
+        input.dispatchEvent(new Event("input", {bubbles:true}));
+      }
+      const searchCards = detailedGrid ? [...detailedGrid.querySelectorAll('[data-card-variant="detailed"]')] : [];
+      if(searchCards.length !== 1 || searchCards[0].getAttribute("data-country-code") !== "FR") reasons.push("검색 detailed 카드 회귀");
+      if(searchCards.length && (!searchCards[0].querySelector(".country-option-card__emergency-number") || !searchCards[0].querySelector(".country-option-card__status"))) reasons.push("검색 detailed 정보 누락");
+
+      if(input){
+        input.value = "";
+        input.dispatchEvent(new Event("input", {bubbles:true}));
+      }
+      const restoredCards = popularGrid ? [...popularGrid.querySelectorAll('[data-card-variant="compact"]')] : [];
+      if(restoredCards.length !== 8 || (scroll && scroll.scrollTop !== 0)) reasons.push("검색 해제 후 compact 복원 실패");
+
+      if(toggle) toggle.click();
+      const fullCards = detailedGrid ? [...detailedGrid.querySelectorAll('[data-card-variant="detailed"]')] : [];
+      if(fullCards.length !== 62) reasons.push("전체 목록 detailed 카드 62개 아님");
+      if(scroll && scroll.scrollHeight <= scroll.clientHeight + 1) reasons.push("전체 목록 내부 스크롤 미동작");
+      if(toggle) toggle.click();
+
+      if(input) input.value = originalQuery;
+      if(toggle) toggle.setAttribute("aria-expanded", originalExpanded || "false");
+      if(input) input.dispatchEvent(new Event("input", {bubbles:true}));
+
+      const result = {
+        result:reasons.length ? "BLOCK" : "PASS",
+        compactCount:compactCards.length,
+        codes:compactCodes,
+        columns:gridColumns.length,
+        compactOverlap:Number(compactOverlap),
+        textOutside:Number(textOutside),
+        initialScrollNeeded:scroll ? Number(scroll.scrollHeight > scroll.clientHeight + 1) : 1,
+        searchDetailedCount:searchCards.length,
+        restoredCompactCount:restoredCards.length,
+        fullDetailedCount:fullCards.length,
+        reasons
+      };
+      const summary = $("sos-popular-country-audit-summary");
+      if(summary) summary.textContent = "인기 국가 compact 검사: "+result.result+" · 카드 "+result.compactCount+"개 · "+result.columns+"열 · 겹침 "+result.compactOverlap+" · 텍스트 이탈 "+result.textOutside+" · 검색 detailed "+result.searchDetailedCount+"개 · 전체 detailed "+result.fullDetailedCount+"개 · 실제 전화 0회";
+      return result;
+    }
+
     const compoundEmergencySeparatorPattern = /\s*(?:\/|,|;|\||또는|\bor\b)\s*/i;
     const emergencyDialNumberCandidates = typeof context.emergencyDialNumberCandidates === "function"
       ? context.emergencyDialNumberCandidates
@@ -892,7 +984,7 @@
         '<section id="sos-country-list-card-audit-panel" class="card" style="margin-top:18px">'+
           '<p class="eyebrow" style="margin-bottom:6px">Country List Card QA</p>'+
           '<h2 style="margin-top:0">국가 목록 대표번호·badge 검사</h2>'+
-          '<p class="small muted" style="line-height:1.6">12개 주요 국가의 목록 formatter와 ambulance resolver 반환값을 API·전화 실행 없이 비교합니다.</p>'+
+          '<p class="small muted" style="line-height:1.6">13개 주요 국가의 목록 formatter와 ambulance resolver 반환값을 API·전화 실행 없이 비교합니다.</p>'+
           '<button id="run-country-list-card-audit" class="btn outline w-full" type="button">국가 목록 카드 정적 검사 실행</button>'+
           '<div id="sos-country-list-card-audit-summary" class="notice teal small" style="margin-top:12px">국가 목록 카드 검사: 아직 실행하지 않음</div>'+
           '<div style="overflow:auto;margin-top:12px">'+
@@ -903,6 +995,12 @@
                 '<th style="padding:9px;border:1px solid var(--border)">compactNotice</th><th style="padding:9px;border:1px solid var(--border)">상태</th><th style="padding:9px;border:1px solid var(--border)">resolver</th><th style="padding:9px;border:1px solid var(--border)">결과</th>'+
               '</tr></thead><tbody id="sos-country-list-card-audit-rows"></tbody>'+
             '</table>'+
+          '</div>'+
+          '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">'+
+            '<h3 style="margin:0">인기 국가 compact 카드 검사</h3>'+
+            '<p class="small muted" style="line-height:1.6">초기 8개 카드, 2열 grid, compact 정보 밀도와 검색·전체 목록 detailed 복원을 검사합니다.</p>'+
+            '<button id="run-popular-country-audit" class="btn outline w-full" type="button">인기 국가 compact 검사 실행</button>'+
+            '<div id="sos-popular-country-audit-summary" class="notice teal small" style="margin-top:12px">인기 국가 compact 검사: 아직 실행하지 않음</div>'+
           '</div>'+
           '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">'+
             '<h3 style="margin:0">복합 응급번호 전수 검사</h3>'+
@@ -925,13 +1023,21 @@
       if(button) button.addEventListener("click", runCountryListCardAudit);
       const compoundButton = $("run-compound-number-audit");
       if(compoundButton) compoundButton.addEventListener("click", runCompoundEmergencyNumberAudit);
+      const popularButton = $("run-popular-country-audit");
+      if(popularButton) popularButton.addEventListener("click", runPopularCountryCompactAudit);
     }
 
     window.SOS_BRIDGE_COUNTRY_LIST_CARD_AUDIT_DEV = {
       targets:countryListCardAuditTargets,
       evaluate:evaluateCountryListCard,
       runMock:runCountryListCardAudit,
-      runCompound:runCompoundEmergencyNumberAudit
+      runCompound:runCompoundEmergencyNumberAudit,
+      runPopular:runPopularCountryCompactAudit
+    };
+
+    window.SOS_BRIDGE_POPULAR_COUNTRY_AUDIT_DEV = {
+      codes:popularCountryAuditCodes.slice(),
+      runMock:runPopularCountryCompactAudit
     };
 
     window.SOS_BRIDGE_COMPOUND_NUMBER_AUDIT_DEV = {
