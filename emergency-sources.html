@@ -3,108 +3,327 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SOS Bridge 응급번호 출처 및 지원 범위 안내</title>
+  <title>SOS Bridge 응급번호 출처 및 관리 기준</title>
   <meta name="theme-color" content="#0f766e" />
   <style>
-    :root{--bg:#eef7f6;--card:#fff;--navy:#123044;--teal:#0f766e;--muted:#64748b;--border:#dbe7e5;--amber:#fef3c7}
-    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;background:var(--bg);color:var(--navy);line-height:1.68}
-    a{color:inherit}.shell{width:min(1080px,100%);margin:0 auto;padding:24px 16px 52px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.brand{display:flex;align-items:center;gap:10px;font-weight:950}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:grid;place-items:center;color:#fff;font-size:22px}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:0 18px 50px rgba(15,23,42,.08)}
-    h1{font-size:clamp(28px,5vw,42px);line-height:1.18;margin:8px 0 10px}h2{font-size:20px;margin:28px 0 8px}h3{font-size:16px;margin:0 0 6px}p{margin:8px 0}ul{margin:10px 0 0;padding-left:22px}li{margin:4px 0}.eyebrow{margin:0;color:var(--teal);font-weight:950;text-transform:uppercase;font-size:12px;letter-spacing:.08em}.lead{font-size:17px;color:#26465c}.notice{border-radius:14px;padding:14px 16px;margin:18px 0;background:#ecfeff;border:1px solid #bae6fd}.notice.amber{background:var(--amber);border-color:#fde68a}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.stat{border:1px solid var(--border);border-radius:14px;padding:14px;background:#f8fafc}.stat strong{display:block;font-size:28px;color:var(--teal)}.source-list,.limited-list{display:grid;gap:10px;margin-top:12px}.source-item,.limited-item{border:1px solid var(--border);background:#f8fafc;border-radius:14px;padding:14px}.limited-item{border-color:#fde68a;background:#fffbeb}.source-numbers{display:grid;gap:5px;margin:10px 0}.source-number{display:flex;justify-content:space-between;gap:12px;padding:7px 9px;border-radius:9px;background:#fff}.source-number strong{white-space:nowrap}.source-meta{display:grid;gap:4px;margin-top:9px}.source-link{overflow-wrap:anywhere}.small{font-size:13px;color:var(--muted)}.links,.actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 4px}.btn,.links a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:12px;text-decoration:none;font-weight:950;border:1px solid var(--teal);background:#fff;color:var(--teal)}.btn.primary{background:var(--teal);color:#fff}@media(max-width:720px){.top{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:18px}.btn,.links a{width:100%}.source-number{align-items:flex-start;flex-direction:column;gap:2px}}
+    :root{--bg:#eef7f6;--card:#fff;--navy:#123044;--teal:#0f766e;--muted:#64748b;--border:#dbe7e5;--amber:#fef3c7;--blue:#eff6ff;--red:#fff1f2}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;overflow-x:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;background:var(--bg);color:var(--navy);line-height:1.68}
+    a{color:inherit;overflow-wrap:anywhere}
+    .shell{width:min(1080px,100%);margin:0 auto;padding:24px 16px 52px}
+    .top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:950}
+    .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:grid;place-items:center;color:#fff;font-size:22px}
+    .card{min-width:0;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:0 18px 50px rgba(15,23,42,.08)}
+    h1{font-size:clamp(28px,5vw,42px);line-height:1.18;margin:8px 0 10px}
+    h2{font-size:22px;line-height:1.35;margin:0 0 10px}
+    h3{font-size:16px;line-height:1.4;margin:0 0 6px}
+    p{margin:8px 0}
+    ul,ol{margin:10px 0 0;padding-left:22px}
+    li{margin:5px 0}
+    .eyebrow{margin:0;color:var(--teal);font-weight:950;text-transform:uppercase;font-size:12px;letter-spacing:.08em}
+    .lead{font-size:17px;color:#26465c}
+    .section{scroll-margin-top:18px;margin-top:34px;padding-top:2px}
+    .section-intro{color:#385468}
+    .notice{border-radius:14px;padding:14px 16px;margin:18px 0;background:#ecfeff;border:1px solid #bae6fd}
+    .notice.amber{background:var(--amber);border-color:#fde68a}
+    .notice.red{background:var(--red);border-color:#fecdd3}
+    .summary-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin:14px 0 0;padding:0;list-style:none}
+    .summary-list li{position:relative;margin:0;padding-left:20px}
+    .summary-list li::before{content:"✓";position:absolute;left:0;color:var(--teal);font-weight:950}
+    .toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+    .toc a{display:inline-flex;align-items:center;min-height:44px;padding:7px 11px;border:1px solid var(--border);border-radius:11px;background:#fff;text-decoration:none;font-size:13px;font-weight:850;color:#315166}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}
+    .stat{min-width:0;border:1px solid var(--border);border-radius:14px;padding:14px;background:#f8fafc}
+    .stat strong{display:block;font-size:28px;color:var(--teal)}
+    .status-grid,.policy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+    .status-card,.policy-card{min-width:0;border:1px solid var(--border);background:#f8fafc;border-radius:14px;padding:15px}
+    .status-card.conditional{border-color:#fde68a;background:#fffbeb}
+    .status-card.limited{border-color:#fecdd3;background:#fff7f7}
+    .status-label{display:inline-flex;align-items:center;min-height:28px;margin-bottom:7px;padding:3px 9px;border:1px solid var(--border);border-radius:999px;background:#fff;font-size:12px;font-weight:950}
+    .steps{counter-reset:policy-step;display:grid;gap:9px;margin:14px 0 0;padding:0;list-style:none}
+    .steps li{counter-increment:policy-step;position:relative;min-height:44px;margin:0;padding:11px 12px 11px 48px;border:1px solid var(--border);border-radius:12px;background:#f8fafc}
+    .steps li::before{content:counter(policy-step);position:absolute;left:12px;top:10px;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;font-weight:950}
+    .source-list,.limited-list{display:grid;gap:10px;margin-top:12px}
+    .source-item,.limited-item{min-width:0;border:1px solid var(--border);background:#f8fafc;border-radius:14px;padding:14px}
+    .limited-item{border-color:#fde68a;background:#fffbeb}
+    .source-numbers{display:grid;gap:5px;margin:10px 0}
+    .source-number{display:flex;justify-content:space-between;gap:12px;min-width:0;padding:7px 9px;border-radius:9px;background:#fff}
+    .source-number strong{white-space:nowrap}
+    .source-meta{display:grid;gap:4px;min-width:0;margin-top:9px}
+    .source-link{display:inline-flex;align-items:center;min-height:44px;width:max-content;max-width:100%;overflow-wrap:anywhere;word-break:break-word;color:var(--teal);font-weight:900}
+    .report-box{border:1px solid #99f6e4;border-radius:16px;padding:17px;background:#f0fdfa}
+    .report-button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:12px;padding:8px 15px;border:1px solid var(--teal);border-radius:12px;background:var(--teal);color:#fff;text-decoration:none;font-weight:950;text-align:center}
+    .history-item{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:14px;border:1px solid var(--border);border-radius:14px;background:#f8fafc}
+    .history-item time{font-weight:950;color:var(--teal)}
+    .small{font-size:13px;color:var(--muted)}
+    .links,.actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 4px}
+    .btn,.links a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:7px 14px;border-radius:12px;text-decoration:none;font-weight:950;border:1px solid var(--teal);background:#fff;color:var(--teal)}
+    .btn.primary{background:var(--teal);color:#fff}
+    @media(max-width:720px){
+      .top{align-items:flex-start;flex-direction:column}
+      .card{padding:18px}
+      .summary-list{grid-template-columns:1fr}
+      .btn,.links a,.report-button{width:100%}
+      .source-number{align-items:flex-start;flex-direction:column;gap:2px}
+      .history-item{grid-template-columns:1fr;gap:4px}
+    }
+    @media(max-width:360px){.shell{padding:14px 10px 40px}.card{padding:16px}.stats{grid-template-columns:1fr 1fr}.stat{padding:12px}.stat strong{font-size:24px}}
   </style>
   <script src="./countries.js"></script>
 </head>
 <body>
   <main class="shell">
     <header class="top">
-      <div class="brand"><div class="logo">✚</div><div><p class="eyebrow">SOS Bridge</p><strong>응급번호 출처 및 지원 범위</strong></div></div>
+      <div class="brand"><div class="logo" aria-hidden="true">✚</div><div><p class="eyebrow">SOS Bridge</p><strong>응급번호 출처 및 관리 기준</strong></div></div>
       <a class="btn" href="./index.html">앱으로 돌아가기</a>
     </header>
+
     <article class="card">
-      <p class="eyebrow">Emergency Sources</p>
-      <h1>응급번호 출처 및 지원 범위 안내</h1>
-      <p class="lead">SOS Bridge는 국가/지역별 응급번호를 공식·공공 출처 기반으로 관리합니다. 다만 응급번호는 현지 제도, 기관 운영, 통신 상황에 따라 변경되거나 연결이 제한될 수 있으므로, 실제 응급상황에서는 현지 기관의 안내를 우선해야 합니다.</p>
-      <div class="notice amber">SOS Bridge는 의료진의 진단이나 치료를 대체하지 않습니다. 응급 상황에서는 즉시 현지 응급번호로 연락하거나 가까운 의료기관, 현지 공공기관, 숙소, 대사관 또는 영사관의 도움을 받으세요.</div>
-      <div class="notice">SOS Bridge는 의료기기가 아니며, 질병이나 건강 상태를 진단, 치료, 완화 또는 예방하기 위한 서비스가 아닙니다.</div>
+      <p class="eyebrow">Emergency Number Governance</p>
+      <h1>응급번호 출처 및 관리 기준</h1>
+      <p class="lead">SOS Bridge가 국가·지역별 응급번호를 확인하고 표시하며, 변경 가능성을 검토하는 기준을 안내합니다.</p>
 
-      <h2>1. 지원 상태 구분</h2>
-      <h3>정식 지원 국가</h3>
-      <ul>
-        <li>공식·공공 출처 기반 응급번호가 확인된 국가/지역입니다.</li>
-        <li>앱에서 응급번호를 직접 표시합니다.</li>
-        <li>데이터에 출처명과 확인일이 있는 경우 함께 표시합니다.</li>
-      </ul>
-      <h3>제한 지원 국가</h3>
-      <ul>
-        <li>중앙 응급번호가 공식 출처에서 명확히 확인되지 않은 국가/지역입니다.</li>
-        <li>국가 전체 대표번호로 안내하기 어렵거나, 지역별·기관별 번호만 확인되는 곳입니다.</li>
-        <li>잘못된 번호 안내를 피하기 위해 응급번호 직접 안내를 제한합니다.</li>
-        <li>대신 확인 사유와 현지 공공기관, 숙소, 대사관/영사관, 여행자 보험사 확인 안내를 제공합니다.</li>
+      <div class="notice amber"><strong>응급 상황에서는 앱보다 현지 응급기관의 안내를 우선하세요.</strong><br>번호는 국가·지역·통신사·기기·상황에 따라 달라질 수 있습니다. 출국 전 목적지 정부기관이나 재외공관의 공식 정보도 함께 확인해 주세요.</div>
+      <div class="notice">앱이 오프라인 사용 준비를 완료했다면 마지막으로 저장된 국가 정보와 응급번호를 표시할 수 있습니다. 이 정보는 마지막 캐시 시점의 내용일 수 있으므로, 인터넷이 복구되면 최신 배포 데이터와 마지막 확인일을 다시 확인하세요.</div>
+
+      <ul class="summary-list" aria-label="응급번호 관리 핵심 원칙">
+        <li>공식·공공 출처를 우선 확인합니다.</li>
+        <li>지역별 차이는 조건과 함께 표시합니다.</li>
+        <li>확인이 어려우면 제한 상태로 표시합니다.</li>
+        <li>마지막 확인일을 공개합니다.</li>
+        <li>오류 제보를 받은 정보는 다시 검토합니다.</li>
+        <li>임의의 공통 응급번호로 대신 표시하지 않습니다.</li>
       </ul>
 
-      <h2>2. 현재 지원 현황</h2>
-      <div class="stats">
-        <div class="stat"><span class="small">전체 국가/지역</span><strong id="totalCount">230</strong></div>
-        <div class="stat"><span class="small">정식 지원 국가</span><strong id="verifiedCount">211</strong></div>
-        <div class="stat"><span class="small">조건부 지원 국가</span><strong id="conditionalCount">4</strong></div>
-        <div class="stat"><span class="small">제한 지원 국가</span><strong id="limitedCount">15</strong></div>
-      </div>
-      <p class="small">이 수치는 페이지가 열릴 때 countries.js 데이터를 기준으로 계산합니다. 데이터를 불러오지 못하면 현재 검증된 기준값을 표시합니다.</p>
+      <nav class="toc" aria-label="페이지 목차">
+        <a href="#current-scope">지원 현황</a>
+        <a href="#source-priority">출처 우선순위</a>
+        <a href="#review-process">검토 절차</a>
+        <a href="#review-cycle">정기 검토 목표</a>
+        <a href="#conflicts">출처 충돌</a>
+        <a href="#offline-policy">오프라인 안내</a>
+        <a href="#report-error">오류 신고</a>
+        <a href="#change-history">변경 이력</a>
+      </nav>
 
-      <h2>3. 주요 출처 유형</h2>
-      <p>응급번호 데이터에 포함된 출처명, 출처 URL, 확인일, notesKo 등의 정보를 기준으로 표시합니다. 출처명은 임의로 새로 만들지 않고, 데이터에 있는 값을 사용합니다.</p>
-      <ul>
-        <li>각국 정부 또는 관광청</li>
-        <li>공식 공공 안전 안내</li>
-        <li>외교부 또는 공공 여행안전 안내</li>
-        <li>공식 응급서비스 안내 페이지</li>
-      </ul>
+      <section id="current-scope" class="section" aria-labelledby="currentScopeTitle">
+        <h2 id="currentScopeTitle">1. 현재 지원 범위와 상태 정의</h2>
+        <p class="section-intro"><strong>현재 데이터 기준 · 기준일 2026-07-23.</strong> 아래 수치는 현재 `countries.js`의 비어 있지 않은 필드와 실제 상태값을 계산한 결과입니다.</p>
+        <!-- countries.js의 국가·상태 데이터가 변경되면 이 페이지의 요약 통계도 함께 갱신해야 한다. -->
+        <div class="stats" aria-label="응급번호 데이터 요약 통계">
+          <div class="stat"><span class="small">전체 국가·지역</span><strong id="totalCount">230</strong></div>
+          <div class="stat"><span class="small">우선 지원 국가·지역</span><strong id="priorityCount">62</strong></div>
+          <div class="stat"><span class="small">검증됨</span><strong id="verifiedCount">211</strong></div>
+          <div class="stat"><span class="small">조건부</span><strong id="conditionalCount">4</strong></div>
+          <div class="stat"><span class="small">제한적</span><strong id="limitedCount">15</strong></div>
+          <div class="stat"><span class="small">출처명 보유</span><strong id="sourceNameCount">230</strong></div>
+          <div class="stat"><span class="small">출처 URL 보유</span><strong id="sourceUrlCount">221</strong></div>
+          <div class="stat"><span class="small">마지막 확인일 보유</span><strong id="lastVerifiedCount">230</strong></div>
+          <div class="stat"><span class="small">역할별 번호 보유</span><strong id="roleCount">215</strong></div>
+          <div class="stat"><span class="small">조건·경고 보유</span><strong id="conditionCount">7</strong></div>
+        </div>
+        <p class="small">“역할별 번호 보유”는 경찰·구급차·소방 중 하나 이상의 번호가 있는 항목입니다. 출처명 필드가 있다고 해서 항상 원문 URL까지 등록돼 있다는 뜻은 아닙니다.</p>
 
-      <h2>4. 응급번호가 없거나 제한되는 이유</h2>
-      <ul>
-        <li>일부 국가는 한국의 119 또는 유럽의 112처럼 전국 공통번호가 없을 수 있습니다.</li>
-        <li>경찰서, 소방서, 병원별 번호가 다를 수 있습니다.</li>
-        <li>수도나 일부 지역 번호만 확인되는 경우가 있습니다.</li>
-        <li>전쟁, 치안, 행정 문제로 응급서비스 연결이 안정적이지 않을 수 있습니다.</li>
-        <li>특수 지역·자치령은 본국 번호를 그대로 적용하면 위험할 수 있습니다.</li>
-      </ul>
+        <div class="status-grid">
+          <article class="status-card">
+            <span class="status-label">검증됨 · verified</span>
+            <h3>일반적인 국가 단위 안내 가능</h3>
+            <p>공식 또는 신뢰 가능한 공공 출처에서 번호와 역할을 확인한 상태입니다. 다만 현재 위치에서의 연결과 이후 변경이 보장되는 것은 아닙니다.</p>
+          </article>
+          <article class="status-card conditional">
+            <span class="status-label">조건부 · verified-conditional</span>
+            <h3>이용 범위 확인 필요</h3>
+            <p>도시·지역·기관·통신 조건에 따라 번호의 이용 범위가 달라질 수 있어 조건·경고 문구를 함께 확인해야 하는 상태입니다.</p>
+          </article>
+          <article class="status-card limited">
+            <span class="status-label">제한적 · needs-verification</span>
+            <h3>현지 추가 확인 필요</h3>
+            <p>전국 공통 공식 번호를 확정하기 어렵거나 지역별 차이가 큰 상태입니다. 숙소·학교·여행사·현지 기관의 추가 확인을 권장합니다.</p>
+          </article>
+        </div>
+        <p class="small">상태 라벨은 관리·표시 수준을 설명하며 절대적인 정확성, 최신성 또는 실제 연결을 보증하지 않습니다.</p>
+      </section>
 
-      <h2>5. 사용자 안내</h2>
-      <ul>
-        <li>여행 전 방문 국가의 공식 여행안전 정보를 확인하세요.</li>
-        <li>숙소 체크인 시 현지 응급번호를 확인하세요.</li>
-        <li>여행자 보험사 긴급 연락처를 저장하세요.</li>
-        <li>대사관/영사관 연락처를 미리 저장하세요.</li>
-        <li>응급상황에서는 주변 사람에게 즉시 도움을 요청하세요.</li>
-      </ul>
+      <section id="source-priority" class="section" aria-labelledby="sourcePriorityTitle">
+        <h2 id="sourcePriorityTitle">2. 출처 우선순위</h2>
+        <div class="policy-grid">
+          <article class="policy-card"><span class="status-label">1순위</span><h3>현지 정부와 응급 담당기관</h3><p>해당 국가의 소방·경찰·보건·재난·응급의료 담당기관과 국가·지방정부 공식 웹사이트를 우선합니다.</p></article>
+          <article class="policy-card"><span class="status-label">2순위</span><h3>대사관·영사관과 외교부</h3><p>해당 국가의 재외공관, 대한민국 외교부 또는 대한민국 재외공관의 공식 안내를 확인합니다.</p></article>
+          <article class="policy-card"><span class="status-label">3순위</span><h3>국제·공공·공식 관광 안내</h3><p>국제기구, 공공기관, 공식 관광기관, 신뢰 가능한 정부 여행안내를 교차 확인에 활용합니다.</p></article>
+          <article class="policy-card"><span class="status-label">4순위</span><h3>보조 확인 자료</h3><p>추가 단서를 찾는 용도로만 사용합니다. 보조 자료만으로 응급번호를 확정하지 않습니다.</p></article>
+        </div>
+        <div class="notice amber">상업 블로그, 검색 결과 요약, 커뮤니티 게시글, 출처 불명의 표는 단독 근거로 사용하지 않습니다. 공식 출처와 충돌하면 공식 출처의 역할·지역·갱신 시점을 다시 검토합니다.</div>
+      </section>
 
-      <h2>6. 의료 응급번호 역할 분리 대상</h2>
-      <p>아래 7개 국가의 번호·역할·조건·출처는 countries.js의 동일 데이터를 사용합니다.</p>
-      <div id="priorityEmergencySources" class="source-list">
-        <div class="source-item">응급번호 출처를 불러오는 중입니다.</div>
-      </div>
+      <section id="review-process" class="section" aria-labelledby="reviewProcessTitle">
+        <h2 id="reviewProcessTitle">3. 번호 검토 절차</h2>
+        <ol class="steps">
+          <li>국가별 정부기관·공공기관 등 공식 출처를 확인합니다.</li>
+          <li>구급차·경찰·소방 역할을 분리해 기록합니다.</li>
+          <li>통합번호와 역할별 번호를 구분합니다.</li>
+          <li>지역·통신사·휴대전화·유선전화 조건을 확인합니다.</li>
+          <li>가능하면 다른 공식·공공 출처와 교차 확인합니다.</li>
+          <li>`sourceName`, `sourceUrl`, `lastVerified`를 기록합니다.</li>
+          <li>필요하면 조건부·제한적 상태와 범위·경고 문구를 설정합니다.</li>
+          <li>데이터 수, 코드 중복, 번호 resolver와 HTML·스크립트 정적 검사를 수행합니다.</li>
+          <li>운영 화면에서 번호·역할·조건·출처 표시를 확인합니다.</li>
+          <li>확인된 변경만 변경 이력에 기록합니다.</li>
+        </ol>
+        <p class="small">모든 국가에 실제 전화를 걸어 연결을 검증하는 절차는 수행하지 않습니다. 실제 연결은 통신망·로밍·기기·위치에 따라 달라질 수 있습니다.</p>
+      </section>
 
-      <h2>7. 제한 지원 국가 목록</h2>
-      <p>아래 목록은 현재 countries.js에서 needs-verification 상태인 국가/지역입니다.</p>
-      <div id="limitedList" class="limited-list">
-        <div class="limited-item">제한 지원 국가 목록을 불러오는 중입니다.</div>
-      </div>
+      <section id="review-cycle" class="section" aria-labelledby="reviewCycleTitle">
+        <h2 id="reviewCycleTitle">4. 정기 검토 운영 목표</h2>
+        <ul>
+          <li><strong>우선 지원 62개 국가·지역:</strong> 최소 6개월마다 정기 검토를 목표로 합니다.</li>
+          <li><strong>조건부 또는 제한적 상태:</strong> 최소 3개월마다 우선 재검토를 목표로 합니다.</li>
+          <li><strong>그 외 전체 데이터:</strong> 최소 12개월마다 순환 검토를 목표로 합니다.</li>
+          <li><strong>공식 변경 공지 또는 신뢰할 수 있는 제보:</strong> 정기 일정과 관계없이 우선 검토합니다.</li>
+          <li><strong>오류 가능성이 높은 정보:</strong> 확인 전까지 확정 표현이나 전화 버튼을 제한할 수 있습니다.</li>
+        </ul>
+        <p class="small">이는 법적 보증이나 확정 SLA가 아닌 현재 운영 목표입니다. 확인 가능한 항목부터 순차적으로 검토하고, 근거 확인 후 반영합니다.</p>
+      </section>
 
-      <h2>8. 마지막 확인일</h2>
-      <p>정식 지원 국가의 확인일은 countries.js의 lastVerified 필드가 있는 경우 앱 화면에 표시됩니다. 필드가 없는 정보는 새로 임의 생성하지 않습니다.</p>
+      <section id="last-verified" class="section" aria-labelledby="lastVerifiedTitle">
+        <h2 id="lastVerifiedTitle">5. 마지막 확인일의 의미</h2>
+        <p><strong>마지막 확인일은 SOS Bridge가 해당 국가 데이터와 등록된 출처를 마지막으로 검토한 날짜입니다.</strong></p>
+        <ul>
+          <li>그 날짜 이후 번호가 절대 변경되지 않았다는 뜻이 아닙니다.</li>
+          <li>사용자의 현재 위치에서 반드시 연결된다는 보장이 아닙니다.</li>
+          <li>통신망·로밍·기기·지역에 따라 연결 방식이 달라질 수 있습니다.</li>
+          <li>오프라인에서는 캐시된 마지막 확인일을 표시할 수 있습니다.</li>
+          <li>날짜가 없거나 오래된 정보는 최신 정보로 단정하지 않고 추가 확인을 권장합니다.</li>
+        </ul>
+      </section>
 
-      <h2>9. 문의</h2>
-      <p>응급번호 출처 및 지원 범위 관련 문의: <a href="mailto:fare0528@gmail.com">fare0528@gmail.com</a></p>
+      <section id="conflicts" class="section" aria-labelledby="conflictsTitle">
+        <h2 id="conflictsTitle">6. 공식 출처끼리 내용이 다를 때</h2>
+        <ol class="steps">
+          <li>각 출처의 게시일·갱신일을 확인합니다.</li>
+          <li>국가 단위인지 도시·지역 단위인지 구분합니다.</li>
+          <li>구급차·경찰·소방·통합번호의 역할을 구분합니다.</li>
+          <li>이동통신사·로밍·휴대전화·유선전화 조건을 확인합니다.</li>
+          <li>더 최신이면서 적용 범위가 명확한 공식 출처를 우선합니다.</li>
+          <li>한 번호로 확정하기 어렵다면 여러 번호와 조건을 함께 표시합니다.</li>
+          <li>불확실성이 남으면 `verified-conditional` 또는 `needs-verification` 상태로 제한합니다.</li>
+        </ol>
+        <div class="notice amber">출처 충돌이 해결되지 않은 번호를 하나의 확정값처럼 표시하지 않으며, 112·911·119를 임의의 공통 fallback으로 사용하지 않습니다.</div>
+      </section>
 
-      <div class="links">
-        <a href="./privacy.html">개인정보처리방침</a>
-        <a href="./terms.html">이용약관</a>
-        <a href="./disclaimer.html">의료/응급 면책 안내</a>
-        <a href="./install.html">홈 화면 추가 안내</a>
-      </div>
-      <div class="actions"><a class="btn primary" href="./index.html">앱으로 돌아가기</a></div>
-      <p class="small">최종 업데이트: 2026년 7월 19일</p>
+      <section id="conditional-policy" class="section" aria-labelledby="conditionalPolicyTitle">
+        <h2 id="conditionalPolicyTitle">7. 조건부·지역 제한 번호 처리</h2>
+        <p>도시·주·도·통신사·전화 종류별 차이, 관광경찰과 일반경찰의 역할 차이, 구급차와 소방 구조대의 역할 차이, 병원별 구급차 운영, 전국 통합번호 부재를 확인합니다.</p>
+        <ul>
+          <li>조건과 지역 범위를 번호 옆에 표시하고 숨기지 않습니다.</li>
+          <li>서로 다른 역할의 번호를 하나로 임의 합치지 않습니다.</li>
+          <li>여러 공식 번호가 있으면 원본 순서와 역할을 유지해 표시합니다.</li>
+          <li>특정 지역에서만 가능한 번호는 전국 공통번호처럼 표현하지 않습니다.</li>
+          <li>번호가 불확실하면 전화 버튼을 숨기고 현지 기관 확인 안내를 제공할 수 있습니다.</li>
+          <li>숙소·학교·여행사·현지 공공기관·보험사에 추가 확인하도록 안내합니다.</li>
+        </ul>
+      </section>
+
+      <section id="offline-policy" class="section" aria-labelledby="offlinePolicyTitle">
+        <h2 id="offlinePolicyTitle">8. 오프라인 정보의 범위와 한계</h2>
+        <ul>
+          <li>오프라인 사용 준비가 완료된 앱에서는 저장된 국가 정보와 응급번호를 확인할 수 있습니다.</li>
+          <li>표시되는 정보는 마지막 캐시 시점의 배포 데이터일 수 있습니다.</li>
+          <li>인터넷이 복구되면 페이지를 다시 열고 새 버전 안내가 있으면 사용자가 새로고침해 적용해야 합니다.</li>
+          <li>앱에 표시된 `lastVerified`를 확인하고, 중요한 상황에서는 최신 공식기관 안내를 우선합니다.</li>
+          <li>오프라인이라는 이유로 번호가 없는 국가를 임의의 112·911·119로 대체하지 않습니다.</li>
+        </ul>
+        <p class="small">완전 오프라인 상태에서 항상 최신 번호를 보장하지 않습니다.</p>
+      </section>
+
+      <section id="display-safety" class="section" aria-labelledby="displaySafetyTitle">
+        <h2 id="displaySafetyTitle">9. 데이터 표시 안전 원칙</h2>
+        <div class="policy-grid">
+          <article class="policy-card"><h3>번호와 전화 버튼</h3><ul><li>번호가 없으면 빈 전화 버튼을 만들지 않습니다.</li><li>전화 앱은 사용자 클릭으로만 엽니다.</li><li>실제 연결 여부는 통신 환경에 따라 달라질 수 있습니다.</li></ul></article>
+          <article class="policy-card"><h3>출처와 불확실성</h3><ul><li>출처가 불명확하면 확정값처럼 표시하지 않습니다.</li><li>URL이 없으면 가짜 링크를 만들지 않습니다.</li><li>조건부 번호의 범위와 경고를 숨기지 않습니다.</li></ul></article>
+          <article class="policy-card"><h3>fallback 금지</h3><ul><li>국가 데이터 로딩 실패 시 한국 119로 대체하지 않습니다.</li><li>임의 112·911·119 fallback을 사용하지 않습니다.</li><li>역할이 다른 번호를 하나로 합치지 않습니다.</li></ul></article>
+        </div>
+      </section>
+
+      <section id="report-error" class="section" aria-labelledby="reportErrorTitle">
+        <h2 id="reportErrorTitle">10. 응급번호 오류·변경 제보</h2>
+        <div class="report-box">
+          <h3>데이터 수정 제보 이메일</h3>
+          <p><a href="mailto:fare0528@gmail.com">fare0528@gmail.com</a></p>
+          <p>국가 또는 지역, 화면에 표시된 번호, 잘못됐다고 판단한 이유, 확인한 공식 출처 URL, 확인 날짜, 가능하면 화면 캡처를 보내주세요.</p>
+          <a class="report-button" aria-label="SOS Bridge 응급번호 수정 제보 이메일 작성" href="mailto:fare0528@gmail.com?subject=%5BSOS%20Bridge%20%EC%9D%91%EA%B8%89%EB%B2%88%ED%98%B8%20%EC%88%98%EC%A0%95%20%EC%A0%9C%EB%B3%B4%5D%20%EA%B5%AD%EA%B0%80%20%EB%98%90%EB%8A%94%20%EC%A7%80%EC%97%AD%EB%AA%85&amp;body=%EA%B5%AD%EA%B0%80%20%EB%98%90%EB%8A%94%20%EC%A7%80%EC%97%AD%3A%0A%ED%99%94%EB%A9%B4%EC%97%90%20%ED%91%9C%EC%8B%9C%EB%90%9C%20%EB%B2%88%ED%98%B8%3A%0A%EC%9E%98%EB%AA%BB%EB%90%90%EB%8B%A4%EA%B3%A0%20%ED%8C%90%EB%8B%A8%ED%95%9C%20%EC%9D%B4%EC%9C%A0%3A%0A%ED%99%95%EC%9D%B8%ED%95%9C%20%EA%B3%B5%EC%8B%9D%20%EC%B6%9C%EC%B2%98%20URL%3A%0A%ED%99%95%EC%9D%B8%20%EB%82%A0%EC%A7%9C%3A%0A%ED%99%94%EB%A9%B4%20%EC%BA%A1%EC%B2%98%20%EC%B2%A8%EB%B6%80%20%EC%97%AC%EB%B6%80%3A%0A%0A%EC%9D%B4%20%EB%A9%94%EC%9D%BC%EC%9D%80%20%EA%B8%B4%EA%B8%89%20%EC%83%81%EB%8B%B4%20%EC%9A%94%EC%B2%AD%EC%9D%B4%20%EC%95%84%EB%8B%8C%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20%EC%88%98%EC%A0%95%20%EC%A0%9C%EB%B3%B4%EC%9E%85%EB%8B%88%EB%8B%A4.%20%EA%B0%9C%EC%9D%B8%20%EC%9D%98%EB%A3%8C%EC%A0%95%EB%B3%B4%2C%20%EC%A3%BC%EB%AF%BC%EB%93%B1%EB%A1%9D%EB%B2%88%ED%98%B8%2C%20%EC%97%AC%EA%B6%8C%EB%B2%88%ED%98%B8%20%EB%93%B1%20%EB%AF%BC%EA%B0%90%EC%A0%95%EB%B3%B4%EB%A5%BC%20%EC%A0%81%EC%A7%80%20%EB%A7%88%EC%84%B8%EC%9A%94.">응급번호 수정 제보 이메일 작성</a>
+          <div class="notice red"><strong>개인 의료정보, 주민등록번호, 여권번호, 연락처 등 민감정보를 보내지 마세요.</strong><br>이 이메일은 실시간 응급 상담 창구가 아닙니다. 긴급 상황에서는 답변을 기다리지 말고 현지 응급기관·숙소·학교·여행사·대사관 또는 영사관에 즉시 연락하세요.</div>
+        </div>
+      </section>
+
+      <section id="report-process" class="section" aria-labelledby="reportProcessTitle">
+        <h2 id="reportProcessTitle">11. 제보 처리 절차</h2>
+        <ol class="steps">
+          <li>제보 내용과 제공된 출처를 확인합니다.</li>
+          <li>공식 출처를 우선해 다시 검토합니다.</li>
+          <li>번호 역할·지역·통신 조건을 구분합니다.</li>
+          <li>오류 가능성이 높으면 임시 경고 또는 전화 버튼 제한을 검토합니다.</li>
+          <li>확인이 완료되면 국가 데이터를 수정합니다.</li>
+          <li>`lastVerified`와 출처 정보를 갱신합니다.</li>
+          <li>확인 가능한 변경 이력을 기록합니다.</li>
+          <li>새 배포와 서비스 워커 캐시 버전을 갱신합니다.</li>
+        </ol>
+        <p class="small">처리 시간을 확정적으로 약속하지 않으며, 공식 근거를 확인한 뒤 순차적으로 반영합니다.</p>
+      </section>
+
+      <section id="institution-guide" class="section" aria-labelledby="institutionGuideTitle">
+        <h2 id="institutionGuideTitle">12. 기관 담당자를 위한 안내</h2>
+        <ul>
+          <li>여행사·유학원·학교의 자체 비상연락망을 SOS Bridge와 함께 제공하는 것을 권장합니다.</li>
+          <li>출국 전 여행자에게 목적지 정부기관의 공식 응급정보를 다시 안내해 주세요.</li>
+          <li>인솔자·학교·숙소·보험사 연락처를 별도로 보관해 주세요.</li>
+          <li>SOS Bridge는 기관의 비상대응 체계나 현지 책임자를 대체하지 않습니다.</li>
+          <li>잘못된 번호를 발견하면 위 이메일로 수정 제보를 보낼 수 있습니다.</li>
+          <li>대량 도입 전 대상 국가 정보의 출처·조건을 함께 검토할 수 있습니다.</li>
+        </ul>
+        <p class="small">관리자 대시보드, 확정 SLA 또는 24시간 지원을 운영 중인 것으로 안내하지 않습니다.</p>
+      </section>
+
+      <section id="detailed-sources" class="section" aria-labelledby="detailedSourcesTitle">
+        <h2 id="detailedSourcesTitle">13. 역할·조건 분리 대상의 등록 출처</h2>
+        <p>아래 7개 국가의 번호·역할·조건·출처는 현재 `countries.js`에 등록된 동일 데이터를 사용합니다. 링크가 없는 출처에는 가짜 링크를 만들지 않습니다.</p>
+        <div id="priorityEmergencySources" class="source-list">
+          <div class="source-item">응급번호 출처를 불러오는 중입니다.</div>
+        </div>
+      </section>
+
+      <section id="limited-countries" class="section" aria-labelledby="limitedCountriesTitle">
+        <h2 id="limitedCountriesTitle">14. 제한적 상태 국가·지역</h2>
+        <p>아래 목록은 현재 `countries.js`에서 `needs-verification` 상태인 국가·지역입니다.</p>
+        <div id="limitedList" class="limited-list">
+          <div class="limited-item">제한적 상태 국가 목록을 불러오는 중입니다.</div>
+        </div>
+      </section>
+
+      <section id="change-history" class="section" aria-labelledby="changeHistoryTitle">
+        <h2 id="changeHistoryTitle">15. 변경 이력</h2>
+        <div class="history-item">
+          <time datetime="2026-07-23">2026-07-23</time>
+          <div><h3>응급번호 관리 정책 공개 페이지 개편</h3><p>출처 우선순위, 현실적인 정기 검토 목표, 공식 출처 충돌 처리, 조건부·오프라인 정보 안내, 오류 신고와 제보 처리 절차를 공개했습니다.</p><p class="small">대상: 응급번호 관리 정책 · 사유: 데이터 관리 투명성 강화 · 확인 출처 유형: 현재 countries.js 구조와 기존 등록 출처</p></div>
+        </div>
+        <p class="small">확인되지 않은 과거 국가별 변경사항은 이력으로 만들지 않습니다.</p>
+      </section>
+
+      <footer class="section" aria-label="관련 정책 및 앱 링크">
+        <div class="notice amber">SOS Bridge는 의료진의 진단·치료 또는 현지 응급기관의 안내를 대체하지 않습니다. 응급 상황에서는 앱 사용 때문에 연락이나 이동을 지체하지 마세요.</div>
+        <div class="links">
+          <a href="./privacy.html">개인정보처리방침</a>
+          <a href="./terms.html">이용약관</a>
+          <a href="./disclaimer.html">의료/응급 면책 안내</a>
+          <a href="./install.html">홈 화면 추가 안내</a>
+        </div>
+        <div class="actions"><a class="btn primary" href="./index.html">앱으로 돌아가기</a></div>
+        <p class="small">최종 업데이트: 2026년 7월 23일</p>
+      </footer>
     </article>
   </main>
+
   <script>
     (function(){
       function text(value){ return String(value || ""); }
@@ -113,21 +332,58 @@
           return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch];
         });
       }
-      var countries = (window.SOS_BRIDGE_COUNTRIES || []);
+      function hasValue(value){ return text(value).trim() !== ""; }
+      function setCount(id, value){
+        var element = document.getElementById(id);
+        if(element) element.textContent = String(value);
+      }
+      function safeSourceUrl(value){
+        var url = text(value).trim();
+        return /^https:\/\/[^\s]+$/i.test(url) ? url : "";
+      }
+      function displayKo(country){
+        if(country.countryCode === "SJ") return "스발바르·얀마옌";
+        return country.countryNameKo || country.countryKo;
+      }
+      function displayEn(country){
+        if(country.countryCode === "CY-NORTH") return "Northern Cyprus";
+        return country.countryNameEn || country.country;
+      }
+
+      var countries = Array.isArray(window.SOS_BRIDGE_COUNTRIES) ? window.SOS_BRIDGE_COUNTRIES : [];
       var verified = countries.filter(function(country){ return country.emergencyNumbers && country.emergencyNumbers.status === "verified"; });
       var conditional = countries.filter(function(country){ return country.emergencyNumbers && country.emergencyNumbers.status === "verified-conditional"; });
       var limited = countries.filter(function(country){ return country.emergencyNumbers && country.emergencyNumbers.status === "needs-verification"; });
+      var sourceNameCount = countries.filter(function(country){ return hasValue(country.emergencyNumbers && country.emergencyNumbers.sourceName); }).length;
+      var sourceUrlCount = countries.filter(function(country){ return hasValue(country.emergencyNumbers && country.emergencyNumbers.sourceUrl); }).length;
+      var lastVerifiedCount = countries.filter(function(country){ return hasValue(country.emergencyNumbers && country.emergencyNumbers.lastVerified); }).length;
+      var roleCount = countries.filter(function(country){
+        var numbers = country.emergencyNumbers || {};
+        return [numbers.police, numbers.ambulance, numbers.fire].some(hasValue);
+      }).length;
+      var conditionCount = countries.filter(function(country){
+        var numbers = country.emergencyNumbers || {};
+        return hasValue(numbers.scopeKo) || hasValue(numbers.warningKo);
+      }).length;
+
       if(countries.length){
-        document.getElementById("totalCount").textContent = countries.length;
-        document.getElementById("verifiedCount").textContent = verified.length;
-        document.getElementById("conditionalCount").textContent = conditional.length;
-        document.getElementById("limitedCount").textContent = limited.length;
+        setCount("totalCount", countries.length);
+        setCount("verifiedCount", verified.length);
+        setCount("conditionalCount", conditional.length);
+        setCount("limitedCount", limited.length);
+        setCount("sourceNameCount", sourceNameCount);
+        setCount("sourceUrlCount", sourceUrlCount);
+        setCount("lastVerifiedCount", lastVerifiedCount);
+        setCount("roleCount", roleCount);
+        setCount("conditionCount", conditionCount);
       }
+
       var targetCodes = ["ZA","LA","SA","MM","ID","KH","PE"];
       var sourceList = document.getElementById("priorityEmergencySources");
       var targetCountries = targetCodes.map(function(code){
         return countries.find(function(country){ return country.countryCode === code; });
       }).filter(Boolean);
+
       function sourceDomain(numbers){
         if(numbers.sourceDomain) return numbers.sourceDomain;
         try{ return new URL(numbers.sourceUrl).hostname.replace(/^www\./, ""); }catch(error){ return ""; }
@@ -149,12 +405,12 @@
       }
       function additionalSourceRows(numbers){
         return (Array.isArray(numbers.additionalSources) ? numbers.additionalSources : []).map(function(source){
-          var sourceUrl = /^https:\/\//.test(text(source.sourceUrl)) ? text(source.sourceUrl) : "";
+          var sourceUrl = safeSourceUrl(source.sourceUrl);
           return '<div class="source-meta small">'+
             '<span><strong>추가 출처 기관:</strong> '+escapeHtml(source.sourceName || "미확인")+'</span>'+
             '<span><strong>추가 출처 페이지:</strong> '+escapeHtml(source.sourceTitle || "미확인")+'</span>'+
             '<span><strong>공식 도메인:</strong> '+escapeHtml(source.sourceDomain || "미확인")+'</span>'+
-            (sourceUrl ? '<a class="source-link" href="'+escapeHtml(sourceUrl)+'" target="_blank" rel="noopener noreferrer">추가 공식 원문 보기</a>' : '')+
+            (sourceUrl ? '<a class="source-link" href="'+escapeHtml(sourceUrl)+'" target="_blank" rel="noopener noreferrer">추가 공식 원문 보기</a>' : '<span>추가 공식 원문 URL 미등록</span>')+
           '</div>';
         }).join("");
       }
@@ -168,40 +424,34 @@
           var areas = Array.isArray(numbers.serviceAreas) && numbers.serviceAreas.length
             ? '<p><strong>공식 안내 지원 지역:</strong> '+escapeHtml(numbers.serviceAreas.join(", "))+'</p>'
             : "";
-          var sourceUrl = /^https:\/\//.test(text(numbers.sourceUrl)) ? text(numbers.sourceUrl) : "";
+          var sourceUrl = safeSourceUrl(numbers.sourceUrl);
           return '<section class="source-item">'+
             '<h3>'+escapeHtml(displayKo(country))+' / '+escapeHtml(displayEn(country))+' ('+escapeHtml(country.countryCode)+')</h3>'+
             '<div class="source-numbers">'+numberRows+'</div>'+
-            (conditions ? '<p><strong>조건·주의:</strong> '+escapeHtml(conditions)+'</p>' : '')+
-            (numbers.sourceNoteKo ? '<p><strong>공식 안내 차이:</strong> '+escapeHtml(numbers.sourceNoteKo)+'</p>' : '')+
+            (conditions ? '<p><strong>조건·주의:</strong> '+escapeHtml(conditions)+'</p>' : "")+
+            (numbers.sourceNoteKo ? '<p><strong>공식 안내 차이:</strong> '+escapeHtml(numbers.sourceNoteKo)+'</p>' : "")+
             areas+
             '<div class="source-meta small">'+
               '<span><strong>출처 기관:</strong> '+escapeHtml(numbers.sourceName || "미확인")+'</span>'+
               '<span><strong>출처 페이지:</strong> '+escapeHtml(numbers.sourceTitle || "미확인")+'</span>'+
               '<span><strong>공식 도메인:</strong> '+escapeHtml(sourceDomain(numbers) || "미확인")+'</span>'+
               '<span><strong>확인일:</strong> '+escapeHtml(numbers.lastVerified || "미확인")+'</span>'+
-              (sourceUrl ? '<a class="source-link" href="'+escapeHtml(sourceUrl)+'" target="_blank" rel="noopener noreferrer">공식 원문 보기</a>' : '')+
+              (sourceUrl ? '<a class="source-link" href="'+escapeHtml(sourceUrl)+'" target="_blank" rel="noopener noreferrer">공식 원문 보기</a>' : '<span>공식 원문 URL 미등록</span>')+
             '</div>'+additionalSourceRows(numbers)+
           '</section>';
-        }).join("") || '<div class="source-item">대상 국가 출처 데이터를 불러오지 못했습니다.</div>';
+        }).join("") || '<div class="source-item">대상 국가 출처 데이터를 불러오지 못했습니다. 인터넷 연결 상태에서 최신 앱을 다시 열어주세요.</div>';
       }
+
       var list = document.getElementById("limitedList");
       if(!list) return;
       if(!limited.length){
-        list.innerHTML = '<div class="limited-item">현재 제한 지원 국가 목록을 불러오지 못했습니다. 앱의 최신 국가 데이터를 확인해 주세요.</div>';
+        list.innerHTML = '<div class="limited-item">제한적 상태 목록을 불러오지 못했습니다. 앱의 최신 국가 데이터를 확인해 주세요.</div>';
         return;
-      }
-      function displayKo(country){
-        if(country.countryCode === "SJ") return "스발바르·얀마옌";
-        return country.countryNameKo || country.countryKo;
-      }
-      function displayEn(country){
-        if(country.countryCode === "CY-NORTH") return "Northern Cyprus";
-        return country.countryNameEn || country.country;
       }
       list.innerHTML = limited.map(function(country){
         var numbers = country.emergencyNumbers || {};
         return '<section class="limited-item">'+
+          '<span class="status-label">제한적 · needs-verification</span>'+
           '<h3>'+escapeHtml(displayKo(country))+' / '+escapeHtml(displayEn(country))+'</h3>'+
           '<p class="small">countryCode: '+escapeHtml(country.countryCode || country.id || "")+'</p>'+
           '<p><strong>제한 사유:</strong> '+escapeHtml(numbers.notesKo || "공식 출처에서 중앙 응급번호를 명확히 확인하기 어렵습니다.")+'</p>'+
