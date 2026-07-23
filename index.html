@@ -1093,7 +1093,7 @@
             <span id="topCountryMeta" class="small muted">국가를 선택하면 현지어와 응급번호를 표시합니다.</span>
           </span>
         </button>
-        <button id="headerEmergencyBtn" class="btn danger app-emergency-mini" type="button" aria-label="구급차 번호로 전화 앱 열기">🚑</button>
+        <button id="headerEmergencyBtn" class="btn danger app-emergency-mini" type="button" aria-label="긴급 도움 모드 열기">🚑</button>
         <button id="changeLangBtn" class="btn outline app-change-mini" type="button" aria-label="여행 국가 변경"><span class="keep-label">변경</span></button>
       </header>
     </div>
@@ -3270,6 +3270,7 @@ let localLangId = "ko";
 let tripCountryName = "대한민국";
 let tripCityName = "";
 let hasTripCountrySelection = false;
+let confirmedTripCountryCode = "";
 let stage = "language";
 let activeService = "home";
 let facilityType = "hospital";
@@ -3299,6 +3300,26 @@ const safe = (fn) => { try { fn(); } catch(e) { showDebug(e); } };
 const on = (id, event, handler) => { const el=$(id); if(el) el.addEventListener(event, e => safe(() => handler(e)), {passive:false}); };
 const t = () => Object.assign({}, i18n.en, i18n.ko || {});
 const SELECTED_COUNTRY_STORAGE_KEY = "sosBridgeSelectedCountryCode";
+function normalizeConfirmedCountryCode(countryCode){
+  const code = String(countryCode || "").trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(code) ? code : "";
+}
+function getConfirmedTripOption(){
+  const code = normalizeConfirmedCountryCode(confirmedTripCountryCode);
+  if(!code || !countryDataLoaded) return null;
+  return languageOptions.find(item => String(item.countryCode || "").trim().toUpperCase() === code) || null;
+}
+function getConfirmedTripCountryCode(){
+  return getConfirmedTripOption() ? confirmedTripCountryCode : "";
+}
+function confirmTripCountrySelection(){
+  const option = languageOptions.find(item => item.id === tripCountryId);
+  const code = normalizeConfirmedCountryCode(option && option.countryCode);
+  if(!code) return false;
+  confirmedTripCountryCode = code;
+  saveSelectedCountryCode(code);
+  return true;
+}
 function clearStoredSelectedCountryCode(){
   try{
     window.localStorage.removeItem(SELECTED_COUNTRY_STORAGE_KEY);
@@ -3345,6 +3366,7 @@ function restoreStoredSelectedCountry(){
     clearStoredSelectedCountryCode();
     return false;
   }
+  confirmedTripCountryCode = code;
   selectTripCountry(option.id, {render:false});
   return true;
 }
@@ -3589,7 +3611,10 @@ function getEmergencyNumbersData(id){
   };
 }
 function hasUsableEmergencyNumbers(data){
-  return Boolean(data && data.status !== "needs-verification" && (data.primary || data.police || data.ambulance || data.fire));
+  return Boolean(isEmergencyStatusDialable(data) && (data.primary || data.police || data.ambulance || data.fire));
+}
+function isEmergencyStatusDialable(data){
+  return Boolean(data && (data.status === "verified" || data.status === "verified-conditional"));
 }
 function isConditionalEmergencySupport(item){
   const data = getEmergencyNumbersData(item);
@@ -3657,6 +3682,7 @@ function emergencyServiceAreasHtml(data){
 function emergencyConditionsHtml(data, className="emergency-condition-copy"){
   if(!data) return "";
   const parts = [];
+  if(data.conditionLabelKo) parts.push('<p><strong>'+escapeHtml(data.conditionLabelKo)+'</strong></p>');
   if(data.scopeKo) parts.push('<p>'+escapeHtml(data.scopeKo)+'</p>');
   if(data.warningKo) parts.push('<p class="warning">'+escapeHtml(data.warningKo)+'</p>');
   const areas = emergencyServiceAreasHtml(data);
@@ -3676,11 +3702,14 @@ function emergencyRoleRowsHtml(data, opts={}){
   if(!rows.length) return "";
   if(opts.actionable){
     return '<div class="emergency-role-action-list">'+rows.map(row => {
-      const dialNumber = normalizeEmergencyDialNumber(row.number);
+      const dialRole = row.role === "primary-ambulance" ? "primary" : row.role;
+      const alternateIndex = Number.isInteger(row.alternateIndex) ? row.alternateIndex : 0;
+      const dialNumber = getStrictEmergencyDialNumber(opts.item, dialRole, alternateIndex);
       if(!dialNumber){
         return '<div class="emergency-number-action"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></div>';
       }
-      return '<button class="emergency-number-action" type="button" data-emergency-dial-number="'+escapeHtml(dialNumber)+'" aria-label="'+escapeHtml(row.label)+' '+escapeHtml(row.number)+' 전화 앱 열기"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></button>';
+      const countryCode = String((opts.item && opts.item.countryCode) || "").trim().toUpperCase();
+      return '<button class="emergency-number-action" type="button" data-emergency-dial-number="'+escapeHtml(dialNumber)+'" data-emergency-country-code="'+escapeHtml(countryCode)+'" data-emergency-role="'+escapeHtml(dialRole)+'" data-emergency-alternate-index="'+alternateIndex+'" aria-label="'+escapeHtml(row.label)+' '+escapeHtml(row.number)+' 전화 앱 열기"><span>'+escapeHtml(row.label)+'</span><strong>'+escapeHtml(row.number)+'</strong></button>';
     }).join("")+'</div>';
   }
   return '<div class="country-summary-emergency-list">'+rows.map(row =>
@@ -3697,14 +3726,7 @@ function shortEmergencyRoleLabel(label, fallback){
   return fallback;
 }
 function getCountryEmergencyDialNumber(item, type="ambulance"){
-  const option = item && typeof item === "object" ? item : getCountryById(item);
-  const data = getEmergencyNumbersData(option);
-  if(!option || !data || data.status === "needs-verification") return "";
-  const legacy = option.emergencyNumber;
-  const values = type === "ambulance"
-    ? [data.ambulance, data.primary, legacy]
-    : [data.primary, data.ambulance, legacy];
-  return resolveEmergencyDialNumberValues(values);
+  return getStrictEmergencyDialNumber(item, type);
 }
 function hasCompositeEmergencyNumber(value){
   const text = String(value || "").trim();
@@ -3738,6 +3760,17 @@ function resolveEmergencyDialNumberValues(values){
   }
   return "";
 }
+function getStrictEmergencyDialNumber(item, role="primary", alternateIndex=0){
+  const option = item && typeof item === "object" ? item : getCountryById(item);
+  const data = getEmergencyNumbersData(option);
+  if(!option || !isEmergencyStatusDialable(data)) return "";
+  if(role === "alternate"){
+    const alternate = emergencyAlternates(data)[alternateIndex];
+    return resolveEmergencyDialNumberValue(alternate && alternate.number);
+  }
+  if(!["primary","ambulance","police","fire"].includes(role)) return "";
+  return resolveEmergencyDialNumberValue(data[role]);
+}
 function getCountryListEmergencyDisplay(item){
   const option = item && typeof item === "object" ? item : getCountryById(item);
   const data = getEmergencyNumbersData(option);
@@ -3750,7 +3783,7 @@ function getCountryListEmergencyDisplay(item){
   const alternateNumbers = alternates.map(entry => resolveEmergencyDialNumberValue(entry.number)).filter(Boolean);
   const validNumbers = [...new Set([primary, ambulance].concat(alternateNumbers).filter(Boolean))];
   const additionalValidNumbers = validNumbers.filter(candidate => candidate !== number);
-  const canDial = Boolean(data && data.status !== "needs-verification");
+  const canDial = isEmergencyStatusDialable(data);
   const hasAlternateContacts = canDial && alternates.some(entry => /\d/.test(String(entry && entry.number || "")));
   const hasCompositeEmergency = [data && data.primary, data && data.ambulance]
     .some(value => canDial && hasCompositeEmergencyNumber(value));
@@ -3802,25 +3835,32 @@ function emergencyListDisplay(item){
 }
 function emergencyVerificationDetailHtml(data, margin){
   const reason = (data && data.notesKo) || emergencyVerificationNotice;
+  const sourceText = [
+    data && data.sourceName ? "출처: "+data.sourceName : "",
+    data && data.lastVerified ? "확인일: "+data.lastVerified : ""
+  ].filter(Boolean).join(" · ");
   return ''+
     '<div class="notice amber small emergency-verification-card" style="margin:'+margin+'">'+
       supportStatusHtml(data)+
       '<strong>응급번호 확인 필요</strong>'+
       '<p>이 국가/지역은 중앙 응급번호를 공식 출처에서 명확히 확인하기 어렵습니다. 잘못된 번호 안내를 피하기 위해 응급번호 직접 안내를 제한합니다.</p>'+
       '<div class="emergency-verification-reason"><span>확인 사유:</span>'+escapeHtml(reason)+'</div>'+
+      (sourceText ? '<div class="small muted">'+escapeHtml(sourceText)+'</div>' : '')+
       '<p>응급 상황에서는 현지 공공기관, 숙소, 대사관 또는 영사관, 여행자 보험사에 즉시 확인하세요.</p>'+
     '</div>';
 }
 function emergencyNumbersDetailHtml(item, opts={}){
-  const data = getEmergencyNumbersData(item);
+  const option = item && typeof item === "object" ? item : getCountryById(item);
+  const data = getEmergencyNumbersData(option);
   const margin = opts.margin || "8px 0 0";
   if(!hasUsableEmergencyNumbers(data)){
     return offlineEmergencyDataNoticeHtml(data)+emergencyVerificationDetailHtml(data, margin);
   }
   const hasStructuredRoles = Boolean(data.primaryLabelKo || data.ambulanceLabelKo || emergencyAlternates(data).length || data.scopeKo || data.warningKo || (Array.isArray(data.serviceAreas) && data.serviceAreas.length));
   if(hasStructuredRoles){
-    const lines = [offlineEmergencyDataNoticeHtml(data), supportStatusHtml(data), emergencyRoleRowsHtml(data, {includeServices:true, actionable:true}), emergencyConditionsHtml(data)];
+    const lines = [offlineEmergencyDataNoticeHtml(data), supportStatusHtml(data), emergencyConditionsHtml(data)];
     if(data.notesKo) lines.push('<div class="small muted" style="margin-top:6px">'+escapeHtml(data.notesKo)+'</div>');
+    lines.push(emergencyRoleRowsHtml(data, {includeServices:true, actionable:true, item:option}));
     if(data.sourceName || data.lastVerified){
       const sourceText = [data.sourceName ? "출처: "+data.sourceName : "", data.lastVerified ? "확인일: "+data.lastVerified : ""].filter(Boolean).join(" · ");
       lines.push('<div class="small muted" style="margin-top:4px">'+escapeHtml(sourceText)+'</div>');
@@ -3849,6 +3889,7 @@ function emergencyNumbersDetailHtml(item, opts={}){
     });
   }
   if(data.notesKo) lines.push('<div class="small muted" style="margin-top:4px">'+escapeHtml(data.notesKo)+'</div>');
+  lines.push(emergencyRoleRowsHtml(data, {includeServices:true, actionable:true, item:option}));
   if(data.sourceName || data.lastVerified){
     const sourceText = [data.sourceName ? "출처: "+data.sourceName : "", data.lastVerified ? "확인일: "+data.lastVerified : ""].filter(Boolean).join(" · ");
     lines.push('<div class="small muted" style="margin-top:4px">'+escapeHtml(sourceText)+'</div>');
@@ -4135,6 +4176,103 @@ let currentFlowScreen = "";
 let flowHistory = [];
 let flowScreensReady = false;
 let returnFlowScreenAfterCountryChange = "";
+let emergencyReturnState = null;
+let emergencyHistoryActive = false;
+let emergencyReturnTargetOverride = "";
+const EMERGENCY_HISTORY_STATE_KEY = "sosBridgeEmergencyHelpMode";
+
+function getAppFlowScrollContainer(screenId){
+  const screen = $(screenId);
+  return screen && screen.classList.contains("app-flow-screen") ? screen : null;
+}
+
+function captureEmergencyReturnState(trigger){
+  const screenId = currentFlowScreen && currentFlowScreen !== "screen-emergency" && $(currentFlowScreen)
+    ? currentFlowScreen
+    : "screen-home";
+  const scrollContainer = getAppFlowScrollContainer(screenId);
+  const focusElement = trigger instanceof HTMLElement
+    ? trigger
+    : (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+  return {
+    screenId,
+    scrollTop:scrollContainer ? scrollContainer.scrollTop : 0,
+    timestamp:Date.now(),
+    focusElement
+  };
+}
+
+function restoreEmergencyReturnState(returnState){
+  const requestedScreen = emergencyReturnTargetOverride || (returnState && returnState.screenId);
+  emergencyReturnTargetOverride = "";
+  const target = requestedScreen && requestedScreen !== "screen-emergency" && $(requestedScreen)
+    && $(requestedScreen).classList.contains("app-flow-screen")
+    ? requestedScreen
+    : "screen-home";
+  showFlowScreen(target, {push:false, browser:false});
+  requestAnimationFrame(() => {
+    const container = getAppFlowScrollContainer(target);
+    if(container){
+      const requested = Number(returnState && returnState.scrollTop);
+      const maximum = Math.max(0, container.scrollHeight - container.clientHeight);
+      container.scrollTop = Math.min(Math.max(0, Number.isFinite(requested) ? requested : 0), maximum);
+    }
+    const focusElement = returnState && returnState.focusElement;
+    if(focusElement && focusElement.isConnected && typeof focusElement.focus === "function"){
+      try{ focusElement.focus({preventScroll:true}); }catch(error){ focusElement.focus(); }
+    }
+  });
+}
+
+function returnFromEmergencyHelpMode(options={}){
+  if(options.home === true) emergencyReturnTargetOverride = "screen-home";
+  if(options.fromPopState !== true && emergencyHistoryActive
+    && window.history && window.history.state && window.history.state[EMERGENCY_HISTORY_STATE_KEY]){
+    window.history.back();
+    return;
+  }
+  const returnState = emergencyReturnState;
+  emergencyReturnState = null;
+  emergencyHistoryActive = false;
+  restoreEmergencyReturnState(returnState);
+}
+
+function openEmergencyHelpMode(trigger=document.activeElement){
+  const confirmedOption = getConfirmedTripOption();
+  if(!confirmedOption){
+    setStatus("먼저 여행 국가를 선택하고 확인해 주세요.");
+    if(stage === "app") showLanguage();
+    else showLanguageFlowScreen("screen-country-select");
+    return false;
+  }
+
+  if(currentFlowScreen !== "screen-emergency"){
+    emergencyReturnState = captureEmergencyReturnState(trigger);
+  }
+  renderEmergencyInfoCard();
+  showFlowScreen("screen-emergency", {push:false, browser:false});
+  const emergencyScreen = getAppFlowScrollContainer("screen-emergency");
+  if(emergencyScreen) emergencyScreen.scrollTop = 0;
+
+  if(!emergencyHistoryActive && window.history && window.history.pushState){
+    const currentState = window.history.state && typeof window.history.state === "object" ? window.history.state : {};
+    window.history.pushState({
+      ...currentState,
+      [EMERGENCY_HISTORY_STATE_KEY]:true,
+      emergencyReturnScreen:emergencyReturnState && emergencyReturnState.screenId || "screen-home"
+    }, "", window.location.href);
+    emergencyHistoryActive = true;
+  }
+
+  requestAnimationFrame(() => {
+    const heading = document.querySelector("#screen-emergency > .flow-screen-header h2");
+    if(heading){
+      heading.setAttribute("tabindex", "-1");
+      try{ heading.focus({preventScroll:true}); }catch(error){ heading.focus(); }
+    }
+  });
+  return true;
+}
 
 function flowScrollTop(){
   window.scrollTo({top:0, left:0, behavior:"auto"});
@@ -4289,8 +4427,8 @@ function setupAppFlowScreens(){
       '<p class="eyebrow">Emergency</p><h2>응급번호 확인</h2>'+
       '<div id="emergencyInfoContent"></div>'+
       '<div class="two" style="margin-top:12px">'+
-        '<button id="flowEmergencyConfirmBtn" class="btn danger w-full" type="button">🚑 응급번호 확인하기</button>'+
-        '<button class="btn outline w-full" type="button" data-flow-screen="screen-home">홈으로</button>'+
+        '<button id="flowEmergencyConfirmBtn" class="btn primary w-full" type="button">이전 화면으로</button>'+
+        '<button class="btn outline w-full" type="button" data-emergency-home>홈으로</button>'+
       '</div>';
   }
   emergency.appendChild(emergencyCard);
@@ -4356,7 +4494,14 @@ function bindFlowNavigation(){
     const back = event.target.closest("[data-flow-back]");
     if(back){
       event.preventDefault();
-      goFlowBack();
+      if(currentFlowScreen === "screen-emergency") returnFromEmergencyHelpMode();
+      else goFlowBack();
+      return;
+    }
+    const emergencyHome = event.target.closest("[data-emergency-home]");
+    if(emergencyHome){
+      event.preventDefault();
+      returnFromEmergencyHelpMode({home:true});
       return;
     }
     const target = event.target.closest("[data-flow-screen]");
@@ -4366,6 +4511,10 @@ function bindFlowNavigation(){
     }
   });
   window.addEventListener("popstate", event => {
+    if(currentFlowScreen === "screen-emergency" && emergencyHistoryActive){
+      returnFromEmergencyHelpMode({fromPopState:true});
+      return;
+    }
     const screenId = event.state && event.state.sosBridgeFlowScreen;
     if(stage === "app" && screenId && $(screenId)){
       showFlowScreen(screenId, {push:false, browser:false});
@@ -4692,7 +4841,7 @@ function renderServices(){
   const homeServiceKeys = ["symptom","phrases","medicalCard","hospital","pharmacy","emergency"];
   const homeServices = homeServiceKeys.map(key => services.find(service => service.key === key)).filter(Boolean);
   const currentEmergencyNumber = getCurrentEmergencyDialNumber("primary");
-  const emergencyDisplay = getCountryListEmergencyDisplay(getTripOption());
+  const emergencyDisplay = getCountryListEmergencyDisplay(getConfirmedTripOption() || getTripOption());
   const emergencyConditionLabel = emergencyDisplay.compactNotice ? " · "+emergencyDisplay.compactNotice : "";
   const serviceDescriptions = {
     symptom: "위험 신호와 다음 행동을 참고용으로 정리",
@@ -4700,15 +4849,15 @@ function renderServices(){
     medicalCard: "건강 정보를 한 장에",
     hospital: "현재 위치에서 거리순",
     pharmacy: "현재 위치에서 거리순",
-    emergency: currentEmergencyNumber ? currentEmergencyNumber+"로 즉시 전화"+emergencyConditionLabel : "응급번호 확인 필요"
+    emergency: currentEmergencyNumber ? "긴급 도움 · "+currentEmergencyNumber+emergencyConditionLabel : "긴급 도움 및 응급번호 확인"
   };
   $("serviceGrid").innerHTML = homeServices.map(s => {
     const recommended = s.key === "symptom";
-    const emergencyUnavailable = s.key === "emergency" && !currentEmergencyNumber;
+    const emergencyUnavailable = s.key === "emergency" && !getConfirmedTripOption();
     const title = String(tx[s.titleKey] || "");
     const description = String(serviceDescriptions[s.key] || tx[s.descKey] || "");
     const ariaLabel = s.key === "emergency"
-      ? (emergencyUnavailable ? "응급번호 확인 필요" : "응급번호 "+currentEmergencyNumber+" 전화 앱에서 열기")
+      ? (emergencyUnavailable ? "먼저 여행 국가를 선택하고 확인해 주세요" : "긴급 도움 모드 열기")
       : title+" 열기";
     return '<button class="service '+(activeService===s.key?'active':'')+'" data-service="'+s.key+'" type="button" aria-label="'+escapeHtml(ariaLabel)+'"'+(emergencyUnavailable?' disabled aria-disabled="true"':'')+'>'+
       '<div class="service-icon" aria-hidden="true">'+homeServiceIconSvg(s.key)+'</div>'+
@@ -4786,7 +4935,11 @@ function showApp(options={}){
   }
   saveTripInputs();
   if(options.persistSelectedCountry === true){
-    saveSelectedCountryCode(getTripOption().countryCode);
+    if(!confirmTripCountrySelection()){
+      stage="language";
+      renderLanguagePage();
+      return;
+    }
   }
   stage="app";
   setupAppFlowScreens();
@@ -5854,7 +6007,13 @@ function renderMedicalCardPreview(){
 
 function renderEmergencyInfoCard(){
   if(!$("emergencyInfoContent")) return;
-  const tripOpt=getTripOption(), userPack=getPhrasePack("ko");
+  const tripOpt=getConfirmedTripOption();
+  if(!tripOpt){
+    $("emergencyInfoContent").innerHTML =
+      '<div class="notice amber"><strong>먼저 여행 국가를 선택하고 확인해 주세요.</strong><br>확정되지 않은 임시 선택 국가의 응급번호는 사용하지 않습니다.</div>';
+    return;
+  }
+  const userPack=getPhrasePack("ko");
   const keys = ["ambulance","help"];
   const translated = getTranslatedPhrasePack(keys, "emergency");
   const pack = translated.pack || phrasePacks.ko;
@@ -5867,7 +6026,7 @@ function renderEmergencyInfoCard(){
         ? '<div class="notice teal">현지어 도움 문장을 준비하는 중입니다.</div>'
         : "";
   $("emergencyInfoContent").innerHTML =
-    '<div class="result-box emergency"><p style="font-size:20px;margin-bottom:6px">'+escapeHtml(tripCountryName || tripOpt.countryKo)+' 응급번호</p>'+emergencyNumbersDetailHtml(tripOpt, {margin:"8px 0"})+'<p class="small">실제 전화는 사용자가 전화 앱에서 직접 실행해야 합니다.</p></div>'+
+    '<div class="result-box emergency"><p style="font-size:20px;margin-bottom:6px">'+escapeHtml(tripOpt.countryKo || tripOpt.country)+' 응급번호</p>'+emergencyNumbersDetailHtml(tripOpt, {margin:"8px 0"})+'<p class="small">표시된 조건과 역할을 확인한 뒤, 필요한 번호 버튼을 사용자가 직접 눌러야 전화 앱이 열립니다.</p></div>'+
     countryNoticeHtml(tripOpt)+
     phraseNotice+
     phraseBox("ambulance", pack.ambulance, userPack.ambulance, {untranslated})+
@@ -5965,7 +6124,7 @@ function openService(key){
     return;
   }
   if(key==="emergency"){
-    openCurrentEmergencyDialer("primary");
+    openEmergencyHelpMode();
     return;
   }
   if(key==="symptom"){
@@ -7310,7 +7469,7 @@ function uniqueList(items){
 }
 
 function callEmergencyNumber(){
-  openCurrentEmergencyDialer("ambulance", {fallbackToScreen:false});
+  openEmergencyHelpMode();
 }
 
 function renderEmergencyModalState(){
@@ -7336,18 +7495,18 @@ function renderEmergencyModalState(){
     setDialButtonVisible(false);
     return;
   }
-  if(!hasTripCountrySelection){
+  const tripOpt = getConfirmedTripOption();
+  if(!tripOpt){
     title.textContent = "선택한 국가의 응급번호를 확인합니다.";
-    desc.textContent = "먼저 여행 국가를 선택하면 확인 가능한 응급번호를 표시합니다.";
+    desc.textContent = "먼저 여행 국가를 선택하고 확인해 주세요.";
     numberBox.innerHTML = "";
     numberBox.classList.add("hidden");
     setDialButtonVisible(false);
     return;
   }
 
-  const tripOpt = getTripOption();
-  const countryName = tripCountryName || tripOpt.countryKo || "선택한 국가";
-  const dialNumber = getCurrentEmergencyDialNumber("primary");
+  const countryName = tripOpt.countryKo || tripOpt.country || "선택한 국가";
+  const dialNumber = getStrictEmergencyDialNumber(tripOpt, "primary");
   if(!dialNumber){
     title.textContent = "현재 확인 가능한 응급번호가 없습니다";
     desc.textContent = "검증되지 않은 번호를 임의로 안내하지 않습니다. 긴급한 경우 현지 공공기관, 숙소, 학교·여행사 담당자 또는 여행자 보험사에 도움을 요청하세요.";
@@ -7378,47 +7537,60 @@ function normalizeEmergencyDialNumber(raw){
 }
 
 function getEmergencyDialNumber(item, type="primary", alternateIndex=0){
-  const data = getEmergencyNumbersData(item);
-  if(!data || data.status === "needs-verification") return "";
-  if(type === "alternate"){
-    const alternate = emergencyAlternates(data)[alternateIndex];
-    return resolveEmergencyDialNumberValue(alternate && alternate.number);
-  }
-  return resolveEmergencyDialNumberValue(data[type]);
+  return getStrictEmergencyDialNumber(item, type, alternateIndex);
 }
 
 function getCurrentEmergencyDialNumber(type="primary"){
-  if(!countryDataLoaded || !hasTripCountrySelection) return "";
-  const opt = getTripOption();
-  return getCountryEmergencyDialNumber(opt, type);
+  const option = getConfirmedTripOption();
+  return option ? getStrictEmergencyDialNumber(option, type) : "";
 }
 
 function showEmergencyDialUnavailable(fallbackToScreen=true){
-  if(fallbackToScreen){
-    hideFeatureSections();
-    $("facilityCard").classList.add("hidden");
-    renderEmergencyInfoCard();
-    showFlowScreen("screen-emergency");
-  }else{
-    showEmergency();
-  }
+  openEmergencyHelpMode();
   setStatus("현재 검증된 응급번호를 제공할 수 없습니다. 현지 공공기관, 숙소, 학교·여행사 담당자 또는 여행자 보험사에 확인하세요.");
 }
 
 function openCurrentEmergencyDialer(type="primary", opts={}){
-  const number = getCurrentEmergencyDialNumber(type);
-  return openEmergencyDialNumber(number, opts);
+  openEmergencyHelpMode();
+  return false;
 }
 
 function openEmergencyDialNumber(raw, opts={}){
-  const number = normalizeEmergencyDialNumber(raw);
-  if(number){
-    window.location.href = "tel:" + number;
-    setStatus("현지 응급번호 전화 앱을 열었습니다. 연결되지 않으면 번호를 직접 입력하세요: "+number);
-    return true;
+  if(opts.fromEmergencyScreen !== true || currentFlowScreen !== "screen-emergency"){
+    openEmergencyHelpMode();
+    return false;
   }
-  showEmergencyDialUnavailable(opts.fallbackToScreen !== false);
-  return false;
+  const confirmedOption = getConfirmedTripOption();
+  const confirmedCode = String(confirmedOption && confirmedOption.countryCode || "").trim().toUpperCase();
+  const requestedCode = normalizeConfirmedCountryCode(opts.countryCode);
+  const role = String(opts.role || "").trim();
+  const alternateIndex = Number.isInteger(opts.alternateIndex) ? opts.alternateIndex : 0;
+  if(!confirmedOption || !requestedCode || requestedCode !== confirmedCode){
+    renderEmergencyInfoCard();
+    setStatus("선택 국가가 변경되어 긴급정보를 다시 확인했습니다. 번호를 다시 선택해 주세요.");
+    return false;
+  }
+  const expectedNumber = getStrictEmergencyDialNumber(confirmedOption, role, alternateIndex);
+  const number = normalizeEmergencyDialNumber(raw);
+  if(!number || !expectedNumber || number !== expectedNumber){
+    renderEmergencyInfoCard();
+    setStatus("현재 긴급정보와 번호가 일치하지 않습니다. 역할과 번호를 다시 확인해 주세요.");
+    return false;
+  }
+  window.location.href = "tel:" + number;
+  setStatus("현지 응급번호 전화 앱을 열었습니다. 연결되지 않으면 번호를 직접 입력하세요: "+number);
+  return true;
+}
+
+function handleEmergencyDialAction(button){
+  if(!(button instanceof HTMLElement)) return false;
+  const alternateIndex = Number(button.getAttribute("data-emergency-alternate-index"));
+  return openEmergencyDialNumber(button.getAttribute("data-emergency-dial-number"), {
+    fromEmergencyScreen:true,
+    countryCode:button.getAttribute("data-emergency-country-code"),
+    role:button.getAttribute("data-emergency-role"),
+    alternateIndex:Number.isInteger(alternateIndex) && alternateIndex >= 0 ? alternateIndex : 0
+  });
 }
 
 function openHospitalFromTriage(){
@@ -7513,17 +7685,12 @@ function renderTriage(){
   on("triageGoHome", "click", () => showFlowScreen("screen-home"));
 }
 function showEmergency(){
-  renderEmergencyModalState();
-  $("emergencyModal").classList.remove("hidden");
+  openEmergencyHelpMode();
 }
 function hideEmergency(){ $("emergencyModal").classList.add("hidden"); }
 function agreeEmergency(){
-  if(!getCurrentEmergencyDialNumber("primary")){
-    renderEmergencyModalState();
-    return;
-  }
   hideEmergency();
-  openCurrentEmergencyDialer("primary", {fallbackToScreen:false});
+  openEmergencyHelpMode();
 }
 
 function showSpeech(msg){ $("speechStatus").textContent=msg; $("speechStatus").classList.remove("hidden"); }
@@ -7550,9 +7717,14 @@ function initAllLanguageTestPanel(){
     prescriptionSourceKo: PRESCRIPTION_SOURCE_KO,
     prescriptionStatements: {...PRESCRIPTION_STATEMENTS},
     getEmergencyNumbersData,
+    emergencyNumbersDetailHtml,
     getEmergencyDialNumber,
     getCurrentEmergencyDialNumber,
     getCountryEmergencyDialNumber,
+    getStrictEmergencyDialNumber,
+    isEmergencyStatusDialable,
+    getConfirmedTripOption,
+    getConfirmedTripCountryCode,
     getCountryListEmergencyDisplay,
     emergencyDialNumberCandidates,
     resolveEmergencyDialNumberValue,
@@ -7560,6 +7732,12 @@ function initAllLanguageTestPanel(){
     normalizeEmergencyDialNumber,
     emergencyRoleRows,
     emergencyListDisplay,
+    emergencySafetyState:() => ({
+      confirmedTripCountryCode:getConfirmedTripCountryCode(),
+      currentFlowScreen,
+      emergencyHistoryActive,
+      emergencyReturnScreen:emergencyReturnState && emergencyReturnState.screenId || ""
+    }),
     escapeHtml
   };
 }
@@ -7573,7 +7751,7 @@ function init(){
   on("startBtn","click",()=>showApp({persistSelectedCountry:true}));
   on("changeLangBtn","click",showLanguage);
   on("appCountryPill","click",showLanguage);
-  on("headerEmergencyBtn","click",()=>openCurrentEmergencyDialer("ambulance"));
+  on("headerEmergencyBtn","click",event=>openEmergencyHelpMode(event.currentTarget));
   on("languageSearch","input",handleLanguageSearchInput);
   on("toggleAllCountriesBtn","click",toggleAllPriorityCountries);
   on("userLangSelect","change",e=>{ selected="ko"; renderLanguagePage(); });
@@ -7617,7 +7795,7 @@ function init(){
       renderMedicalCardPreview();
     });
   });
-  on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",()=>{ saveMedicalCard(); showFlowScreen("screen-medical-result"); }); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency); on("flowEmergencyConfirmBtn","click",showEmergency); on("agreeLocationBtn","click",agreeLocationConsent); on("manualLocationBtn","click",chooseManualLocation);
+  on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",()=>{ saveMedicalCard(); showFlowScreen("screen-medical-result"); }); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency); on("flowEmergencyConfirmBtn","click",returnFromEmergencyHelpMode); on("agreeLocationBtn","click",agreeLocationConsent); on("manualLocationBtn","click",chooseManualLocation);
   on("offlineEmergencyBtn", "click", () => { hideOfflineFeatureNotice(); showEmergency(); });
   on("offlinePhrasesBtn", "click", () => { hideOfflineFeatureNotice(); openService("phrases"); });
   on("offlineMedicalBtn", "click", () => { hideOfflineFeatureNotice(); openService("medicalCard"); });
@@ -7629,14 +7807,14 @@ function init(){
     const button = e.target && e.target.closest ? e.target.closest("[data-emergency-dial-number]") : null;
     if(!button) return;
     e.preventDefault();
-    openEmergencyDialNumber(button.getAttribute("data-emergency-dial-number"), {fallbackToScreen:false});
+    handleEmergencyDialAction(button);
   }));
   $("locationConsentModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="locationConsentModal") hideLocationConsent(); }));
   document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>safe(()=>{
     if(btn.dataset.nav === "serviceSection") showFlowScreen("screen-home");
     else if(btn.dataset.nav === "aiCarePanel") openService("symptom");
     else if(btn.dataset.nav) scrollToId(btn.dataset.nav);
-    if(btn.dataset.action === "emergency") openCurrentEmergencyDialer("primary");
+    if(btn.dataset.action === "emergency") openEmergencyHelpMode(btn);
     else if(btn.dataset.action) openService(btn.dataset.action);
   })));
   window.addEventListener("offline", () => safe(handleAppConnectivityChange));
