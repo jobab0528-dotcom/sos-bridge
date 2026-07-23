@@ -712,6 +712,27 @@
       overscroll-behavior:contain;
       scrollbar-gutter:stable;
     }
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-emergency"] #screen-emergency:not(.hidden){
+      display:grid!important;
+      grid-template-rows:auto minmax(0,1fr);
+      height:100%;
+      min-height:0;
+      padding:10px 14px 0;
+      overflow:hidden!important;
+    }
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-emergency"] #screen-emergency>.emergency-help-scroll{
+      width:100%;
+      min-height:0;
+      box-sizing:border-box;
+      overflow-x:hidden;
+      overflow-y:auto;
+      overscroll-behavior-y:contain;
+      -webkit-overflow-scrolling:touch;
+      touch-action:pan-y;
+      padding-bottom:calc(24px + var(--safe-bottom));
+      scroll-padding-bottom:calc(24px + var(--safe-bottom));
+      scrollbar-gutter:stable;
+    }
     .sos-modern-ui .flow-screen-header{
       padding:11px 12px;
       border-radius:var(--radius-md);
@@ -4260,7 +4281,11 @@ const EMERGENCY_CHILD_HISTORY_STATE_KEY = "sosBridgeEmergencyChildScreen";
 
 function getAppFlowScrollContainer(screenId){
   const screen = $(screenId);
-  return screen && screen.classList.contains("app-flow-screen") ? screen : null;
+  if(!screen || !screen.classList.contains("app-flow-screen")) return null;
+  if(screenId === "screen-emergency"){
+    return screen.querySelector(":scope > .emergency-help-scroll") || screen;
+  }
+  return screen;
 }
 
 function captureEmergencyReturnState(trigger){
@@ -4610,7 +4635,13 @@ function setupAppFlowScreens(){
   emergencyCard.classList.add("emergency-hub-shell");
   const emergencyActions = emergencyCard.querySelector(":scope > .two");
   if(emergencyActions) emergencyActions.classList.add("emergency-hub-actions");
-  emergency.appendChild(emergencyCard);
+  let emergencyScroll = emergency.querySelector(":scope > .emergency-help-scroll");
+  if(!emergencyScroll){
+    emergencyScroll = document.createElement("div");
+    emergencyScroll.className = "emergency-help-scroll";
+    emergency.appendChild(emergencyScroll);
+  }
+  emergencyScroll.appendChild(emergencyCard);
 
   const info = makeFlowScreen(root, "screen-info", "이용 안내 및 개인정보", "서비스 안내와 개인정보 관련 내용을 확인하세요.");
   appendExisting(info, "infoGuideCard");
