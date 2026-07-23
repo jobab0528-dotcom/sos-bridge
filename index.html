@@ -3048,6 +3048,56 @@ const $ = id => document.getElementById(id);
 const safe = (fn) => { try { fn(); } catch(e) { showDebug(e); } };
 const on = (id, event, handler) => { const el=$(id); if(el) el.addEventListener(event, e => safe(() => handler(e)), {passive:false}); };
 const t = () => Object.assign({}, i18n.en, i18n.ko || {});
+const SELECTED_COUNTRY_STORAGE_KEY = "sosBridgeSelectedCountryCode";
+function clearStoredSelectedCountryCode(){
+  try{
+    window.localStorage.removeItem(SELECTED_COUNTRY_STORAGE_KEY);
+    return true;
+  }catch(error){
+    console.warn("SOS Bridge: selected country storage is unavailable.");
+    return false;
+  }
+}
+function getStoredSelectedCountryCode(){
+  try{
+    const stored = window.localStorage.getItem(SELECTED_COUNTRY_STORAGE_KEY);
+    if(stored === null) return "";
+    const code = String(stored).trim().toUpperCase();
+    if(!/^[A-Z]{2}$/.test(code)){
+      clearStoredSelectedCountryCode();
+      return "";
+    }
+    return code;
+  }catch(error){
+    console.warn("SOS Bridge: selected country storage is unavailable.");
+    return "";
+  }
+}
+function saveSelectedCountryCode(countryCode){
+  const code = String(countryCode || "").trim().toUpperCase();
+  if(!/^[A-Z]{2}$/.test(code)) return false;
+  const exists = languageOptions.some(item => String(item.countryCode || "").trim().toUpperCase() === code);
+  if(!exists) return false;
+  try{
+    window.localStorage.setItem(SELECTED_COUNTRY_STORAGE_KEY, code);
+    return true;
+  }catch(error){
+    console.warn("SOS Bridge: selected country could not be saved.");
+    return false;
+  }
+}
+function restoreStoredSelectedCountry(){
+  if(!countryDataLoaded) return false;
+  const code = getStoredSelectedCountryCode();
+  if(!code) return false;
+  const option = languageOptions.find(item => String(item.countryCode || "").trim().toUpperCase() === code);
+  if(!option){
+    clearStoredSelectedCountryCode();
+    return false;
+  }
+  selectTripCountry(option.id, {render:false});
+  return true;
+}
 function isAppOffline(){ return navigator.onLine === false; }
 function hideOfflineFeatureNotice(){
   const modal = $("offlineFeatureModal");
@@ -4101,7 +4151,7 @@ function renderSetupFlowStatus(){
   el.innerHTML = "";
 }
 
-function selectTripCountry(id){
+function selectTripCountry(id, options={}){
   const opt = languageOptions.find(item => item.id === id);
   if(!opt) return;
   selected = "ko";
@@ -4111,6 +4161,7 @@ function selectTripCountry(id){
   hasTripCountrySelection = true;
   resetMedicalCardTranslation();
   syncInitialTripInputs(true);
+  if(options.render === false) return;
   renderAll();
   bindHospitalFinderButtons();
 }
@@ -4457,13 +4508,16 @@ function renderApp(){
   renderPharmacyPhraseCard();
 }
 function renderAll(){ stage === "language" ? renderLanguagePage() : renderApp(); }
-function showApp(){
+function showApp(options={}){
   if(!hasTripCountrySelection){
     stage="language";
     renderLanguagePage();
     return;
   }
   saveTripInputs();
+  if(options.persistSelectedCountry === true){
+    saveSelectedCountryCode(getTripOption().countryCode);
+  }
   stage="app";
   setupAppFlowScreens();
   document.body.classList.add("flow-app-active");
@@ -7244,8 +7298,9 @@ function initAllLanguageTestPanel(){
 function init(){
   initAppViewportHeightSync();
   setupAppFlowScreens();
+  restoreStoredSelectedCountry();
   bindFlowNavigation();
-  on("startBtn","click",showApp);
+  on("startBtn","click",()=>showApp({persistSelectedCountry:true}));
   on("changeLangBtn","click",showLanguage);
   on("appCountryPill","click",showLanguage);
   on("headerEmergencyBtn","click",()=>openCurrentEmergencyDialer("ambulance"));
