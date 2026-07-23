@@ -30,6 +30,7 @@
       --shadow-card:0 10px 28px rgba(15,23,42,.08);
       --shadow-soft:0 6px 18px rgba(15,23,42,.06);
       --app-viewport-height:100dvh;
+      --safe-top:env(safe-area-inset-top,0px);
       --safe-bottom:env(safe-area-inset-bottom,0px);
       --navy:var(--color-primary-dark);
       --teal:var(--color-accent);
@@ -271,6 +272,12 @@
     .medical-pass-value{font-size:20px;line-height:1.35;font-weight:950;color:#0f172a;word-break:break-word}
     .modal{position:fixed;inset:0;z-index:100;background:rgba(2,6,23,.58);display:flex;align-items:center;justify-content:center;padding:18px}
     .modal-box{background:white;border-radius:var(--radius-lg);padding:22px;width:min(560px,100%);box-shadow:0 30px 80px rgba(15,23,42,.35);max-height:88vh;overflow:auto}
+    .app-status-banner{position:fixed;top:calc(max(8px,var(--safe-top)) + 62px);left:50%;z-index:9999;display:flex;align-items:center;justify-content:center;gap:8px;width:max-content;max-width:calc(100vw - 24px);min-height:38px;padding:8px 12px;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff;color:#1e3a5f;box-shadow:0 8px 24px rgba(15,23,42,.14);font-size:12px;font-weight:900;line-height:1.35;text-align:center}
+    .app-status-banner.offline{border-color:#bae6fd;background:#ecfeff;color:#155e75}
+    .app-status-banner.online{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+    .app-status-banner.warning{border-color:#fde68a;background:#fffbeb;color:#92400e}
+    .app-status-banner .status-action{min-height:30px;padding:4px 9px;border:1px solid currentColor;border-radius:9px;background:#fff;color:inherit;font-size:11px;font-weight:950;white-space:nowrap}
+    @media (max-width:420px){.app-status-banner{right:12px;left:12px;width:auto;max-width:none}.app-status-banner .status-message{min-width:0}}
     .bottom-nav{
       position:fixed!important;
       left:0!important;
@@ -828,6 +835,10 @@
   </style>
 </head>
 <body class="sos-modern-ui">
+  <div id="appStatusBanner" class="app-status-banner hidden" role="status" aria-live="polite" aria-atomic="true">
+    <span id="appStatusMessage" class="status-message"></span>
+    <button id="appStatusAction" class="status-action hidden" type="button">새로고침</button>
+  </div>
   <main id="languagePage" class="page">
     <section class="container grid home-grid" style="align-items:stretch">
       <div id="screen-country-summary" class="card home-left-card flow-screen language-flow-screen" aria-labelledby="chooseTitle">
@@ -1125,6 +1136,22 @@
     </div>
   </div>
 
+  <div id="offlineFeatureModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="offlineFeatureTitle" aria-describedby="offlineFeatureMessage">
+    <div class="modal-box">
+      <div style="font-size:48px;margin-bottom:12px" aria-hidden="true">📡</div>
+      <h2 id="offlineFeatureTitle">인터넷 연결이 필요합니다.</h2>
+      <p id="offlineFeatureMessage" class="muted"></p>
+      <p id="offlineFeatureAlternative" class="small muted"></p>
+      <div class="grid" style="margin-top:14px">
+        <button id="offlineEmergencyBtn" class="btn danger w-full" type="button">응급번호 확인</button>
+        <button id="offlinePhrasesBtn" class="btn soft w-full" type="button">현지어 도움 문장 열기</button>
+        <button id="offlineMedicalBtn" class="btn soft w-full" type="button">저장된 의료카드 열기</button>
+        <button id="offlineHomeBtn" class="btn outline w-full" type="button">홈으로</button>
+        <button id="offlineCloseBtn" class="btn outline w-full" type="button">닫기</button>
+      </div>
+    </div>
+  </div>
+
 <script src="./countries.js"></script>
 <script>
 (function(){
@@ -1160,6 +1187,7 @@ function initAppViewportHeightSync(){
 }
 
 const countrySource = Array.isArray(window.SOS_BRIDGE_COUNTRIES) ? window.SOS_BRIDGE_COUNTRIES : [];
+const countryDataLoaded = countrySource.length > 0;
 const countryCollator = new Intl.Collator("ko-KR");
 function countryCodeToFlagEmoji(countryCode){
   const code = String(countryCode || "").trim().toUpperCase();
@@ -1181,7 +1209,22 @@ const languageOptions = countrySource.map((item, index) => ({
 })).sort((a, b) => countryCollator.compare(a.countryKo || a.countryNameKo || "", b.countryKo || b.countryNameKo || ""));
 languageOptions.forEach((item, index) => { item.rank = index + 1; });
 if(!languageOptions.length){
-  languageOptions.push({id:"ko", countryCode:"KR", rank:1, flag:"🇰🇷", countryKo:"대한민국", country:"South Korea", countryNameKo:"대한민국", countryNameEn:"South Korea", languageKo:"한국어", languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko", native:"한국어", languageNative:"한국어", emergencyNumber:"119", mapCountryQuery:"South Korea", aliasesKo:["한국"], aliasesEn:["Korea"], availableLanguages:[{languageNameKo:"한국어", languageNameEn:"Korean", languageCode:"ko"}], safetyNotice:false, regionNotice:false, languageReviewNeeded:false});
+  languageOptions.push({
+    id:"country-data-unavailable",
+    countryCode:"",
+    rank:1,
+    flag:"",
+    countryKo:"국가 정보를 불러올 수 없습니다",
+    country:"Country data unavailable",
+    languageKo:"",
+    languageNameKo:"",
+    languageNameEn:"",
+    languageCode:"",
+    native:"",
+    emergencyNumber:"현지 응급번호 확인 필요",
+    mapCountryQuery:"",
+    emergencyNumbers:{status:"needs-verification",primary:"",police:"",ambulance:"",fire:"",notesKo:"검증된 국가 응급정보를 불러올 수 없습니다.",sourceName:"",sourceUrl:"",lastVerified:""}
+  });
 }
 const PRIORITY_COUNTRY_CODES = [
   "GR","ZA","NL","NO","NZ","TW","KR","DK","DE","LA","LV","LU","RO","LT","MO","MY","MX","MT","US","MM",
@@ -1198,6 +1241,7 @@ const priorityLanguageOptions = languageOptions
   .filter(isPriorityCountryOption)
   .sort((a, b) => countryCollator.compare(a.countryKo || a.countryNameKo || "", b.countryKo || b.countryNameKo || ""));
 function getPublicCountryOptions(){
+  if(!countryDataLoaded) return [];
   return priorityLanguageOptions.length ? priorityLanguageOptions : languageOptions;
 }
 window.SOS_BRIDGE_PRIORITY_COUNTRIES = priorityLanguageOptions;
@@ -2981,6 +3025,7 @@ let activeService = "home";
 let facilityType = "hospital";
 let locationData = null;
 let facilities = [];
+let facilitySearchErrorMessage = "";
 let facilityRecommendation = null;
 let triage = null;
 let hospitalFinderTriage = null;
@@ -3003,6 +3048,66 @@ const $ = id => document.getElementById(id);
 const safe = (fn) => { try { fn(); } catch(e) { showDebug(e); } };
 const on = (id, event, handler) => { const el=$(id); if(el) el.addEventListener(event, e => safe(() => handler(e)), {passive:false}); };
 const t = () => Object.assign({}, i18n.en, i18n.ko || {});
+function isAppOffline(){ return navigator.onLine === false; }
+function hideOfflineFeatureNotice(){
+  const modal = $("offlineFeatureModal");
+  if(modal) modal.classList.add("hidden");
+}
+function showOfflineFeatureNotice(feature){
+  const copies = {
+    symptom:{
+      title:"증상 안내에는 인터넷 연결이 필요합니다.",
+      message:"연결 후 다시 시도하세요. 증상이 심하거나 빠르게 악화되면 현지 응급번호로 연락하세요.",
+      alternative:"저장된 응급정보, 미리 준비된 현지어 도움 문장 또는 기기에 저장된 의료카드 원문을 확인할 수 있습니다."
+    },
+    hospital:{
+      title:"현재 오프라인 상태라 주변 병원을 검색할 수 없습니다.",
+      message:"연결 후 다시 시도하거나 숙소·학교·여행사 담당자 또는 현지 응급기관에 문의하세요.",
+      alternative:"오프라인에서는 위치 권한 요청과 병원 검색을 시작하지 않습니다."
+    },
+    pharmacy:{
+      title:"현재 오프라인 상태라 주변 약국을 검색할 수 없습니다.",
+      message:"연결 후 다시 시도하거나 숙소·학교·여행사 담당자 또는 현지 응급기관에 문의하세요.",
+      alternative:"오프라인에서는 위치 권한 요청과 약국 검색을 시작하지 않습니다."
+    },
+    map:{
+      title:"지도 길찾기에는 인터넷 연결이 필요합니다.",
+      message:"인터넷 연결 후 다시 시도하세요.",
+      alternative:"긴급한 경우 저장된 응급정보를 확인하거나 주변 사람·숙소에 도움을 요청하세요."
+    }
+  };
+  const copy = copies[feature] || copies.map;
+  if($("offlineFeatureTitle")) $("offlineFeatureTitle").textContent = copy.title;
+  if($("offlineFeatureMessage")) $("offlineFeatureMessage").textContent = copy.message;
+  if($("offlineFeatureAlternative")) $("offlineFeatureAlternative").textContent = copy.alternative;
+  const modal = $("offlineFeatureModal");
+  if(modal) modal.classList.remove("hidden");
+}
+function renderOfflineFacilityState(type){
+  const list = $("facilityList");
+  if(!list) return;
+  const label = type === "hospital" ? "병원" : "약국";
+  list.innerHTML =
+    '<div class="notice amber"><strong>현재 오프라인 상태라 주변 '+label+'을 검색할 수 없습니다.</strong><br>연결 후 다시 시도하거나 숙소·학교·여행사 담당자 또는 현지 응급기관에 문의하세요.</div>'+
+    '<div class="two">'+
+      '<button id="offlineFacilityEmergencyBtn" class="btn danger w-full" type="button">응급번호 확인</button>'+
+      '<button id="offlineFacilityHomeBtn" class="btn outline w-full" type="button">홈으로</button>'+
+    '</div>';
+  on("offlineFacilityEmergencyBtn", "click", showEmergency);
+  on("offlineFacilityHomeBtn", "click", () => showFlowScreen("screen-home"));
+}
+function handleAppConnectivityChange(){
+  if(isAppOffline() && (currentFlowScreen === "screen-hospital-results" || currentFlowScreen === "screen-pharmacy-results")){
+    isLoading = false;
+    facilities = [];
+    locationData = null;
+    renderOfflineFacilityState(currentFlowScreen === "screen-hospital-results" ? "hospital" : "pharmacy");
+  }
+  renderLocalPhraseCard();
+  renderPharmacyPhraseCard();
+  renderEmergencyInfoCard();
+  renderMedicalCardPreview();
+}
 const selectedOption = () => languageOptions.find(x => x.id === "ko" || x.countryKo === "대한민국") || languageOptions[0];
 const getSelectedCountryName = () => {
   const opt = selectedOption();
@@ -3258,6 +3363,14 @@ function emergencyConditionsHtml(data, className="emergency-condition-copy"){
   if(areas) parts.push(areas);
   return parts.length ? '<div class="'+className+'">'+parts.join("")+'</div>' : "";
 }
+function offlineEmergencyDataNoticeHtml(data){
+  if(!isAppOffline() || !countryDataLoaded) return "";
+  const lastVerified = String((data && data.lastVerified) || "").trim();
+  const message = lastVerified
+    ? "저장된 응급정보 · 마지막 확인일 "+lastVerified
+    : "저장된 응급정보입니다.";
+  return '<div class="notice teal small offline-emergency-data" style="margin:0 0 8px">'+escapeHtml(message)+'</div>';
+}
 function emergencyRoleRowsHtml(data, opts={}){
   const rows = emergencyRoleRows(data, opts.includeServices === true);
   if(!rows.length) return "";
@@ -3402,11 +3515,11 @@ function emergencyNumbersDetailHtml(item, opts={}){
   const data = getEmergencyNumbersData(item);
   const margin = opts.margin || "8px 0 0";
   if(!hasUsableEmergencyNumbers(data)){
-    return emergencyVerificationDetailHtml(data, margin);
+    return offlineEmergencyDataNoticeHtml(data)+emergencyVerificationDetailHtml(data, margin);
   }
   const hasStructuredRoles = Boolean(data.primaryLabelKo || data.ambulanceLabelKo || emergencyAlternates(data).length || data.scopeKo || data.warningKo || (Array.isArray(data.serviceAreas) && data.serviceAreas.length));
   if(hasStructuredRoles){
-    const lines = [supportStatusHtml(data), emergencyRoleRowsHtml(data, {includeServices:true, actionable:true}), emergencyConditionsHtml(data)];
+    const lines = [offlineEmergencyDataNoticeHtml(data), supportStatusHtml(data), emergencyRoleRowsHtml(data, {includeServices:true, actionable:true}), emergencyConditionsHtml(data)];
     if(data.notesKo) lines.push('<div class="small muted" style="margin-top:6px">'+escapeHtml(data.notesKo)+'</div>');
     if(data.sourceName || data.lastVerified){
       const sourceText = [data.sourceName ? "출처: "+data.sourceName : "", data.lastVerified ? "확인일: "+data.lastVerified : ""].filter(Boolean).join(" · ");
@@ -3422,6 +3535,7 @@ function emergencyNumbersDetailHtml(item, opts={}){
   ].filter(([, value]) => String(value || "").trim());
   const allSame = primary && services.length && services.every(([, value]) => String(value || "").trim() === primary);
   const lines = [];
+  lines.push(offlineEmergencyDataNoticeHtml(data));
   lines.push(supportStatusHtml(data));
   if(allSame){
     lines.push('<div><strong>응급번호:</strong> '+escapeHtml(primary)+'</div>');
@@ -3527,6 +3641,7 @@ function normalizePhraseTranslations(data, keys, languageCode){
 async function requestHelpPhraseTranslations(keys, section){
   const cacheKey = helpPhraseCacheKey(keys);
   if(helpPhraseTranslationCache[cacheKey] || helpPhraseTranslationStatus[cacheKey] === "loading") return;
+  if(isAppOffline()) return;
   helpPhraseTranslationStatus[cacheKey] = "loading";
 
   try{
@@ -3569,6 +3684,7 @@ function getTranslatedPhrasePack(keys, section){
 
   const cacheKey = helpPhraseCacheKey(keys);
   if(helpPhraseTranslationCache[cacheKey]) return {pack: helpPhraseTranslationCache[cacheKey], status: "done"};
+  if(isAppOffline()) return {pack: null, status: "offline"};
   if(helpPhraseTranslationStatus[cacheKey] === "error") return {pack: null, status: "error"};
 
   const sectionElementIds = {local: "localPhraseCard", pharmacy: "pharmacyPhraseCard", emergency: "emergencyInfoCard"};
@@ -4106,6 +4222,18 @@ function countryMetaLine(item){
   ].filter(Boolean).join(" · ");
 }
 function renderLanguageList(){
+  if(!countryDataLoaded){
+    const grid = $("languageGrid");
+    const popularSection = $("popularCountrySection");
+    const toggleButton = $("toggleAllCountriesBtn");
+    if(popularSection) popularSection.hidden = true;
+    if(toggleButton) toggleButton.hidden = true;
+    if(grid){
+      grid.hidden = false;
+      grid.innerHTML = '<div class="notice amber"><strong>검증된 국가 정보를 불러올 수 없습니다.</strong><br>인터넷 연결 상태에서 앱을 다시 열어주세요. 국가 데이터가 없을 때는 응급번호를 임의로 표시하지 않습니다.</div>';
+    }
+    return;
+  }
   const rawQuery = ($("languageSearch")?.value || "").trim();
   const q = rawQuery.toLowerCase();
   const normalizedQ = normalizeCountryText(rawQuery);
@@ -4183,7 +4311,7 @@ function renderLanguagePage(){
   const tripOpt=getTripOption(), localOpt=getLocalOption();
   $("chooseTitle").textContent="선택 국가 확인";
   $("chooseDesc").textContent="선택한 국가/지역의 현지어와 응급번호를 확인한 뒤 서비스 홈으로 이동하세요.";
-  const hasTrip = !!hasTripCountrySelection;
+  const hasTrip = countryDataLoaded && !!hasTripCountrySelection;
   const emergencyData = getEmergencyNumbersData(tripOpt);
   const languageNameKo = localOpt.languageNameKo || localOpt.languageKo || "";
   const languageNative = localOpt.languageNative || localOpt.native || localOpt.languageNameEn || "";
@@ -4204,6 +4332,7 @@ function renderLanguagePage(){
   $("selectedCountry").innerHTML=hasTrip
     ? '<p class="country-summary-english">'+escapeHtml(tripOpt.country || tripOpt.countryNameEn || "")+'</p>'+
         '<p class="country-summary-language">'+escapeHtml(languageLabel)+'</p>'+
+        offlineEmergencyDataNoticeHtml(emergencyData)+
         emergencyRoleRowsHtml(emergencyData)+
         emergencyConditionsHtml(emergencyData, "country-summary-conditions")+
         '<div class="country-summary-support">'+
@@ -4571,10 +4700,13 @@ function mapOverpass(elements, type, base){
 }
 
 async function fetchNearbyFacilities(type, loc){
+  if(isAppOffline()) throw new Error("OFFLINE");
   let lastError = null;
   let bestResults = [];
+  let successfulRequests = 0;
 
   for(const radius of FACILITY_SEARCH_RADII_METERS){
+    if(isAppOffline()) throw new Error("OFFLINE");
     setStatus("검색 중... 반경 "+Math.round(radius/1000)+"km 안에서 "+(type==="hospital"?"증상 맞춤 병원":"약국")+"을 찾고 있습니다.");
     renderFacilityList();
 
@@ -4590,6 +4722,7 @@ async function fetchNearbyFacilities(type, loc){
       if(!res.ok) throw new Error("검색 실패");
 
       const data = await res.json();
+      successfulRequests += 1;
       let mapped = mapOverpass(data.elements, type, loc);
       if(mapped.length){
         mapped = rankFacilitiesForRecommendation(mapped, facilityRecommendation);
@@ -4612,12 +4745,15 @@ async function fetchNearbyFacilities(type, loc){
     return finalizeFacilityResults(bestResults);
   }
 
+  if(lastError && successfulRequests < FACILITY_SEARCH_RADII_METERS.length) throw lastError;
+
   const empty = [];
   empty.searchRadiusMeters = FACILITY_SEARCH_RADII_METERS[FACILITY_SEARCH_RADII_METERS.length - 1];
   return empty;
 }
 
 async function geocodeTravelPlace(country, place){
+  if(isAppOffline()) throw new Error("OFFLINE");
   const query=[place,country].map(v=>v.trim()).filter(Boolean).join(", "); if(!query) throw new Error("EMPTY");
   const params=new URLSearchParams({format:"jsonv2",limit:"1",addressdetails:"1",q:query,"accept-language":getSpeechLang(selected).split("-")[0]});
   const res=await fetch("https://nominatim.openstreetmap.org/search?"+params.toString()); if(!res.ok) throw new Error("GEOCODE_FAIL");
@@ -4625,9 +4761,17 @@ async function geocodeTravelPlace(country, place){
   return {latitude:parseFloat(first.lat),longitude:parseFloat(first.lon),accuracy:null,source:"place-search",label:first.display_name||query};
 }
 async function applyLocation(type, loc, message, recommendation=null){
+  if(isAppOffline()){
+    isLoading=false;
+    facilities=[];
+    locationData=null;
+    renderOfflineFacilityState(type);
+    showOfflineFeatureNotice(type);
+    return;
+  }
   const tx=t();
   if(recommendation) facilityRecommendation = recommendation;
-  locationData=loc; facilityType=type; facilities=[]; isLoading=true;
+  locationData=loc; facilityType=type; facilities=[]; facilitySearchErrorMessage=""; isLoading=true;
   moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
   showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
@@ -4643,23 +4787,46 @@ async function applyLocation(type, loc, message, recommendation=null){
       ? ((loc.source==="gps"?tx.userGps:tx.travelPlace)+" 기준 "+(type==="hospital"?"증상 맞춤 병원":"약국")+" "+facilities.length+"곳을 찾았습니다."+(radiusKm? " 검색 반경: 약 "+radiusKm+"km":""))
       : (type==="hospital"?"병원":"약국")+" 검색 결과가 없습니다. 위치 권한과 네트워크 연결을 확인한 뒤 다시 시도해 주세요.");
   }catch(e){
-    showDebug(e);
-    setStatus("병원·약국 검색에 실패했습니다. 네트워크와 위치 권한을 확인한 뒤 다시 시도하세요. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.");
+    if(isAppOffline() || (e && e.message === "OFFLINE")){
+      facilities=[];
+      locationData=null;
+      facilitySearchErrorMessage="";
+      setStatus("현재 오프라인 상태라 주변 "+(type==="hospital"?"병원":"약국")+"을 검색할 수 없습니다.");
+      renderOfflineFacilityState(type);
+    }else{
+      showDebug(e);
+      facilitySearchErrorMessage = (type==="hospital"?"병원":"약국")+" 검색에 실패했습니다. 주변에 시설이 없다는 의미가 아닙니다. 인터넷 연결을 확인한 뒤 다시 시도하세요. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+      setStatus(facilitySearchErrorMessage);
+    }
   }finally{
     isLoading=false;
     renderFacilityList();
   }
 }
 function requestGps(type, recommendation=null){
+  if(isAppOffline()){
+    pendingLocationRequest = null;
+    setStatus("현재 오프라인 상태라 주변 "+(type==="hospital"?"병원":"약국")+"을 검색할 수 없습니다.");
+    showOfflineFeatureNotice(type);
+    return;
+  }
   pendingLocationRequest = {type, recommendation};
   const modal = $("locationConsentModal");
   if(modal) modal.classList.remove("hidden");
 }
 
 async function useTripPlaceForLocation(type, recommendation=null){
+  if(isAppOffline()){
+    isLoading=false;
+    facilities=[];
+    locationData=null;
+    setStatus("현재 오프라인 상태라 주변 "+(type==="hospital"?"병원":"약국")+"을 검색할 수 없습니다.");
+    showOfflineFeatureNotice(type);
+    return;
+  }
   facilityRecommendation = recommendation;
   activeService = recommendation ? "hospital" : type;
-  facilityType=type; facilities=[]; locationData=null; isLoading=true;
+  facilityType=type; facilities=[]; facilitySearchErrorMessage=""; locationData=null; isLoading=true;
   moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
   showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
@@ -4688,10 +4855,15 @@ async function useTripPlaceForLocation(type, recommendation=null){
 }
 
 function startGpsAfterConsent(type, recommendation=null){
+  if(isAppOffline()){
+    setStatus("현재 오프라인 상태라 주변 "+(type==="hospital"?"병원":"약국")+"을 검색할 수 없습니다.");
+    showOfflineFeatureNotice(type);
+    return;
+  }
   const tx=t();
   facilityRecommendation = recommendation;
   activeService = recommendation ? "hospital" : type;
-  facilityType=type; facilities=[]; locationData=null; isLoading=true;
+  facilityType=type; facilities=[]; facilitySearchErrorMessage=""; locationData=null; isLoading=true;
   moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
   showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
@@ -4759,6 +4931,11 @@ async function applyTravelPlace(){
 }
 function openGoogleMapsNearby(type){}
 function openDirections(f, mode="walking"){
+  if(isAppOffline()){
+    setStatus("지도 길찾기에는 인터넷 연결이 필요합니다.");
+    showOfflineFeatureNotice("map");
+    return;
+  }
   if(!f){
     setStatus("길찾기를 열 수 없습니다.");
     return;
@@ -4813,6 +4990,12 @@ function renderFacilityList(){
     ? rec.label
     : (facilityType==="hospital" ? "증상 맞춤 병원 추천" : "가장 가까운 약국 50개");
 
+  if(isAppOffline()){
+    isLoading=false;
+    renderOfflineFacilityState(facilityType);
+    return;
+  }
+
   if(isLoading){
     $("facilityList").innerHTML=
       '<div class="notice teal">'+
@@ -4820,6 +5003,17 @@ function renderFacilityList(){
       '가까운 곳부터 원을 넓혀 '+(facilityType==="hospital"?"증상에 맞는 병원":"약국")+'을 찾고 있습니다.<br>'+
       '반경이 커질수록 조금 느릴 수 있습니다.'+
       '</div>';
+    return;
+  }
+
+  if(facilitySearchErrorMessage){
+    $("facilityList").innerHTML=
+      '<div class="notice amber">'+escapeHtml(facilitySearchErrorMessage)+'</div>'+
+      '<div class="two">'+
+        '<button id="retryFacilityAfterErrorBtn" class="btn primary w-full" type="button">현재 위치로 다시 시도</button>'+
+        '<button class="btn outline w-full" type="button" data-flow-screen="screen-home">홈으로</button>'+
+      '</div>';
+    on("retryFacilityAfterErrorBtn", "click", () => requestGps(facilityType, facilityRecommendation));
     return;
   }
 
@@ -4899,8 +5093,13 @@ function phraseTitleKo(key){
   const labels={help:"도움 요청", ambulance:"구급차 요청", hospital:"병원 요청", pharmacy:"약국 요청", pain:"통증 설명", allergy:"알레르기", medication:"복용약", fever:"발열", stomach:"복통", stabbed:"찔림/상처", accident:"교통사고", pharmacyQ:"일반의약품 상담", dosage:"복용 방법", prescription:"처방전 필요"};
   return labels[key] || key;
 }
-function phraseBox(title, localText, userText){
-  return '<div class="step"><span class="check">🗣️</span><span><strong>'+escapeHtml(phraseTitleKo(title))+'</strong><br><span class="small muted">아래 문장을 현지인에게 보여주세요.</span><br><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span><br><span class="small muted">한국어 뜻: '+escapeHtml(userText || "")+'</span></span></div>';
+function phraseBox(title, localText, userText, opts={}){
+  const untranslated = opts.untranslated === true;
+  const guidance = untranslated
+    ? '<span class="small muted" style="font-weight:950">번역되지 않은 한국어 원문</span>'
+    : '<span class="small muted">아래 문장을 현지인에게 보여주세요.</span>';
+  const meaning = untranslated ? "" : '<br><span class="small muted">한국어 뜻: '+escapeHtml(userText || "")+'</span>';
+  return '<div class="step"><span class="check">🗣️</span><span><strong>'+escapeHtml(phraseTitleKo(title))+'</strong><br>'+guidance+'<br><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span>'+meaning+'</span></div>';
 }
 function renderLocalPhraseCard(){
   if(!$("localPhraseList")) return;
@@ -4917,12 +5116,15 @@ function renderLocalPhraseCard(){
   else if(triage && triage.recommended==="pharmacy") keys=["pharmacy","pharmacyQ","fever","dosage"];
   const translated = getTranslatedPhrasePack(keys, "local");
   const notice = translated.status === "loading"
-    ? '<div class="notice teal">현지어 도움 문장을 준비하는 중입니다...</div>'
+    ? '<div class="notice teal">현지어 도움 문장을 준비하는 중입니다.<br><strong>준비 전에는 번역되지 않은 한국어 원문을 표시합니다.</strong></div>'
+    : translated.status === "offline"
+      ? '<div class="notice amber">이 국가의 현지어 번역은 인터넷 연결 후 사용할 수 있습니다.<br><strong>번역되지 않은 한국어 원문</strong></div>'
     : translated.status === "error"
-      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>'
+      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'<br><strong>번역되지 않은 한국어 원문</strong></div>'
       : '<div class="notice teal">한국어로 상황을 확인한 뒤, 필요한 문장을 현지인에게 보여주세요.</div>';
   const pack = translated.pack || phrasePacks.ko;
-  $("localPhraseList").innerHTML = notice + keys.map(k => phraseBox(k, pack[k] || phrasePacks.ko[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "")).join("");
+  const untranslated = !translated.pack;
+  $("localPhraseList").innerHTML = notice + keys.map(k => phraseBox(k, pack[k] || phrasePacks.ko[k] || phrasePacks.en[k], userPack[k] || phrasePacks.ko[k] || "", {untranslated})).join("");
 }
 function medicalFields(){
   return [
@@ -5207,6 +5409,15 @@ async function showLocalMedicalCard(){
     return;
   }
 
+  if(isAppOffline()){
+    medicalCardTranslation = null;
+    medicalCardTranslationKey = "";
+    medicalCardTranslationStatus = "error";
+    medicalCardTranslationMessage = "새로운 현지어 번역에는 인터넷 연결이 필요합니다. 번역되지 않은 한국어 의료카드 원문을 표시합니다.";
+    renderMedicalCardPreview();
+    return;
+  }
+
   medicalCardTranslationStatus = "loading";
   medicalCardTranslationMessage = "현지어 의료카드를 준비하는 중입니다...";
   renderMedicalCardPreview();
@@ -5323,13 +5534,20 @@ function renderEmergencyInfoCard(){
   const keys = ["ambulance","help"];
   const translated = getTranslatedPhrasePack(keys, "emergency");
   const pack = translated.pack || phrasePacks.ko;
-  const phraseNotice = translated.status === "error" ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>' : "";
+  const untranslated = !translated.pack;
+  const phraseNotice = translated.status === "offline"
+    ? '<div class="notice amber">이 국가의 현지어 번역은 인터넷 연결 후 사용할 수 있습니다.<br><strong>번역되지 않은 한국어 원문</strong></div>'
+    : translated.status === "error"
+      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'<br><strong>번역되지 않은 한국어 원문</strong></div>'
+      : translated.status === "loading"
+        ? '<div class="notice teal">현지어 도움 문장을 준비하는 중입니다.</div>'
+        : "";
   $("emergencyInfoContent").innerHTML =
     '<div class="result-box emergency"><p style="font-size:20px;margin-bottom:6px">'+escapeHtml(tripCountryName || tripOpt.countryKo)+' 응급번호</p>'+emergencyNumbersDetailHtml(tripOpt, {margin:"8px 0"})+'<p class="small">실제 전화는 사용자가 전화 앱에서 직접 실행해야 합니다.</p></div>'+
     countryNoticeHtml(tripOpt)+
     phraseNotice+
-    phraseBox("ambulance", pack.ambulance, userPack.ambulance)+
-    phraseBox("help", pack.help, userPack.help);
+    phraseBox("ambulance", pack.ambulance, userPack.ambulance, {untranslated})+
+    phraseBox("help", pack.help, userPack.help, {untranslated});
 }
 function renderPharmacyPhraseCard(){
   if(!$("pharmacyPhraseList")) return;
@@ -5340,16 +5558,19 @@ function renderPharmacyPhraseCard(){
   const keys=["pharmacy","pharmacyQ","dosage","prescription","allergy","medication","fever","stomach"];
   const translated = getTranslatedPhrasePack(keys, "pharmacy");
   const notice = translated.status === "loading"
-    ? '<div class="notice teal">현지어 약국 상담 문장을 준비하는 중입니다...</div>'
+    ? '<div class="notice teal">현지어 약국 상담 문장을 준비하는 중입니다.<br><strong>준비 전에는 번역되지 않은 한국어 원문을 표시합니다.</strong></div>'
+    : translated.status === "offline"
+      ? '<div class="notice amber">이 국가의 현지어 번역은 인터넷 연결 후 사용할 수 있습니다.<br><strong>번역되지 않은 한국어 원문</strong></div>'
     : translated.status === "error"
-      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'</div>'
+      ? '<div class="notice amber">'+phraseTranslationFailureMessage+'<br><strong>번역되지 않은 한국어 원문</strong></div>'
       : "";
   const pack = translated.pack || phrasePacks.ko;
+  const untranslated = !translated.pack;
   $("pharmacyPhraseList").innerHTML = notice + keys.map(k => {
     const localText = k === "prescription"
-      ? (prescriptionStatementForLanguageCode(prescriptionLanguageCode) || pack[k] || phrasePacks.ko[k] || phrasePacks.en[k])
+      ? (untranslated ? phrasePacks.ko[k] : (prescriptionStatementForLanguageCode(prescriptionLanguageCode) || pack[k] || phrasePacks.ko[k] || phrasePacks.en[k]))
       : (pack[k] || phrasePacks.ko[k] || phrasePacks.en[k]);
-    return phraseBox(k, localText, userPack[k] || phrasePacks.ko[k] || "");
+    return phraseBox(k, localText, userPack[k] || phrasePacks.ko[k] || "", {untranslated});
   }).join("");
 }
 function hideFeatureSections(){
@@ -5358,6 +5579,11 @@ function hideFeatureSections(){
 
 function openService(key){
   const tx=t();
+  if(isAppOffline() && (key === "hospital" || key === "pharmacy")){
+    setStatus("현재 오프라인 상태라 주변 "+(key==="hospital"?"병원":"약국")+"을 검색할 수 없습니다.");
+    showOfflineFeatureNotice(key);
+    return;
+  }
   activeService=key;
   renderServices();
 
@@ -5366,6 +5592,7 @@ function openService(key){
     $("hospitalFinderCard").classList.remove("hidden");
     $("facilityCard").classList.add("hidden");
     facilities=[];
+    facilitySearchErrorMessage="";
     facilityType="hospital";
     facilityRecommendation=null;
     bindHospitalFinderButtons();
@@ -5377,6 +5604,7 @@ function openService(key){
   if(key==="pharmacy"){
     hideFeatureSections();
     facilityRecommendation = null;
+    facilitySearchErrorMessage="";
     moveFacilityCardToScreen("pharmacy");
     showFlowScreen("screen-pharmacy-results");
     requestGps("pharmacy", null);
@@ -5857,6 +6085,11 @@ function getBodyPartHospitalRecommendation(input, result){
 }
 
 function runHospitalFinder(){
+  if(isAppOffline()){
+    setStatus("현재 오프라인 상태라 주변 병원을 검색할 수 없습니다.");
+    showOfflineFeatureNotice("hospital");
+    return;
+  }
   const input = ($("hospitalSymptomInput") && $("hospitalSymptomInput").value.trim()) || "";
   if(!input){
     setStatus("병원찾기에 사용할 증상을 입력해 주세요.");
@@ -6609,6 +6842,11 @@ function analyzeSymptoms(input){
 }
 
 async function runAi(){
+  if(isAppOffline()){
+    setStatus("증상 안내에는 인터넷 연결이 필요합니다. 연결 후 다시 시도하세요.");
+    showOfflineFeatureNotice("symptom");
+    return;
+  }
   const symptom = $("symptomInput").value.trim();
 
   if(!symptom){
@@ -6710,16 +6948,25 @@ function normalizeAiCareKoreanPhrase(value, symptom){
 }
 
 function localTriagePhrase(phrase){
-  if(phrase && phrase.reviewNeeded) return "";
+  if(phrase && phrase.reviewNeeded){
+    return {text:"", untranslated:true, message:phrase.reviewMessage || "현지어 번역을 확인할 수 없습니다. 한국어 원문을 유지합니다."};
+  }
   const base=getBaseLang(localLangId);
-  if(phrase && phrase.local) return phrase.local;
-  if(base==="ko" && phrase && phrase.ko) return phrase.ko;
-  if(base==="en" && phrase && phrase.en) return phrase.en;
+  if(phrase && phrase.local) return {text:phrase.local, untranslated:false, message:""};
+  if(base==="ko" && phrase && phrase.ko) return {text:phrase.ko, untranslated:false, message:""};
+  if(base==="en" && phrase && phrase.en) return {text:phrase.en, untranslated:false, message:""};
   const keys = ["help","ambulance","hospital"];
   const translated = getTranslatedPhrasePack(keys, "triage");
-  if(translated.status === "error") return phraseTranslationFailureMessage;
-  const pack=translated.pack || phrasePacks.ko;
-  return [pack.help, pack.ambulance, pack.hospital].filter(Boolean).join(" ") || (phrase && phrase.en) || "I need help. Please call medical staff or an ambulance.";
+  if(!translated.pack){
+    const message = translated.status === "offline"
+      ? "새로운 현지어 번역에는 인터넷 연결이 필요합니다. 번역되지 않은 한국어 원문을 표시합니다."
+      : translated.status === "loading"
+        ? "현지어 문장을 준비하는 중입니다. 준비 전에는 번역되지 않은 한국어 원문을 표시합니다."
+        : phraseTranslationFailureMessage;
+    return {text:(phrase && phrase.ko) || phrasePacks.ko.help, untranslated:true, message};
+  }
+  const text = [translated.pack.help, translated.pack.ambulance, translated.pack.hospital].filter(Boolean).join(" ");
+  return {text:text || (phrase && phrase.en) || "I need help. Please call medical staff or an ambulance.", untranslated:false, message:""};
 }
 
 function triagePossibilityLabel(result){
@@ -6757,6 +7004,14 @@ function renderEmergencyModalState(){
   };
 
   if(closeButton) closeButton.textContent = "닫기";
+  if(!countryDataLoaded){
+    title.textContent = "검증된 국가 응급정보를 불러올 수 없습니다";
+    desc.textContent = "인터넷 연결 상태에서 앱을 다시 열어주세요. 국가 데이터가 없을 때는 112·911·119를 임의로 안내하지 않습니다.";
+    numberBox.innerHTML = "";
+    numberBox.classList.add("hidden");
+    setDialButtonVisible(false);
+    return;
+  }
   if(!hasTripCountrySelection){
     title.textContent = "선택한 국가의 응급번호를 확인합니다.";
     desc.textContent = "먼저 여행 국가를 선택하면 확인 가능한 응급번호를 표시합니다.";
@@ -6809,6 +7064,7 @@ function getEmergencyDialNumber(item, type="primary", alternateIndex=0){
 }
 
 function getCurrentEmergencyDialNumber(type="primary"){
+  if(!countryDataLoaded || !hasTripCountrySelection) return "";
   const opt = getTripOption();
   return getCountryEmergencyDialNumber(opt, type);
 }
@@ -6891,11 +7147,12 @@ function renderTriage(){
 
   const phrase = triage.phrase || {};
   const localOpt = getLocalOption();
-  const localText = localTriagePhrase(phrase);
-  const localPhraseUnavailable = !!phrase.reviewNeeded;
+  const localPhraseResult = localTriagePhrase(phrase);
+  const localText = localPhraseResult.text;
+  const localPhraseUnavailable = !!phrase.reviewNeeded || localPhraseResult.untranslated;
   const phraseHtml = localPhraseUnavailable
-    ? '<div class="notice amber" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지 의료진에게 보여줄 문장 · '+escapeHtml(localOpt.native)+'</div>'+
-      '<div class="step"><span class="check">안내</span><span>'+escapeHtml(phrase.reviewMessage || "현지어 번역을 확인할 수 없습니다. 한국어 원문을 유지합니다.")+'</span></div>'+
+    ? '<div class="notice amber" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 번역되지 않은 한국어 원문</div>'+
+      '<div class="step"><span class="check">안내</span><span>'+escapeHtml(localPhraseResult.message || "현지어 번역을 확인할 수 없습니다. 한국어 원문을 유지합니다.")+'</span></div>'+
       '<div class="step"><span class="check">KO</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>'
     : '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지 의료진에게 보여줄 문장 · '+escapeHtml(localOpt.native)+'</div>'+
       '<div class="step"><span class="check">안내</span><span>아래 문장을 현지 의료진에게 보여주세요.</span></div>'+
@@ -7036,7 +7293,13 @@ function init(){
     });
   });
   on("analyzeBtn","click",runAi); on("micBtn","click",startVoiceInput); bindHospitalFinderButtons(); on("saveMedicalCardBtn","click",()=>{ saveMedicalCard(); showFlowScreen("screen-medical-result"); }); on("clearMedicalCardBtn","click",clearMedicalCard); on("cancelEmergencyBtn","click",hideEmergency); on("agreeEmergencyBtn","click",agreeEmergency); on("flowEmergencyConfirmBtn","click",showEmergency); on("agreeLocationBtn","click",agreeLocationConsent); on("manualLocationBtn","click",chooseManualLocation);
+  on("offlineEmergencyBtn", "click", () => { hideOfflineFeatureNotice(); showEmergency(); });
+  on("offlinePhrasesBtn", "click", () => { hideOfflineFeatureNotice(); openService("phrases"); });
+  on("offlineMedicalBtn", "click", () => { hideOfflineFeatureNotice(); openService("medicalCard"); });
+  on("offlineHomeBtn", "click", () => { hideOfflineFeatureNotice(); showFlowScreen("screen-home"); });
+  on("offlineCloseBtn", "click", hideOfflineFeatureNotice);
   $("emergencyModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="emergencyModal") hideEmergency(); }));
+  $("offlineFeatureModal").addEventListener("click", e=>safe(()=>{ if(e.target.id==="offlineFeatureModal") hideOfflineFeatureNotice(); }));
   document.addEventListener("click", e=>safe(()=>{
     const button = e.target && e.target.closest ? e.target.closest("[data-emergency-dial-number]") : null;
     if(!button) return;
@@ -7051,6 +7314,8 @@ function init(){
     if(btn.dataset.action === "emergency") openCurrentEmergencyDialer("primary");
     else if(btn.dataset.action) openService(btn.dataset.action);
   })));
+  window.addEventListener("offline", () => safe(handleAppConnectivityChange));
+  window.addEventListener("online", () => safe(handleAppConnectivityChange));
   renderAll();
   initAllLanguageTestPanel();
 }
@@ -7060,11 +7325,102 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 </script>
 
 <script>
-if ("serviceWorker" in navigator && location.protocol === "https:") {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+(function(){
+  "use strict";
+  const banner = document.getElementById("appStatusBanner");
+  const message = document.getElementById("appStatusMessage");
+  const action = document.getElementById("appStatusAction");
+  let hideTimer = 0;
+  let updateReady = false;
+  let registrationFailed = false;
+  const hadControllerAtLoad = Boolean("serviceWorker" in navigator && navigator.serviceWorker.controller);
+
+  function hideStatus(){
+    if(hideTimer) window.clearTimeout(hideTimer);
+    hideTimer = 0;
+    if(banner) banner.classList.add("hidden");
+  }
+  function showStatus(text, kind="", options={}){
+    if(!banner || !message || !action) return;
+    if(hideTimer) window.clearTimeout(hideTimer);
+    hideTimer = 0;
+    message.textContent = text;
+    banner.className = "app-status-banner"+(kind ? " "+kind : "");
+    action.classList.toggle("hidden", options.refresh !== true);
+    if(options.refresh === true) action.textContent = "새로고침";
+    if(options.timeout){
+      hideTimer = window.setTimeout(hideStatus, options.timeout);
+    }
+  }
+  function showUpdateStatus(){
+    updateReady = true;
+    if(navigator.onLine === false) return;
+    showStatus("새 버전이 준비되었습니다. 화면을 새로고침하면 적용됩니다.", "", {refresh:true});
+  }
+  function showReadyStatus(){
+    if(navigator.onLine === false) return;
+    showStatus("오프라인 사용 준비가 완료되었습니다.", "online", {timeout:4200});
+  }
+  function showRegistrationFailure(){
+    registrationFailed = true;
+    if(navigator.onLine === false) return;
+    showStatus("오프라인 준비를 완료하지 못했습니다. 인터넷 연결 상태에서 다시 열어주세요.", "warning");
+  }
+  function showOfflineStatus(){
+    const hasCountryData = Array.isArray(window.SOS_BRIDGE_COUNTRIES) && window.SOS_BRIDGE_COUNTRIES.length > 0;
+    showStatus(
+      hasCountryData
+        ? "오프라인 모드 · 저장된 응급정보를 표시합니다."
+        : "오프라인 모드 · 검증된 국가 정보를 불러올 수 없습니다.",
+      "offline"
+    );
+  }
+
+  action.addEventListener("click", () => window.location.reload());
+  window.addEventListener("offline", showOfflineStatus);
+  window.addEventListener("online", () => {
+    showStatus("인터넷 연결이 복구되었습니다.", "online", {timeout:3600});
+    window.setTimeout(() => {
+      if(navigator.onLine === false) return;
+      if(updateReady) showUpdateStatus();
+      else if(registrationFailed) showRegistrationFailure();
+    }, 3700);
   });
-}
+
+  if(navigator.onLine === false) showOfflineStatus();
+
+  if(!("serviceWorker" in navigator) || location.protocol !== "https:") return;
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if(hadControllerAtLoad || updateReady) showUpdateStatus();
+    else showReadyStatus();
+  });
+
+  window.addEventListener("load", async () => {
+    if(!hadControllerAtLoad && navigator.onLine !== false){
+      showStatus("오프라인 사용을 준비하는 중입니다.", "", {timeout:8000});
+    }
+    try{
+      const registration = await navigator.serviceWorker.register("./service-worker.js");
+      const watchWorker = (worker, isUpdate) => {
+        if(!worker) return;
+        worker.addEventListener("statechange", () => {
+          if(worker.state !== "installed") return;
+          if(isUpdate) showUpdateStatus();
+          else showReadyStatus();
+        });
+      };
+      if(registration.waiting && hadControllerAtLoad) showUpdateStatus();
+      watchWorker(registration.installing, hadControllerAtLoad);
+      registration.addEventListener("updatefound", () => watchWorker(registration.installing, hadControllerAtLoad));
+      navigator.serviceWorker.ready.then(() => {
+        if(!hadControllerAtLoad && !updateReady) showReadyStatus();
+      }).catch(showRegistrationFailure);
+    }catch(error){
+      showRegistrationFailure();
+    }
+  });
+})();
 </script>
 
 <script>
