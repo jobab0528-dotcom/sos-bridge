@@ -30,6 +30,7 @@
       --shadow-card:0 10px 28px rgba(15,23,42,.08);
       --shadow-soft:0 6px 18px rgba(15,23,42,.06);
       --app-viewport-height:100dvh;
+      --keyboard-inset:0px;
       --safe-top:env(safe-area-inset-top,0px);
       --safe-bottom:env(safe-area-inset-bottom,0px);
       --navy:var(--color-primary-dark);
@@ -933,6 +934,42 @@
     }
     @media (prefers-reduced-motion:reduce){.sos-modern-ui *{scroll-behavior:auto!important;transition:none!important}}
 
+    /* iOS WebKit 입력 안정화: 자동 확대를 막고 키보드 공간은 활성 화면 스크롤에만 반영한다. */
+    body.sos-modern-ui input:not([type]),
+    body.sos-modern-ui input[type="text"],
+    body.sos-modern-ui input[type="search"],
+    body.sos-modern-ui input[type="tel"],
+    body.sos-modern-ui input[type="email"],
+    body.sos-modern-ui input[type="number"],
+    body.sos-modern-ui input[type="url"],
+    body.sos-modern-ui input[type="password"],
+    body.sos-modern-ui input[type="date"],
+    body.sos-modern-ui input[type="time"],
+    body.sos-modern-ui textarea,
+    body.sos-modern-ui select,
+    body.sos-modern-ui [contenteditable]:not([contenteditable="false"]){
+      min-height:44px;
+      font-size:16px;
+      line-height:1.4;
+    }
+    body.sos-modern-ui select{line-height:22.4px}
+    body.flow-app-active.is-keyboard-open .app-flow-screen:not(.hidden){
+      padding-bottom:calc(var(--keyboard-inset) + max(24px,var(--safe-bottom)));
+      scroll-padding-bottom:calc(var(--keyboard-inset) + 24px);
+    }
+    body.is-keyboard-open .language-flow-screen:not(.hidden) .country-select-scroll{
+      padding-bottom:calc(var(--keyboard-inset) + max(24px,var(--safe-bottom)));
+      scroll-padding-bottom:calc(var(--keyboard-inset) + 24px);
+    }
+    body.flow-app-active.is-keyboard-open[data-flow-screen="screen-ai-input"] .ai-input-home-nav{display:none}
+    body.is-keyboard-open input:focus,
+    body.is-keyboard-open textarea:focus,
+    body.is-keyboard-open select:focus,
+    body.is-keyboard-open [contenteditable]:focus{
+      scroll-margin-top:76px;
+      scroll-margin-bottom:calc(var(--keyboard-inset) + 24px);
+    }
+
     .debug{font-size:12px;white-space:pre-wrap}
   </style>
 </head>
@@ -1261,32 +1298,142 @@
 "use strict";
 
 let appViewportHeightFrame = 0;
-function updateAppViewportHeight(){
-  const visualHeight = Number(window.visualViewport?.height);
-  const innerHeightFallback = Number(window.innerHeight);
-  const viewportHeight = Number.isFinite(visualHeight) && visualHeight > 0
-    ? visualHeight
-    : innerHeightFallback;
-  if(!Number.isFinite(viewportHeight) || viewportHeight <= 0) return;
-  document.documentElement.style.setProperty("--app-viewport-height", Math.floor(viewportHeight)+"px");
-  document.documentElement.dataset.viewportHeightBand = viewportHeight < 680
+let stableViewportHeight = 0;
+let stableViewportWidth = 0;
+let pendingViewportSyncOptions = {};
+let keyboardRestoreTimers = [];
+let keyboardRestoreUntil = 0;
+const KEYBOARD_OPEN_THRESHOLD = 100;
+
+function positiveViewportNumber(value){
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : 0;
+}
+function isEditableElement(element){
+  if(!(element instanceof Element)) return false;
+  if(element.matches('textarea, select, [contenteditable]:not([contenteditable="false"])')) return true;
+  if(!element.matches("input")) return false;
+  const type = String(element.getAttribute("type") || "text").toLowerCase();
+  return ["text","search","tel","email","number","url","password","date","time"].includes(type);
+}
+function getViewportMetrics(){
+  const visualViewport = window.visualViewport;
+  const innerHeight = positiveViewportNumber(window.innerHeight)
+    || positiveViewportNumber(document.documentElement.clientHeight);
+  const innerWidth = positiveViewportNumber(window.innerWidth)
+    || positiveViewportNumber(document.documentElement.clientWidth);
+  const visualHeight = positiveViewportNumber(visualViewport && visualViewport.height) || innerHeight;
+  const visualOffsetTop = Math.max(0, Number(visualViewport && visualViewport.offsetTop) || 0);
+  return {innerHeight, innerWidth, visualHeight, visualOffsetTop};
+}
+function applyStableViewportHeight(){
+  if(!stableViewportHeight) return;
+  const height = Math.floor(stableViewportHeight);
+  document.documentElement.style.setProperty("--app-viewport-height", height+"px");
+  document.documentElement.dataset.viewportHeightBand = height < 680
     ? "short"
-    : viewportHeight < 780
+    : height < 780
       ? "medium"
       : "tall";
 }
-function scheduleAppViewportHeightUpdate(){
+function activeInputScrollContainer(element){
+  if(!(element instanceof Element)) return null;
+  const container = element.closest(".app-flow-screen:not(.hidden), .language-flow-screen:not(.hidden), .modal-box");
+  if(!container) return null;
+  const overflowY = window.getComputedStyle(container).overflowY;
+  return /auto|scroll/.test(overflowY) ? container : null;
+}
+function keepFocusedInputVisible(element=document.activeElement){
+  if(!isEditableElement(element)) return;
+  const container = activeInputScrollContainer(element);
+  if(!container) return;
+  const metrics = getViewportMetrics();
+  const elementRect = element.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const visibleTop = Math.max(containerRect.top, metrics.visualOffsetTop) + 16;
+  const visibleBottom = Math.min(containerRect.bottom, metrics.visualOffsetTop + metrics.visualHeight) - 20;
+  let correction = 0;
+  if(elementRect.bottom > visibleBottom) correction = elementRect.bottom - visibleBottom;
+  else if(elementRect.top < visibleTop) correction = elementRect.top - visibleTop;
+  if(Math.abs(correction) > 1) container.scrollTop += correction;
+}
+function syncViewportState(options={}){
+  const metrics = getViewportMetrics();
+  const activeElement = document.activeElement;
+  const editableFocused = isEditableElement(activeElement);
+  const layoutHeight = Math.max(metrics.innerHeight, metrics.visualHeight + metrics.visualOffsetTop);
+  const widthChanged = stableViewportWidth && Math.abs(metrics.innerWidth - stableViewportWidth) > 80;
+  const canUpdateStable = options.forceStableUpdate
+    || (options.allowStableUpdate && !editableFocused && Date.now() >= keyboardRestoreUntil);
+
+  if(!stableViewportHeight || canUpdateStable || (widthChanged && !editableFocused)){
+    stableViewportHeight = layoutHeight || stableViewportHeight;
+    stableViewportWidth = metrics.innerWidth || stableViewportWidth;
+  }
+  applyStableViewportHeight();
+
+  const keyboardInset = Math.max(0, stableViewportHeight - metrics.visualHeight - metrics.visualOffsetTop);
+  const keyboardOpen = editableFocused && keyboardInset >= KEYBOARD_OPEN_THRESHOLD;
+  document.documentElement.style.setProperty("--keyboard-inset", keyboardOpen ? Math.floor(keyboardInset)+"px" : "0px");
+  if(document.body) document.body.classList.toggle("is-keyboard-open", keyboardOpen);
+  if(keyboardOpen) requestAnimationFrame(() => keepFocusedInputVisible(activeElement));
+}
+function updateAppViewportHeight(){
+  syncViewportState({allowStableUpdate:!isEditableElement(document.activeElement)});
+}
+function scheduleAppViewportHeightUpdate(options={}){
+  pendingViewportSyncOptions = {...pendingViewportSyncOptions, ...options};
   if(appViewportHeightFrame) cancelAnimationFrame(appViewportHeightFrame);
   appViewportHeightFrame = requestAnimationFrame(() => {
     appViewportHeightFrame = 0;
-    updateAppViewportHeight();
+    const syncOptions = pendingViewportSyncOptions;
+    pendingViewportSyncOptions = {};
+    syncViewportState(syncOptions);
   });
 }
+function clearKeyboardRestoreTimers(){
+  keyboardRestoreTimers.forEach(timer => clearTimeout(timer));
+  keyboardRestoreTimers = [];
+}
+function restoreViewportAfterKeyboard(){
+  clearKeyboardRestoreTimers();
+  keyboardRestoreUntil = Date.now() + 360;
+  [0, 120, 380].forEach(delay => {
+    keyboardRestoreTimers.push(setTimeout(() => {
+      if(isEditableElement(document.activeElement)) return;
+      syncViewportState({allowStableUpdate:delay === 380});
+    }, delay));
+  });
+}
+function handleEditableFocusIn(event){
+  if(!isEditableElement(event.target)) return;
+  clearKeyboardRestoreTimers();
+  keyboardRestoreUntil = 0;
+  syncViewportState({allowStableUpdate:false});
+  [0, 120, 320].forEach(delay => {
+    setTimeout(() => {
+      if(document.activeElement === event.target) keepFocusedInputVisible(event.target);
+    }, delay);
+  });
+}
+function handleEditableFocusOut(){
+  setTimeout(() => {
+    if(!isEditableElement(document.activeElement)) restoreViewportAfterKeyboard();
+  }, 0);
+}
 function initAppViewportHeightSync(){
-  updateAppViewportHeight();
-  window.addEventListener("resize", scheduleAppViewportHeightUpdate, {passive:true});
-  window.addEventListener("orientationchange", scheduleAppViewportHeightUpdate, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener("resize", scheduleAppViewportHeightUpdate, {passive:true});
+  syncViewportState({forceStableUpdate:true});
+  window.addEventListener("resize", () => scheduleAppViewportHeightUpdate({allowStableUpdate:true}), {passive:true});
+  window.addEventListener("orientationchange", () => {
+    scheduleAppViewportHeightUpdate({allowStableUpdate:!isEditableElement(document.activeElement)});
+    setTimeout(() => scheduleAppViewportHeightUpdate({allowStableUpdate:true}), 380);
+  }, {passive:true});
+  document.addEventListener("focusin", handleEditableFocusIn);
+  document.addEventListener("focusout", handleEditableFocusOut);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", () => scheduleAppViewportHeightUpdate({allowStableUpdate:false}), {passive:true});
+    window.visualViewport.addEventListener("scroll", () => scheduleAppViewportHeightUpdate({allowStableUpdate:false}), {passive:true});
+  }
 }
 
 const countrySource = Array.isArray(window.SOS_BRIDGE_COUNTRIES) ? window.SOS_BRIDGE_COUNTRIES : [];
