@@ -4747,12 +4747,7 @@ function bindFlowNavigation(){
       if(action === "request" || action === "retry") requestEmergencyCurrentLocation();
       else if(action === "copy") copyEmergencyCurrentLocation();
       else if(action === "share") shareEmergencyCurrentLocation();
-      return;
-    }
-    const emergencyLocationMap = event.target.closest("[data-emergency-location-map]");
-    if(emergencyLocationMap && !getValidatedEmergencyLocationState()){
-      event.preventDefault();
-      setEmergencyLocationLiveMessage("현재 위치가 변경되었습니다. 다시 확인해 주세요.");
+      else if(action === "map") openEmergencyLocationMap();
       return;
     }
     const childReturn = event.target.closest("[data-emergency-child-return]");
@@ -6604,6 +6599,26 @@ function buildEmergencyLocationMapUrl(state=emergencyLocationState){
   }
 }
 
+function openEmergencyLocationMap(){
+  if(isAppOffline()){
+    setEmergencyLocationLiveMessage("지도 보기는 인터넷 연결이 필요합니다. 좌표 복사를 이용해 주세요.");
+    return false;
+  }
+  const state = getValidatedEmergencyLocationState();
+  const mapUrl = state ? buildEmergencyLocationMapUrl(state) : "";
+  if(!state || !mapUrl){
+    setEmergencyLocationLiveMessage("지도 링크를 열 수 없습니다. 위치를 다시 확인해 주세요.");
+    return false;
+  }
+  try{
+    window.location.assign(mapUrl);
+    return true;
+  }catch(error){
+    setEmergencyLocationLiveMessage("지도 링크를 열 수 없습니다. 위치를 다시 확인해 주세요.");
+    return false;
+  }
+}
+
 function getEmergencyLocationErrorStatus(error){
   const code = Number(error && error.code);
   if(code === 1) return {status:"permission-denied", errorCode:"1"};
@@ -6892,7 +6907,7 @@ function renderEmergencyLocationCard(){
     actionsHtml = '<button class="btn outline" type="button" data-emergency-location-action="copy">위치 복사</button>'+
       '<button class="btn outline" type="button" data-emergency-location-action="share">공유하기</button>'+
       (!isAppOffline() && mapUrl
-        ? '<a class="btn outline emergency-location-map" href="'+escapeHtml(mapUrl)+'" target="_blank" rel="noopener noreferrer" data-emergency-location-map aria-label="현재 위치 좌표를 Google Maps에서 보기">지도에서 보기</a>'
+        ? '<button class="btn outline emergency-location-map" type="button" data-emergency-location-action="map" aria-label="현재 위치를 Google 지도에서 보기">지도에서 보기</button>'
         : '<button class="btn outline" type="button" disabled aria-disabled="true">지도 보기 · 온라인 필요</button>')+
       '<button class="emergency-location-primary" type="button" data-emergency-location-action="retry">다시 확인하기</button>';
   }else if(belongsToSession && ["permission-denied","unavailable","timeout","unsupported","insecure-context"].includes(state.status)){
