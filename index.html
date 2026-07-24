@@ -270,6 +270,33 @@
     .emergency-hub-dial:focus-visible{outline:3px solid rgba(229,57,53,.25);outline-offset:2px}
     .emergency-hub-restricted{display:grid;gap:8px;padding:14px;border:1px solid #ead7aa;border-radius:16px;background:#fff8e8;color:#5f4a16;line-height:1.55}
     .emergency-hub-restricted strong{color:#46360f}
+    .emergency-location-card{display:grid;gap:12px;padding:15px;border:1px solid #d7e7f8;border-radius:18px;background:#fff;min-width:0}
+    .emergency-location-card[aria-busy="true"]{background:#f8fbff}
+    .emergency-location-head{display:grid;grid-template-columns:38px minmax(0,1fr);gap:10px;align-items:start}
+    .emergency-location-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#e8f3ff;color:#3182f6;font-size:20px}
+    .emergency-location-head h3{margin:0;color:#191f28;font-size:17px;font-weight:950}
+    .emergency-location-head p,.emergency-location-copy{margin:3px 0 0;color:#6b7684;font-size:12px;font-weight:750;line-height:1.55}
+    .emergency-location-privacy{display:grid;gap:4px;padding:11px 12px;border:1px solid #e5e8eb;border-radius:14px;background:#fafbfc;color:#4e5968;font-size:12px;font-weight:800;line-height:1.5}
+    .emergency-location-privacy p{margin:0}
+    .emergency-location-status{display:grid;gap:5px;padding:11px 12px;border:1px solid #dce8f7;border-radius:14px;background:#f8fbff;color:#315b83;font-size:13px;line-height:1.5}
+    .emergency-location-status strong{color:#153f69;font-weight:950}
+    .emergency-location-status.error{border-color:#f1d19d;background:#fff8e8;color:#694c16}
+    .emergency-location-status.error strong{color:#5b3c09}
+    .emergency-location-result{display:grid;gap:9px;min-width:0}
+    .emergency-location-coordinates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .emergency-location-value{display:grid;gap:3px;min-width:0;padding:10px 11px;border:1px solid #e5e8eb;border-radius:13px;background:#fafbfc}
+    .emergency-location-value span{color:#6b7684;font-size:11px;font-weight:850}
+    .emergency-location-value strong{color:#191f28;font-size:15px;font-weight:950;line-height:1.35;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}
+    .emergency-location-meta{display:grid;gap:4px;color:#4e5968;font-size:12px;font-weight:800;line-height:1.5}
+    .emergency-location-meta p{margin:0}
+    .emergency-location-warning{margin:0;padding:10px 11px;border:1px solid #f0d58a;border-radius:13px;background:#fff8df;color:#5f4a16;font-size:12px;font-weight:850;line-height:1.5}
+    .emergency-location-offline{margin:0;color:#28644f;font-size:12px;font-weight:800;line-height:1.5}
+    .emergency-location-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+    .emergency-location-actions .btn,.emergency-location-actions .emergency-location-primary{min-width:0;min-height:48px;padding:10px 8px;font-size:13px;white-space:normal}
+    .emergency-location-actions .emergency-location-primary{grid-column:1/-1;width:100%;border:0;border-radius:14px;background:#3182f6;color:#fff;font:inherit;font-size:14px;font-weight:950;padding:12px 14px}
+    .emergency-location-actions .emergency-location-primary:disabled{background:#b8c8da;color:#fff;cursor:not-allowed}
+    .emergency-location-map{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none}
+    .emergency-location-live{min-height:0;color:#315b83;font-size:12px;font-weight:850;line-height:1.45}
     .emergency-hub-support-grid{display:grid;grid-template-columns:1fr;gap:10px}
     .emergency-hub-support-card{display:grid;gap:10px;padding:14px;border:1px solid #dce8f7;border-radius:16px;background:#f8fbff}
     .emergency-hub-support-head{display:grid;grid-template-columns:38px minmax(0,1fr);gap:10px;align-items:start}
@@ -287,6 +314,7 @@
     .emergency-hub-actions{grid-template-columns:1fr!important;padding:4px 0 max(4px,var(--safe-bottom));margin-top:12px!important}
     .emergency-hub-actions #flowEmergencyConfirmBtn{min-height:52px}
     .emergency-hub-actions [data-emergency-home]{min-height:48px;background:transparent}
+    @media (max-width:340px){.emergency-location-actions,.emergency-location-coordinates{grid-template-columns:1fr}}
     @media (min-width:520px){.emergency-hub-role-grid,.emergency-hub-support-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     .country-list-notice{display:flex;align-items:center;gap:10px;background:#edf7ff;border:1px solid #d7eaff;color:#17456f;border-radius:var(--radius-md);padding:12px;font-size:13px;font-weight:850;line-height:1.45}
     .service{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
@@ -3391,7 +3419,9 @@ function confirmTripCountrySelection(){
   const option = languageOptions.find(item => item.id === tripCountryId);
   const code = normalizeConfirmedCountryCode(option && option.countryCode);
   if(!code) return false;
+  const previousCode = normalizeConfirmedCountryCode(confirmedTripCountryCode);
   confirmedTripCountryCode = code;
+  if(previousCode && previousCode !== code) clearEmergencyLocationState({invalidateSession:true});
   saveSelectedCountryCode(code);
   return true;
 }
@@ -4278,6 +4308,13 @@ let emergencyReturnTargetOverride = "";
 let emergencyChildContext = null;
 const EMERGENCY_HISTORY_STATE_KEY = "sosBridgeEmergencyHelpMode";
 const EMERGENCY_CHILD_HISTORY_STATE_KEY = "sosBridgeEmergencyChildScreen";
+const EMERGENCY_LOCATION_FRESH_MS = 5 * 60 * 1000;
+let emergencyLocationRequestSequence = 0;
+let emergencyLocationSessionSequence = 0;
+let emergencyLocationSessionId = "";
+let emergencyLocationStaleTimer = 0;
+let emergencyLocationLiveMessage = "";
+let emergencyLocationState = createEmergencyLocationState();
 
 function getAppFlowScrollContainer(screenId){
   const screen = $(screenId);
@@ -4434,6 +4471,7 @@ function returnFromEmergencyHelpMode(options={}){
   const returnState = emergencyReturnState;
   emergencyReturnState = null;
   emergencyHistoryActive = false;
+  clearEmergencyLocationState({invalidateSession:true});
   restoreEmergencyReturnState(returnState);
 }
 
@@ -4449,6 +4487,7 @@ function openEmergencyHelpMode(trigger=document.activeElement){
   if(currentFlowScreen !== "screen-emergency"){
     emergencyReturnState = captureEmergencyReturnState(trigger);
   }
+  if(!emergencyHistoryActive || !emergencyLocationSessionId) startEmergencyLocationSession();
   if($("emergencyInfoCard")) $("emergencyInfoCard").classList.remove("hidden");
   renderEmergencyInfoCard();
   showFlowScreen("screen-emergency", {push:false, browser:false});
@@ -4701,6 +4740,21 @@ function goFlowBack(){
 
 function bindFlowNavigation(){
   document.addEventListener("click", event => {
+    const emergencyLocationAction = event.target.closest("[data-emergency-location-action]");
+    if(emergencyLocationAction){
+      event.preventDefault();
+      const action = emergencyLocationAction.getAttribute("data-emergency-location-action");
+      if(action === "request" || action === "retry") requestEmergencyCurrentLocation();
+      else if(action === "copy") copyEmergencyCurrentLocation();
+      else if(action === "share") shareEmergencyCurrentLocation();
+      return;
+    }
+    const emergencyLocationMap = event.target.closest("[data-emergency-location-map]");
+    if(emergencyLocationMap && !getValidatedEmergencyLocationState()){
+      event.preventDefault();
+      setEmergencyLocationLiveMessage("현재 위치가 변경되었습니다. 다시 확인해 주세요.");
+      return;
+    }
     const childReturn = event.target.closest("[data-emergency-child-return]");
     if(childReturn){
       event.preventDefault();
@@ -5201,16 +5255,20 @@ function showApp(options={}){
     $("travelPlace").value = tripCityName;
   }
 
-  renderAll();
   const returnScreen = returnFlowScreenAfterCountryChange && $(returnFlowScreenAfterCountryChange)
     ? returnFlowScreenAfterCountryChange
     : "screen-home";
+  if(returnScreen === "screen-emergency") startEmergencyLocationSession();
+  renderAll();
   returnFlowScreenAfterCountryChange = "";
   showFlowScreen(returnScreen, {push:false, browser:false});
 }
 function showLanguage(){
   const wasAppStage = stage === "app";
   if(wasAppStage && currentFlowScreen) returnFlowScreenAfterCountryChange = currentFlowScreen;
+  if(emergencyHistoryActive && (currentFlowScreen === "screen-emergency" || emergencyChildContext)){
+    clearEmergencyLocationState({invalidateSession:true});
+  }
   stage="language";
   document.body.classList.remove("flow-app-active");
   delete document.body.dataset.flowScreen;
@@ -6410,6 +6468,465 @@ function openMedicalCardBuilderFromEmergency(trigger){
   });
 }
 
+function createEmergencyLocationState(requestId=emergencyLocationRequestSequence, sessionId="", countryCode=""){
+  return {
+    status:"idle",
+    latitude:null,
+    longitude:null,
+    accuracy:null,
+    timestamp:null,
+    timestampSource:"",
+    countryCode,
+    requestId,
+    sessionId,
+    errorCode:""
+  };
+}
+
+function clearEmergencyLocationStaleTimer(){
+  if(emergencyLocationStaleTimer){
+    window.clearTimeout(emergencyLocationStaleTimer);
+    emergencyLocationStaleTimer = 0;
+  }
+}
+
+function clearEmergencyLocationState(options={}){
+  emergencyLocationRequestSequence += 1;
+  clearEmergencyLocationStaleTimer();
+  if(options.invalidateSession === true) emergencyLocationSessionId = "";
+  emergencyLocationLiveMessage = "";
+  emergencyLocationState = createEmergencyLocationState(
+    emergencyLocationRequestSequence,
+    emergencyLocationSessionId,
+    ""
+  );
+}
+
+function startEmergencyLocationSession(){
+  clearEmergencyLocationStaleTimer();
+  emergencyLocationRequestSequence += 1;
+  emergencyLocationSessionSequence += 1;
+  emergencyLocationSessionId = "emergency-location-"+Date.now().toString(36)+"-"+emergencyLocationSessionSequence.toString(36);
+  emergencyLocationLiveMessage = "";
+  emergencyLocationState = createEmergencyLocationState(
+    emergencyLocationRequestSequence,
+    emergencyLocationSessionId,
+    getConfirmedTripCountryCode()
+  );
+}
+
+function normalizeEmergencyLocationResult(position){
+  const coords = position && position.coords;
+  const latitude = Number(coords && coords.latitude);
+  const longitude = Number(coords && coords.longitude);
+  const accuracy = Number(coords && coords.accuracy);
+  if(!Number.isFinite(latitude) || latitude < -90 || latitude > 90) return null;
+  if(!Number.isFinite(longitude) || longitude < -180 || longitude > 180) return null;
+  if(!Number.isFinite(accuracy) || accuracy <= 0) return null;
+  const sourceTimestamp = Number(position && position.timestamp);
+  const sourceDate = new Date(sourceTimestamp);
+  const hasDeviceTimestamp = Number.isFinite(sourceTimestamp) && sourceTimestamp > 0 && Number.isFinite(sourceDate.getTime());
+  return {
+    latitude,
+    longitude,
+    accuracy,
+    timestamp:hasDeviceTimestamp ? sourceTimestamp : Date.now(),
+    timestampSource:hasDeviceTimestamp ? "device" : "app"
+  };
+}
+
+function emergencyLocationCoordinateDigits(accuracy){
+  const value = Number(accuracy);
+  if(value <= 20) return 5;
+  if(value <= 100) return 4;
+  if(value <= 1000) return 3;
+  return 2;
+}
+
+function formatEmergencyLocationCoordinate(value, accuracy){
+  const number = Number(value);
+  if(!Number.isFinite(number)) return "";
+  return number.toFixed(emergencyLocationCoordinateDigits(accuracy));
+}
+
+function formatEmergencyLocationMapCoordinate(value){
+  const number = Number(value);
+  return Number.isFinite(number) ? number.toFixed(6) : "";
+}
+
+function formatEmergencyLocationAccuracy(accuracy){
+  const value = Number(accuracy);
+  if(!Number.isFinite(value) || value <= 0) return "정확도 정보 없음";
+  if(value < 1000) return "정확도 약 ±"+Math.round(value)+" m";
+  return "정확도 약 ±"+(value / 1000).toFixed(1)+" km";
+}
+
+function formatEmergencyLocationTimestamp(timestamp){
+  const value = Number(timestamp);
+  if(!Number.isFinite(value) || !Number.isFinite(new Date(value).getTime())) return "확인 시각 정보 없음";
+  try{
+    return new Intl.DateTimeFormat("ko-KR", {
+      year:"numeric", month:"2-digit", day:"2-digit",
+      hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false
+    }).format(new Date(value));
+  }catch(error){
+    return new Date(value).toLocaleString("ko-KR");
+  }
+}
+
+function isEmergencyLocationStale(state=emergencyLocationState, now=Date.now()){
+  return state && state.status === "success" && Number.isFinite(Number(state.timestamp))
+    && now - Number(state.timestamp) >= EMERGENCY_LOCATION_FRESH_MS;
+}
+
+function hasValidEmergencyLocationCoordinates(state){
+  const latitude = Number(state && state.latitude);
+  const longitude = Number(state && state.longitude);
+  const accuracy = Number(state && state.accuracy);
+  return Number.isFinite(latitude) && latitude >= -90 && latitude <= 90
+    && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180
+    && Number.isFinite(accuracy) && accuracy > 0;
+}
+
+function buildEmergencyLocationMapUrl(state=emergencyLocationState){
+  if(!hasValidEmergencyLocationCoordinates(state)) return "";
+  const latitude = formatEmergencyLocationMapCoordinate(state.latitude);
+  const longitude = formatEmergencyLocationMapCoordinate(state.longitude);
+  if(!latitude || !longitude) return "";
+  try{
+    const url = new URL("https://www.google.com/maps/search/");
+    url.search = new URLSearchParams({api:"1", query:latitude+","+longitude}).toString();
+    if(url.protocol !== "https:" || url.hostname !== "www.google.com" || url.pathname !== "/maps/search/") return "";
+    if(url.searchParams.get("api") !== "1" || !url.searchParams.get("query")) return "";
+    return url.toString();
+  }catch(error){
+    return "";
+  }
+}
+
+function getEmergencyLocationErrorStatus(error){
+  const code = Number(error && error.code);
+  if(code === 1) return {status:"permission-denied", errorCode:"1"};
+  if(code === 3) return {status:"timeout", errorCode:"3"};
+  return {status:"unavailable", errorCode:code === 2 ? "2" : "unknown"};
+}
+
+function isEmergencyLocationMountCurrent(){
+  const mount = $("emergencyLocationCardMount");
+  return Boolean(mount && mount.isConnected !== false && mount.closest && mount.closest("#screen-emergency"));
+}
+
+function isEmergencyLocationRequestCurrent(requestId, sessionId, countryCode){
+  return Boolean(
+    emergencyHistoryActive
+    && emergencyLocationState.status === "requesting"
+    && emergencyLocationState.requestId === requestId
+    && emergencyLocationRequestSequence === requestId
+    && sessionId && emergencyLocationSessionId === sessionId
+    && emergencyLocationState.sessionId === sessionId
+    && countryCode && emergencyLocationState.countryCode === countryCode
+    && getConfirmedTripCountryCode() === countryCode
+    && isEmergencyLocationMountCurrent()
+  );
+}
+
+function getValidatedEmergencyLocationState(){
+  const state = emergencyLocationState;
+  const countryCode = getConfirmedTripCountryCode();
+  const card = $("emergencyLocationCard");
+  if(!emergencyHistoryActive || !emergencyLocationSessionId || !isEmergencyLocationMountCurrent()) return null;
+  if(!state || state.status !== "success" || !hasValidEmergencyLocationCoordinates(state)) return null;
+  if(state.sessionId !== emergencyLocationSessionId || state.countryCode !== countryCode) return null;
+  if(!card || card.isConnected === false) return null;
+  if(card.getAttribute("data-emergency-location-session") !== state.sessionId) return null;
+  if(card.getAttribute("data-emergency-location-country") !== state.countryCode) return null;
+  return state;
+}
+
+function isEmergencyLocationActionCurrent(snapshot){
+  return Boolean(snapshot && emergencyLocationState === snapshot && getValidatedEmergencyLocationState() === snapshot);
+}
+
+function buildEmergencyLocationShareText(state=emergencyLocationState){
+  if(!state || state.status !== "success" || !hasValidEmergencyLocationCoordinates(state)) return "";
+  const option = getConfirmedTripOption();
+  const countryName = String(option && (option.countryKo || option.country) || "선택한 여행 국가").trim();
+  const countryCode = String(state.countryCode || "").trim().toUpperCase();
+  const timeLabel = state.timestampSource === "device" ? "기기 측정 시각" : "앱에서 확인한 시각";
+  const lines = [
+    "SOS Bridge 현재 위치",
+    "선택 여행 국가: "+countryName+(countryCode ? " ("+countryCode+")" : ""),
+    "위도: "+formatEmergencyLocationCoordinate(state.latitude, state.accuracy),
+    "경도: "+formatEmergencyLocationCoordinate(state.longitude, state.accuracy),
+    formatEmergencyLocationAccuracy(state.accuracy),
+    timeLabel+": "+formatEmergencyLocationTimestamp(state.timestamp),
+    "Google Maps: "+buildEmergencyLocationMapUrl(state),
+    "기기에서 측정한 참고 위치이며 오차가 있을 수 있습니다."
+  ];
+  if(isEmergencyLocationStale(state)) lines.push("5분 이상 지난 위치입니다.");
+  return lines.join("\n");
+}
+
+function setEmergencyLocationLiveMessage(message){
+  emergencyLocationLiveMessage = String(message || "");
+  const live = $("emergencyLocationLiveRegion");
+  if(live) live.textContent = emergencyLocationLiveMessage;
+}
+
+function scheduleEmergencyLocationStaleRender(){
+  clearEmergencyLocationStaleTimer();
+  if(emergencyLocationState.status !== "success" || isEmergencyLocationStale()) return;
+  const delay = Math.max(50, Number(emergencyLocationState.timestamp) + EMERGENCY_LOCATION_FRESH_MS - Date.now() + 50);
+  const requestId = emergencyLocationState.requestId;
+  const sessionId = emergencyLocationState.sessionId;
+  const countryCode = emergencyLocationState.countryCode;
+  emergencyLocationStaleTimer = window.setTimeout(() => {
+    emergencyLocationStaleTimer = 0;
+    if(emergencyLocationState.status !== "success") return;
+    if(emergencyLocationState.requestId !== requestId || emergencyLocationState.sessionId !== sessionId) return;
+    if(emergencyLocationSessionId !== sessionId || getConfirmedTripCountryCode() !== countryCode) return;
+    if(!emergencyHistoryActive || !isEmergencyLocationMountCurrent()) return;
+    renderEmergencyLocationCard();
+  }, delay);
+}
+
+function requestEmergencyCurrentLocation(){
+  if(emergencyLocationState.status === "requesting"){
+    setEmergencyLocationLiveMessage("현재 위치를 확인하고 있습니다.");
+    return false;
+  }
+  const countryCode = getConfirmedTripCountryCode();
+  const sessionId = emergencyLocationSessionId;
+  if(!emergencyHistoryActive || !sessionId || !countryCode || !isEmergencyLocationMountCurrent()) return false;
+  clearEmergencyLocationStaleTimer();
+  emergencyLocationLiveMessage = "";
+
+  if(window.isSecureContext === false){
+    emergencyLocationState = {
+      ...createEmergencyLocationState(emergencyLocationRequestSequence, sessionId, countryCode),
+      status:"insecure-context",
+      errorCode:"insecure-context"
+    };
+    renderEmergencyLocationCard();
+    return false;
+  }
+  if(!navigator.geolocation || typeof navigator.geolocation.getCurrentPosition !== "function"){
+    emergencyLocationState = {
+      ...createEmergencyLocationState(emergencyLocationRequestSequence, sessionId, countryCode),
+      status:"unsupported",
+      errorCode:"unsupported"
+    };
+    renderEmergencyLocationCard();
+    return false;
+  }
+
+  const requestId = ++emergencyLocationRequestSequence;
+  emergencyLocationState = {
+    ...createEmergencyLocationState(requestId, sessionId, countryCode),
+    status:"requesting"
+  };
+  renderEmergencyLocationCard();
+
+  try{
+    navigator.geolocation.getCurrentPosition(position => {
+      if(!isEmergencyLocationRequestCurrent(requestId, sessionId, countryCode)) return;
+      const result = normalizeEmergencyLocationResult(position);
+      if(!result){
+        emergencyLocationState = {
+          ...createEmergencyLocationState(requestId, sessionId, countryCode),
+          status:"unavailable",
+          errorCode:"invalid-position"
+        };
+        renderEmergencyLocationCard();
+        return;
+      }
+      emergencyLocationState = {
+        status:"success",
+        latitude:result.latitude,
+        longitude:result.longitude,
+        accuracy:result.accuracy,
+        timestamp:result.timestamp,
+        timestampSource:result.timestampSource,
+        countryCode,
+        requestId,
+        sessionId,
+        errorCode:""
+      };
+      renderEmergencyLocationCard();
+      scheduleEmergencyLocationStaleRender();
+    }, error => {
+      if(!isEmergencyLocationRequestCurrent(requestId, sessionId, countryCode)) return;
+      const mapped = getEmergencyLocationErrorStatus(error);
+      emergencyLocationState = {
+        ...createEmergencyLocationState(requestId, sessionId, countryCode),
+        status:mapped.status,
+        errorCode:mapped.errorCode
+      };
+      renderEmergencyLocationCard();
+    }, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
+  }catch(error){
+    if(!isEmergencyLocationRequestCurrent(requestId, sessionId, countryCode)) return false;
+    emergencyLocationState = {
+      ...createEmergencyLocationState(requestId, sessionId, countryCode),
+      status:"unavailable",
+      errorCode:"request-failed"
+    };
+    renderEmergencyLocationCard();
+  }
+  return true;
+}
+
+async function copyEmergencyCurrentLocation(){
+  const state = getValidatedEmergencyLocationState();
+  if(!state) return false;
+  const text = buildEmergencyLocationShareText(state);
+  if(!text || window.isSecureContext === false || !navigator.clipboard || typeof navigator.clipboard.writeText !== "function"){
+    setEmergencyLocationLiveMessage("좌표를 길게 눌러 직접 복사해 주세요.");
+    return false;
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    if(isEmergencyLocationActionCurrent(state)) setEmergencyLocationLiveMessage("위치 정보를 복사했습니다.");
+    return true;
+  }catch(error){
+    if(isEmergencyLocationActionCurrent(state)) setEmergencyLocationLiveMessage("좌표를 길게 눌러 직접 복사해 주세요.");
+    return false;
+  }
+}
+
+async function shareEmergencyCurrentLocation(){
+  const state = getValidatedEmergencyLocationState();
+  if(!state) return false;
+  const text = buildEmergencyLocationShareText(state);
+  const payload = {title:"SOS Bridge 현재 위치", text};
+  if(!text || typeof navigator.share !== "function"){
+    setEmergencyLocationLiveMessage("이 환경에서는 공유 메뉴를 열 수 없습니다. 위치 복사를 이용해 주세요.");
+    return false;
+  }
+  if(typeof navigator.canShare === "function"){
+    try{
+      if(!navigator.canShare(payload)){
+        setEmergencyLocationLiveMessage("이 환경에서는 공유 메뉴를 열 수 없습니다. 위치 복사를 이용해 주세요.");
+        return false;
+      }
+    }catch(error){
+      setEmergencyLocationLiveMessage("이 환경에서는 공유 메뉴를 열 수 없습니다. 위치 복사를 이용해 주세요.");
+      return false;
+    }
+  }
+  try{
+    await navigator.share(payload);
+    if(isEmergencyLocationActionCurrent(state)) setEmergencyLocationLiveMessage("위치 공유를 마쳤습니다.");
+    return true;
+  }catch(error){
+    if(error && error.name === "AbortError") return false;
+    if(isEmergencyLocationActionCurrent(state)){
+      setEmergencyLocationLiveMessage("이 환경에서는 공유 메뉴를 열 수 없습니다. 위치 복사를 이용해 주세요.");
+    }
+    return false;
+  }
+}
+
+function emergencyLocationErrorCopy(status){
+  if(status === "permission-denied") return {
+    title:"위치 권한이 거부됐습니다.",
+    description:"브라우저 또는 기기 설정에서 위치 권한을 확인한 뒤 다시 시도해 주세요.",
+    retry:true
+  };
+  if(status === "timeout") return {
+    title:"10초 안에 위치를 확인하지 못했습니다.",
+    description:"기기 위치 서비스를 확인하거나 야외·창가에서 다시 시도해 주세요.",
+    retry:true
+  };
+  if(status === "unsupported") return {
+    title:"이 브라우저에서는 현재 위치 기능을 지원하지 않습니다.",
+    description:"주변 사람이나 숙소에 위치 확인을 요청해 주세요.",
+    retry:false
+  };
+  if(status === "insecure-context") return {
+    title:"보안 연결에서만 현재 위치를 확인할 수 있습니다.",
+    description:"HTTPS로 연결한 뒤 다시 확인해 주세요.",
+    retry:false
+  };
+  return {
+    title:"현재 위치를 확인할 수 없습니다.",
+    description:"기기 위치 서비스를 확인하거나 야외·창가에서 다시 시도해 주세요.",
+    retry:true
+  };
+}
+
+function renderEmergencyLocationCard(){
+  const mount = $("emergencyLocationCardMount");
+  if(!mount) return;
+  const scroll = getAppFlowScrollContainer("screen-emergency");
+  const savedScrollTop = scroll ? Number(scroll.scrollTop) || 0 : 0;
+  const countryCode = getConfirmedTripCountryCode();
+  const state = emergencyLocationState;
+  const belongsToSession = Boolean(
+    state && emergencyLocationSessionId && state.sessionId === emergencyLocationSessionId
+    && state.countryCode === countryCode
+  );
+  const busy = belongsToSession && state.status === "requesting";
+  const offlineNote = isAppOffline()
+    ? '<p class="emergency-location-offline">오프라인에서도 기기 위치를 확인할 수 있지만, 기기와 환경에 따라 실패할 수 있습니다.</p>'
+    : "";
+  let statusHtml = "";
+  let resultHtml = "";
+  let actionsHtml = "";
+
+  if(busy){
+    statusHtml = '<div class="emergency-location-status"><strong>현재 위치를 확인 중입니다.</strong><span>브라우저의 위치 권한 요청을 확인해 주세요.</span></div>';
+    actionsHtml = '<button class="emergency-location-primary" type="button" disabled aria-disabled="true">현재 위치 확인 중…</button>';
+  }else if(belongsToSession && state.status === "success" && hasValidEmergencyLocationCoordinates(state)){
+    const stale = isEmergencyLocationStale(state);
+    const lowAccuracy = Number(state.accuracy) > 1000;
+    const mapUrl = buildEmergencyLocationMapUrl(state);
+    const timeLabel = state.timestampSource === "device" ? "기기 측정 시각" : "앱에서 확인한 시각";
+    statusHtml = '<div class="emergency-location-status"><strong>현재 위치를 확인했습니다.</strong><span>'+(stale ? '5분 이상 지난 위치' : '5분 이내에 확인한 위치')+'</span></div>';
+    resultHtml = '<div class="emergency-location-coordinates">'+
+      '<div class="emergency-location-value"><span>위도</span><strong>'+escapeHtml(formatEmergencyLocationCoordinate(state.latitude, state.accuracy))+'</strong></div>'+
+      '<div class="emergency-location-value"><span>경도</span><strong>'+escapeHtml(formatEmergencyLocationCoordinate(state.longitude, state.accuracy))+'</strong></div>'+
+      '</div><div class="emergency-location-meta"><p>'+escapeHtml(formatEmergencyLocationAccuracy(state.accuracy))+'</p><p>'+escapeHtml(timeLabel)+': '+escapeHtml(formatEmergencyLocationTimestamp(state.timestamp))+'</p></div>'+
+      (lowAccuracy ? '<p class="emergency-location-warning">위치 오차가 큽니다. 가능하면 야외나 창가에서 다시 확인하세요.</p>' : '')+
+      (stale ? '<p class="emergency-location-warning">5분 이상 지난 위치입니다. 이동했다면 다시 확인해 주세요.</p>' : '');
+    actionsHtml = '<button class="btn outline" type="button" data-emergency-location-action="copy">위치 복사</button>'+
+      '<button class="btn outline" type="button" data-emergency-location-action="share">공유하기</button>'+
+      (!isAppOffline() && mapUrl
+        ? '<a class="btn outline emergency-location-map" href="'+escapeHtml(mapUrl)+'" target="_blank" rel="noopener noreferrer" data-emergency-location-map aria-label="현재 위치 좌표를 Google Maps에서 보기">지도에서 보기</a>'
+        : '<button class="btn outline" type="button" disabled aria-disabled="true">지도 보기 · 온라인 필요</button>')+
+      '<button class="emergency-location-primary" type="button" data-emergency-location-action="retry">다시 확인하기</button>';
+  }else if(belongsToSession && ["permission-denied","unavailable","timeout","unsupported","insecure-context"].includes(state.status)){
+    const copy = emergencyLocationErrorCopy(state.status);
+    statusHtml = '<div class="emergency-location-status error"><strong>'+escapeHtml(copy.title)+'</strong><span>'+escapeHtml(copy.description)+'</span></div>';
+    actionsHtml = copy.retry
+      ? '<button class="emergency-location-primary" type="button" data-emergency-location-action="retry">다시 시도</button>'
+      : '<button class="emergency-location-primary" type="button" disabled aria-disabled="true">현재 위치 확인 불가</button>';
+  }else{
+    statusHtml = '<div class="emergency-location-status"><strong>아직 위치를 확인하지 않았습니다.</strong><span>필요할 때 아래 버튼을 직접 눌러 주세요.</span></div>';
+    actionsHtml = '<button class="emergency-location-primary" type="button" data-emergency-location-action="request">현재 위치 확인하기</button>';
+  }
+
+  mount.innerHTML = '<section id="emergencyLocationCard" class="emergency-location-card" aria-labelledby="emergencyLocationTitle" aria-busy="'+(busy ? 'true' : 'false')+'" data-emergency-location-session="'+escapeHtml(state && state.sessionId || emergencyLocationSessionId)+'" data-emergency-location-country="'+escapeHtml(state && state.countryCode || countryCode)+'">'+
+    '<div class="emergency-location-head"><span class="emergency-location-icon" aria-hidden="true">⌖</span><div><h3 id="emergencyLocationTitle">현재 위치</h3><p>기기에서 확인한 위도와 경도를 복사하거나 공유할 수 있습니다.</p></div></div>'+
+    '<div class="emergency-location-privacy"><p>위치는 버튼을 누를 때만 확인하며, 현재 화면의 메모리에만 일시 보관합니다.</p><p>응급기관이나 보호자에게 자동으로 전송되지 않습니다.</p></div>'+
+    '<div id="emergencyLocationStatus" role="status" aria-live="polite" aria-atomic="true">'+statusHtml+'</div>'+
+    '<div id="emergencyLocationResult" class="emergency-location-result">'+resultHtml+'</div>'+
+    offlineNote+
+    '<div id="emergencyLocationActions" class="emergency-location-actions">'+actionsHtml+'</div>'+
+    '<div id="emergencyLocationLiveRegion" class="emergency-location-live" role="status" aria-live="polite" aria-atomic="true">'+escapeHtml(emergencyLocationLiveMessage)+'</div>'+
+  '</section>';
+
+  if(scroll){
+    window.requestAnimationFrame(() => {
+      if(!scroll.isConnected) return;
+      const maximum = Math.max(0, scroll.scrollHeight - scroll.clientHeight);
+      const top = Math.min(Math.max(0, savedScrollTop), maximum);
+      if(typeof scroll.scrollTo === "function") scroll.scrollTo({top, left:0, behavior:"auto"});
+      else scroll.scrollTop = top;
+    });
+  }
+}
+
 function renderEmergencyInfoCard(){
   const content = $("emergencyInfoContent");
   if(!content) return;
@@ -6441,10 +6958,12 @@ function renderEmergencyInfoCard(){
     emergencyConnectivityHtml(data)+
     conditionHtml+
     phoneSection+
+    '<div id="emergencyLocationCardMount"></div>'+
     emergencySupportCardsHtml()+
     emergencySourcesHtml(data)+
     '<div class="emergency-hub-safety"><p>실제 응급 상황에서는 앱보다 현지 응급기관과 현장 관계자의 안내를 우선하세요.</p><p>전화 연결 여부는 지역, 통신망, 로밍 및 기기 설정에 따라 달라질 수 있습니다.</p></div>'+
   '</div>';
+  renderEmergencyLocationCard();
 }
 function renderPharmacyPhraseCard(){
   if(!$("pharmacyPhraseList")) return;
