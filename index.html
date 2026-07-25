@@ -341,6 +341,7 @@
     .emergency-hub-source{display:grid;gap:4px;padding:11px;border:1px solid #e5e8eb;border-radius:13px;background:#fafbfc;min-width:0}
     .emergency-hub-source strong,.emergency-hub-source span{overflow-wrap:anywhere}
     .emergency-hub-source a{display:inline-flex;align-items:center;width:max-content;max-width:100%;min-height:44px;color:#1261a6;font-size:13px;font-weight:900;text-decoration:none;overflow-wrap:anywhere}
+    .emergency-hub-source-error{margin:0;color:#b45309;font-weight:850;line-height:1.5}
     .emergency-hub-policy-link{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:14px;background:#eef6ff;color:#1261a6;font-weight:900;text-decoration:none;text-align:center;padding:10px 12px}
     .emergency-hub-safety{display:grid;gap:5px;padding:2px 3px;color:#6b7684;font-size:12px;font-weight:750;line-height:1.55}
     .emergency-hub-safety p{margin:0}
@@ -4788,6 +4789,12 @@ function goFlowBack(){
 
 function bindFlowNavigation(){
   document.addEventListener("click", event => {
+    const emergencySourcesAction = event.target.closest("[data-emergency-sources-action]");
+    if(emergencySourcesAction){
+      event.preventDefault();
+      openEmergencySourcesPage(emergencySourcesAction);
+      return;
+    }
     const structuredContactAction = event.target.closest("[data-structured-contact-action]");
     if(structuredContactAction){
       event.preventDefault();
@@ -7042,6 +7049,46 @@ function safeExternalHttpUrl(raw){
   }
 }
 
+function safeEmergencySourcesPageUrl(raw){
+  const value = String(raw || "").trim();
+  if(!value) return "";
+  try{
+    const current = new URL(window.location.href);
+    const target = new URL(value, current);
+    const localHttp = target.protocol === "http:" && ["127.0.0.1", "localhost", "[::1]"].includes(target.hostname);
+    if(target.protocol !== "https:" && !localHttp) return "";
+    if(target.origin !== current.origin) return "";
+    if(!target.pathname.endsWith("/emergency-sources.html")) return "";
+    return target.href;
+  }catch(error){
+    return "";
+  }
+}
+
+function showEmergencySourcesPageError(trigger){
+  const section = trigger && trigger.closest ? trigger.closest(".emergency-hub-section") : null;
+  const status = section && section.querySelector("[data-emergency-sources-error]");
+  if(!status) return false;
+  status.textContent = "출처 페이지를 열 수 없습니다. 잠시 후 다시 시도해 주세요.";
+  status.classList.remove("hidden");
+  return true;
+}
+
+function openEmergencySourcesPage(trigger){
+  const href = trigger && trigger.getAttribute ? safeEmergencySourcesPageUrl(trigger.getAttribute("href")) : "";
+  if(!href){
+    showEmergencySourcesPageError(trigger);
+    return false;
+  }
+  try{
+    window.location.assign(href);
+    return true;
+  }catch(error){
+    showEmergencySourcesPageError(trigger);
+    return false;
+  }
+}
+
 function emergencySourceEntryHtml(source, index){
   if(!source || typeof source !== "object") return "";
   const name = String(source.sourceName || "").trim();
@@ -7056,7 +7103,7 @@ function emergencySourceEntryHtml(source, index){
     '<strong>'+escapeHtml(heading)+'</strong>'+
     (meta ? '<span class="small muted">'+escapeHtml(meta)+'</span>' : '')+
     (note ? '<span class="small muted">'+escapeHtml(note)+'</span>' : '')+
-    (url ? '<a href="'+escapeHtml(url)+'" target="_blank" rel="noopener noreferrer" aria-label="출처 페이지 새 창에서 열기: '+escapeHtml(heading)+'">출처 페이지 열기</a>' : '')+
+    (url ? '<a href="./emergency-sources.html" data-emergency-sources-action aria-label="응급번호 출처 및 관리 기준 열기">출처 페이지 열기</a>' : '')+
   '</div>';
 }
 
@@ -7066,6 +7113,7 @@ function emergencySourcesHtml(data){
   return '<section class="emergency-hub-section">'+
     '<div class="emergency-hub-section-head"><h3>출처와 관리 기준</h3><p>번호의 출처와 마지막 확인 정보를 확인하세요.</p></div>'+
     (rows ? '<div class="emergency-hub-source-list">'+rows+'</div>' : '<p class="small muted">표시할 수 있는 출처 링크가 없습니다.</p>')+
+    '<p class="small emergency-hub-source-error hidden" role="status" aria-live="polite" data-emergency-sources-error></p>'+
     '<a class="emergency-hub-policy-link" href="./emergency-sources.html">응급번호 출처 및 관리 기준</a>'+
   '</section>';
 }
