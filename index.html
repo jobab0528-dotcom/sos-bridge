@@ -337,7 +337,23 @@
     .structured-contact-message-row dd{margin:0;color:#191f28;font-size:15px;font-weight:950;line-height:1.45;overflow-wrap:anywhere;word-break:break-word}
     .structured-contact-message-preview-wrap{display:grid;gap:7px;min-width:0}
     .structured-contact-message-preview-label{margin:0;color:#333d4b;font-size:13px;font-weight:950}
-    .structured-contact-message-preview{margin:0;padding:14px;border:1px solid #cfe0f2;border-radius:14px;background:#f8fbff;color:#173f68;font-size:15px;font-weight:850;line-height:1.65;overflow-wrap:anywhere;white-space:normal;user-select:text;-webkit-user-select:text}
+    .structured-contact-message-preview{margin:0;padding:14px;border:1px solid #cfe0f2;border-radius:14px;background:#f8fbff;color:#173f68;font-size:15px;font-weight:850;line-height:1.65;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;user-select:text;-webkit-user-select:text}
+    .structured-contact-message-location{display:grid;gap:10px;min-width:0;padding:13px;border:1px solid #d9e5dd;border-radius:15px;background:#fbfdfb}
+    .structured-contact-message-location-toggle{display:flex;align-items:center;gap:11px;min-height:48px;margin:0;padding:8px 10px;border:1px solid #dfe7e2;border-radius:13px;background:#fff;color:#26352d;cursor:pointer}
+    .structured-contact-message-location-toggle:focus-within{outline:3px solid rgba(37,99,235,.24);outline-offset:2px}
+    .structured-contact-message-location-toggle.disabled{background:#f5f6f7;color:#7c8794;cursor:not-allowed}
+    .structured-contact-message-location-toggle input{flex:0 0 auto;width:22px;height:22px;margin:0;accent-color:#18864b}
+    .structured-contact-message-location-toggle-copy{display:grid;gap:2px;min-width:0}
+    .structured-contact-message-location-toggle-copy strong{font-size:14px;font-weight:950;line-height:1.4}
+    .structured-contact-message-location-toggle-copy span{font-size:12px;font-weight:800;line-height:1.45}
+    .structured-contact-message-location-status{margin:0;color:#4e5968;font-size:12px;font-weight:800;line-height:1.55}
+    .structured-contact-message-location-status.error{color:#9d2525}
+    .structured-contact-message-location-preview{display:grid;gap:6px;min-width:0;padding:11px 12px;border:1px solid #cfe0f2;border-radius:13px;background:#f8fbff;color:#173f68}
+    .structured-contact-message-location-preview p{margin:0;font-size:12px;font-weight:800;line-height:1.55;overflow-wrap:anywhere;word-break:break-word}
+    .structured-contact-message-location-preview-label{color:#333d4b!important;font-size:13px!important;font-weight:950!important}
+    .structured-contact-message-location-privacy{margin:0;color:#6b7684;font-size:11px;font-weight:750;line-height:1.55}
+    .structured-contact-message-location-actions{display:grid;gap:8px}
+    .structured-contact-message-location-actions .btn{min-height:48px;white-space:normal}
     .structured-contact-message-actions{display:grid;grid-template-columns:1fr;gap:8px;min-width:0}
     .structured-contact-message-actions .btn{min-width:0;min-height:48px;white-space:normal}
     @media (min-width:520px){.structured-contact-message-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -4410,6 +4426,7 @@ let structuredEmergencyContactPhoneNavigationResetTimer = 0;
 let structuredEmergencyContactMessageCopyRequestSequence = 0;
 let structuredEmergencyContactMessageNavigationInProgress = false;
 let structuredEmergencyContactMessageNavigationResetTimer = 0;
+let structuredEmergencyContactMessageLocationExpiryTimer = 0;
 let structuredEmergencyContactMessageState = createStructuredEmergencyContactMessageState();
 
 function getAppFlowScrollContainer(screenId){
@@ -4552,14 +4569,42 @@ function returnFromEmergencyChild(options={}){
   renderEmergencyInfoCard();
   showFlowScreen("screen-emergency", {push:false, browser:false});
   requestAnimationFrame(() => {
+    const locationFocusTarget = context.returnToLocationCard
+      ? document.querySelector('[data-emergency-location-action="request"]')
+        || document.querySelector('[data-emergency-location-action="retry"]')
+        || $("emergencyLocationCardMount")
+        || document.querySelector("#screen-emergency > .flow-screen-header h2")
+      : null;
+    const focusTarget = locationFocusTarget || document.querySelector(context.focusSelector) || context.trigger;
+    if(focusTarget && focusTarget.isConnected && typeof focusTarget.focus === "function"){
+      if(context.returnToLocationCard && !focusTarget.hasAttribute("tabindex") && !focusTarget.matches("button, input, select, textarea, a[href]")){
+        focusTarget.setAttribute("tabindex", "-1");
+      }
+      try{ focusTarget.focus({preventScroll:true}); }catch(error){ focusTarget.focus(); }
+    }
     const screen = getAppFlowScrollContainer("screen-emergency");
     if(screen){
       const maximum = Math.max(0, screen.scrollHeight - screen.clientHeight);
-      screen.scrollTop = Math.min(Math.max(0, Number(context.emergencyScrollTop) || 0), maximum);
-    }
-    const focusTarget = document.querySelector(context.focusSelector) || context.trigger;
-    if(focusTarget && focusTarget.isConnected && typeof focusTarget.focus === "function"){
-      try{ focusTarget.focus({preventScroll:true}); }catch(error){ focusTarget.focus(); }
+      if(context.returnToLocationCard){
+        const locationCard = $("emergencyLocationCard") || $("emergencyLocationCardMount");
+        if(locationCard){
+          const screenRect = screen.getBoundingClientRect();
+          const cardRect = locationCard.getBoundingClientRect();
+          const targetTop = screen.scrollTop + cardRect.top - screenRect.top - 12;
+          screen.scrollTop = Math.min(Math.max(0, targetTop), maximum);
+          if(locationFocusTarget && locationCard.contains(locationFocusTarget)){
+            const focusRect = locationFocusTarget.getBoundingClientRect();
+            const visibleBottom = screenRect.bottom - 12;
+            if(focusRect.bottom > visibleBottom){
+              screen.scrollTop = Math.min(maximum, screen.scrollTop + focusRect.bottom - visibleBottom);
+            }
+          }
+        }else{
+          screen.scrollTop = Math.min(Math.max(0, Number(context.emergencyScrollTop) || 0), maximum);
+        }
+      }else{
+        screen.scrollTop = Math.min(Math.max(0, Number(context.emergencyScrollTop) || 0), maximum);
+      }
     }
   });
   return true;
@@ -4941,6 +4986,7 @@ function bindFlowNavigation(){
       const action = structuredEmergencyContactMessageAction.getAttribute("data-structured-emergency-contact-message-action");
       if(action === "copy") copyStructuredEmergencyContactMessageText();
       else if(action === "open-message") openStructuredEmergencyContactMessageApp(structuredEmergencyContactMessageAction);
+      else if(action === "return-location") returnFromEmergencyMessageToLocationCard();
       else if(action === "return") returnFromEmergencyChild();
       else if(action === "edit") openStructuredEmergencyContactManagerFromMessageConfirm(structuredEmergencyContactMessageAction);
       return;
@@ -4997,6 +5043,11 @@ function bindFlowNavigation(){
       showFlowScreen(target.getAttribute("data-flow-screen"));
     }
   });
+  document.addEventListener("change", event => {
+    const locationToggle = event.target.closest && event.target.closest("[data-structured-emergency-contact-message-location-toggle]");
+    if(!locationToggle) return;
+    handleStructuredEmergencyContactMessageLocationToggle(locationToggle);
+  });
   window.addEventListener("popstate", event => {
     if(emergencyChildContext){
       if(event.state && event.state[EMERGENCY_CHILD_HISTORY_STATE_KEY]){
@@ -5021,12 +5072,14 @@ function bindFlowNavigation(){
   window.addEventListener("pageshow", () => safe(() => {
     resetStructuredEmergencyContactPhoneNavigationGuard({render:true});
     resetStructuredEmergencyContactMessageNavigationGuard({render:true});
+    if(currentFlowScreen === "screen-emergency-contact-message") updateStructuredEmergencyContactMessageLocationUi();
     restoreEmergencySourcesReturn();
   }));
   document.addEventListener("visibilitychange", () => {
     if(document.visibilityState === "visible") safe(() => {
       resetStructuredEmergencyContactPhoneNavigationGuard({render:true});
       resetStructuredEmergencyContactMessageNavigationGuard({render:true});
+      if(currentFlowScreen === "screen-emergency-contact-message") updateStructuredEmergencyContactMessageLocationUi();
     });
   });
 }
@@ -6603,11 +6656,18 @@ function createStructuredEmergencyContactMessageState(){
     notice:"",
     copyStatus:"idle",
     copyRequestId:structuredEmergencyContactMessageCopyRequestSequence,
-    copySignature:""
+    copySignature:"",
+    includeLocation:false,
+    locationSnapshot:null,
+    locationSignature:"",
+    copyPayloadSignature:"",
+    locationNotice:"",
+    locationStatus:"unavailable"
   };
 }
 
 function resetStructuredEmergencyContactMessageState(){
+  clearStructuredEmergencyContactMessageLocationExpiryTimer();
   resetStructuredEmergencyContactMessageNavigationGuard();
   structuredEmergencyContactMessageCopyRequestSequence += 1;
   structuredEmergencyContactMessageState = createStructuredEmergencyContactMessageState();
@@ -6844,10 +6904,201 @@ function getStructuredEmergencyContactMessageSignature(messageVersion, messageTe
   return JSON.stringify([messageVersion, messageText]);
 }
 
-function getStructuredEmergencyContactMessageCopySignature(contactSignature, messageSignature){
+function createStructuredEmergencyContactMessageLocationSnapshot(rawLocation){
+  if(!rawLocation || typeof rawLocation !== "object" || Array.isArray(rawLocation)) return null;
+  if(typeof rawLocation.latitude !== "number" || !Number.isFinite(rawLocation.latitude)
+    || rawLocation.latitude < -90 || rawLocation.latitude > 90) return null;
+  if(typeof rawLocation.longitude !== "number" || !Number.isFinite(rawLocation.longitude)
+    || rawLocation.longitude < -180 || rawLocation.longitude > 180) return null;
+  if(typeof rawLocation.accuracy !== "number" || !Number.isFinite(rawLocation.accuracy)
+    || rawLocation.accuracy <= 0) return null;
+  if(typeof rawLocation.timestamp !== "number" || !Number.isFinite(rawLocation.timestamp)
+    || rawLocation.timestamp <= 0) return null;
+  const timestampSource = String(rawLocation.timestampSource || "");
+  if(timestampSource !== "device" && timestampSource !== "app") return null;
+  const countryCode = normalizeConfirmedCountryCode(rawLocation.countryCode);
+  const requestId = Number(rawLocation.requestId);
+  const sessionId = String(rawLocation.sessionId || "");
+  if(!countryCode || !Number.isInteger(requestId) || requestId <= 0 || !sessionId) return null;
+  return {
+    latitude:rawLocation.latitude,
+    longitude:rawLocation.longitude,
+    accuracy:rawLocation.accuracy,
+    timestamp:rawLocation.timestamp,
+    timestampSource,
+    countryCode,
+    requestId,
+    sessionId
+  };
+}
+
+function getStructuredEmergencyContactMessageLocationSignature(rawSnapshot){
+  const snapshot = createStructuredEmergencyContactMessageLocationSnapshot(rawSnapshot);
+  if(!snapshot) return "";
+  return JSON.stringify([
+    snapshot.latitude,
+    snapshot.longitude,
+    snapshot.accuracy,
+    snapshot.timestamp,
+    snapshot.timestampSource,
+    snapshot.countryCode,
+    snapshot.requestId,
+    snapshot.sessionId
+  ]);
+}
+
+function structuredEmergencyContactMessageLocationStatusNotice(status){
+  if(status === "available") return "현재 확인된 위치를 문자 내용에 포함할 수 있습니다.";
+  if(status === "requesting") return "현재 위치를 확인하고 있습니다.";
+  if(status === "permission-denied") return "위치 권한이 허용되지 않았습니다.";
+  if(status === "timeout") return "위치 확인 시간이 초과되었습니다.";
+  if(status === "unsupported") return "이 브라우저에서는 위치 확인을 지원하지 않습니다.";
+  if(status === "insecure-context") return "보안 연결에서만 위치를 확인할 수 있습니다.";
+  if(status === "stale") return "현재 위치가 5분 이상 지났습니다. 위치를 다시 확인해 주세요.";
+  if(status === "inaccurate") return "위치 오차가 1km를 초과해 문자에 포함할 수 없습니다.";
+  if(status === "error") return "현재 위치를 확인할 수 없습니다.";
+  return status === "idle" ? "현재 위치가 확인되지 않았습니다." : "현재 위치를 확인할 수 없습니다.";
+}
+
+function validateStructuredEmergencyContactMessageLocationSnapshot(rawSnapshot, expected={}, now=Date.now()){
+  const snapshot = createStructuredEmergencyContactMessageLocationSnapshot(rawSnapshot);
+  if(!snapshot) return {ok:false, status:"error", snapshot:null};
+  const currentTime = Number(now);
+  if(!Number.isFinite(currentTime) || snapshot.timestamp > currentTime) return {ok:false, status:"error", snapshot:null};
+  if(currentTime - snapshot.timestamp >= EMERGENCY_LOCATION_FRESH_MS) return {ok:false, status:"stale", snapshot:null};
+  if(snapshot.accuracy > 1000) return {ok:false, status:"inaccurate", snapshot:null};
+  const source = expected && typeof expected === "object" && !Array.isArray(expected) ? expected : {};
+  if(source.countryCode !== undefined && snapshot.countryCode !== normalizeConfirmedCountryCode(source.countryCode)){
+    return {ok:false, status:"error", snapshot:null};
+  }
+  if(source.sessionId !== undefined && snapshot.sessionId !== String(source.sessionId || "")){
+    return {ok:false, status:"error", snapshot:null};
+  }
+  if(source.requestId !== undefined && snapshot.requestId !== Number(source.requestId)){
+    return {ok:false, status:"error", snapshot:null};
+  }
+  return {ok:true, status:"available", snapshot};
+}
+
+function getStructuredEmergencyContactMessageLocationAvailability(now=Date.now()){
+  const state = emergencyLocationState;
+  const status = String(state && state.status || "idle");
+  if(status !== "success"){
+    const safeStatus = ["idle","requesting","permission-denied","unavailable","timeout","unsupported","insecure-context"].includes(status)
+      ? status : "error";
+    return {ok:false, status:safeStatus, notice:structuredEmergencyContactMessageLocationStatusNotice(safeStatus), state:null};
+  }
+  const countryCode = getConfirmedTripCountryCode();
+  const validatedState = getValidatedEmergencyLocationState();
+  if(!emergencyHistoryActive || !emergencyLocationSessionId || !countryCode || validatedState !== state){
+    return {ok:false, status:"unavailable", notice:structuredEmergencyContactMessageLocationStatusNotice("unavailable"), state:null};
+  }
+  const validated = validateStructuredEmergencyContactMessageLocationSnapshot(state, {
+    countryCode,
+    sessionId:emergencyLocationSessionId,
+    requestId:state.requestId
+  }, now);
+  if(!validated.ok){
+    return {ok:false, status:validated.status, notice:structuredEmergencyContactMessageLocationStatusNotice(validated.status), state:null};
+  }
+  return {ok:true, status:"available", notice:structuredEmergencyContactMessageLocationStatusNotice("available"), state};
+}
+
+function structuredEmergencyContactMessageLocationCoordinateDigits(accuracy){
+  const value = Number(accuracy);
+  if(!Number.isFinite(value) || value <= 0 || value > 1000) return 0;
+  if(value <= 20) return 5;
+  if(value <= 100) return 4;
+  return 3;
+}
+
+function formatStructuredEmergencyContactMessageLocationCoordinate(value, accuracy){
+  const number = Number(value);
+  const digits = structuredEmergencyContactMessageLocationCoordinateDigits(accuracy);
+  return Number.isFinite(number) && digits ? number.toFixed(digits) : "";
+}
+
+function buildStructuredEmergencyMessageLocationMapUrl(rawSnapshot){
+  const snapshot = createStructuredEmergencyContactMessageLocationSnapshot(rawSnapshot);
+  if(!snapshot || snapshot.accuracy > 1000) return "";
+  const latitude = formatStructuredEmergencyContactMessageLocationCoordinate(snapshot.latitude, snapshot.accuracy);
+  const longitude = formatStructuredEmergencyContactMessageLocationCoordinate(snapshot.longitude, snapshot.accuracy);
+  if(!latitude || !longitude) return "";
+  try{
+    const url = new URL("https://www.google.com/maps/search/");
+    url.search = new URLSearchParams({api:"1", query:latitude+","+longitude}).toString();
+    const query = String(url.searchParams.get("query") || "");
+    const parts = query.split(",");
+    const queryLatitude = Number(parts[0]);
+    const queryLongitude = Number(parts[1]);
+    if(url.protocol !== "https:" || url.hostname !== "www.google.com" || url.pathname !== "/maps/search/") return "";
+    if(url.searchParams.get("api") !== "1" || parts.length !== 2) return "";
+    if(!Number.isFinite(queryLatitude) || queryLatitude < -90 || queryLatitude > 90) return "";
+    if(!Number.isFinite(queryLongitude) || queryLongitude < -180 || queryLongitude > 180) return "";
+    if(parts[0] !== latitude || parts[1] !== longitude) return "";
+    return url.toString();
+  }catch(error){
+    return "";
+  }
+}
+
+function formatStructuredEmergencyContactMessageLocationAccuracy(accuracy){
+  const value = Number(accuracy);
+  if(!Number.isFinite(value) || value <= 0 || value > 1000) return "";
+  return value >= 1000
+    ? "위치 오차 범위: 약 ±"+(value / 1000).toFixed(1)+" km"
+    : "위치 오차 범위: 약 ±"+Math.round(value)+" m";
+}
+
+function formatStructuredEmergencyContactMessageLocationTimestamp(timestamp){
+  const value = Number(timestamp);
+  if(!Number.isFinite(value) || value <= 0 || !Number.isFinite(new Date(value).getTime())) return "";
+  try{
+    return new Intl.DateTimeFormat("ko-KR", {
+      year:"numeric", month:"numeric", day:"numeric",
+      hour:"numeric", minute:"2-digit", hour12:true
+    }).format(new Date(value));
+  }catch(error){
+    return new Date(value).toLocaleString("ko-KR", {year:"numeric", month:"numeric", day:"numeric", hour:"numeric", minute:"2-digit"});
+  }
+}
+
+function buildStructuredEmergencyContactMessageCopyText(baseMessageText, includeLocation, rawSnapshot){
+  if(baseMessageText !== STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT) return "";
+  if(includeLocation !== true) return baseMessageText;
+  const snapshot = createStructuredEmergencyContactMessageLocationSnapshot(rawSnapshot);
+  if(!snapshot || snapshot.accuracy > 1000) return "";
+  const latitude = formatStructuredEmergencyContactMessageLocationCoordinate(snapshot.latitude, snapshot.accuracy);
+  const longitude = formatStructuredEmergencyContactMessageLocationCoordinate(snapshot.longitude, snapshot.accuracy);
+  const mapUrl = buildStructuredEmergencyMessageLocationMapUrl(snapshot);
+  const accuracyText = formatStructuredEmergencyContactMessageLocationAccuracy(snapshot.accuracy);
+  const timestampText = formatStructuredEmergencyContactMessageLocationTimestamp(snapshot.timestamp);
+  if(!latitude || !longitude || !mapUrl || !accuracyText || !timestampText) return "";
+  return [
+    baseMessageText,
+    "",
+    "현재 위치 좌표: "+latitude+", "+longitude,
+    "지도: "+mapUrl,
+    accuracyText,
+    "위치 확인 시각: "+timestampText
+  ].join("\n");
+}
+
+function getStructuredEmergencyContactMessageCopyPayloadSignature(source){
+  const value = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  if(typeof value.messageSignature !== "string" || !value.messageSignature
+    || typeof value.includeLocation !== "boolean"
+    || typeof value.finalCopyText !== "string" || !value.finalCopyText) return "";
+  const locationSignature = value.includeLocation ? String(value.locationSignature || "") : "";
+  if(value.includeLocation && !locationSignature) return "";
+  return JSON.stringify([value.messageSignature, value.includeLocation, locationSignature, value.finalCopyText]);
+}
+
+function getStructuredEmergencyContactMessageCopySignature(contactSignature, messageSignature, copyPayloadSignature){
   if(typeof contactSignature !== "string" || !contactSignature
-    || typeof messageSignature !== "string" || !messageSignature) return "";
-  return JSON.stringify([contactSignature, messageSignature]);
+    || typeof messageSignature !== "string" || !messageSignature
+    || typeof copyPayloadSignature !== "string" || !copyPayloadSignature) return "";
+  return JSON.stringify([contactSignature, messageSignature, copyPayloadSignature]);
 }
 
 function structuredEmergencyContactMessageFailure(errorCode){
@@ -6894,6 +7145,158 @@ function validateStructuredEmergencyContactMessageAttempt(context){
     messageSignature,
     errorCode:""
   };
+}
+
+function clearStructuredEmergencyContactMessageLocationExpiryTimer(){
+  if(structuredEmergencyContactMessageLocationExpiryTimer){
+    window.clearTimeout(structuredEmergencyContactMessageLocationExpiryTimer);
+    structuredEmergencyContactMessageLocationExpiryTimer = 0;
+  }
+}
+
+function resetStructuredEmergencyContactMessageCopyFeedback(){
+  structuredEmergencyContactMessageCopyRequestSequence += 1;
+  const state = structuredEmergencyContactMessageState;
+  state.copyStatus = "idle";
+  state.copyRequestId = structuredEmergencyContactMessageCopyRequestSequence;
+  state.copySignature = "";
+  state.notice = "";
+}
+
+function setStructuredEmergencyContactMessageLocationUnavailable(status, notice, options={}){
+  clearStructuredEmergencyContactMessageLocationExpiryTimer();
+  const state = structuredEmergencyContactMessageState;
+  resetStructuredEmergencyContactMessageCopyFeedback();
+  state.includeLocation = false;
+  state.locationSnapshot = null;
+  state.locationSignature = "";
+  state.locationStatus = String(status || "error");
+  state.locationNotice = String(notice || structuredEmergencyContactMessageLocationStatusNotice(state.locationStatus));
+  const finalCopyText = buildStructuredEmergencyContactMessageCopyText(state.messageText, false, null);
+  state.copyPayloadSignature = getStructuredEmergencyContactMessageCopyPayloadSignature({
+    messageSignature:state.messageSignature,
+    includeLocation:false,
+    locationSignature:"",
+    finalCopyText
+  });
+  if(options.copyError === true){
+    state.copyStatus = "error";
+    state.notice = String(options.copyNotice || state.locationNotice);
+  }
+  return false;
+}
+
+function validateStructuredEmergencyContactMessageSelectedLocation(state=structuredEmergencyContactMessageState, now=Date.now()){
+  if(!state || state.includeLocation !== true) return {ok:false, status:"error", snapshot:null, locationSignature:"", mapUrl:""};
+  const snapshot = createStructuredEmergencyContactMessageLocationSnapshot(state.locationSnapshot);
+  const locationSignature = getStructuredEmergencyContactMessageLocationSignature(snapshot);
+  if(!snapshot || !locationSignature || locationSignature !== state.locationSignature){
+    return {ok:false, status:"error", snapshot:null, locationSignature:"", mapUrl:""};
+  }
+  const availability = getStructuredEmergencyContactMessageLocationAvailability(now);
+  if(!availability.ok || !availability.state){
+    return {ok:false, status:availability.status, snapshot:null, locationSignature:"", mapUrl:""};
+  }
+  const currentSnapshot = createStructuredEmergencyContactMessageLocationSnapshot(availability.state);
+  const currentSignature = getStructuredEmergencyContactMessageLocationSignature(currentSnapshot);
+  if(!currentSnapshot || !currentSignature || currentSignature !== locationSignature){
+    return {ok:false, status:"error", snapshot:null, locationSignature:"", mapUrl:""};
+  }
+  const mapUrl = buildStructuredEmergencyMessageLocationMapUrl(snapshot);
+  if(!mapUrl) return {ok:false, status:"error", snapshot:null, locationSignature:"", mapUrl:""};
+  return {ok:true, status:"available", snapshot, locationSignature, mapUrl};
+}
+
+function prepareStructuredEmergencyContactMessageCopyAttempt(context={}){
+  const state = context.messageState && typeof context.messageState === "object" && !Array.isArray(context.messageState)
+    ? context.messageState : null;
+  const base = validateStructuredEmergencyContactMessageAttempt(context);
+  if(!base.ok) return {...base, scope:"message", finalCopyText:"", copyPayloadSignature:"", locationSignature:""};
+  if(!state || typeof state.includeLocation !== "boolean"){
+    return {...base, ok:false, scope:"location", errorCode:"invalid-location-selection", finalCopyText:"", copyPayloadSignature:"", locationSignature:""};
+  }
+  if(state.includeLocation === false){
+    if(state.locationSnapshot !== null || state.locationSignature){
+      return {...base, ok:false, scope:"location", errorCode:"unexpected-location-snapshot", finalCopyText:"", copyPayloadSignature:"", locationSignature:""};
+    }
+    const finalCopyText = buildStructuredEmergencyContactMessageCopyText(base.messageText, false, null);
+    const copyPayloadSignature = getStructuredEmergencyContactMessageCopyPayloadSignature({
+      messageSignature:base.messageSignature,
+      includeLocation:false,
+      locationSignature:"",
+      finalCopyText
+    });
+    if(!finalCopyText || !copyPayloadSignature || copyPayloadSignature !== state.copyPayloadSignature){
+      return {...base, ok:false, scope:"location", errorCode:"copy-payload-signature-mismatch", finalCopyText:"", copyPayloadSignature:"", locationSignature:""};
+    }
+    return {...base, scope:"copy", finalCopyText, copyPayloadSignature, locationSignature:"", includeLocation:false};
+  }
+  const selectedLocation = validateStructuredEmergencyContactMessageSelectedLocation(state, context.now === undefined ? Date.now() : context.now);
+  if(!selectedLocation.ok){
+    return {...base, ok:false, scope:"location", errorCode:"invalid-location-"+selectedLocation.status, locationStatus:selectedLocation.status, finalCopyText:"", copyPayloadSignature:"", locationSignature:""};
+  }
+  const finalCopyText = buildStructuredEmergencyContactMessageCopyText(base.messageText, true, selectedLocation.snapshot);
+  const copyPayloadSignature = getStructuredEmergencyContactMessageCopyPayloadSignature({
+    messageSignature:base.messageSignature,
+    includeLocation:true,
+    locationSignature:selectedLocation.locationSignature,
+    finalCopyText
+  });
+  if(!finalCopyText || !copyPayloadSignature || copyPayloadSignature !== state.copyPayloadSignature){
+    return {...base, ok:false, scope:"location", errorCode:"copy-payload-signature-mismatch", locationStatus:"error", finalCopyText:"", copyPayloadSignature:"", locationSignature:""};
+  }
+  return {
+    ...base,
+    scope:"copy",
+    finalCopyText,
+    copyPayloadSignature,
+    locationSignature:selectedLocation.locationSignature,
+    includeLocation:true
+  };
+}
+
+function scheduleStructuredEmergencyContactMessageLocationExpiry(){
+  clearStructuredEmergencyContactMessageLocationExpiryTimer();
+  const state = structuredEmergencyContactMessageState;
+  if(state.status !== "confirming" || state.includeLocation !== true || !state.locationSnapshot || !state.locationSignature) return false;
+  const timestamp = Number(state.locationSnapshot.timestamp);
+  const delay = Math.max(50, timestamp + EMERGENCY_LOCATION_FRESH_MS - Date.now() + 50);
+  const locationSignature = state.locationSignature;
+  structuredEmergencyContactMessageLocationExpiryTimer = window.setTimeout(() => {
+    structuredEmergencyContactMessageLocationExpiryTimer = 0;
+    const current = structuredEmergencyContactMessageState;
+    if(current.status !== "confirming" || current.includeLocation !== true || current.locationSignature !== locationSignature) return;
+    if(Date.now() - Number(current.locationSnapshot && current.locationSnapshot.timestamp) < EMERGENCY_LOCATION_FRESH_MS){
+      scheduleStructuredEmergencyContactMessageLocationExpiry();
+      return;
+    }
+    setStructuredEmergencyContactMessageLocationUnavailable(
+      "stale",
+      "현재 위치가 오래되어 문자 포함이 해제되었습니다. 위치를 다시 확인해 주세요."
+    );
+    if(currentFlowScreen === "screen-emergency-contact-message") updateStructuredEmergencyContactMessageLocationUi();
+  }, delay);
+  return true;
+}
+
+function synchronizeStructuredEmergencyContactMessageLocationState(){
+  const state = structuredEmergencyContactMessageState;
+  if(state.status !== "confirming") return false;
+  if(state.includeLocation){
+    const selected = validateStructuredEmergencyContactMessageSelectedLocation(state);
+    if(selected.ok) return true;
+    const status = selected.status === "inaccurate" ? "inaccurate" : selected.status === "stale" ? "stale" : "error";
+    const notice = status === "inaccurate"
+      ? structuredEmergencyContactMessageLocationStatusNotice("inaccurate")
+      : "현재 위치가 변경되었거나 오래되었습니다. 위치를 다시 확인해 주세요.";
+    return setStructuredEmergencyContactMessageLocationUnavailable(status, notice);
+  }
+  const availability = getStructuredEmergencyContactMessageLocationAvailability();
+  if(state.locationStatus !== availability.status || !state.locationNotice){
+    state.locationStatus = availability.status;
+    state.locationNotice = availability.notice;
+  }
+  return availability.ok;
 }
 
 function structuredEmergencyContactCallFailure(errorCode){
@@ -7698,6 +8101,162 @@ function openStructuredEmergencyContactManagerFromCallConfirm(trigger){
   return true;
 }
 
+function structuredEmergencyContactMessageCurrentCopyText(){
+  const state = structuredEmergencyContactMessageState;
+  return buildStructuredEmergencyContactMessageCopyText(state.messageText, state.includeLocation, state.locationSnapshot);
+}
+
+function structuredEmergencyContactMessageLocationPreviewHtml(){
+  const state = structuredEmergencyContactMessageState;
+  if(!state.includeLocation || !state.locationSnapshot) return "";
+  const snapshot = createStructuredEmergencyContactMessageLocationSnapshot(state.locationSnapshot);
+  if(!snapshot) return "";
+  const latitude = formatStructuredEmergencyContactMessageLocationCoordinate(snapshot.latitude, snapshot.accuracy);
+  const longitude = formatStructuredEmergencyContactMessageLocationCoordinate(snapshot.longitude, snapshot.accuracy);
+  const mapUrl = buildStructuredEmergencyMessageLocationMapUrl(snapshot);
+  const accuracyText = formatStructuredEmergencyContactMessageLocationAccuracy(snapshot.accuracy);
+  const timestampText = formatStructuredEmergencyContactMessageLocationTimestamp(snapshot.timestamp);
+  if(!latitude || !longitude || !mapUrl || !accuracyText || !timestampText) return "";
+  return '<div class="structured-contact-message-location-preview" data-structured-contact-message-location-preview aria-labelledby="structuredContactMessageLocationPreviewLabel">'+
+    '<p id="structuredContactMessageLocationPreviewLabel" class="structured-contact-message-location-preview-label">문자에 포함할 현재 위치</p>'+
+    '<p>현재 위치 좌표: '+escapeHtml(latitude+', '+longitude)+'</p>'+
+    '<p>지도: '+escapeHtml(mapUrl)+'</p>'+
+    '<p>'+escapeHtml(accuracyText)+'</p>'+
+    '<p>위치 확인 시각: '+escapeHtml(timestampText)+'</p>'+
+  '</div>';
+}
+
+function structuredEmergencyContactMessageLocationHtml(){
+  synchronizeStructuredEmergencyContactMessageLocationState();
+  const state = structuredEmergencyContactMessageState;
+  const availability = getStructuredEmergencyContactMessageLocationAvailability();
+  const enabled = availability.ok;
+  const checked = state.includeLocation === true;
+  const stateText = checked ? "위치 포함됨" : "위치 포함 안 함";
+  const status = checked ? "available" : state.locationStatus || availability.status;
+  const notice = checked
+    ? "현재 확인된 위치와 지도 링크가 복사할 문자 내용에 추가됩니다."
+    : state.locationNotice || availability.notice;
+  const alert = ["permission-denied","unavailable","timeout","unsupported","insecure-context","stale","inaccurate","error"].includes(status);
+  return '<section class="structured-contact-message-location" aria-labelledby="structuredContactMessageLocationTitle" data-structured-contact-message-location-region>'+
+    '<label class="structured-contact-message-location-toggle'+(enabled ? '' : ' disabled')+'" for="structuredContactMessageIncludeLocation">'+
+      '<input id="structuredContactMessageIncludeLocation" type="checkbox" data-structured-emergency-contact-message-location-toggle aria-describedby="structuredContactMessageLocationStatus structuredContactMessageLocationPrivacy" aria-disabled="'+(enabled ? 'false' : 'true')+'"'+(checked ? ' checked' : '')+(enabled ? '' : ' disabled')+' />'+
+      '<span class="structured-contact-message-location-toggle-copy"><strong id="structuredContactMessageLocationTitle">현재 위치를 문자 내용에 포함</strong><span data-structured-contact-message-location-state>'+escapeHtml(stateText)+'</span></span>'+
+    '</label>'+
+    '<p id="structuredContactMessageLocationStatus" class="structured-contact-message-location-status'+(alert ? ' error' : '')+'" role="'+(alert ? 'alert' : 'status')+'" aria-live="polite" data-structured-contact-message-location-status>'+escapeHtml(notice)+'</p>'+
+    '<div data-structured-contact-message-location-preview-mount>'+structuredEmergencyContactMessageLocationPreviewHtml()+'</div>'+
+    '<div class="structured-contact-message-location-actions" data-structured-contact-message-location-actions>'+
+      (enabled ? '' : '<button class="btn outline w-full" type="button" data-structured-emergency-contact-message-action="return-location">현재 위치 확인하러 가기</button>')+
+    '</div>'+
+    '<p id="structuredContactMessageLocationPrivacy" class="structured-contact-message-location-privacy">현재 위치는 기본적으로 포함되지 않습니다. 직접 선택한 경우에만 복사할 문자 내용에 추가되며 SOS Bridge 서버로 전송되지 않습니다. 문자 앱에 붙여넣으면 메시지 앱과 수신자가 위치를 확인할 수 있습니다. 지도 링크는 인터넷 연결이 필요할 수 있습니다.</p>'+
+  '</section>';
+}
+
+function updateStructuredEmergencyContactMessageLocationUi(){
+  const mount = $("structuredEmergencyContactMessageMount");
+  const region = mount && mount.querySelector("[data-structured-contact-message-location-region]");
+  const toggle = region && region.querySelector("[data-structured-emergency-contact-message-location-toggle]");
+  const stateText = region && region.querySelector("[data-structured-contact-message-location-state]");
+  const statusNode = region && region.querySelector("[data-structured-contact-message-location-status]");
+  const previewMount = region && region.querySelector("[data-structured-contact-message-location-preview-mount]");
+  const actions = region && region.querySelector("[data-structured-contact-message-location-actions]");
+  const finalPreview = mount && mount.querySelector("[data-structured-emergency-contact-message-preview]");
+  const screen = getAppFlowScrollContainer("screen-emergency-contact-message");
+  if(currentFlowScreen !== "screen-emergency-contact-message" || !region || !toggle || !stateText || !statusNode || !previewMount || !actions || !finalPreview) return false;
+  const savedScrollTop = screen ? Number(screen.scrollTop) || 0 : 0;
+  synchronizeStructuredEmergencyContactMessageLocationState();
+  const state = structuredEmergencyContactMessageState;
+  const availability = getStructuredEmergencyContactMessageLocationAvailability();
+  const enabled = availability.ok;
+  const checked = state.includeLocation === true;
+  const status = checked ? "available" : state.locationStatus || availability.status;
+  const notice = checked
+    ? "현재 확인된 위치와 지도 링크가 복사할 문자 내용에 추가됩니다."
+    : state.locationNotice || availability.notice;
+  const alert = ["permission-denied","unavailable","timeout","unsupported","insecure-context","stale","inaccurate","error"].includes(status);
+  toggle.checked = checked;
+  toggle.disabled = !enabled;
+  toggle.setAttribute("aria-disabled", enabled ? "false" : "true");
+  toggle.closest("label").classList.toggle("disabled", !enabled);
+  stateText.textContent = checked ? "위치 포함됨" : "위치 포함 안 함";
+  statusNode.textContent = notice;
+  statusNode.className = "structured-contact-message-location-status"+(alert ? " error" : "");
+  statusNode.setAttribute("role", alert ? "alert" : "status");
+  previewMount.innerHTML = structuredEmergencyContactMessageLocationPreviewHtml();
+  actions.innerHTML = enabled ? "" : '<button class="btn outline w-full" type="button" data-structured-emergency-contact-message-action="return-location">현재 위치 확인하러 가기</button>';
+  finalPreview.textContent = structuredEmergencyContactMessageCurrentCopyText() || STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT;
+  updateStructuredEmergencyContactMessageCopyUi();
+  requestAnimationFrame(() => {
+    if(!screen || !screen.isConnected) return;
+    const maximum = Math.max(0, screen.scrollHeight - screen.clientHeight);
+    screen.scrollTop = Math.min(Math.max(0, savedScrollTop), maximum);
+  });
+  return true;
+}
+
+function handleStructuredEmergencyContactMessageLocationToggle(toggle){
+  const state = structuredEmergencyContactMessageState;
+  if(currentFlowScreen !== "screen-emergency-contact-message" || state.status !== "confirming" || !toggle) return false;
+  if(toggle.checked !== true){
+    clearStructuredEmergencyContactMessageLocationExpiryTimer();
+    resetStructuredEmergencyContactMessageCopyFeedback();
+    state.includeLocation = false;
+    state.locationSnapshot = null;
+    state.locationSignature = "";
+    const availability = getStructuredEmergencyContactMessageLocationAvailability();
+    state.locationStatus = availability.status;
+    state.locationNotice = availability.notice;
+    const finalCopyText = buildStructuredEmergencyContactMessageCopyText(state.messageText, false, null);
+    state.copyPayloadSignature = getStructuredEmergencyContactMessageCopyPayloadSignature({
+      messageSignature:state.messageSignature,
+      includeLocation:false,
+      locationSignature:"",
+      finalCopyText
+    });
+    updateStructuredEmergencyContactMessageLocationUi();
+    return true;
+  }
+  const availability = getStructuredEmergencyContactMessageLocationAvailability();
+  if(!availability.ok || !availability.state){
+    state.locationStatus = availability.status;
+    state.locationNotice = availability.notice;
+    updateStructuredEmergencyContactMessageLocationUi();
+    return false;
+  }
+  const snapshot = createStructuredEmergencyContactMessageLocationSnapshot(availability.state);
+  const locationSignature = getStructuredEmergencyContactMessageLocationSignature(snapshot);
+  const mapUrl = buildStructuredEmergencyMessageLocationMapUrl(snapshot);
+  const finalCopyText = buildStructuredEmergencyContactMessageCopyText(state.messageText, true, snapshot);
+  const copyPayloadSignature = getStructuredEmergencyContactMessageCopyPayloadSignature({
+    messageSignature:state.messageSignature,
+    includeLocation:true,
+    locationSignature,
+    finalCopyText
+  });
+  if(!snapshot || !locationSignature || !mapUrl || !finalCopyText || !copyPayloadSignature){
+    state.locationStatus = "error";
+    state.locationNotice = structuredEmergencyContactMessageLocationStatusNotice("error");
+    updateStructuredEmergencyContactMessageLocationUi();
+    return false;
+  }
+  resetStructuredEmergencyContactMessageCopyFeedback();
+  state.includeLocation = true;
+  state.locationSnapshot = snapshot;
+  state.locationSignature = locationSignature;
+  state.copyPayloadSignature = copyPayloadSignature;
+  state.locationStatus = "available";
+  state.locationNotice = "현재 확인된 위치와 지도 링크가 복사할 문자 내용에 추가됩니다.";
+  scheduleStructuredEmergencyContactMessageLocationExpiry();
+  updateStructuredEmergencyContactMessageLocationUi();
+  return true;
+}
+
+function returnFromEmergencyMessageToLocationCard(){
+  if(currentFlowScreen !== "screen-emergency-contact-message" || !emergencyChildContext || emergencyChildContext.type !== "contact-message") return false;
+  emergencyChildContext.returnToLocationCard = true;
+  return returnFromEmergencyChild();
+}
+
 function structuredEmergencyContactMessageNoticeHtml(){
   const state = structuredEmergencyContactMessageState;
   const navigating = structuredEmergencyContactMessageNavigationInProgress && state.status === "confirming";
@@ -7714,6 +8273,7 @@ function structuredEmergencyContactMessageCopyNoticeHtml(){
 }
 
 function markStructuredEmergencyContactMessageStale(){
+  clearStructuredEmergencyContactMessageLocationExpiryTimer();
   resetStructuredEmergencyContactMessageNavigationGuard();
   structuredEmergencyContactMessageCopyRequestSequence += 1;
   structuredEmergencyContactMessageState.status = "stale";
@@ -7753,6 +8313,8 @@ function renderStructuredEmergencyContactMessageScreen(){
   const canOpenMessage = state.status === "confirming" && !openingMessage;
   const copyButtonLabel = copying ? "복사 중…" : "문자 내용 복사";
   const openMessageButtonLabel = openingMessage ? "문자 작성 화면을 여는 중입니다." : "문자 작성 화면 열기";
+  const locationHtml = structuredEmergencyContactMessageLocationHtml();
+  const finalCopyText = structuredEmergencyContactMessageCurrentCopyText() || STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT;
   mount.innerHTML = '<section class="card flow-card structured-contact-message-shell" aria-labelledby="structuredContactMessageTitle" aria-describedby="structuredContactMessageDescription structuredContactMessageFormatNotice">'+
     '<h2 class="visually-hidden">확인할 문자 수신자와 도움 요청 문구</h2>'+
     '<dl class="structured-contact-message-summary">'+
@@ -7764,9 +8326,10 @@ function renderStructuredEmergencyContactMessageScreen(){
       '<div class="structured-contact-message-row"><dt>번호 형식</dt><dd>'+(isInternational ? '국제번호 형식' : '국내번호 형식')+'</dd></div>'+
     '</dl>'+
     '<p id="structuredContactMessageFormatNotice" class="structured-contact-call-format"><strong>번호 형식 안내:</strong> '+escapeHtml(formatNotice)+'</p>'+
+    locationHtml+
     '<div class="structured-contact-message-preview-wrap">'+
-      '<p id="structuredContactMessagePreviewLabel" class="structured-contact-message-preview-label">고정 도움 요청 문구</p>'+
-      '<p class="structured-contact-message-preview" tabindex="0" aria-labelledby="structuredContactMessagePreviewLabel" data-structured-emergency-contact-message-preview>'+escapeHtml(state.messageText)+'</p>'+
+      '<p id="structuredContactMessagePreviewLabel" class="structured-contact-message-preview-label">복사할 최종 문자 내용</p>'+
+      '<p class="structured-contact-message-preview" tabindex="0" aria-labelledby="structuredContactMessagePreviewLabel" data-structured-emergency-contact-message-preview>'+escapeHtml(finalCopyText)+'</p>'+
       '<p class="small muted">이 문구는 문자 앱에서 직접 수정할 수 있습니다.</p>'+
     '</div>'+
     structuredEmergencyContactMessageNoticeHtml()+
@@ -7774,7 +8337,7 @@ function renderStructuredEmergencyContactMessageScreen(){
     '<ul class="structured-contact-call-guidance" aria-label="문자 작성 전 안전 확인 사항">'+
       '<li>문자 앱의 작성 화면만 엽니다. 실제 전송은 문자 앱에서 직접 확인해 주세요.</li>'+
       '<li>문자 내용은 자동으로 전송되지 않으며 SOS Bridge 서버로도 전송되지 않습니다.</li>'+
-      '<li>현재 위치와 의료정보는 이 문구에 포함되지 않습니다.</li>'+
+      '<li>현재 위치는 직접 선택한 경우에만 복사할 문구에 포함되며 의료정보는 포함되지 않습니다.</li>'+
       '<li>문자의 전달·도착·읽음 여부는 SOS Bridge가 확인하거나 보장할 수 없습니다.</li>'+
       '<li>개인 연락처는 경찰·구급차·소방 등 공식 응급기관을 대체하지 않습니다.</li>'+
     '</ul>'+
@@ -7829,29 +8392,47 @@ function updateStructuredEmergencyContactMessageCopyUi(){
   return true;
 }
 
-function finishStructuredEmergencyContactMessageCopy(requestId, contactSignature, messageSignature, copySignature, succeeded){
+function handleStructuredEmergencyContactMessageLocationCopyFailure(prepared){
+  const status = prepared && prepared.locationStatus === "inaccurate" ? "inaccurate"
+    : prepared && prepared.locationStatus === "stale" ? "stale" : "error";
+  const notice = status === "inaccurate"
+    ? "위치 오차가 1km를 초과해 문자에 포함할 수 없습니다."
+    : "현재 위치가 오래되었거나 변경되었습니다. 위치를 다시 확인해 주세요.";
+  setStructuredEmergencyContactMessageLocationUnavailable(status, notice, {copyError:true, copyNotice:notice});
+  if(currentFlowScreen === "screen-emergency-contact-message") updateStructuredEmergencyContactMessageLocationUi();
+  return false;
+}
+
+function finishStructuredEmergencyContactMessageCopy(requestId, contactSignature, messageSignature, includeLocation, locationSignature, copyPayloadSignature, copySignature, succeeded){
   const state = structuredEmergencyContactMessageState;
   if(state.copyRequestId !== requestId || structuredEmergencyContactMessageCopyRequestSequence !== requestId
     || currentFlowScreen !== "screen-emergency-contact-message") return false;
   const mount = $("structuredEmergencyContactMessageMount");
   if(!mount || !mount.isConnected || !mount.closest("#screen-emergency-contact-message")) return false;
   if(state.contactSignature !== contactSignature || state.messageSignature !== messageSignature
+    || state.includeLocation !== includeLocation
+    || state.locationSignature !== locationSignature
+    || state.copyPayloadSignature !== copyPayloadSignature
     || state.copySignature !== copySignature
-    || copySignature !== getStructuredEmergencyContactMessageCopySignature(contactSignature, messageSignature)){
-    return markStructuredEmergencyContactMessageStale();
-  }
-  const validated = validateStructuredEmergencyContactMessageAttempt({
+    || copySignature !== getStructuredEmergencyContactMessageCopySignature(contactSignature, messageSignature, copyPayloadSignature)) return false;
+  const validated = prepareStructuredEmergencyContactMessageCopyAttempt({
     screenId:currentFlowScreen,
     messageState:state,
     loadedContact:loadStructuredEmergencyContact(),
     mountValid:true
   });
-  if(!validated.ok || validated.contactSignature !== contactSignature || validated.messageSignature !== messageSignature){
+  if(!validated.ok){
+    if(validated.scope === "location" && includeLocation) return handleStructuredEmergencyContactMessageLocationCopyFailure(validated);
     return markStructuredEmergencyContactMessageStale();
   }
+  if(validated.contactSignature !== contactSignature || validated.messageSignature !== messageSignature
+    || validated.includeLocation !== includeLocation || validated.locationSignature !== locationSignature
+    || validated.copyPayloadSignature !== copyPayloadSignature) return false;
   state.copyStatus = succeeded ? "success" : "error";
   state.notice = succeeded
-    ? "문자 내용이 복사되었습니다. 문자 앱에서 붙여넣어 주세요."
+    ? (includeLocation
+      ? "현재 위치가 포함된 문자 내용이 복사되었습니다. 붙여넣기 전에 위치를 다시 확인해 주세요."
+      : "문자 내용이 복사되었습니다. 문자 앱에서 붙여넣어 주세요.")
     : "자동 복사를 사용할 수 없습니다. 아래 문구를 길게 눌러 직접 복사해 주세요.";
   state.copySignature = "";
   return updateStructuredEmergencyContactMessageCopyUi();
@@ -7862,13 +8443,16 @@ function copyStructuredEmergencyContactMessageText(){
   if(state.status !== "confirming" || state.copyStatus === "copying") return false;
   const mount = $("structuredEmergencyContactMessageMount");
   const button = mount && mount.querySelector('[data-structured-emergency-contact-message-action="copy"]');
-  const prepared = validateStructuredEmergencyContactMessageAttempt({
+  const prepared = prepareStructuredEmergencyContactMessageCopyAttempt({
     screenId:currentFlowScreen,
     messageState:state,
     loadedContact:loadStructuredEmergencyContact(),
     mountValid:Boolean(mount && mount.isConnected && mount.closest("#screen-emergency-contact-message") && button)
   });
-  if(!prepared.ok) return markStructuredEmergencyContactMessageStale();
+  if(!prepared.ok){
+    if(prepared.scope === "location" && state.includeLocation) return handleStructuredEmergencyContactMessageLocationCopyFailure(prepared);
+    return markStructuredEmergencyContactMessageStale();
+  }
   if(window.isSecureContext !== true || !navigator.clipboard || typeof navigator.clipboard.writeText !== "function"){
     state.copyStatus = "error";
     state.notice = "자동 복사를 사용할 수 없습니다. 아래 문구를 길게 눌러 직접 복사해 주세요.";
@@ -7876,7 +8460,11 @@ function copyStructuredEmergencyContactMessageText(){
     return false;
   }
   const requestId = ++structuredEmergencyContactMessageCopyRequestSequence;
-  const copySignature = getStructuredEmergencyContactMessageCopySignature(prepared.contactSignature, prepared.messageSignature);
+  const copySignature = getStructuredEmergencyContactMessageCopySignature(
+    prepared.contactSignature,
+    prepared.messageSignature,
+    prepared.copyPayloadSignature
+  );
   if(!copySignature) return markStructuredEmergencyContactMessageStale();
   state.copyStatus = "copying";
   state.copyRequestId = requestId;
@@ -7885,14 +8473,23 @@ function copyStructuredEmergencyContactMessageText(){
   updateStructuredEmergencyContactMessageCopyUi();
   let pending;
   try{
-    pending = navigator.clipboard.writeText(prepared.messageText);
+    pending = navigator.clipboard.writeText(prepared.finalCopyText);
   }catch(error){
-    finishStructuredEmergencyContactMessageCopy(requestId, prepared.contactSignature, prepared.messageSignature, copySignature, false);
+    finishStructuredEmergencyContactMessageCopy(
+      requestId,
+      prepared.contactSignature,
+      prepared.messageSignature,
+      prepared.includeLocation,
+      prepared.locationSignature,
+      prepared.copyPayloadSignature,
+      copySignature,
+      false
+    );
     return false;
   }
   Promise.resolve(pending).then(
-    () => finishStructuredEmergencyContactMessageCopy(requestId, prepared.contactSignature, prepared.messageSignature, copySignature, true),
-    () => finishStructuredEmergencyContactMessageCopy(requestId, prepared.contactSignature, prepared.messageSignature, copySignature, false)
+    () => finishStructuredEmergencyContactMessageCopy(requestId, prepared.contactSignature, prepared.messageSignature, prepared.includeLocation, prepared.locationSignature, prepared.copyPayloadSignature, copySignature, true),
+    () => finishStructuredEmergencyContactMessageCopy(requestId, prepared.contactSignature, prepared.messageSignature, prepared.includeLocation, prepared.locationSignature, prepared.copyPayloadSignature, copySignature, false)
   );
   return true;
 }
@@ -7972,8 +8569,19 @@ function openStructuredEmergencyContactMessageConfirm(trigger){
     STRUCTURED_EMERGENCY_CONTACT_MESSAGE_VERSION,
     STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT
   );
+  const initialCopyText = buildStructuredEmergencyContactMessageCopyText(
+    STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT,
+    false,
+    null
+  );
+  const initialCopyPayloadSignature = getStructuredEmergencyContactMessageCopyPayloadSignature({
+    messageSignature,
+    includeLocation:false,
+    locationSignature:"",
+    finalCopyText:initialCopyText
+  });
   resetStructuredEmergencyContactMessageState();
-  if(!snapshot || !contactSignature || !messageSignature){
+  if(!snapshot || !contactSignature || !messageSignature || !initialCopyText || !initialCopyPayloadSignature){
     structuredEmergencyContactMessageState.status = "error";
     structuredEmergencyContactMessageState.notice = "저장된 연락처를 다시 확인해 주세요.";
     renderStructuredEmergencyContactHubCard();
@@ -7989,7 +8597,13 @@ function openStructuredEmergencyContactMessageConfirm(trigger){
     notice:"",
     copyStatus:"idle",
     copyRequestId:structuredEmergencyContactMessageCopyRequestSequence,
-    copySignature:""
+    copySignature:"",
+    includeLocation:false,
+    locationSnapshot:null,
+    locationSignature:"",
+    copyPayloadSignature:initialCopyPayloadSignature,
+    locationNotice:"",
+    locationStatus:"unavailable"
   };
   const opened = openEmergencyChildScreen("screen-emergency-contact-message", "contact-message", trigger, () => {
     renderStructuredEmergencyContactMessageScreen();
@@ -8844,6 +9458,7 @@ function renderEmergencyLocationCard(){
       else scroll.scrollTop = top;
     });
   }
+  if(currentFlowScreen === "screen-emergency-contact-message") updateStructuredEmergencyContactMessageLocationUi();
 }
 
 function renderEmergencyInfoCard(){
@@ -10612,6 +11227,15 @@ function initAllLanguageTestPanel(){
     structuredEmergencyContactMessageNavigationInProgress:() => structuredEmergencyContactMessageNavigationInProgress,
     resetStructuredEmergencyContactMessageState,
     validateStructuredEmergencyContactMessageAttempt,
+    prepareStructuredEmergencyContactMessageCopyAttempt,
+    createStructuredEmergencyContactMessageLocationSnapshot,
+    validateStructuredEmergencyContactMessageLocationSnapshot,
+    getStructuredEmergencyContactMessageLocationSignature,
+    buildStructuredEmergencyMessageLocationMapUrl,
+    buildStructuredEmergencyContactMessageCopyText,
+    getStructuredEmergencyContactMessageCopyPayloadSignature,
+    formatStructuredEmergencyContactMessageLocationAccuracy,
+    formatStructuredEmergencyContactMessageLocationTimestamp,
     structuredEmergencyContactMessageState:() => ({...structuredEmergencyContactMessageState}),
     structuredEmergencyContactMessageText:STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT,
     escapeHtml
