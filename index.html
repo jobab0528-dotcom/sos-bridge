@@ -316,7 +316,7 @@
     .emergency-contact-copy-notice.success{border:1px solid #cfe7d8;background:#f2fbf5;color:#286447}
     .emergency-contact-copy-notice.error{border:1px solid #f0d58a;background:#fff8df;color:#5f4a16}
     .emergency-contact-copy-privacy{margin:0;color:#6b7684;font-size:11px;font-weight:750;line-height:1.5}
-    @media (min-width:520px){.emergency-contact-actions{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media (min-width:520px){.emergency-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
     .structured-contact-call-shell{display:grid;gap:14px;min-width:0;margin-bottom:max(8px,var(--safe-bottom))}
     .structured-contact-call-summary{display:grid;gap:8px;margin:0;min-width:0}
     .structured-contact-call-row{display:grid;gap:3px;padding:11px 12px;border:1px solid #e5e8eb;border-radius:13px;background:#fafbfc;min-width:0}
@@ -330,6 +330,17 @@
     .structured-contact-call-actions{display:grid;grid-template-columns:1fr;gap:8px;min-width:0}
     .structured-contact-call-actions .btn{min-width:0;min-height:48px;white-space:normal}
     @media (min-width:520px){.structured-contact-call-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .structured-contact-message-shell{display:grid;gap:14px;min-width:0;margin-bottom:max(8px,var(--safe-bottom))}
+    .structured-contact-message-summary{display:grid;gap:8px;margin:0;min-width:0}
+    .structured-contact-message-row{display:grid;gap:3px;padding:11px 12px;border:1px solid #e5e8eb;border-radius:13px;background:#fafbfc;min-width:0}
+    .structured-contact-message-row dt{color:#6b7684;font-size:11px;font-weight:850}
+    .structured-contact-message-row dd{margin:0;color:#191f28;font-size:15px;font-weight:950;line-height:1.45;overflow-wrap:anywhere;word-break:break-word}
+    .structured-contact-message-preview-wrap{display:grid;gap:7px;min-width:0}
+    .structured-contact-message-preview-label{margin:0;color:#333d4b;font-size:13px;font-weight:950}
+    .structured-contact-message-preview{margin:0;padding:14px;border:1px solid #cfe0f2;border-radius:14px;background:#f8fbff;color:#173f68;font-size:15px;font-weight:850;line-height:1.65;overflow-wrap:anywhere;white-space:normal;user-select:text;-webkit-user-select:text}
+    .structured-contact-message-actions{display:grid;grid-template-columns:1fr;gap:8px;min-width:0}
+    .structured-contact-message-actions .btn{min-width:0;min-height:48px;white-space:normal}
+    @media (min-width:520px){.structured-contact-message-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
     .structured-contact-shell{display:grid;gap:12px;min-width:0}
     .structured-contact-notice{margin:0;padding:12px;border:1px solid #d9e5dd;border-radius:14px;background:#f7fbf8;color:#315b42;font-size:13px;font-weight:800;line-height:1.55}
     .structured-contact-notice.warning{border-color:#f0d58a;background:#fff8df;color:#5f4a16}
@@ -825,6 +836,7 @@
     .sos-modern-ui .flow-screen-header .btn{min-height:44px;padding:9px 12px;white-space:nowrap;flex:none}
     .sos-modern-ui.flow-app-active[data-flow-screen="screen-emergency"] #screen-emergency>.flow-screen-header [data-flow-back]{min-height:48px}
     .sos-modern-ui.flow-app-active[data-flow-screen="screen-emergency-contact-call"] #screen-emergency-contact-call>.flow-screen-header [data-flow-back]{min-height:48px}
+    .sos-modern-ui.flow-app-active[data-flow-screen="screen-emergency-contact-message"] #screen-emergency-contact-message>.flow-screen-header [data-flow-back]{min-height:48px}
     .sos-modern-ui #analyzeBtn{background:var(--color-primary)!important}
     .sos-modern-ui.flow-app-active .app-flow-screen>.card,
     .sos-modern-ui.flow-app-active .app-flow-screen>.flow-card,
@@ -3480,6 +3492,7 @@ function confirmTripCountrySelection(){
   confirmedTripCountryCode = code;
   if(previousCode && previousCode !== code){
     resetStructuredEmergencyContactCallState();
+    resetStructuredEmergencyContactMessageState();
     clearEmergencyLocationState({invalidateSession:true});
   }
   saveSelectedCountryCode(code);
@@ -4358,7 +4371,8 @@ const FLOW_SCREEN_IDS = [
   "screen-pharmacy-results",
   "screen-emergency",
   "screen-emergency-contact",
-  "screen-emergency-contact-call"
+  "screen-emergency-contact-call",
+  "screen-emergency-contact-message"
 ];
 let currentFlowScreen = "";
 let flowHistory = [];
@@ -4384,12 +4398,19 @@ const STRUCTURED_EMERGENCY_CONTACT_STORAGE_KEY = "sosBridgeEmergencyContactV1";
 const STRUCTURED_EMERGENCY_CONTACT_VERSION = 1;
 const STRUCTURED_EMERGENCY_CONTACT_DIAL_PATTERN = /^\+?[0-9]{7,15}$/;
 const STRUCTURED_EMERGENCY_CONTACT_TEL_URL_PATTERN = /^tel:\+?[0-9]{7,15}$/;
+const STRUCTURED_EMERGENCY_CONTACT_SMS_URL_PATTERN = /^sms:\+?[0-9]{7,15}$/;
+const STRUCTURED_EMERGENCY_CONTACT_MESSAGE_VERSION = 1;
+const STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT = "해외에서 도움이 필요합니다. 이 문자를 확인하면 연락해 주세요.";
 let structuredEmergencyContactUiState = createStructuredEmergencyContactUiState();
 let structuredEmergencyContactCopyRequestSequence = 0;
 let structuredEmergencyContactCopyState = createStructuredEmergencyContactCopyState();
 let structuredEmergencyContactCallState = createStructuredEmergencyContactCallState();
 let structuredEmergencyContactPhoneNavigationInProgress = false;
 let structuredEmergencyContactPhoneNavigationResetTimer = 0;
+let structuredEmergencyContactMessageCopyRequestSequence = 0;
+let structuredEmergencyContactMessageNavigationInProgress = false;
+let structuredEmergencyContactMessageNavigationResetTimer = 0;
+let structuredEmergencyContactMessageState = createStructuredEmergencyContactMessageState();
 
 function getAppFlowScrollContainer(screenId){
   const screen = $(screenId);
@@ -4478,6 +4499,8 @@ function openEmergencyChildScreen(screenId, type, trigger, prepare){
     ? "[data-emergency-open-phrases]"
     : type === "contact-call"
       ? '[data-structured-emergency-contact-action="call-confirm"]'
+    : type === "contact-message"
+      ? '[data-structured-emergency-contact-action="message-confirm"]'
     : type === "contact"
       ? "[data-emergency-open-contact]"
     : type === "medical-saved"
@@ -4524,6 +4547,7 @@ function returnFromEmergencyChild(options={}){
   const context = emergencyChildContext;
   restoreEmergencyChildReturnButtons(context);
   if(context.type === "contact-call") resetStructuredEmergencyContactCallState();
+  if(context.type === "contact-message") resetStructuredEmergencyContactMessageState();
   emergencyChildContext = null;
   renderEmergencyInfoCard();
   showFlowScreen("screen-emergency", {push:false, browser:false});
@@ -4554,6 +4578,7 @@ function returnFromEmergencyHelpMode(options={}){
   emergencyHistoryActive = false;
   resetStructuredEmergencyContactCopyState();
   resetStructuredEmergencyContactCallState();
+  resetStructuredEmergencyContactMessageState();
   clearEmergencyLocationState({invalidateSession:true});
   restoreEmergencyReturnState(returnState);
 }
@@ -4573,6 +4598,7 @@ function openEmergencyHelpMode(trigger=document.activeElement){
   if(!emergencyHistoryActive || !emergencyLocationSessionId){
     resetStructuredEmergencyContactCopyState();
     resetStructuredEmergencyContactCallState();
+    resetStructuredEmergencyContactMessageState();
     startEmergencyLocationSession();
   }
   if($("emergencyInfoCard")) $("emergencyInfoCard").classList.remove("hidden");
@@ -4769,6 +4795,23 @@ function setupAppFlowScreens(){
   }
   emergencyContactCall.appendChild(emergencyContactCallMount);
 
+  const emergencyContactMessage = makeFlowScreen(root, "screen-emergency-contact-message");
+  if(!emergencyContactMessage.querySelector(":scope > .flow-screen-header")){
+    const emergencyContactMessageHeader = document.createElement("div");
+    emergencyContactMessageHeader.className = "flow-screen-header";
+    emergencyContactMessageHeader.innerHTML =
+      '<div><p class="eyebrow">MESSAGE CONFIRM</p><h1 id="structuredContactMessageTitle" tabindex="-1">비상연락처에 문자 보내기</h1>'+
+      '<p id="structuredContactMessageDescription" class="small muted">문자 앱을 열기 전에 수신자와 도움 요청 문구를 확인해 주세요.</p></div>'+
+      '<button class="btn outline" type="button" data-flow-back>이전</button>';
+    emergencyContactMessage.appendChild(emergencyContactMessageHeader);
+  }
+  let emergencyContactMessageMount = $("structuredEmergencyContactMessageMount");
+  if(!emergencyContactMessageMount){
+    emergencyContactMessageMount = document.createElement("div");
+    emergencyContactMessageMount.id = "structuredEmergencyContactMessageMount";
+  }
+  emergencyContactMessage.appendChild(emergencyContactMessageMount);
+
   const emergency = makeFlowScreen(root, "screen-emergency", "긴급 도움", "국가별 응급번호와 보조 기능을 확인하고 필요한 행동을 직접 선택하세요.");
   let emergencyCard = $("emergencyInfoCard");
   if(!emergencyCard){
@@ -4879,6 +4922,7 @@ function bindFlowNavigation(){
       event.preventDefault();
       const action = structuredEmergencyContactAction.getAttribute("data-structured-emergency-contact-action");
       if(action === "call-confirm") openStructuredEmergencyContactCallConfirm(structuredEmergencyContactAction);
+      else if(action === "message-confirm") openStructuredEmergencyContactMessageConfirm(structuredEmergencyContactAction);
       else if(action === "copy") copyStructuredEmergencyContactPhone();
       return;
     }
@@ -4889,6 +4933,16 @@ function bindFlowNavigation(){
       if(action === "open-phone") openStructuredEmergencyContactPhoneApp(structuredEmergencyContactCallAction);
       else if(action === "return") returnFromEmergencyChild();
       else if(action === "edit") openStructuredEmergencyContactManagerFromCallConfirm(structuredEmergencyContactCallAction);
+      return;
+    }
+    const structuredEmergencyContactMessageAction = event.target.closest("[data-structured-emergency-contact-message-action]");
+    if(structuredEmergencyContactMessageAction){
+      event.preventDefault();
+      const action = structuredEmergencyContactMessageAction.getAttribute("data-structured-emergency-contact-message-action");
+      if(action === "copy") copyStructuredEmergencyContactMessageText();
+      else if(action === "open-message") openStructuredEmergencyContactMessageApp(structuredEmergencyContactMessageAction);
+      else if(action === "return") returnFromEmergencyChild();
+      else if(action === "edit") openStructuredEmergencyContactManagerFromMessageConfirm(structuredEmergencyContactMessageAction);
       return;
     }
     const childReturn = event.target.closest("[data-emergency-child-return]");
@@ -4966,10 +5020,14 @@ function bindFlowNavigation(){
   });
   window.addEventListener("pageshow", () => safe(() => {
     resetStructuredEmergencyContactPhoneNavigationGuard({render:true});
+    resetStructuredEmergencyContactMessageNavigationGuard({render:true});
     restoreEmergencySourcesReturn();
   }));
   document.addEventListener("visibilitychange", () => {
-    if(document.visibilityState === "visible") safe(() => resetStructuredEmergencyContactPhoneNavigationGuard({render:true}));
+    if(document.visibilityState === "visible") safe(() => {
+      resetStructuredEmergencyContactPhoneNavigationGuard({render:true});
+      resetStructuredEmergencyContactMessageNavigationGuard({render:true});
+    });
   });
 }
 
@@ -5421,6 +5479,7 @@ function showLanguage(){
   if(emergencyHistoryActive && (currentFlowScreen === "screen-emergency" || emergencyChildContext)){
     resetStructuredEmergencyContactCopyState();
     resetStructuredEmergencyContactCallState();
+    resetStructuredEmergencyContactMessageState();
     clearEmergencyLocationState({invalidateSession:true});
   }
   stage="language";
@@ -6533,6 +6592,49 @@ function createStructuredEmergencyContactCallState(){
   };
 }
 
+function createStructuredEmergencyContactMessageState(){
+  return {
+    status:"idle",
+    contactSignature:"",
+    contactSnapshot:null,
+    messageVersion:STRUCTURED_EMERGENCY_CONTACT_MESSAGE_VERSION,
+    messageText:"",
+    messageSignature:"",
+    notice:"",
+    copyStatus:"idle",
+    copyRequestId:structuredEmergencyContactMessageCopyRequestSequence,
+    copySignature:""
+  };
+}
+
+function resetStructuredEmergencyContactMessageState(){
+  resetStructuredEmergencyContactMessageNavigationGuard();
+  structuredEmergencyContactMessageCopyRequestSequence += 1;
+  structuredEmergencyContactMessageState = createStructuredEmergencyContactMessageState();
+}
+
+function resetStructuredEmergencyContactMessageNavigationGuard(options={}){
+  if(structuredEmergencyContactMessageNavigationResetTimer){
+    window.clearTimeout(structuredEmergencyContactMessageNavigationResetTimer);
+    structuredEmergencyContactMessageNavigationResetTimer = 0;
+  }
+  const wasInProgress = structuredEmergencyContactMessageNavigationInProgress;
+  structuredEmergencyContactMessageNavigationInProgress = false;
+  if(options.render === true && wasInProgress && currentFlowScreen === "screen-emergency-contact-message"
+    && structuredEmergencyContactMessageState.status === "confirming"){
+    updateStructuredEmergencyContactMessageCopyUi();
+  }
+  return wasInProgress;
+}
+
+function scheduleStructuredEmergencyContactMessageNavigationGuardReset(){
+  if(structuredEmergencyContactMessageNavigationResetTimer) window.clearTimeout(structuredEmergencyContactMessageNavigationResetTimer);
+  structuredEmergencyContactMessageNavigationResetTimer = window.setTimeout(() => {
+    structuredEmergencyContactMessageNavigationResetTimer = 0;
+    resetStructuredEmergencyContactMessageNavigationGuard({render:true});
+  }, 1500);
+}
+
 function resetStructuredEmergencyContactCallState(){
   resetStructuredEmergencyContactPhoneNavigationGuard();
   structuredEmergencyContactCallState = createStructuredEmergencyContactCallState();
@@ -6725,6 +6827,73 @@ function getStructuredEmergencyContactCallSignature(contact){
     snapshot.phoneDial,
     snapshot.confirmedAt
   ]);
+}
+
+function createStructuredEmergencyContactMessageContactSnapshot(rawContact){
+  return createStructuredEmergencyContactCallSnapshot(rawContact);
+}
+
+function getStructuredEmergencyContactMessageContactSignature(contact){
+  return getStructuredEmergencyContactCallSignature(contact);
+}
+
+function getStructuredEmergencyContactMessageSignature(messageVersion, messageText){
+  if(messageVersion !== STRUCTURED_EMERGENCY_CONTACT_MESSAGE_VERSION
+    || typeof messageText !== "string"
+    || messageText !== STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT) return "";
+  return JSON.stringify([messageVersion, messageText]);
+}
+
+function getStructuredEmergencyContactMessageCopySignature(contactSignature, messageSignature){
+  if(typeof contactSignature !== "string" || !contactSignature
+    || typeof messageSignature !== "string" || !messageSignature) return "";
+  return JSON.stringify([contactSignature, messageSignature]);
+}
+
+function structuredEmergencyContactMessageFailure(errorCode){
+  return {
+    ok:false,
+    contact:null,
+    contactSignature:"",
+    messageVersion:0,
+    messageText:"",
+    messageSignature:"",
+    errorCode:String(errorCode || "invalid-message-context")
+  };
+}
+
+function validateStructuredEmergencyContactMessageAttempt(context){
+  const source = context && typeof context === "object" && !Array.isArray(context) ? context : {};
+  const state = source.messageState && typeof source.messageState === "object" && !Array.isArray(source.messageState) ? source.messageState : null;
+  if(source.screenId !== "screen-emergency-contact-message") return structuredEmergencyContactMessageFailure("inactive-screen");
+  if(!state || state.status !== "confirming") return structuredEmergencyContactMessageFailure("invalid-message-state");
+  if(source.mountValid === false) return structuredEmergencyContactMessageFailure("missing-mount");
+  const snapshot = createStructuredEmergencyContactMessageContactSnapshot(state.contactSnapshot);
+  if(!snapshot) return structuredEmergencyContactMessageFailure("missing-contact-snapshot");
+  const snapshotSignature = getStructuredEmergencyContactMessageContactSignature(snapshot);
+  if(!snapshotSignature || snapshotSignature !== state.contactSignature) return structuredEmergencyContactMessageFailure("contact-signature-mismatch");
+  if(state.messageVersion !== STRUCTURED_EMERGENCY_CONTACT_MESSAGE_VERSION
+    || state.messageText !== STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT) return structuredEmergencyContactMessageFailure("message-snapshot-mismatch");
+  const messageSignature = getStructuredEmergencyContactMessageSignature(state.messageVersion, state.messageText);
+  if(!messageSignature || messageSignature !== state.messageSignature) return structuredEmergencyContactMessageFailure("message-signature-mismatch");
+  const loaded = source.loadedContact;
+  if(!loaded || loaded.status !== "valid" || !loaded.contact) return structuredEmergencyContactMessageFailure("stored-contact-unavailable");
+  const currentContact = createStructuredEmergencyContactMessageContactSnapshot(loaded.contact);
+  if(!currentContact) return structuredEmergencyContactMessageFailure("stored-contact-invalid");
+  const currentSignature = getStructuredEmergencyContactMessageContactSignature(currentContact);
+  if(!currentSignature || currentSignature !== snapshotSignature) return structuredEmergencyContactMessageFailure("stored-contact-changed");
+  if(currentContact.phoneRaw !== snapshot.phoneRaw || currentContact.phoneDial !== snapshot.phoneDial
+    || currentContact.confirmedAt !== snapshot.confirmedAt) return structuredEmergencyContactMessageFailure("stored-contact-changed");
+  if(!STRUCTURED_EMERGENCY_CONTACT_DIAL_PATTERN.test(currentContact.phoneDial)) return structuredEmergencyContactMessageFailure("invalid-dial-number");
+  return {
+    ok:true,
+    contact:currentContact,
+    contactSignature:currentSignature,
+    messageVersion:state.messageVersion,
+    messageText:state.messageText,
+    messageSignature,
+    errorCode:""
+  };
 }
 
 function structuredEmergencyContactCallFailure(errorCode){
@@ -7207,6 +7376,7 @@ function saveStructuredEmergencyContact(){
   state.hasUnsavedChanges = false;
   resetStructuredEmergencyContactCopyState();
   resetStructuredEmergencyContactCallState();
+  resetStructuredEmergencyContactMessageState();
   renderStructuredEmergencyContactHubCard();
   renderStructuredEmergencyContactScreen({focusId:"structuredContactSavedStatus"});
   return true;
@@ -7229,6 +7399,7 @@ function deleteStructuredEmergencyContact(){
   structuredEmergencyContactUiState.noticeType = "status";
   resetStructuredEmergencyContactCopyState();
   resetStructuredEmergencyContactCallState();
+  resetStructuredEmergencyContactMessageState();
   renderStructuredEmergencyContactHubCard();
   renderStructuredEmergencyContactScreen({focusId:"structuredContactStepTitle"});
   return true;
@@ -7325,6 +7496,7 @@ function handleStructuredEmergencyContactAction(action){
 function openStructuredEmergencyContactManager(trigger){
   resetStructuredEmergencyContactCopyState();
   resetStructuredEmergencyContactCallState();
+  resetStructuredEmergencyContactMessageState();
   return openEmergencyChildScreen("screen-emergency-contact", "contact", trigger, () => {
     initializeStructuredEmergencyContactUi();
     setStatus("이 기기에 저장할 개인 비상연락처를 관리합니다.");
@@ -7526,6 +7698,337 @@ function openStructuredEmergencyContactManagerFromCallConfirm(trigger){
   return true;
 }
 
+function structuredEmergencyContactMessageNoticeHtml(){
+  const state = structuredEmergencyContactMessageState;
+  const navigating = structuredEmergencyContactMessageNavigationInProgress && state.status === "confirming";
+  const visible = navigating || ((state.status === "stale" || state.status === "error") && Boolean(state.notice));
+  const notice = navigating ? "문자 작성 화면을 여는 중입니다." : state.notice;
+  return '<p class="structured-contact-notice'+(navigating ? '' : ' error')+(visible ? '' : ' hidden')+'" role="'+(navigating ? 'status' : 'alert')+'" aria-live="polite" data-structured-contact-message-alert>'+escapeHtml(visible ? notice : "")+'</p>';
+}
+
+function structuredEmergencyContactMessageCopyNoticeHtml(){
+  const state = structuredEmergencyContactMessageState;
+  const status = state.copyStatus;
+  const visible = state.status === "confirming" && status !== "idle" && Boolean(state.notice);
+  return '<p class="emergency-contact-copy-notice'+(visible ? ' '+status : ' hidden')+'" role="status" aria-live="polite" data-structured-contact-message-copy-status>'+escapeHtml(visible ? state.notice : "")+'</p>';
+}
+
+function markStructuredEmergencyContactMessageStale(){
+  resetStructuredEmergencyContactMessageNavigationGuard();
+  structuredEmergencyContactMessageCopyRequestSequence += 1;
+  structuredEmergencyContactMessageState.status = "stale";
+  structuredEmergencyContactMessageState.copyStatus = "error";
+  structuredEmergencyContactMessageState.copyRequestId = structuredEmergencyContactMessageCopyRequestSequence;
+  structuredEmergencyContactMessageState.copySignature = "";
+  structuredEmergencyContactMessageState.notice = "연락처 또는 문자 내용이 변경되었습니다. 긴급 도움에서 다시 확인해 주세요.";
+  if(currentFlowScreen === "screen-emergency-contact-message") renderStructuredEmergencyContactMessageScreen();
+  return false;
+}
+
+function renderStructuredEmergencyContactMessageScreen(){
+  const mount = $("structuredEmergencyContactMessageMount");
+  if(!mount) return false;
+  const state = structuredEmergencyContactMessageState;
+  const snapshot = createStructuredEmergencyContactMessageContactSnapshot(state.contactSnapshot);
+  const contactSignature = snapshot ? getStructuredEmergencyContactMessageContactSignature(snapshot) : "";
+  const messageSignature = getStructuredEmergencyContactMessageSignature(state.messageVersion, state.messageText);
+  if(!snapshot || !contactSignature || contactSignature !== state.contactSignature
+    || !messageSignature || messageSignature !== state.messageSignature){
+    mount.innerHTML = '<section class="card flow-card structured-contact-message-shell" aria-labelledby="structuredContactMessageTitle">'+
+      '<p class="structured-contact-notice error" role="alert">저장된 연락처를 다시 확인해 주세요.</p>'+
+      '<div class="structured-contact-message-actions">'+
+        '<button class="btn primary w-full" type="button" data-structured-emergency-contact-message-action="return">긴급 도움으로 돌아가기</button>'+
+        '<button class="btn outline w-full" type="button" data-structured-emergency-contact-message-action="edit">연락처 수정</button>'+
+      '</div>'+
+    '</section>';
+    return false;
+  }
+  const isInternational = snapshot.phoneDial.charAt(0) === "+";
+  const formatNotice = isInternational
+    ? "국제문자·로밍·통신사 요금이 발생할 수 있습니다."
+    : "이 번호는 국제번호 형식이 아니므로 해외에서 문자 수신자로 올바르게 처리되지 않을 수 있습니다.";
+  const copying = state.status === "confirming" && state.copyStatus === "copying";
+  const openingMessage = state.status === "confirming" && structuredEmergencyContactMessageNavigationInProgress;
+  const canCopy = state.status === "confirming" && !copying;
+  const canOpenMessage = state.status === "confirming" && !openingMessage;
+  const copyButtonLabel = copying ? "복사 중…" : "문자 내용 복사";
+  const openMessageButtonLabel = openingMessage ? "문자 작성 화면을 여는 중입니다." : "문자 작성 화면 열기";
+  mount.innerHTML = '<section class="card flow-card structured-contact-message-shell" aria-labelledby="structuredContactMessageTitle" aria-describedby="structuredContactMessageDescription structuredContactMessageFormatNotice">'+
+    '<h2 class="visually-hidden">확인할 문자 수신자와 도움 요청 문구</h2>'+
+    '<dl class="structured-contact-message-summary">'+
+      '<div class="structured-contact-message-row"><dt>수신자 이름</dt><dd>'+escapeHtml(snapshot.displayName)+'</dd></div>'+
+      (snapshot.relationship ? '<div class="structured-contact-message-row"><dt>관계</dt><dd>'+escapeHtml(snapshot.relationship)+'</dd></div>' : '')+
+      '<div class="structured-contact-message-row"><dt>입력한 번호</dt><dd>'+escapeHtml(snapshot.phoneRaw)+'</dd></div>'+
+      '<div class="structured-contact-message-row"><dt>문자 수신자로 사용할 예정인 번호</dt><dd>'+escapeHtml(snapshot.phoneDial)+'</dd></div>'+
+      '<div class="structured-contact-message-row"><dt>마지막 확인 날짜</dt><dd>'+escapeHtml(formatStructuredEmergencyContactConfirmedAt(snapshot.confirmedAt))+'</dd></div>'+
+      '<div class="structured-contact-message-row"><dt>번호 형식</dt><dd>'+(isInternational ? '국제번호 형식' : '국내번호 형식')+'</dd></div>'+
+    '</dl>'+
+    '<p id="structuredContactMessageFormatNotice" class="structured-contact-call-format"><strong>번호 형식 안내:</strong> '+escapeHtml(formatNotice)+'</p>'+
+    '<div class="structured-contact-message-preview-wrap">'+
+      '<p id="structuredContactMessagePreviewLabel" class="structured-contact-message-preview-label">고정 도움 요청 문구</p>'+
+      '<p class="structured-contact-message-preview" tabindex="0" aria-labelledby="structuredContactMessagePreviewLabel" data-structured-emergency-contact-message-preview>'+escapeHtml(state.messageText)+'</p>'+
+      '<p class="small muted">이 문구는 문자 앱에서 직접 수정할 수 있습니다.</p>'+
+    '</div>'+
+    structuredEmergencyContactMessageNoticeHtml()+
+    structuredEmergencyContactMessageCopyNoticeHtml()+
+    '<ul class="structured-contact-call-guidance" aria-label="문자 작성 전 안전 확인 사항">'+
+      '<li>문자 앱의 작성 화면만 엽니다. 실제 전송은 문자 앱에서 직접 확인해 주세요.</li>'+
+      '<li>문자 내용은 자동으로 전송되지 않으며 SOS Bridge 서버로도 전송되지 않습니다.</li>'+
+      '<li>현재 위치와 의료정보는 이 문구에 포함되지 않습니다.</li>'+
+      '<li>문자의 전달·도착·읽음 여부는 SOS Bridge가 확인하거나 보장할 수 없습니다.</li>'+
+      '<li>개인 연락처는 경찰·구급차·소방 등 공식 응급기관을 대체하지 않습니다.</li>'+
+    '</ul>'+
+    '<p class="structured-contact-notice">문자 본문은 자동으로 입력되지 않습니다. 먼저 문자 내용을 복사한 뒤 문자 앱에서 붙여넣어 주세요.</p>'+
+    '<p class="small muted">문자 앱이 열리지 않으면 전화번호 복사와 문자 내용 복사를 이용해 직접 작성해 주세요.</p>'+
+    '<div class="structured-contact-message-actions" aria-busy="'+(copying || openingMessage ? 'true' : 'false')+'">'+
+      '<button class="btn primary w-full" type="button" data-structured-emergency-contact-message-action="copy" aria-label="'+escapeHtml(snapshot.displayName)+'에게 보낼 도움 요청 문구 복사" aria-disabled="'+(canCopy ? 'false' : 'true')+'"'+(copying ? ' aria-busy="true"' : '')+(canCopy ? '' : ' disabled')+'>'+escapeHtml(copyButtonLabel)+'</button>'+
+      '<button class="btn outline w-full" type="button" data-structured-emergency-contact-message-action="open-message" aria-label="'+escapeHtml(snapshot.displayName)+'에게 문자를 작성하기 위해 문자 앱 열기" aria-disabled="'+(canOpenMessage ? 'false' : 'true')+'"'+(openingMessage ? ' aria-busy="true"' : '')+(canOpenMessage ? '' : ' disabled')+'>'+escapeHtml(openMessageButtonLabel)+'</button>'+
+      '<button class="btn primary w-full" type="button" data-structured-emergency-contact-message-action="return">긴급 도움으로 돌아가기</button>'+
+      '<button class="btn outline w-full" type="button" data-structured-emergency-contact-message-action="edit">연락처 수정</button>'+
+    '</div>'+
+  '</section>';
+  return true;
+}
+
+function updateStructuredEmergencyContactMessageCopyUi(){
+  const mount = $("structuredEmergencyContactMessageMount");
+  const button = mount && mount.querySelector('[data-structured-emergency-contact-message-action="copy"]');
+  const openButton = mount && mount.querySelector('[data-structured-emergency-contact-message-action="open-message"]');
+  const actions = mount && mount.querySelector(".structured-contact-message-actions");
+  const notice = mount && mount.querySelector("[data-structured-contact-message-copy-status]");
+  const navigationNotice = mount && mount.querySelector("[data-structured-contact-message-alert]");
+  const screen = getAppFlowScrollContainer("screen-emergency-contact-message");
+  if(currentFlowScreen !== "screen-emergency-contact-message" || !mount || !mount.isConnected || !button || !openButton || !actions || !notice || !navigationNotice) return false;
+  const savedScrollTop = screen ? Number(screen.scrollTop) || 0 : 0;
+  const state = structuredEmergencyContactMessageState;
+  const copying = state.status === "confirming" && state.copyStatus === "copying";
+  const openingMessage = state.status === "confirming" && structuredEmergencyContactMessageNavigationInProgress;
+  const canCopy = state.status === "confirming" && !copying;
+  const canOpenMessage = state.status === "confirming" && !openingMessage;
+  button.disabled = !canCopy;
+  button.setAttribute("aria-disabled", canCopy ? "false" : "true");
+  button.toggleAttribute("aria-busy", copying);
+  button.textContent = copying ? "복사 중…" : "문자 내용 복사";
+  openButton.disabled = !canOpenMessage;
+  openButton.setAttribute("aria-disabled", canOpenMessage ? "false" : "true");
+  openButton.toggleAttribute("aria-busy", openingMessage);
+  openButton.textContent = openingMessage ? "문자 작성 화면을 여는 중입니다." : "문자 작성 화면 열기";
+  actions.setAttribute("aria-busy", copying || openingMessage ? "true" : "false");
+  const visible = state.status === "confirming" && state.copyStatus !== "idle" && Boolean(state.notice);
+  notice.textContent = visible ? state.notice : "";
+  notice.className = "emergency-contact-copy-notice"+(visible ? " "+state.copyStatus : " hidden");
+  const navigationVisible = openingMessage || ((state.status === "stale" || state.status === "error") && Boolean(state.notice));
+  navigationNotice.textContent = navigationVisible ? (openingMessage ? "문자 작성 화면을 여는 중입니다." : state.notice) : "";
+  navigationNotice.className = "structured-contact-notice"+(openingMessage ? "" : " error")+(navigationVisible ? "" : " hidden");
+  navigationNotice.setAttribute("role", openingMessage ? "status" : "alert");
+  requestAnimationFrame(() => {
+    if(!screen || !screen.isConnected) return;
+    const maximum = Math.max(0, screen.scrollHeight - screen.clientHeight);
+    screen.scrollTop = Math.min(Math.max(0, savedScrollTop), maximum);
+  });
+  return true;
+}
+
+function finishStructuredEmergencyContactMessageCopy(requestId, contactSignature, messageSignature, copySignature, succeeded){
+  const state = structuredEmergencyContactMessageState;
+  if(state.copyRequestId !== requestId || structuredEmergencyContactMessageCopyRequestSequence !== requestId
+    || currentFlowScreen !== "screen-emergency-contact-message") return false;
+  const mount = $("structuredEmergencyContactMessageMount");
+  if(!mount || !mount.isConnected || !mount.closest("#screen-emergency-contact-message")) return false;
+  if(state.contactSignature !== contactSignature || state.messageSignature !== messageSignature
+    || state.copySignature !== copySignature
+    || copySignature !== getStructuredEmergencyContactMessageCopySignature(contactSignature, messageSignature)){
+    return markStructuredEmergencyContactMessageStale();
+  }
+  const validated = validateStructuredEmergencyContactMessageAttempt({
+    screenId:currentFlowScreen,
+    messageState:state,
+    loadedContact:loadStructuredEmergencyContact(),
+    mountValid:true
+  });
+  if(!validated.ok || validated.contactSignature !== contactSignature || validated.messageSignature !== messageSignature){
+    return markStructuredEmergencyContactMessageStale();
+  }
+  state.copyStatus = succeeded ? "success" : "error";
+  state.notice = succeeded
+    ? "문자 내용이 복사되었습니다. 문자 앱에서 붙여넣어 주세요."
+    : "자동 복사를 사용할 수 없습니다. 아래 문구를 길게 눌러 직접 복사해 주세요.";
+  state.copySignature = "";
+  return updateStructuredEmergencyContactMessageCopyUi();
+}
+
+function copyStructuredEmergencyContactMessageText(){
+  const state = structuredEmergencyContactMessageState;
+  if(state.status !== "confirming" || state.copyStatus === "copying") return false;
+  const mount = $("structuredEmergencyContactMessageMount");
+  const button = mount && mount.querySelector('[data-structured-emergency-contact-message-action="copy"]');
+  const prepared = validateStructuredEmergencyContactMessageAttempt({
+    screenId:currentFlowScreen,
+    messageState:state,
+    loadedContact:loadStructuredEmergencyContact(),
+    mountValid:Boolean(mount && mount.isConnected && mount.closest("#screen-emergency-contact-message") && button)
+  });
+  if(!prepared.ok) return markStructuredEmergencyContactMessageStale();
+  if(window.isSecureContext !== true || !navigator.clipboard || typeof navigator.clipboard.writeText !== "function"){
+    state.copyStatus = "error";
+    state.notice = "자동 복사를 사용할 수 없습니다. 아래 문구를 길게 눌러 직접 복사해 주세요.";
+    updateStructuredEmergencyContactMessageCopyUi();
+    return false;
+  }
+  const requestId = ++structuredEmergencyContactMessageCopyRequestSequence;
+  const copySignature = getStructuredEmergencyContactMessageCopySignature(prepared.contactSignature, prepared.messageSignature);
+  if(!copySignature) return markStructuredEmergencyContactMessageStale();
+  state.copyStatus = "copying";
+  state.copyRequestId = requestId;
+  state.copySignature = copySignature;
+  state.notice = "문자 내용을 복사하고 있습니다.";
+  updateStructuredEmergencyContactMessageCopyUi();
+  let pending;
+  try{
+    pending = navigator.clipboard.writeText(prepared.messageText);
+  }catch(error){
+    finishStructuredEmergencyContactMessageCopy(requestId, prepared.contactSignature, prepared.messageSignature, copySignature, false);
+    return false;
+  }
+  Promise.resolve(pending).then(
+    () => finishStructuredEmergencyContactMessageCopy(requestId, prepared.contactSignature, prepared.messageSignature, copySignature, true),
+    () => finishStructuredEmergencyContactMessageCopy(requestId, prepared.contactSignature, prepared.messageSignature, copySignature, false)
+  );
+  return true;
+}
+
+function buildStructuredEmergencyContactSmsUrl(phoneDial){
+  if(typeof phoneDial !== "string" || !STRUCTURED_EMERGENCY_CONTACT_DIAL_PATTERN.test(phoneDial)) return "";
+  const smsUrl = "sms:"+phoneDial;
+  return STRUCTURED_EMERGENCY_CONTACT_SMS_URL_PATTERN.test(smsUrl) ? smsUrl : "";
+}
+
+function navigateStructuredEmergencyContactMessageApp(smsUrl, navigationOverride){
+  if(typeof smsUrl !== "string" || !STRUCTURED_EMERGENCY_CONTACT_SMS_URL_PATTERN.test(smsUrl)){
+    throw new Error("invalid-structured-contact-sms-url");
+  }
+  if(typeof navigationOverride === "function"){
+    navigationOverride(smsUrl);
+    return true;
+  }
+  window.location.href = smsUrl;
+  return true;
+}
+
+function openStructuredEmergencyContactMessageApp(trigger, options={}){
+  const action = trigger && typeof trigger.getAttribute === "function"
+    ? trigger.getAttribute("data-structured-emergency-contact-message-action") : "";
+  if(action !== "open-message" || trigger.disabled === true || trigger.getAttribute("aria-disabled") === "true") return false;
+  if(currentFlowScreen !== "screen-emergency-contact-message") return false;
+  if(structuredEmergencyContactMessageState.status !== "confirming") return markStructuredEmergencyContactMessageStale();
+  if(structuredEmergencyContactMessageNavigationInProgress) return false;
+  const mount = $("structuredEmergencyContactMessageMount");
+  const button = mount && mount.querySelector('[data-structured-emergency-contact-message-action="open-message"]');
+  const prepared = validateStructuredEmergencyContactMessageAttempt({
+    screenId:currentFlowScreen,
+    messageState:structuredEmergencyContactMessageState,
+    loadedContact:loadStructuredEmergencyContact(),
+    mountValid:Boolean(mount && mount.isConnected && mount.closest("#screen-emergency-contact-message") && button)
+  });
+  if(!prepared.ok){
+    if(prepared.errorCode === "invalid-dial-number" || prepared.errorCode === "missing-mount"){
+      structuredEmergencyContactMessageState.status = "error";
+      structuredEmergencyContactMessageState.notice = "문자 작성 화면을 열 수 없습니다. 연락처를 다시 확인해 주세요.";
+      renderStructuredEmergencyContactMessageScreen();
+      return false;
+    }
+    return markStructuredEmergencyContactMessageStale();
+  }
+  const phoneDial = prepared.contact && prepared.contact.phoneDial;
+  const smsUrl = buildStructuredEmergencyContactSmsUrl(phoneDial);
+  if(!smsUrl || smsUrl !== "sms:"+phoneDial || !STRUCTURED_EMERGENCY_CONTACT_SMS_URL_PATTERN.test(smsUrl)){
+    structuredEmergencyContactMessageState.status = "error";
+    structuredEmergencyContactMessageState.notice = "문자 작성 화면을 열 수 없습니다. 연락처를 다시 확인해 주세요.";
+    renderStructuredEmergencyContactMessageScreen();
+    return false;
+  }
+  structuredEmergencyContactMessageNavigationInProgress = true;
+  updateStructuredEmergencyContactMessageCopyUi();
+  try{
+    const source = options && typeof options === "object" && !Array.isArray(options) ? options : {};
+    navigateStructuredEmergencyContactMessageApp(smsUrl, source.navigate);
+    scheduleStructuredEmergencyContactMessageNavigationGuardReset();
+    return true;
+  }catch(error){
+    resetStructuredEmergencyContactMessageNavigationGuard();
+    structuredEmergencyContactMessageState.status = "error";
+    structuredEmergencyContactMessageState.notice = "문자 작성 화면을 열 수 없습니다. 연락처를 다시 확인해 주세요.";
+    renderStructuredEmergencyContactMessageScreen();
+    return false;
+  }
+}
+
+function openStructuredEmergencyContactMessageConfirm(trigger){
+  if(currentFlowScreen !== "screen-emergency" || !emergencyHistoryActive) return false;
+  const loaded = loadStructuredEmergencyContact();
+  const snapshot = loaded.status === "valid" && loaded.contact ? createStructuredEmergencyContactMessageContactSnapshot(loaded.contact) : null;
+  const contactSignature = snapshot ? getStructuredEmergencyContactMessageContactSignature(snapshot) : "";
+  const messageSignature = getStructuredEmergencyContactMessageSignature(
+    STRUCTURED_EMERGENCY_CONTACT_MESSAGE_VERSION,
+    STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT
+  );
+  resetStructuredEmergencyContactMessageState();
+  if(!snapshot || !contactSignature || !messageSignature){
+    structuredEmergencyContactMessageState.status = "error";
+    structuredEmergencyContactMessageState.notice = "저장된 연락처를 다시 확인해 주세요.";
+    renderStructuredEmergencyContactHubCard();
+    return false;
+  }
+  structuredEmergencyContactMessageState = {
+    status:"confirming",
+    contactSignature,
+    contactSnapshot:snapshot,
+    messageVersion:STRUCTURED_EMERGENCY_CONTACT_MESSAGE_VERSION,
+    messageText:STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT,
+    messageSignature,
+    notice:"",
+    copyStatus:"idle",
+    copyRequestId:structuredEmergencyContactMessageCopyRequestSequence,
+    copySignature:""
+  };
+  const opened = openEmergencyChildScreen("screen-emergency-contact-message", "contact-message", trigger, () => {
+    renderStructuredEmergencyContactMessageScreen();
+    setStatus("개인 비상연락처와 복사할 도움 요청 문구를 다시 확인합니다.");
+  });
+  if(!opened) resetStructuredEmergencyContactMessageState();
+  return opened;
+}
+
+function openStructuredEmergencyContactManagerFromMessageConfirm(trigger){
+  if(currentFlowScreen !== "screen-emergency-contact-message" || !emergencyChildContext || emergencyChildContext.type !== "contact-message") return false;
+  resetStructuredEmergencyContactMessageState();
+  resetStructuredEmergencyContactCopyState();
+  emergencyChildContext.type = "contact";
+  emergencyChildContext.entryScreenId = "screen-emergency-contact";
+  emergencyChildContext.focusSelector = '[data-structured-emergency-contact-action="message-confirm"]';
+  initializeStructuredEmergencyContactUi();
+  showFlowScreen("screen-emergency-contact", {push:false, browser:false});
+  const contactScreen = getAppFlowScrollContainer("screen-emergency-contact");
+  if(contactScreen) contactScreen.scrollTop = 0;
+  if(window.history && window.history.replaceState){
+    const currentState = window.history.state && typeof window.history.state === "object" ? window.history.state : {};
+    window.history.replaceState({
+      ...currentState,
+      [EMERGENCY_CHILD_HISTORY_STATE_KEY]:true,
+      emergencyChildScreen:"screen-emergency-contact"
+    }, "", window.location.href);
+  }
+  requestAnimationFrame(() => {
+    const heading = document.querySelector("#screen-emergency-contact > .flow-screen-header h2");
+    if(heading){
+      heading.setAttribute("tabindex", "-1");
+      try{ heading.focus({preventScroll:true}); }catch(error){ heading.focus(); }
+    }
+  });
+  setStatus("이 기기에 저장할 개인 비상연락처를 관리합니다.");
+  return true;
+}
+
 function renderStructuredEmergencyContactHubCard(){
   const mount = $("emergencyContactCardMount");
   if(!mount) return;
@@ -7538,6 +8041,7 @@ function renderStructuredEmergencyContactHubCard(){
     const copyStatus = signature === structuredEmergencyContactCopyState.contactSignature ? structuredEmergencyContactCopyState.status : "idle";
     const copying = copyStatus === "copying";
     const callNotice = structuredEmergencyContactCallNoticeHtml();
+    const messageNotice = structuredEmergencyContactMessageNoticeHtml();
     bodyHtml = '<div class="emergency-contact-values">'+
       '<div class="emergency-contact-value"><span>이름</span><strong>'+escapeHtml(contact.displayName)+'</strong></div>'+
       (contact.relationship ? '<div class="emergency-contact-value"><span>관계</span><strong>'+escapeHtml(contact.relationship)+'</strong></div>' : '')+
@@ -7546,10 +8050,12 @@ function renderStructuredEmergencyContactHubCard(){
     '<p class="emergency-contact-meta">마지막 확인: '+escapeHtml(formatStructuredEmergencyContactConfirmedAt(contact.confirmedAt))+' · 이 기기에 저장됨 · 자동 발신되지 않음</p>'+
     '<div class="emergency-contact-actions" data-structured-contact-copy-actions aria-busy="'+(copying ? 'true' : 'false')+'">'+
       '<button class="btn outline" type="button" data-structured-emergency-contact-action="call-confirm" aria-label="'+escapeHtml(contact.displayName)+'에게 전화하기 전 확인">전화하기 확인</button>'+
+      '<button class="btn outline" type="button" data-structured-emergency-contact-action="message-confirm" aria-label="'+escapeHtml(contact.displayName)+'에게 보낼 문자 내용을 확인">문자 작성 확인</button>'+
       '<button class="btn outline" type="button" data-structured-emergency-contact-action="copy" aria-label="'+escapeHtml(contact.displayName)+'의 전화번호 복사" aria-disabled="'+(copying ? 'true' : 'false')+'"'+(copying ? ' disabled' : '')+'>'+(copying ? '복사 중…' : '전화번호 복사')+'</button>'+
       '<button class="btn outline" type="button" data-emergency-open-contact>관리하기</button>'+
     '</div>'+
     callNotice+
+    messageNotice+
     '<p class="emergency-contact-copy-notice'+(copyStatus === 'idle' ? ' hidden' : ' '+copyStatus)+'" role="status" aria-live="polite" data-structured-contact-copy-status>'+escapeHtml(structuredEmergencyContactCopyState.notice)+'</p>'+
     '<p class="emergency-contact-copy-privacy">복사된 전화번호는 앱을 나간 뒤에도 기기 클립보드에 남을 수 있습니다.</p>';
   }else{
@@ -10097,6 +10603,17 @@ function initAllLanguageTestPanel(){
     }),
     openStructuredEmergencyContactPhoneApp,
     resetStructuredEmergencyContactPhoneNavigationGuard,
+    openStructuredEmergencyContactMessageConfirm,
+    copyStructuredEmergencyContactMessageText,
+    buildStructuredEmergencyContactSmsUrl,
+    navigateStructuredEmergencyContactMessageApp,
+    openStructuredEmergencyContactMessageApp,
+    resetStructuredEmergencyContactMessageNavigationGuard,
+    structuredEmergencyContactMessageNavigationInProgress:() => structuredEmergencyContactMessageNavigationInProgress,
+    resetStructuredEmergencyContactMessageState,
+    validateStructuredEmergencyContactMessageAttempt,
+    structuredEmergencyContactMessageState:() => ({...structuredEmergencyContactMessageState}),
+    structuredEmergencyContactMessageText:STRUCTURED_EMERGENCY_CONTACT_MESSAGE_TEXT,
     escapeHtml
   };
 }
