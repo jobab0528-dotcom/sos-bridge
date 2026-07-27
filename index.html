@@ -5037,7 +5037,7 @@ function bindFlowNavigation(){
       returnFromEmergencyHelpMode({home:true});
       return;
     }
-    const target = event.target.closest("[data-flow-screen]");
+    const target = event.target.closest("button[data-flow-screen]");
     if(target){
       event.preventDefault();
       showFlowScreen(target.getAttribute("data-flow-screen"));
