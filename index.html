@@ -1122,6 +1122,20 @@
     }
     @media (display-mode:standalone){
       :root{--standalone-content-gap:14px}
+      .sos-modern-ui:not(.flow-app-active),
+      .sos-modern-ui.flow-app-active{
+        height:max(var(--app-viewport-height,100dvh),100dvh);
+        max-height:max(var(--app-viewport-height,100dvh),100dvh);
+      }
+      .sos-modern-ui:not(.flow-app-active) #languagePage,
+      .sos-modern-ui.flow-app-active #appPage{
+        height:100%;
+        max-height:100%;
+      }
+      .sos-modern-ui.flow-app-active[data-flow-screen="screen-emergency"] #screen-emergency>.emergency-help-scroll{
+        padding-bottom:24px;
+        scroll-padding-bottom:24px;
+      }
       .sos-modern-ui #languagePage.flow-ui-active>.home-grid{
         padding-top:max(clamp(10px,2.4vw,18px),var(--safe-top))!important;
       }
