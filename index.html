@@ -1120,6 +1120,18 @@
       .sos-modern-ui.flow-app-active .app-flow-screen{padding-inline:18px}
       .sos-modern-ui.flow-app-active #screen-home:not(.hidden){padding-inline:18px}
     }
+    @media (display-mode:standalone){
+      :root{--standalone-content-gap:14px}
+      .sos-modern-ui #languagePage.flow-ui-active>.home-grid{
+        padding-top:max(clamp(10px,2.4vw,18px),var(--safe-top))!important;
+      }
+      .sos-modern-ui #languagePage .language-flow-screen{
+        padding-top:max(var(--standalone-content-gap),clamp(14px,3vw,22px))!important;
+      }
+      .sos-modern-ui.flow-app-active #appPage>.topbar{
+        padding-top:calc(var(--safe-top) + var(--standalone-content-gap))!important;
+      }
+    }
     @media (prefers-reduced-motion:reduce){.sos-modern-ui *{scroll-behavior:auto!important;transition:none!important}}
 
     /* iOS WebKit 입력 안정화: 자동 확대를 막고 키보드 공간은 활성 화면 스크롤에만 반영한다. */
