@@ -829,20 +829,36 @@
         "rank": 18,
         "emergencyNumbers": {
             "primary": "112",
-            "primaryLabelKo": "휴대전화 긴급번호",
+            "primaryLabelKo": "휴대전화 통합 긴급번호",
             "police": "10111",
             "ambulance": "10177",
             "ambulanceLabelKo": "구급차",
             "fire": "",
-            "scopeKo": "112는 휴대전화 긴급번호이며, 구급차 직통 번호는 10177입니다.",
-            "warningKo": "화재 신고 번호는 지역별로 다를 수 있으므로 관할 지방정부 안내를 확인하세요.",
-            "notesKo": "휴대전화 긴급번호 112, 구급차 10177, 경찰 10111입니다.",
-            "sourceName": "Western Cape Government",
-            "sourceTitle": "Know who you can call in an emergency",
-            "sourceDomain": "westerncape.gov.za",
-            "sourceUrl": "https://www.westerncape.gov.za/health-wellness/know-who-you-can-call-emergency",
-            "lastVerified": "2026-07-19",
-            "status": "verified"
+            "scopeKo": "112는 휴대전화에서 이용하는 통합 긴급번호입니다. 경찰은 10111, 구급차는 10177입니다.",
+            "warningKo": "화재·구조 직통번호는 지방정부나 도시에 따라 다를 수 있습니다. 휴대전화에서는 112로 긴급 도움을 요청하거나 관할 지방정부의 소방번호를 확인하세요.",
+            "notesKo": "휴대전화 통합 긴급번호 112, 경찰 10111, 구급차 10177입니다.",
+            "sourceName": "Independent Communications Authority of South Africa (ICASA)",
+            "sourceTitle": "Electronic Communications Act: Regulations: Numbering Plan, 2016",
+            "sourceDomain": "icasa.org.za",
+            "sourceUrl": "https://www.icasa.org.za/uploads/files/NumberingPlanReg.pdf",
+            "sourceNoteKo": "ICASA 규정은 112를 모든 긴급호출 서비스용 코드, 10111을 경찰, 10177을 구급차 번호로 구분합니다. Western Cape Government는 112를 휴대전화 긴급번호로 안내하고 소방번호는 지역별로 확인하도록 안내합니다.",
+            "additionalSources": [
+                {
+                    "sourceName": "Western Cape Government",
+                    "sourceTitle": "Know who you can call in an emergency",
+                    "sourceDomain": "westerncape.gov.za",
+                    "sourceUrl": "https://www.westerncape.gov.za/health-wellness/know-who-you-can-call-emergency"
+                },
+                {
+                    "sourceName": "South African Police Service (SAPS)",
+                    "sourceTitle": "10111 Centre",
+                    "sourceDomain": "saps.gov.za",
+                    "sourceUrl": "https://www.saps.gov.za/services/cc_10111.php"
+                }
+            ],
+            "conditionLabelKo": "이용 범위 확인",
+            "lastVerified": "2026-07-31",
+            "status": "verified-conditional"
         },
         "countryCode": "ZA"
     },
