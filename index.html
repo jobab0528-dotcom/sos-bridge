@@ -47,6 +47,7 @@
     button,input,textarea{font:inherit}
     button{cursor:pointer;touch-action:manipulation}
     .hidden{display:none!important}
+    body.app-booting #languagePage,body.app-booting #appPage{visibility:hidden;pointer-events:none}
     .page{min-height:100vh;min-height:100dvh;padding:16px 14px calc(22px + var(--safe-bottom))}
     .container{max-width:1060px;margin:0 auto}
     .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:18px}
@@ -409,8 +410,15 @@
     .map-box{position:relative;width:100%;height:clamp(360px,55vh,520px);min-height:360px;border-radius:24px;border:1px solid var(--border);overflow:hidden;background:#e2e8f0}
     .map-box>div,#googleMap>div,#googleMap .gm-style{width:100%!important;height:100%!important}
     #googleMap img,.gm-style img{max-width:none!important}
+    #facilityCard,#facilityList,#facilityList>.grid,.facility,.facility-top{width:100%;max-width:100%;min-width:0}
     .facility{box-shadow:0 4px 14px rgba(148,163,184,.12)}
     .facility-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .facility-top>div:first-child{flex:1 1 auto;min-width:0}
+    .facility h3,.facility p{overflow-wrap:anywhere;word-break:break-word}
+    .facility-top>.distance{flex:0 0 auto}
+    .facility-fallback-actions,.facility-fallback-action,.facility-external-notice{width:100%;max-width:100%;min-width:0}
+    .facility-fallback-action{white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+    .facility-external-notice{overflow-wrap:anywhere;word-break:break-word}
     .distance{background:var(--navy);color:white;padding:8px 10px;border-radius:var(--radius-md);font-weight:950;white-space:nowrap;font-size:13px}
     .step{display:flex;gap:10px;border:1px solid #f1f5f9;background:white;border-radius:var(--radius-md);padding:12px;font-weight:760;line-height:1.45}
     .check{color:var(--teal);font-weight:950}
@@ -1187,7 +1195,7 @@
     .debug{font-size:12px;white-space:pre-wrap}
   </style>
 </head>
-<body class="sos-modern-ui">
+<body class="sos-modern-ui app-booting" aria-busy="true">
   <div id="appStatusBanner" class="app-status-banner hidden" role="status" aria-live="polite" aria-atomic="true">
     <span id="appStatusMessage" class="status-message"></span>
     <button id="appStatusAction" class="status-action hidden" type="button">새로고침</button>
@@ -3489,6 +3497,7 @@ let facilityType = "hospital";
 let locationData = null;
 let facilities = [];
 let facilitySearchErrorMessage = "";
+let facilitySearchErrorCode = "";
 let facilityRecommendation = null;
 let triage = null;
 let hospitalFinderTriage = null;
@@ -3506,6 +3515,8 @@ const medicalCardTranslationCacheVersion = "medical-card-quality-v2";
 let helpPhraseTranslationCache = Object.create(null);
 let helpPhraseTranslationRequestSequence = 0;
 let pendingLocationRequest = null;
+let facilitySearchGeneration = 0;
+let activeFacilitySearchRequest = null;
 
 const $ = id => document.getElementById(id);
 const safe = (fn) => { try { fn(); } catch(e) { showDebug(e); } };
@@ -5653,7 +5664,7 @@ function renderServices(){
   const emergencyDisplay = getCountryListEmergencyDisplay(getConfirmedTripOption() || getTripOption());
   const emergencyConditionLabel = emergencyDisplay.compactNotice ? " · "+emergencyDisplay.compactNotice : "";
   const serviceDescriptions = {
-    symptom: "위험 신호와 다음 행동을 참고용으로 정리",
+    symptom: "위험 신호와 다음 행동 안내",
     phrases: "의료진에게 바로 보여주기",
     medicalCard: "건강 정보를 한 장에",
     hospital: "현재 위치에서 거리순",
@@ -5736,6 +5747,17 @@ function renderApp(){
   renderPharmacyPhraseCard();
 }
 function renderAll(){ stage === "language" ? renderLanguagePage() : renderApp(); }
+function renderInitialAppState(restoredSelectedCountry){
+  if(restoredSelectedCountry){
+    showApp();
+    return;
+  }
+  renderAll();
+}
+function finishAppBootstrap(){
+  document.body.classList.remove("app-booting");
+  document.body.removeAttribute("aria-busy");
+}
 function showApp(options={}){
   if(!hasTripCountrySelection){
     stage="language";
@@ -5795,54 +5817,42 @@ function toRadians(v){ return (v*Math.PI)/180; }
 function getDistanceKm(a,b){ const R=6371,dLat=toRadians(b.latitude-a.latitude),dLng=toRadians(b.longitude-a.longitude),lat1=toRadians(a.latitude),lat2=toRadians(b.latitude); const h=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)*Math.sin(dLng/2); return 2*R*Math.asin(Math.sqrt(h)); }
 function tag(tags, keys){ for(const k of keys){ if(tags && tags[k]) return tags[k]; } return ""; }
 function formatAddress(tags){ const full=tag(tags,["addr:full","addr:full:ko"]); if(full) return full; return [tag(tags,["addr:city","addr:county","addr:province"]),tag(tags,["addr:district","addr:suburb"]),tag(tags,["addr:street"]),tag(tags,["addr:housenumber"])].filter(Boolean).join(" ") || "주소 정보 없음"; }
-const FACILITY_SEARCH_RADII_METERS = [5000, 10000, 20000, 50000, 100000, 200000];
 const MAX_FACILITY_RESULTS = 50;
-
-function buildOverpassQuery(type, loc, radius){
-  const lat = loc.latitude;
-  const lng = loc.longitude;
-
-  if(type === "pharmacy"){
-    return `
-      [out:json][timeout:25];
-      (
-        node(around:${radius},${lat},${lng})["amenity"="pharmacy"];
-        way(around:${radius},${lat},${lng})["amenity"="pharmacy"];
-        relation(around:${radius},${lat},${lng})["amenity"="pharmacy"];
-        node(around:${radius},${lat},${lng})["healthcare"="pharmacy"];
-        way(around:${radius},${lat},${lng})["healthcare"="pharmacy"];
-        relation(around:${radius},${lat},${lng})["healthcare"="pharmacy"];
-      );
-      out center tags;
-    `;
-  }
-
-  return `
-    [out:json][timeout:25];
-    (
-      node(around:${radius},${lat},${lng})["amenity"~"hospital|clinic|doctors|doctor"];
-      way(around:${radius},${lat},${lng})["amenity"~"hospital|clinic|doctors|doctor"];
-      relation(around:${radius},${lat},${lng})["amenity"~"hospital|clinic|doctors|doctor"];
-
-      node(around:${radius},${lat},${lng})["healthcare"~"hospital|clinic|doctor|doctors|centre|center|yes"];
-      way(around:${radius},${lat},${lng})["healthcare"~"hospital|clinic|doctor|doctors|centre|center|yes"];
-      relation(around:${radius},${lat},${lng})["healthcare"~"hospital|clinic|doctor|doctors|centre|center|yes"];
-    );
-    out center tags;
-  `;
-}
+const FACILITY_PROXY_URL = "/.netlify/functions/nearby-facilities";
+const FACILITY_PROXY_MAX_RADIUS_METERS = 50000;
+const FACILITY_PROXY_REQUEST_TIMEOUT_MS = 30000;
+const FACILITY_AUTO_RETRY_DELAY_MS = 250;
+const FACILITY_PROXY_ALLOWED_RADII = new Set([5000, 10000, 20000, 50000]);
+const FACILITY_PROXY_ERROR_CODES = new Set([
+  "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE",
+  "FACILITY_QUERY_ERROR",
+  "FACILITY_TIMEOUT",
+  "FACILITY_INVALID_RESPONSE",
+  "FACILITY_RATE_LIMITED",
+  "FACILITY_INVALID_REQUEST"
+]);
+const FACILITY_PARTIAL_RESULTS_MESSAGE = "일부 범위의 검색 결과만 표시하고 있습니다. 검색 서비스 응답이 원활하지 않아 더 넓은 범위까지 확인하지 못했습니다.";
 
 
 function isObviouslyNonMedicalPlace(text){
   const s = String(text || "").toLowerCase();
-
-  const badWords = [
-    "자동차", "카센터", "정비", "공업사", "타이어", "오토", "모터스", "세차", "렌트카", "중고차",
-    "car", "auto", "motor", "motors", "garage", "tire", "tyre", "repair", "mechanic",
-    "burger king", "mcdonald", "kfc", "restaurant", "fast food", "fast_food", "cafe", "coffee", "bar", "pub"
+  const clearKoreanNonMedicalPhrases = [
+    "자동차정비", "자동차 정비", "자동차 수리", "카센터", "차량정비", "차량 정비",
+    "정비소", "공업사", "타이어점", "타이어 샵", "세차장", "렌트카", "중고차"
   ];
+  if(clearKoreanNonMedicalPhrases.some(phrase => s.includes(phrase))) return true;
 
-  return badWords.some(w => s.includes(w));
+  const clearEnglishNonMedicalPatterns = [
+    /\bcar[\s_-]+(?:repair|service|garage|wash|rental|dealer|dealership)\b/i,
+    /\bauto(?:mobile)?[\s_-]+(?:repair|service|garage|wash|rental|dealer|dealership)\b/i,
+    /\bautomotive[\s_-]+(?:repair|service|garage|shop|center|centre)\b/i,
+    /\bmotor(?:s)?[\s_-]+(?:repair|service|garage|works|dealer|dealership)\b/i,
+    /\b(?:tire|tyre)[\s_-]+(?:repair|service|shop|center|centre)\b/i,
+    /\bmechanic(?:s)?\b/i,
+    /\bgarage\b/i,
+    /\b(?:burger king|mcdonald(?:'s)?|kfc|restaurant|fast[\s_-]*food|cafe|coffee shop|pub)\b/i
+  ];
+  return clearEnglishNonMedicalPatterns.some(pattern => pattern.test(s));
 }
 
 function isBlockedNonMedicalCategory(tags){
@@ -5873,6 +5883,48 @@ function isAllowedFacilityCategory(type, tags){
   return allowedAmenities.includes(amenity) || allowedHealthcare.includes(healthcare);
 }
 
+function normalizedOsmTagTokens(value){
+  return String(value || "")
+    .toLowerCase()
+    .split(/[;,|]/)
+    .map(item => item.trim().replace(/[\s/-]+/g, "_"))
+    .filter(Boolean);
+}
+
+function getFacilityEmergencyMetadata(tags, amenity, healthcare, specialty, openingHours){
+  const amenityValue = String(amenity || "").toLowerCase();
+  const healthcareValue = String(healthcare || "").toLowerCase();
+  const isHospital = amenityValue === "hospital" || healthcareValue === "hospital";
+  const isClinic = ["clinic", "doctor", "doctors", "centre", "center"].includes(amenityValue) ||
+    ["clinic", "doctor", "doctors", "centre", "center"].includes(healthcareValue);
+  const emergencyTag = String(tag(tags, ["emergency"]) || "").trim();
+  const emergencyDepartmentTag = String(tag(tags, ["emergency:department", "healthcare:emergency"]) || "").trim();
+  const emergencyWardTag = String(tag(tags, ["emergency_ward", "emergency_ward_entrance"]) || "").trim();
+  const structuredTokens = normalizedOsmTagTokens([emergencyTag, emergencyDepartmentTag, emergencyWardTag].filter(Boolean).join(";"));
+  const specialtyTokens = normalizedOsmTagTokens(specialty);
+  const affirmativeEmergencyTokens = new Set([
+    "yes", "true", "designated", "official", "main", "24_7",
+    "emergency", "emergency_department", "emergency_ward", "emergency_medicine", "emergency_medical_services"
+  ]);
+  const negativeEmergencyTokens = new Set(["no", "false", "none"]);
+  const hasAffirmativeEmergencyTag = structuredTokens.some(token => affirmativeEmergencyTokens.has(token));
+  const hasEmergencySpecialty = specialtyTokens.some(token => ["emergency", "emergency_medicine", "emergency_medical_services"].includes(token));
+  const hasNegativeEmergencyTag = structuredTokens.length > 0 && structuredTokens.every(token => negativeEmergencyTokens.has(token));
+  const emergencyCareConfirmed = isHospital && (hasAffirmativeEmergencyTag || hasEmergencySpecialty);
+
+  return {
+    facilityClass: isHospital ? "hospital" : (isClinic ? "clinic" : "other"),
+    isHospital,
+    isClinic,
+    emergencyStatus: emergencyCareConfirmed ? "confirmed" : (hasNegativeEmergencyTag ? "explicit-no" : "unknown"),
+    emergencyCareConfirmed,
+    emergencyTag,
+    emergencyDepartmentTag,
+    emergencyWardTag,
+    isOpen24Hours: String(openingHours || "").trim().toLowerCase() === "24/7"
+  };
+}
+
 function facilityDistanceValue(value){
   if(typeof value === "number" && Number.isFinite(value)) return value;
   const n = parseFloat(String(value || "").replace(/[^\d.+-]/g, ""));
@@ -5901,7 +5953,37 @@ function facilityDedupeKeys(f){
   return keys;
 }
 
-function finalizeFacilityResults(list){
+function isEmergencyHospitalRecommendation(recommendation){
+  return !!(recommendation && (
+    recommendation.emergencyContext === true ||
+    (recommendation.triageContext && (
+      recommendation.triageContext.level === "emergency" ||
+      recommendation.triageContext.needsAmbulance === true
+    ))
+  ));
+}
+
+function facilityEmergencyTier(f){
+  if(f && f.emergencyCareConfirmed === true) return 0;
+  const amenity = String(f && f.amenity || "").toLowerCase();
+  const healthcare = String(f && f.healthcare || "").toLowerCase();
+  if(f && f.isHospital === true) return 1;
+  if(amenity === "hospital" || healthcare === "hospital") return 1;
+  return 2;
+}
+
+function compareFacilityResults(a, b, recommendation=null){
+  if(isEmergencyHospitalRecommendation(recommendation)){
+    const tierDifference = facilityEmergencyTier(a) - facilityEmergencyTier(b);
+    if(tierDifference) return tierDifference;
+  }
+  const ad = facilityDistanceValue(a && a.distanceKm);
+  const bd = facilityDistanceValue(b && b.distanceKm);
+  if(ad !== bd) return ad - bd;
+  return String((a && (a.nameKo || a.nameEn)) || "").localeCompare(String((b && (b.nameKo || b.nameEn)) || ""), "ko");
+}
+
+function finalizeFacilityResults(list, recommendation=null){
   const seen = new Set();
   const finalized = [];
 
@@ -5915,12 +5997,7 @@ function finalizeFacilityResults(list){
     }));
   });
 
-  finalized.sort((a, b) => {
-    const ad = facilityDistanceValue(a.distanceKm);
-    const bd = facilityDistanceValue(b.distanceKm);
-    if(ad !== bd) return ad - bd;
-    return String(a.nameKo || a.nameEn || "").localeCompare(String(b.nameKo || b.nameEn || ""), "ko");
-  });
+  finalized.sort((a, b) => compareFacilityResults(a, b, recommendation));
 
   finalized.searchRadiusMeters = list && list.searchRadiusMeters;
   return finalized.slice(0, MAX_FACILITY_RESULTS);
@@ -5930,22 +6007,79 @@ function hasRealPlaceName(tags){
   return !!(tag(tags, ["name:ko", "name:en", "name"]) || "").trim();
 }
 
+function snapshotFacilityRecommendation(recommendation){
+  if(!recommendation) return null;
+  return Object.assign({}, recommendation, {
+    keywords: Array.isArray(recommendation.keywords) ? recommendation.keywords.slice() : [],
+    avoidKeywords: Array.isArray(recommendation.avoidKeywords) ? recommendation.avoidKeywords.slice() : [],
+    triageContext: recommendation.triageContext ? Object.assign({}, recommendation.triageContext) : null
+  });
+}
+
+function snapshotFacilityLocation(loc){
+  if(!loc) return null;
+  return {
+    latitude:loc.latitude,
+    longitude:loc.longitude,
+    accuracy:loc.accuracy == null ? null : loc.accuracy,
+    source:loc.source || "",
+    label:loc.label || ""
+  };
+}
+
+function beginFacilitySearch(type, recommendation=null){
+  const request = {
+    generation:++facilitySearchGeneration,
+    type:type === "pharmacy" ? "pharmacy" : "hospital",
+    location:null,
+    recommendation:snapshotFacilityRecommendation(recommendation)
+  };
+  activeFacilitySearchRequest = request;
+  return request;
+}
+
+function isFacilitySearchGenerationCurrent(request){
+  return !!(request && activeFacilitySearchRequest &&
+    request.generation === facilitySearchGeneration &&
+    request.generation === activeFacilitySearchRequest.generation &&
+    request.type === activeFacilitySearchRequest.type);
+}
+
+function isFacilitySearchCurrent(request){
+  return isFacilitySearchGenerationCurrent(request) && facilityType === request.type;
+}
+
+function facilityResultsMatchRequest(list, request){
+  return !!(request && Array.isArray(list) && list.every(f => f && f.type === request.type));
+}
+
+function commitFacilitySearchResults(request, nextFacilities){
+  if(!isFacilitySearchCurrent(request) || !facilityResultsMatchRequest(nextFacilities, request)) return false;
+  facilities = nextFacilities;
+  return true;
+}
+
 function mapOverpass(elements, type, base){
   const seen = {};
 
   return (elements || [])
     .map((el, i) => {
-      const latitude = el.lat || (el.center && el.center.lat);
-      const longitude = el.lon || (el.center && el.center.lon);
+      const latitudeValue = el && el.lat != null ? el.lat : (el.center && el.center.lat);
+      const longitudeValue = el && el.lon != null ? el.lon : (el.center && el.center.lon);
+      if(latitudeValue === "" || longitudeValue === "") return null;
+      const latitude = Number(latitudeValue);
+      const longitude = Number(longitudeValue);
       const tags = el.tags || {};
 
-      if(!latitude || !longitude) return null;
+      if(!Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+        latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
 
       const rawName = (tag(tags, ["name:ko", "name:en", "name"]) || "").trim();
       const addressText = formatAddress(tags);
       const amenity = tag(tags, ["amenity"]);
       const healthcare = tag(tags, ["healthcare"]);
       const specialty = tag(tags, ["healthcare:speciality", "speciality", "medical_system:specialty"]);
+      const openingHours = tag(tags, ["opening_hours"]);
 
       const combinedText = [
         rawName,
@@ -5959,10 +6093,12 @@ function mapOverpass(elements, type, base){
       ].filter(Boolean).join(" ");
 
       // 자동차 정비소/카센터가 OSM에서 healthcare로 잘못 잡히는 경우 제거
+      if(isBlockedNonMedicalCategory(tags)) return null;
       if(isObviouslyNonMedicalPlace(combinedText)) return null;
       if(!isAllowedFacilityCategory(type, tags)) return null;
 
       const distanceKm = getDistanceKm(base, { latitude, longitude });
+      const emergencyMetadata = getFacilityEmergencyMetadata(tags, amenity, healthcare, specialty, openingHours);
 
       // 이름이 없을 때는 가짜 병원명을 만들지 않고 "이름 확인 필요"로 표시합니다.
       const nameKo = rawName || (type === "pharmacy" ? "이름 확인 필요 약국" : "이름 확인 필요 병원·의원");
@@ -5981,69 +6117,176 @@ function mapOverpass(elements, type, base){
         longitude,
         address: addressText,
         phone: tag(tags, ["phone", "contact:phone"]),
-        openingHours: tag(tags, ["opening_hours"]),
+        openingHours,
         specialty,
         amenity,
         healthcare,
         distanceKm,
-        nameMissing: !rawName
+        nameMissing: !rawName,
+        ...emergencyMetadata
       };
     })
     .filter(Boolean)
     .sort((a, b) => facilityDistanceValue(a.distanceKm) - facilityDistanceValue(b.distanceKm));
 }
 
-async function fetchNearbyFacilities(type, loc){
-  if(isAppOffline()) throw new Error("OFFLINE");
-  let lastError = null;
-  let bestResults = [];
-  let successfulRequests = 0;
+function createFacilitySearchError(code, details={}){
+  const error = new Error(code);
+  error.code = code;
+  Object.keys(details || {}).forEach(key => { error[key] = details[key]; });
+  return error;
+}
 
-  for(const radius of FACILITY_SEARCH_RADII_METERS){
-    if(isAppOffline()) throw new Error("OFFLINE");
-    setStatus("검색 중... 반경 "+Math.round(radius/1000)+"km 안에서 "+(type==="hospital"?"증상 맞춤 병원":"약국")+"을 찾고 있습니다.");
+function normalizeFacilityProxyErrorCode(code){
+  const normalized = String(code || "");
+  return FACILITY_PROXY_ERROR_CODES.has(normalized)
+    ? normalized
+    : "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE";
+}
+
+function validateFacilityProxySuccess(data){
+  return !!(data && typeof data === "object" && !Array.isArray(data) &&
+    data.ok === true && data.schemaVersion === "1" &&
+    (data.provider === "primary" || data.provider === "secondary") &&
+    Number.isInteger(data.attemptsUsed) && data.attemptsUsed >= 1 && data.attemptsUsed <= 4 &&
+    FACILITY_PROXY_ALLOWED_RADII.has(data.searchRadiusMeters) &&
+    typeof data.complete === "boolean" && Array.isArray(data.elements) &&
+    (data.complete === true || data.code === "FACILITY_PARTIAL_RESULTS"));
+}
+
+async function fetchFacilityProxy(type, loc, searchRequest=null){
+  if(isAppOffline()) throw new Error("OFFLINE");
+  if(searchRequest && !isFacilitySearchCurrent(searchRequest)) return null;
+
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    if(controller) controller.abort();
+  }, FACILITY_PROXY_REQUEST_TIMEOUT_MS);
+
+  try{
+    const requestBody = {
+      schemaVersion:"1",
+      type:type === "pharmacy" ? "pharmacy" : "hospital",
+      latitude:loc.latitude,
+      longitude:loc.longitude,
+      maxRadiusMeters:FACILITY_PROXY_MAX_RADIUS_METERS
+    };
+    const options = {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(requestBody)
+    };
+    if(controller) options.signal = controller.signal;
+
+    const response = await fetch(FACILITY_PROXY_URL, options);
+    if(searchRequest && !isFacilitySearchCurrent(searchRequest)) return null;
+    if(!response || typeof response.text !== "function"){
+      throw createFacilitySearchError("FACILITY_INVALID_RESPONSE");
+    }
+
+    let data;
+    try{
+      const bodyText = await response.text();
+      data = JSON.parse(bodyText);
+    }catch(error){
+      throw createFacilitySearchError("FACILITY_INVALID_RESPONSE", {cause:error});
+    }
+
+    const status = Number(response.status || 0);
+    const responseOk = response.ok === true || (status >= 200 && status < 300);
+    if(!responseOk || data.ok !== true){
+      throw createFacilitySearchError(normalizeFacilityProxyErrorCode(data && data.code), {status});
+    }
+    if(!validateFacilityProxySuccess(data)){
+      throw createFacilitySearchError("FACILITY_INVALID_RESPONSE");
+    }
+    return data;
+  }catch(error){
+    if(error && error.code) throw error;
+    if(timedOut || (error && error.name === "AbortError")){
+      throw createFacilitySearchError("FACILITY_TIMEOUT", {cause:error});
+    }
+    throw createFacilitySearchError("FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", {cause:error});
+  }finally{
+    clearTimeout(timeoutId);
+  }
+}
+
+function finalizeFacilitySearchResults(list, recommendation, radius){
+  const result = finalizeFacilityResults(list, recommendation);
+  result.searchRadiusMeters = radius;
+  return result;
+}
+
+async function fetchNearbyFacilities(type, loc, recommendation=null, searchRequest=null){
+  if(isAppOffline()) throw new Error("OFFLINE");
+  if(searchRequest && !isFacilitySearchCurrent(searchRequest)) return null;
+  setStatus(searchRequest && searchRequest.autoRetrying === true
+    ? "병원 정보를 다시 확인하고 있습니다..."
+    : "검색 중... 가까운 곳부터 최대 50km 범위에서 "+(type==="hospital"?"증상 맞춤 병원":"약국")+"을 찾고 있습니다.");
+  renderFacilityList();
+
+  const data = await fetchFacilityProxy(type, loc, searchRequest);
+  if(data === null || (searchRequest && !isFacilitySearchCurrent(searchRequest))) return null;
+
+  let mapped = mapOverpass(data.elements, type, loc);
+  mapped = rankFacilitiesForRecommendation(mapped, recommendation);
+  const result = finalizeFacilitySearchResults(mapped, recommendation, data.searchRadiusMeters);
+  result.complete = data.complete;
+  result.code = data.code || "";
+  result.incompleteReason = data.incompleteReason || "";
+  result.provider = data.provider;
+  result.attemptsUsed = data.attemptsUsed;
+  return result;
+}
+
+function isFacilityAutoRetryEligible(type, error){
+  if(type !== "hospital") return false;
+  const status = Number(error && error.status || 0);
+  if(status === 400 || status === 422) return false;
+  const code = String(error && error.code || "");
+  return code === "FACILITY_TIMEOUT" || code === "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE";
+}
+
+function isFacilityExternalFallbackEligible(code){
+  return code === "FACILITY_TIMEOUT" || code === "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE";
+}
+
+function isFacilitySearchResultContextCurrent(searchRequest){
+  if(!isFacilitySearchCurrent(searchRequest)) return false;
+  const expectedScreen = searchRequest.type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results";
+  return currentFlowScreen === expectedScreen;
+}
+
+function waitForFacilityAutoRetry(){
+  return new Promise(resolve => setTimeout(resolve, FACILITY_AUTO_RETRY_DELAY_MS));
+}
+
+async function fetchNearbyFacilitiesWithSingleAutoRetry(type, loc, recommendation, searchRequest){
+  try{
+    return await fetchNearbyFacilities(type, loc, recommendation, searchRequest);
+  }catch(error){
+    if(!isFacilityAutoRetryEligible(type, error) || !isFacilitySearchResultContextCurrent(searchRequest)) throw error;
+
+    searchRequest.autoRetrying = true;
+    setStatus("병원 정보를 다시 확인하고 있습니다...");
     renderFacilityList();
+    await waitForFacilityAutoRetry();
+
+    if(!isFacilitySearchResultContextCurrent(searchRequest)){
+      searchRequest.autoRetrying = false;
+      return null;
+    }
 
     try{
-      const res = await fetch("https://overpass-api.de/api/interpreter", {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"},
-        body: new URLSearchParams({
-          data: buildOverpassQuery(type, loc, radius)
-        }).toString()
-      });
-
-      if(!res.ok) throw new Error("검색 실패");
-
-      const data = await res.json();
-      successfulRequests += 1;
-      let mapped = mapOverpass(data.elements, type, loc);
-      if(mapped.length){
-        mapped = rankFacilitiesForRecommendation(mapped, facilityRecommendation);
-        mapped = finalizeFacilityResults(mapped);
-        mapped.searchRadiusMeters = radius;
-        bestResults = mapped;
-
-        if(mapped.length >= MAX_FACILITY_RESULTS){
-          return finalizeFacilityResults(mapped);
-        }
-      }
-    }catch(e){
-      lastError = e;
+      const result = await fetchNearbyFacilities(type, loc, recommendation, searchRequest);
+      return result === null || !isFacilitySearchResultContextCurrent(searchRequest) ? null : result;
+    }finally{
+      searchRequest.autoRetrying = false;
     }
   }
-
-  if(lastError) console.warn(lastError);
-  if(bestResults.length){
-    bestResults.searchRadiusMeters = bestResults.searchRadiusMeters || FACILITY_SEARCH_RADII_METERS[FACILITY_SEARCH_RADII_METERS.length - 1];
-    return finalizeFacilityResults(bestResults);
-  }
-
-  if(lastError && successfulRequests < FACILITY_SEARCH_RADII_METERS.length) throw lastError;
-
-  const empty = [];
-  empty.searchRadiusMeters = FACILITY_SEARCH_RADII_METERS[FACILITY_SEARCH_RADII_METERS.length - 1];
-  return empty;
 }
 
 async function geocodeTravelPlace(country, place){
@@ -6054,7 +6297,10 @@ async function geocodeTravelPlace(country, place){
   const data=await res.json(); const first=data && data[0]; if(!first) throw new Error("NOT_FOUND");
   return {latitude:parseFloat(first.lat),longitude:parseFloat(first.lon),accuracy:null,source:"place-search",label:first.display_name||query};
 }
-async function applyLocation(type, loc, message, recommendation=null){
+async function applyLocation(searchRequest, loc, message){
+  if(!isFacilitySearchCurrent(searchRequest)) return;
+  const type = searchRequest.type;
+  const recommendation = searchRequest.recommendation;
   if(isAppOffline()){
     isLoading=false;
     facilities=[];
@@ -6064,8 +6310,10 @@ async function applyLocation(type, loc, message, recommendation=null){
     return;
   }
   const tx=t();
-  if(recommendation) facilityRecommendation = recommendation;
-  locationData=loc; facilityType=type; facilities=[]; facilitySearchErrorMessage=""; isLoading=true;
+  const locationSnapshot = snapshotFacilityLocation(loc);
+  searchRequest.location = locationSnapshot;
+  facilityRecommendation=recommendation;
+  locationData=locationSnapshot; facilityType=type; facilities=[]; facilitySearchErrorMessage=""; facilitySearchErrorCode=""; isLoading=true;
   moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
   showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
@@ -6075,26 +6323,46 @@ async function applyLocation(type, loc, message, recommendation=null){
   setStatus(message+" "+(type==="hospital"?"증상 맞춤 병원":"약국")+"을 찾는 중입니다"+recText+".");
 
   try{
-    facilities=await fetchNearbyFacilities(type,loc);
+    const nextFacilities=await fetchNearbyFacilitiesWithSingleAutoRetry(type,locationSnapshot,recommendation,searchRequest);
+    if(nextFacilities === null || !isFacilitySearchResultContextCurrent(searchRequest)) return;
+    if(!commitFacilitySearchResults(searchRequest, nextFacilities)) return;
     const radiusKm = facilities.searchRadiusMeters ? Math.round(facilities.searchRadiusMeters/1000) : null;
-    setStatus(facilities.length
-      ? ((loc.source==="gps"?tx.userGps:tx.travelPlace)+" 기준 "+(type==="hospital"?"증상 맞춤 병원":"약국")+" "+facilities.length+"곳을 찾았습니다."+(radiusKm? " 검색 반경: 약 "+radiusKm+"km":""))
-      : (type==="hospital"?"병원":"약국")+" 검색 결과가 없습니다. 위치 권한과 네트워크 연결을 확인한 뒤 다시 시도해 주세요.");
+    if(facilities.complete === false){
+      setStatus(FACILITY_PARTIAL_RESULTS_MESSAGE);
+    }else{
+      setStatus(facilities.length
+        ? ((locationSnapshot.source==="gps"?tx.userGps:tx.travelPlace)+" 기준 "+(type==="hospital"?"증상 맞춤 병원":"약국")+" "+facilities.length+"곳을 찾았습니다."+(radiusKm? " 검색 반경: 약 "+radiusKm+"km":""))
+        : "현재 확인한 검색 범위에서 "+(type==="hospital"?"병원":"약국")+" 검색 결과가 없습니다.");
+    }
   }catch(e){
+    if(!isFacilitySearchResultContextCurrent(searchRequest)) return;
     if(isAppOffline() || (e && e.message === "OFFLINE")){
       facilities=[];
       locationData=null;
       facilitySearchErrorMessage="";
+      facilitySearchErrorCode="NETWORK_OFFLINE";
       setStatus("현재 오프라인 상태라 주변 "+(type==="hospital"?"병원":"약국")+"을 검색할 수 없습니다.");
       renderOfflineFacilityState(type);
     }else{
       showDebug(e);
-      facilitySearchErrorMessage = (type==="hospital"?"병원":"약국")+" 검색에 실패했습니다. 주변에 시설이 없다는 의미가 아닙니다. 인터넷 연결을 확인한 뒤 다시 시도하세요. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+      facilitySearchErrorCode = String(e && e.code || "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE");
+      if(facilitySearchErrorCode === "FACILITY_TIMEOUT"){
+        facilitySearchErrorMessage = (type==="hospital"?"병원":"약국")+" 검색 서비스 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요. 주변에 시설이 없다는 의미가 아닙니다. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+      }else if(facilitySearchErrorCode === "FACILITY_QUERY_ERROR" || facilitySearchErrorCode === "FACILITY_INVALID_REQUEST"){
+        facilitySearchErrorMessage = (type==="hospital"?"병원":"약국")+" 검색을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+      }else if(facilitySearchErrorCode === "FACILITY_INVALID_RESPONSE"){
+        facilitySearchErrorMessage = (type==="hospital"?"병원":"약국")+" 검색 서비스에서 올바른 응답을 받지 못했습니다. 잠시 후 다시 시도하세요. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+      }else{
+        facilitySearchErrorCode = "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE";
+        facilitySearchErrorMessage = "현재 병원·약국 검색 서비스가 일시적으로 원활하지 않습니다. 잠시 후 다시 시도해 주세요. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+      }
       setStatus(facilitySearchErrorMessage);
     }
   }finally{
-    isLoading=false;
-    renderFacilityList();
+    if(isFacilitySearchResultContextCurrent(searchRequest)){
+      isLoading=false;
+      renderFacilityList();
+    }
   }
 }
 function requestGps(type, recommendation=null){
@@ -6104,12 +6372,25 @@ function requestGps(type, recommendation=null){
     showOfflineFeatureNotice(type);
     return;
   }
-  pendingLocationRequest = {type, recommendation};
+  const searchRequest = beginFacilitySearch(type, recommendation);
+  pendingLocationRequest = searchRequest;
+  facilityType=searchRequest.type;
+  facilityRecommendation=searchRequest.recommendation;
+  facilities=[];
+  facilitySearchErrorMessage="";
+  facilitySearchErrorCode="";
+  locationData=null;
+  isLoading=true;
+  moveFacilityCardToScreen(searchRequest.type);
+  renderFacilityList();
   const modal = $("locationConsentModal");
   if(modal) modal.classList.remove("hidden");
 }
 
-async function useTripPlaceForLocation(type, recommendation=null){
+async function useTripPlaceForLocation(searchRequest){
+  if(!isFacilitySearchCurrent(searchRequest)) return;
+  const type = searchRequest.type;
+  const recommendation = searchRequest.recommendation;
   if(isAppOffline()){
     isLoading=false;
     facilities=[];
@@ -6120,7 +6401,7 @@ async function useTripPlaceForLocation(type, recommendation=null){
   }
   facilityRecommendation = recommendation;
   activeService = recommendation ? "hospital" : type;
-  facilityType=type; facilities=[]; facilitySearchErrorMessage=""; locationData=null; isLoading=true;
+  facilityType=type; facilities=[]; facilitySearchErrorMessage=""; facilitySearchErrorCode=""; locationData=null; isLoading=true;
   moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
   showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
@@ -6134,8 +6415,10 @@ async function useTripPlaceForLocation(type, recommendation=null){
     setStatus("설정한 여행지 기준으로 검색합니다: "+country+" "+city);
     try{
       const loc = await geocodeTravelPlace(country, city);
-      await applyLocation(type, loc, (loc.label || country+" "+city), recommendation);
+      if(!isFacilitySearchCurrent(searchRequest)) return;
+      await applyLocation(searchRequest, loc, (loc.label || country+" "+city));
     }catch(e){
+      if(!isFacilitySearchCurrent(searchRequest)) return;
       isLoading=false;
       renderFacilityList();
       setStatus("여행지 자동 검색이 실패했습니다. 현재 위치 권한을 허용한 뒤 다시 시도해 주세요.");
@@ -6148,7 +6431,42 @@ async function useTripPlaceForLocation(type, recommendation=null){
   setStatus("현재 위치 권한을 허용한 뒤 병원·약국 검색을 다시 실행해 주세요.");
 }
 
-function startGpsAfterConsent(type, recommendation=null){
+function getFacilityLocationErrorState(error){
+  const code = error && error.code;
+  if(code === 1 || code === "LOCATION_PERMISSION_ERROR"){
+    return {
+      code:"LOCATION_PERMISSION_ERROR",
+      message:"현재 위치 권한이 허용되지 않았습니다. 브라우저 설정에서 위치 권한을 허용한 뒤 다시 시도해 주세요."
+    };
+  }
+  if(code === 3 || code === "LOCATION_TIMEOUT"){
+    return {
+      code:"LOCATION_TIMEOUT",
+      message:"현재 위치 확인 시간이 초과되었습니다. 위치 서비스와 GPS 수신 상태를 확인한 뒤 다시 시도해 주세요."
+    };
+  }
+  if(code === "LOCATION_INSECURE_CONTEXT"){
+    return {
+      code:"LOCATION_PERMISSION_ERROR",
+      message:"보안 연결(HTTPS)이 아니어서 현재 위치를 사용할 수 없습니다. HTTPS 주소에서 다시 열어 주세요."
+    };
+  }
+  if(code === "LOCATION_UNSUPPORTED"){
+    return {
+      code:"LOCATION_PERMISSION_ERROR",
+      message:"이 브라우저에서는 현재 위치 기능을 사용할 수 없습니다. 다른 브라우저를 사용하거나 여행지 위치로 검색해 주세요."
+    };
+  }
+  return {
+    code:"LOCATION_PERMISSION_ERROR",
+    message:"현재 위치를 사용할 수 없습니다. 브라우저 설정과 위치 서비스를 확인한 뒤 다시 시도해 주세요."
+  };
+}
+
+function startGpsAfterConsent(searchRequest){
+  if(!isFacilitySearchCurrent(searchRequest)) return;
+  const type = searchRequest.type;
+  const recommendation = searchRequest.recommendation;
   if(isAppOffline()){
     setStatus("현재 오프라인 상태라 주변 "+(type==="hospital"?"병원":"약국")+"을 검색할 수 없습니다.");
     showOfflineFeatureNotice(type);
@@ -6157,7 +6475,7 @@ function startGpsAfterConsent(type, recommendation=null){
   const tx=t();
   facilityRecommendation = recommendation;
   activeService = recommendation ? "hospital" : type;
-  facilityType=type; facilities=[]; facilitySearchErrorMessage=""; locationData=null; isLoading=true;
+  facilityType=type; facilities=[]; facilitySearchErrorMessage=""; facilitySearchErrorCode=""; locationData=null; isLoading=true;
   moveFacilityCardToScreen(type);
   $("facilityCard").classList.remove("hidden");
   showFlowScreen(type === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results", {push:false});
@@ -6165,11 +6483,15 @@ function startGpsAfterConsent(type, recommendation=null){
   renderFacilityList();
   setStatus("GPS 확인 중...");
 
-  const showGpsError = () => {
+  const showGpsError = (error) => {
+    if(!isFacilitySearchCurrent(searchRequest)) return;
     isLoading=false;
     facilities=[];
     locationData=null;
-    const message = "현재 위치를 사용할 수 없습니다. 브라우저 설정에서 위치 권한을 허용한 뒤 다시 시도해 주세요. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+    const state = getFacilityLocationErrorState(error);
+    facilitySearchErrorCode = state.code;
+    facilitySearchErrorMessage = "";
+    const message = state.message+" 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
     setStatus(message);
     $("facilityList").innerHTML =
       '<div class="notice amber">'+message+'</div>'+
@@ -6180,12 +6502,15 @@ function startGpsAfterConsent(type, recommendation=null){
     on("retryCurrentLocationBtn", "click", () => requestGps(type, recommendation));
   };
 
-  if(!window.isSecureContext){ showGpsError(); return; }
-  if(!navigator.geolocation){ showGpsError(); return; }
+  if(!window.isSecureContext){ showGpsError({code:"LOCATION_INSECURE_CONTEXT"}); return; }
+  if(!navigator.geolocation){ showGpsError({code:"LOCATION_UNSUPPORTED"}); return; }
 
   navigator.geolocation.getCurrentPosition(
-    pos=>applyLocation(type,{latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,source:"gps"},"GPS OK.", recommendation),
-    err=>showGpsError(),
+    pos=>{
+      if(!isFacilitySearchCurrent(searchRequest)) return;
+      applyLocation(searchRequest,{latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy,source:"gps"},"GPS OK.");
+    },
+    err=>showGpsError(err),
     {enableHighAccuracy:true,timeout:10000,maximumAge:15000}
   );
 }
@@ -6200,14 +6525,14 @@ function agreeLocationConsent(){
   const request = pendingLocationRequest;
   pendingLocationRequest = null;
   hideLocationConsent();
-  if(request) startGpsAfterConsent(request.type, request.recommendation);
+  if(request) startGpsAfterConsent(request);
 }
 
 function chooseManualLocation(){
   const request = pendingLocationRequest;
   pendingLocationRequest = null;
   hideLocationConsent();
-  if(request) useTripPlaceForLocation(request.type, request.recommendation);
+  if(request) useTripPlaceForLocation(request);
 }
 async function applyTravelPlace(){
   const tx=t();
@@ -6216,10 +6541,14 @@ async function applyTravelPlace(){
   const country = (matchedCountry && matchedCountry.mapCountryQuery) || countryRaw;
   if(!country||!place){setStatus(tx.placeExample||"Enter country and area.");return;}
   setStatus((matchedCountry ? matchedCountry.countryKo : countryRaw)+" "+place+"...");
+  const searchRequest=beginFacilitySearch(facilityType,facilityRecommendation);
+  facilityType=searchRequest.type;
   try{
     const loc=await geocodeTravelPlace(country,place);
-    await applyLocation(facilityType,loc,(loc.label||country+" "+place));
+    if(!isFacilitySearchCurrent(searchRequest)) return;
+    await applyLocation(searchRequest,loc,(loc.label||country+" "+place));
   }catch(e){
+    if(!isFacilitySearchCurrent(searchRequest)) return;
     setStatus("Place not found. Try a more specific city, district, landmark, or local spelling.");
   }
 }
@@ -6243,12 +6572,12 @@ function openDirections(f, mode="walking"){
 
   const destLat = Number(f.latitude);
   const destLng = Number(f.longitude);
-  const destinationCoord = Number.isFinite(destLat) && Number.isFinite(destLng)
-    ? destLat.toFixed(6) + "," + destLng.toFixed(6)
-    : "";
-
-  const destinationText = ((f.nameKo || f.nameEn || "") + " " + (f.address || "")).trim();
-  const destination = destinationCoord || destinationText;
+  if(!Number.isFinite(destLat) || !Number.isFinite(destLng) ||
+    destLat < -90 || destLat > 90 || destLng < -180 || destLng > 180){
+    setStatus("유효한 시설 좌표가 없어 길찾기를 열 수 없습니다.");
+    return;
+  }
+  const destination = destLat.toFixed(6) + "," + destLng.toFixed(6);
 
   let origin = "";
   if(locationData && Number.isFinite(Number(locationData.latitude)) && Number.isFinite(Number(locationData.longitude))){
@@ -6277,9 +6606,32 @@ function openDirections(f, mode="walking"){
 
   setStatus(f.nameKo + "까지의 " + modeKo + " 길찾기를 열었습니다. Google Maps에서 상단 이동수단 아이콘이 " + modeKo + "로 선택되어 있는지 확인해 주세요.");
 }
+
+function buildFacilityGoogleMapsFallbackUrl(type){
+  const query = type === "pharmacy" ? "pharmacy" : "hospital";
+  const url = new URL("https://www.google.com/maps/search/");
+  url.searchParams.set("api", "1");
+  url.searchParams.set("query", query);
+  if(url.protocol !== "https:" || url.hostname !== "www.google.com" || url.pathname !== "/maps/search/") return "";
+  return url.toString();
+}
+
+function openFacilityGoogleMapsFallback(type){
+  const url = buildFacilityGoogleMapsFallbackUrl(type);
+  if(!url) return false;
+  window.open(url, "_blank", "noopener,noreferrer");
+  return true;
+}
+
 function renderFacilityList(){
   const tx=t();
   const rec = facilityRecommendation;
+  const activeSearch = activeFacilitySearchRequest;
+  if(facilities.length && (
+    !activeSearch ||
+    !isFacilitySearchCurrent(activeSearch) ||
+    !facilityResultsMatchRequest(facilities, activeSearch)
+  )) return;
   $("facilityTitle").textContent = rec && rec.label
     ? rec.label
     : (facilityType==="hospital" ? "증상 맞춤 병원 추천" : "가장 가까운 약국 50개");
@@ -6291,29 +6643,56 @@ function renderFacilityList(){
   }
 
   if(isLoading){
-    $("facilityList").innerHTML=
-      '<div class="notice teal">'+
-      '<strong>검색 중입니다...</strong><br>'+
-      '가까운 곳부터 원을 넓혀 '+(facilityType==="hospital"?"증상에 맞는 병원":"약국")+'을 찾고 있습니다.<br>'+
-      '반경이 커질수록 조금 느릴 수 있습니다.'+
-      '</div>';
+    const retrying = activeSearch && activeSearch.autoRetrying === true && isFacilitySearchCurrent(activeSearch);
+    $("facilityList").innerHTML = retrying
+      ? '<div class="notice teal"><strong>병원 정보를 다시 확인하고 있습니다...</strong><br>일시적인 지연을 확인해 같은 위치에서 한 번만 다시 요청합니다.</div>'
+      : '<div class="notice teal">'+
+        '<strong>검색 중입니다...</strong><br>'+
+        '가까운 곳부터 원을 넓혀 '+(facilityType==="hospital"?"증상에 맞는 병원":"약국")+'을 찾고 있습니다.<br>'+
+        '반경이 커질수록 조금 느릴 수 있습니다.'+
+        '</div>';
     return;
   }
 
   if(facilitySearchErrorMessage){
+    const fallbackType = facilityType;
+    const fallbackSearch = activeSearch;
+    const showExternalFallback = isFacilityExternalFallbackEligible(facilitySearchErrorCode);
+    const externalFallback = showExternalFallback
+      ? '<div class="facility-fallback-actions" style="margin-top:10px">'+
+          '<button id="facilityGoogleMapsFallbackBtn" class="btn outline facility-fallback-action" type="button">Google Maps에서 주변 '+(fallbackType==="hospital"?'병원':'약국')+' 찾기</button>'+
+          '<div class="notice teal small facility-external-notice" style="margin:10px 0 0">Google Maps 외부 서비스로 이동합니다. Google Maps가 검색어를 처리하며, Google Maps의 권한·설정에 따라 현재 위치를 사용할 수 있습니다.</div>'+
+        '</div>'
+      : '';
     $("facilityList").innerHTML=
       '<div class="notice amber">'+escapeHtml(facilitySearchErrorMessage)+'</div>'+
       '<div class="two">'+
         '<button id="retryFacilityAfterErrorBtn" class="btn primary w-full" type="button">현재 위치로 다시 시도</button>'+
         '<button class="btn outline w-full" type="button" data-flow-screen="screen-home">홈으로</button>'+
-      '</div>';
+      '</div>'+externalFallback;
     on("retryFacilityAfterErrorBtn", "click", () => requestGps(facilityType, facilityRecommendation));
+    if(showExternalFallback){
+      on("facilityGoogleMapsFallbackBtn", "click", () => {
+        if(!isFacilitySearchCurrent(fallbackSearch) || facilityType !== fallbackType) return;
+        openFacilityGoogleMapsFallback(fallbackType);
+      });
+    }
     return;
   }
 
   if(!facilities.length){
+    if(facilities.complete === false){
+      $("facilityList").innerHTML=
+        '<div class="notice amber">'+escapeHtml(FACILITY_PARTIAL_RESULTS_MESSAGE)+'<br>확인된 범위 안에서는 표시할 시설을 찾지 못했습니다.</div>'+
+        '<div class="two">'+
+          '<button id="retryPartialFacilitySearchBtn" class="btn primary w-full" type="button">현재 위치로 다시 검색</button>'+
+          '<button class="btn outline w-full" type="button" data-flow-screen="screen-home">홈으로</button>'+
+        '</div>';
+      on("retryPartialFacilitySearchBtn", "click", () => requestGps(facilityType, facilityRecommendation));
+      return;
+    }
     $("facilityList").innerHTML=
-      '<div class="notice teal">검색 결과가 없습니다. 위치 권한과 네트워크 연결을 확인한 뒤 다시 검색하세요. 증상이 심하거나 빠르게 악화되면 현지 응급기관에 연락하세요.</div>'+
+      '<div class="notice teal">현재 확인한 검색 범위에서 검색 결과가 없습니다. 지도 데이터에 등록되지 않은 시설이 있을 수 있습니다. 증상이 심하거나 빠르게 악화되면 현지 응급기관에 연락하세요.</div>'+
       '<div class="two">'+
         '<button id="retryFacilitySearchBtn" class="btn primary w-full" type="button">현재 위치로 다시 검색</button>'+
         '<button class="btn outline w-full" type="button" data-flow-screen="screen-home">홈으로</button>'+
@@ -6322,13 +6701,17 @@ function renderFacilityList(){
     return;
   }
 
-  const displayFacilities = finalizeFacilityResults(facilities);
+  const displayFacilities = finalizeFacilityResults(facilities, rec);
   const radiusKm = facilities.searchRadiusMeters ? Math.round(facilities.searchRadiusMeters/1000) : null;
   const recNotice = rec && rec.reason
     ? '<div class="notice amber small"><strong>추천 기준:</strong> '+escapeHtml(rec.label)+'<br>'+escapeHtml(rec.reason)+'<br>※ 지도 데이터에 진료과 정보가 부족한 지역에서는 가까운 병원 순서가 더 크게 반영됩니다.</div>'
     : '<div class="notice amber small"><strong>약국 검색:</strong> 사용자를 기준으로 원을 넓혔을 때 먼저 만나는 약국 순서로 최대 50개를 보여줍니다.</div>';
+  const partialNotice = facilities.complete === false
+    ? '<div class="notice amber small"><strong>부분 검색 결과</strong><br>'+escapeHtml(FACILITY_PARTIAL_RESULTS_MESSAGE)+'</div>'
+    : '';
 
   $("facilityList").innerHTML=
+    partialNotice+
     recNotice+
     '<div class="notice teal small">'+
     '검색 반경을 자동으로 넓혀 가까운 시설을 찾았습니다.<br>'+
@@ -6345,7 +6728,7 @@ function renderFacilityList(){
       return '<div class="facility" data-facility-card="'+f.id+'">'+
         '<div class="facility-top">'+
           '<div>'+
-            '<p class="small" style="font-weight:950;color:var(--teal)">#'+(i+1)+' · '+(facilityType==="hospital"?tx.hospital:tx.pharmacy)+' '+badge+'</p>'+
+            '<p class="small" style="font-weight:950;color:var(--teal)">#'+(i+1)+' · '+(f.type==="hospital"?tx.hospital:tx.pharmacy)+' '+badge+'</p>'+
             '<h3>'+escapeHtml(f.nameKo)+'</h3>'+
             '<p class="small muted">'+escapeHtml(f.nameEn)+'</p>'+
           '</div>'+
@@ -10098,7 +10481,8 @@ function getHospitalRecommendationFromTriage(result){
       label:"응급실·응급의학과 우선 추천",
       reason:"응급 위험 신호가 감지되어 가까운 응급실 또는 종합병원을 우선 추천합니다.",
       keywords:["응급","응급실","emergency","er","trauma","외상","외과","hospital","종합병원","university","medical center"],
-      avoidKeywords:["안과","치과","피부과","성형","한의원","dental","dentist","ophthalmology","dermatology","plastic"]
+      avoidKeywords:["안과","치과","피부과","성형","한의원","dental","dentist","ophthalmology","dermatology","plastic"],
+      emergencyContext:true
     };
   }
 
@@ -10217,12 +10601,14 @@ function getBodyPartHospitalRecommendation(input, result){
   // 응급 신호는 신체부위보다 응급실을 우선합니다.
   const emergencyCats = ["cardiac-arrest","choking","major-trauma","penetrating-trauma","severe-bleeding","breathing","chest-pain","neurologic","anaphylaxis","poisoning","critical-red-flag","fever-red-flags","self-harm-risk"];
   if(emergencyCats.includes(category) || recommended === "emergency"){
-    return makeHospitalRecommendation(
+    const emergencyRecommendation = makeHospitalRecommendation(
       "응급실·응급의학과 우선 추천",
       "응급 위험 신호가 있어 특정 진료과보다 가까운 응급실 또는 종합병원을 우선 추천합니다.",
       ["응급","응급실","emergency","er","trauma","외상","외과","hospital","종합병원","university","medical center"],
       ["치과","dental","dentist","안과","ophthalmology","피부과","dermatology","성형","plastic","cosmetic"]
     );
+    emergencyRecommendation.emergencyContext = true;
+    return emergencyRecommendation;
   }
 
   // 눈
@@ -11573,11 +11959,12 @@ function initAllLanguageTestPanel(){
 
 
 function init(){
-  initAppViewportHeightSync();
-  setupAppFlowScreens();
-  restoreStoredSelectedCountry();
-  bindFlowNavigation();
-  on("startBtn","click",()=>showApp({persistSelectedCountry:true}));
+  try{
+    initAppViewportHeightSync();
+    setupAppFlowScreens();
+    const restoredSelectedCountry = restoreStoredSelectedCountry();
+    bindFlowNavigation();
+    on("startBtn","click",()=>showApp({persistSelectedCountry:true}));
   on("changeLangBtn","click",showLanguage);
   on("appCountryPill","click",showLanguage);
   on("headerEmergencyBtn","click",event=>openEmergencyHelpMode(event.currentTarget));
@@ -11646,11 +12033,14 @@ function init(){
     if(btn.dataset.action === "emergency") openEmergencyHelpMode(btn);
     else if(btn.dataset.action) openService(btn.dataset.action);
   })));
-  window.addEventListener("offline", () => safe(handleAppConnectivityChange));
-  window.addEventListener("online", () => safe(handleAppConnectivityChange));
-  renderAll();
-  initAllLanguageTestPanel();
-  restoreEmergencySourcesReturn();
+    window.addEventListener("offline", () => safe(handleAppConnectivityChange));
+    window.addEventListener("online", () => safe(handleAppConnectivityChange));
+    renderInitialAppState(restoredSelectedCountry);
+    initAllLanguageTestPanel();
+    restoreEmergencySourcesReturn();
+  }finally{
+    finishAppBootstrap();
+  }
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init); else init();
 
