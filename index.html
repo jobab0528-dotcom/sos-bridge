@@ -3511,6 +3511,7 @@ let medicalCardTranslation = null;
 let medicalCardTranslationKey = "";
 let medicalCardTranslationStatus = "idle";
 let medicalCardTranslationMessage = "";
+let medicalCardTranslationRetryable = true;
 const medicalCardTranslationCacheVersion = "medical-card-quality-v2";
 let helpPhraseTranslationCache = Object.create(null);
 let helpPhraseTranslationRequestSequence = 0;
@@ -7061,10 +7062,37 @@ function medicalCardCacheKey(payload){
   });
 }
 
+const MEDICAL_TRANSLATION_VALUE_KEYS = ["name","passportName","nationality","age","bloodType","allergies","medication","medicalConditions","emergencyContact","travelInsurance","hotelAddress"];
+
+function normalizeMedicalLanguageTag(value){
+  return String(value || "").trim().toLowerCase().replace(/_/g, "-");
+}
+
+// ISSUE-011: decide how a translate-medical-card response may be shown.
+// Fail closed: anything that is not an explicit SUCCESS / PARTIAL / FALLBACK
+// from a 2xx response is FAILED, and a delivered language that differs from
+// the requested one (no alias, zh-TW !== zh) is never treated as SUCCESS.
+function classifyMedicalTranslationResponse(httpOk, data, requestedLanguageCode){
+  const source = data && typeof data === "object" && !Array.isArray(data) ? data : {};
+  const failedItems = Array.isArray(source.failedItems)
+    ? source.failedItems.filter((key) => MEDICAL_TRANSLATION_VALUE_KEYS.includes(key))
+    : [];
+  if(!httpOk || !["SUCCESS","PARTIAL","FALLBACK"].includes(source.translationStatus)){
+    return {status:"FAILED", retryable: source.retryable !== false, failedItems};
+  }
+  const requested = normalizeMedicalLanguageTag(requestedLanguageCode);
+  const delivered = normalizeMedicalLanguageTag(source.deliveredLanguageCode || source.usedLanguageCode);
+  let status = source.translationStatus;
+  if(!requested || !delivered || requested !== delivered) status = "FALLBACK";
+  else if(status === "SUCCESS" && failedItems.length) status = "PARTIAL";
+  return {status, retryable:false, failedItems};
+}
+
 function normalizeMedicalTranslation(result, original){
   const cfg = getMedicalI18n(localLangId);
   const pick = (key) => {
-    const translated = String((result && result[key]) || "").trim();
+    const value = result ? result[key] : "";
+    const translated = typeof value === "string" ? value.trim() : "";
     if(translated) return translated;
     const raw = String(original[key] || "").trim();
     return raw || (cfg ? cfg.blankValue : "");
@@ -7075,7 +7103,8 @@ function normalizeMedicalTranslation(result, original){
   if(responseLabels && typeof responseLabels === "object"){
     medicalFields().forEach(([, labelKey, en, ko]) => {
       const valueKey = (medicalValueFields.find(([key]) => key === labelKey) || [null, labelKey])[1];
-      translatedLabels[labelKey] = String(responseLabels[valueKey] || responseLabels[labelKey] || "").trim() || fallbackLabels[labelKey] || ko || en;
+      const responseLabel = [responseLabels[valueKey], responseLabels[labelKey]].find((value) => typeof value === "string" && value.trim());
+      translatedLabels[labelKey] = (responseLabel || "").trim() || fallbackLabels[labelKey] || ko || en;
     });
   }
   const normalized = {
@@ -7083,6 +7112,10 @@ function normalizeMedicalTranslation(result, original){
     _blankValue: String((result && (result._blankValue || result.blankValue)) || "").trim(),
     usedLanguage: String((result && result.usedLanguage) || "").trim(),
     usedLanguageCode: String((result && result.usedLanguageCode) || "").trim(),
+    translationStatus: String((result && result.translationStatus) || "").trim(),
+    failedItems: Array.isArray(result && result.failedItems)
+      ? result.failedItems.filter((key) => MEDICAL_TRANSLATION_VALUE_KEYS.includes(key))
+      : [],
     fallbackUsed: Boolean(result && result.fallbackUsed),
     fallbackReason: String((result && result.fallbackReason) || "").trim(),
     name: pick("name"),
@@ -7113,16 +7146,21 @@ function medicalRowsHtml(labels, payload, badge){
   }).join("");
 }
 
-function medicalPassCardHtml(labels, payload, languageLabel){
+function medicalPassCardHtml(labels, payload, languageLabel, untranslatedValueKeys){
   const title = payload._cardTitle || getMedicalCardTitle(localLangId) || "Medical Card";
   const missingText = payload._blankValue || getMedicalMissingText();
+  const untranslated = Array.isArray(untranslatedValueKeys) ? untranslatedValueKeys : [];
   const rows = medicalFields().filter(([, labelKey]) => labelKey !== "passportName").map(([, labelKey, en, ko])=>{
     const valueKey = (medicalValueFields.find(([key]) => key === labelKey) || [null, labelKey])[1];
     const label = labels[labelKey] || en || ko;
     const value = payload[valueKey] || missingText;
+    const untranslatedNote = untranslated.includes(valueKey)
+      ? '<div class="small muted">번역되지 않음 · 입력한 원문 그대로 표시</div>'
+      : "";
     return '<div class="medical-pass-row">'+
       '<div class="medical-pass-label">'+escapeHtml(label)+'</div>'+
       '<div class="medical-pass-value">'+escapeHtml(value)+'</div>'+
+      untranslatedNote+
     '</div>';
   }).join("");
 
@@ -7150,6 +7188,8 @@ function bindMedicalCardPreviewControls(){
     renderMedicalCardPreview();
   }));
   if(localBtn) localBtn.addEventListener("click", () => safe(() => showLocalMedicalCard()));
+  const retryBtn = $("medicalTranslationRetryBtn");
+  if(retryBtn) retryBtn.addEventListener("click", () => safe(() => showLocalMedicalCard()));
 }
 
 async function showLocalMedicalCard(){
@@ -7174,6 +7214,7 @@ async function showLocalMedicalCard(){
     medicalCardTranslation = null;
     medicalCardTranslationKey = "";
     medicalCardTranslationStatus = "error";
+    medicalCardTranslationRetryable = true;
     medicalCardTranslationMessage = "새로운 현지어 번역에는 인터넷 연결이 필요합니다. 번역되지 않은 한국어 의료카드 원문을 표시합니다.";
     renderMedicalCardPreview();
     return;
@@ -7187,6 +7228,7 @@ async function showLocalMedicalCard(){
     const localOpt = getLocalOption();
     const tripOpt = getTripOption();
     const selectedCountry = getSelectedCountryForTranslation();
+    const requestedLanguageCode = selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId) || localLangId || tripCountryId || "";
     const res = await fetch("/.netlify/functions/translate-medical-card", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -7194,7 +7236,7 @@ async function showLocalMedicalCard(){
         countryNameKo: selectedCountry.countryNameKo,
         countryNameEn: selectedCountry.countryNameEn,
         targetLanguage: selectedCountry.languageNameEn || localOpt.languageNameEn || localOpt.native || "",
-        targetLanguageCode: selectedCountry.languageCode || localOpt.languageCode || getCountryLanguageCode(localLangId) || localLangId || tripCountryId || "",
+        targetLanguageCode: requestedLanguageCode,
         fallbackLanguageNameEn: selectedCountry.fallbackLanguageNameEn || "",
         fallbackLanguageCode: selectedCountry.fallbackLanguageCode || "",
         travelCountry: tripCountryName || tripOpt.countryKo || tripOpt.country || "",
@@ -7216,20 +7258,51 @@ async function showLocalMedicalCard(){
       })
     });
     const data = await res.json().catch(() => ({}));
-    if(!res.ok) throw new Error(data.error || data.detail || "translation failed");
+    const outcome = classifyMedicalTranslationResponse(res.ok, data, requestedLanguageCode);
+    if(outcome.status === "FAILED"){
+      medicalCardTranslation = null;
+      medicalCardTranslationKey = "";
+      medicalCardTranslationStatus = "error";
+      medicalCardTranslationRetryable = outcome.retryable;
+      medicalCardTranslationMessage = "현지어 번역에 실패했습니다. 아래는 번역되지 않은 한국어 원문입니다.";
+      renderMedicalCardPreview();
+      return;
+    }
 
-    medicalCardTranslation = normalizeMedicalTranslation(data, payload);
+    const translation = normalizeMedicalTranslation(data, payload);
+    translation.translationStatus = outcome.status;
+    translation.failedItems = outcome.failedItems;
+    if(outcome.status === "FALLBACK") translation.fallbackUsed = true;
+    medicalCardTranslation = translation;
     medicalCardTranslationKey = key;
     medicalCardTranslationStatus = "done";
+    medicalCardTranslationRetryable = false;
     medicalCardTranslationMessage = "";
     renderMedicalCardPreview();
   }catch(error){
     medicalCardTranslation = null;
     medicalCardTranslationKey = "";
     medicalCardTranslationStatus = "error";
+    medicalCardTranslationRetryable = true;
     medicalCardTranslationMessage = "현지어 번역을 불러오지 못했습니다. 한국어 원문을 함께 보여주세요.";
     renderMedicalCardPreview();
   }
+}
+
+function medicalTranslationStatusNoticeHtml(translation){
+  if(!translation) return "";
+  const failedItems = Array.isArray(translation.failedItems) ? translation.failedItems : [];
+  let html = medicalFallbackNoticeHtml(translation);
+  if(translation.translationStatus === "PARTIAL" || failedItems.length){
+    const koLabels = getMedicalLabels("ko");
+    const names = failedItems.map((valueKey) => {
+      const labelKey = (medicalValueFields.find(([, key]) => key === valueKey) || [valueKey])[0];
+      return koLabels[labelKey] || valueKey;
+    });
+    html += '<div class="notice amber">일부 항목은 번역되지 않아 입력한 원문 그대로 표시합니다'+
+      (names.length ? ': '+escapeHtml(names.join(", ")) : '')+'.</div>';
+  }
+  return html;
 }
 
 function renderMedicalCardPreview(){
@@ -7258,22 +7331,26 @@ function renderMedicalCardPreview(){
       '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
       medicalRowsHtml(koLabels, payload, "KO");
   }else if(medicalCardTranslationStatus === "loading"){
+    // Until a translation arrives, show the Korean original as Korean
+    // (never Korean values under a local-language card header).
     bodyHtml =
       '<div class="notice teal">'+escapeHtml(medicalCardTranslationMessage || "현지어 의료카드를 준비하는 중입니다...")+'</div>'+
-      romanizationNoticeHtml(payload)+
-      medicalPassCardHtml(localLabels, payload, localOpt.native);
+      '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
+      medicalRowsHtml(koLabels, payload, "KO");
   }else if(medicalCardTranslationStatus === "error"){
+    const canRetry = medicalCardTranslationRetryable !== false && !isAppOffline();
     bodyHtml =
       '<div class="notice amber">'+escapeHtml(medicalCardTranslationMessage || "현지어 번역을 불러오지 못했습니다. 한국어 원문을 함께 보여주세요.")+'</div>'+
+      (canRetry ? '<button id="medicalTranslationRetryBtn" class="btn outline w-full" type="button">현지어 번역 다시 시도</button>' : '')+
       '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
       medicalRowsHtml(koLabels, payload, "KO");
   }else if(medicalCardTranslation){
-    bodyHtml = medicalFallbackNoticeHtml(medicalCardTranslation)+romanizationNoticeHtml(payload)+medicalPassCardHtml(localLabels, medicalCardTranslation, medicalCardTranslation.usedLanguage || localOpt.native);
+    bodyHtml = medicalTranslationStatusNoticeHtml(medicalCardTranslation)+romanizationNoticeHtml(payload)+medicalPassCardHtml(localLabels, medicalCardTranslation, medicalCardTranslation.usedLanguage || localOpt.native, medicalCardTranslation.failedItems);
   }else{
     bodyHtml =
       '<div class="notice teal">현지어 보기를 누르면 선택한 여행 국가의 언어로 의료카드를 준비합니다.</div>'+
-      romanizationNoticeHtml(payload)+
-      medicalPassCardHtml(localLabels, payload, localOpt.native);
+      '<div class="notice teal" style="font-weight:950">한국어 원문</div>'+
+      medicalRowsHtml(koLabels, payload, "KO");
   }
 
   $("medicalCardPreview").innerHTML =
