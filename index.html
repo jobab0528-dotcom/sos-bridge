@@ -4153,7 +4153,7 @@ function getEmergencyNumber(id){
 }
 const getSpeechLang = id => speechLangs[getCountryLanguageCode(id)] || speechLangs[mapLocale(id)] || "en-US";
 
-const langAliases = {"en-us":"en","en-gb":"en","en-ca":"en","en-ie":"en","en-sg":"en","es-mx":"es","de-at":"de","de-ch":"de","ar-sa":"ar","ar-ae":"ar","ar-ma":"ar","ar-eg":"ar","nl-be":"nl","zh-tw":"zh","zh-hant":"zh","pt-br":"pt"};
+const langAliases = {"en-us":"en","en-gb":"en","en-ca":"en","en-ie":"en","en-sg":"en","es-mx":"es","de-at":"de","de-ch":"de","ar-sa":"ar","ar-ae":"ar","ar-ma":"ar","ar-eg":"ar","nl-be":"nl","pt-br":"pt"};
 const PRESCRIPTION_SOURCE_KO = "처방전이 필요합니다.";
 const PRESCRIPTION_STATEMENTS = {
   ar:"أحتاج إلى وصفة طبية.", bg:"Нуждая се от рецепта.", cs:"Potřebuji lékařský předpis.", da:"Jeg har brug for en recept.",
@@ -4195,8 +4195,16 @@ const phrasePacks = {
   pl:{help:"Proszę mi pomóc.", ambulance:"Proszę wezwać karetkę.", hospital:"Muszę iść do szpitala.", pharmacy:"Potrzebuję apteki.", pain:"Czuję ból.", allergy:"Mam alergię.", medication:"Biorę leki.", fever:"Mam gorączkę.", stomach:"Boli mnie brzuch.", stabbed:"Zostałem zraniony nożem lub przedmiotem.", accident:"Miałem wypadek drogowy.", pharmacyQ:"Czy jest lek bez recepty na ten objaw?", dosage:"Proszę powiedzieć, jak przyjmować ten lek.", prescription:PRESCRIPTION_STATEMENTS.pl},
   da:{help:"Hjælp mig venligst.", ambulance:"Ring venligst efter en ambulance.", hospital:"Jeg skal på hospitalet.", pharmacy:"Jeg har brug for et apotek.", pain:"Jeg har smerter.", allergy:"Jeg har allergi.", medication:"Jeg tager medicin.", fever:"Jeg har feber.", stomach:"Jeg har mavesmerter.", stabbed:"Jeg er blevet såret af en kniv eller genstand.", accident:"Jeg har været i en trafikulykke.", pharmacyQ:"Findes der håndkøbsmedicin til dette symptom?", dosage:"Forklar venligst, hvordan jeg tager denne medicin.", prescription:PRESCRIPTION_STATEMENTS.da}
 };
+// Traditional Chinese (zh-TW / zh-HK / zh-MO / zh-Hant…) keeps its own identity.
+// It must never be folded into Simplified Chinese "zh"; without a reviewed
+// Traditional static pack the caller falls back to the existing safe path.
+function isTraditionalChineseLanguageCode(value){
+  const code = String(value || "").trim().toLowerCase().replace(/_/g, "-");
+  return /^zh-(?:tw|hk|mo|hant)(?:-|$)/.test(code);
+}
 function getBaseLang(id){
   const code = String(getCountryLanguageCode(id) || id || "en").toLowerCase();
+  if(isTraditionalChineseLanguageCode(code)) return code.replace(/_/g, "-");
   return langAliases[code] || code.split("-")[0] || "en";
 }
 function getPhrasePack(id=localLangId){ return phrasePacks[getBaseLang(id)] || phrasePacks.en; }
