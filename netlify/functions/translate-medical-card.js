@@ -883,8 +883,79 @@ function hasRequiredRawMedicalCardResult(result){
     text(result && (result._blankValue || result.blankValue || result.notProvidedText || result.emptyValue)) &&
     text(readResultValue(result || {}, "allergies")) &&
     text(readResultValue(result || {}, "medication")) &&
-    text(readResultValue(result || {}, "medicalConditions"))
+    text(readResultValue(result || {}, "medicalConditions")) &&
+    // Without static labels, every field label must come back in the target
+    // language; otherwise raw English field keys would be shown as labels.
+    FIELD_KEYS.every((key) => text(readResultLabel(result || {}, key)))
   );
+}
+
+// ---- ISSUE-011: translation outcome contract ---------------------------
+// Values that are actually translated (a Korean input left in Korean means the
+// field was NOT translated). The other fields are preserved as entered by
+// design (names, passport name, age, blood type, phone, address).
+const TRANSLATED_VALUE_KEYS = ["nationality", "allergies", "medication", "medicalConditions", "travelInsurance"];
+const PRESERVED_VALUE_KEYS = ["name", "passportName", "age", "bloodType", "emergencyContact", "hotelAddress"];
+const HANGUL_PATTERN = /[ᄀ-ᇿ㄰-㆏가-힯]/;
+
+function normalizeLanguageTag(value){
+  return text(value).toLowerCase().replace(/_/g, "-");
+}
+
+function stripAppendedOriginal(value, original){
+  const translated = text(value);
+  const raw = text(original);
+  if(!raw) return translated;
+  for(const [open, close] of [["(", ")"], ["（", "）"]]){
+    const suffix = open + raw + close;
+    if(translated.endsWith(suffix)) return translated.slice(0, -suffix.length).trim();
+  }
+  return translated;
+}
+
+function fieldsNeedingTranslation(fields, lang){
+  if(baseLanguage(lang) === "ko") return [];
+  return TRANSLATED_VALUE_KEYS.filter((key) => {
+    const raw = text(fields[key]);
+    return raw && !isNoneInput(raw) && HANGUL_PATTERN.test(raw);
+  });
+}
+
+// A field counts as failed when Korean text is still present after removing
+// the "(original)" suffix that is intentionally appended for the reader.
+function untranslatedValueKeys(normalized, fields, lang){
+  return fieldsNeedingTranslation(fields, lang)
+    .filter((key) => HANGUL_PATTERN.test(stripAppendedOriginal(normalized[key], fields[key])));
+}
+
+function preservedValueKeys(fields){
+  return PRESERVED_VALUE_KEYS.filter((key) => text(fields[key]));
+}
+
+function translationOutcome({requestedLanguageCode, deliveredLanguageCode, failedItems, translatedItems, fields, fallbackUsed}){
+  const requested = normalizeLanguageTag(requestedLanguageCode);
+  const delivered = normalizeLanguageTag(deliveredLanguageCode);
+  const languageMatched = Boolean(requested && delivered && requested === delivered);
+  const reviewReasons = [];
+  if(!languageMatched) reviewReasons.push("DELIVERED_LANGUAGE_DIFFERS_FROM_REQUESTED");
+  failedItems.forEach((key) => reviewReasons.push(`FIELD_NOT_TRANSLATED:${key}`));
+  const translationStatus = !languageMatched
+    ? "FALLBACK"
+    : failedItems.length ? "PARTIAL" : "SUCCESS";
+  return {
+    translationStatus,
+    requestedLanguageCode: requested,
+    deliveredLanguageCode: delivered || null,
+    languageMatched,
+    languageVerified: false,
+    translatedItems,
+    failedItems,
+    preservedItems: preservedValueKeys(fields),
+    fallbackUsed: Boolean(fallbackUsed) || !languageMatched,
+    reviewNeeded: reviewReasons.length > 0,
+    reviewReasons,
+    retryable: false
+  };
 }
 
 function hasMissingMedicalCardOutput(normalized){
@@ -1005,8 +1076,16 @@ async function translateOnce({attempt, fields, travelCountry}){
     throw new Error("Target-language validation failed");
   }
 
+  const needsTranslation = fieldsNeedingTranslation(fields, attemptConfig.lang);
+  const failedItems = untranslatedValueKeys(normalized, fields, attemptConfig.lang);
+  if(needsTranslation.length && failedItems.length === needsTranslation.length){
+    throw new Error("No medical card field was translated");
+  }
+
   return {
     ...responseShape(normalized),
+    failedItems,
+    translatedItems: needsTranslation.filter((key) => !failedItems.includes(key)),
     language: attempt.languageName,
     languageCode: attempt.languageCode,
     usedLanguage: attempt.languageName,
@@ -1014,22 +1093,6 @@ async function translateOnce({attempt, fields, travelCountry}){
     fallbackUsed: attempt.fallbackUsed,
     fallbackReason: attempt.fallbackUsed ? attempt.reason : "",
     attempts: [attempt.reason]
-  };
-}
-
-function buildLocalFallback(fields, reason){
-  const cfg = MEDICAL_CARD_I18N.en;
-  const normalized = normalizeResult({}, fields, "en", {...cfg, dynamicConfig: false});
-  return {
-    ...responseShape(normalized),
-    language: "English",
-    languageCode: "en",
-    usedLanguage: "English",
-    usedLanguageCode: "en",
-    fallbackUsed: true,
-    fallbackReason: reason || "All translation attempts failed",
-    _originalKo: fields,
-    attempts: ["Local English fallback"]
   };
 }
 
@@ -1092,6 +1155,14 @@ exports.handler = async (event) => {
       result.attempts = attempts.slice(0, attempts.indexOf(attempt) + 1).map((item) => item.reason);
       if(attemptErrors.length) result.fallbackReason = result.fallbackReason || attemptErrors[attemptErrors.length - 1].message;
       if(attemptErrors.length) result.attemptErrors = attemptErrors;
+      Object.assign(result, translationOutcome({
+        requestedLanguageCode: targetLanguageCode,
+        deliveredLanguageCode: attempt.languageCode,
+        failedItems: result.failedItems,
+        translatedItems: result.translatedItems,
+        fields,
+        fallbackUsed: attempt.fallbackUsed
+      }));
       return json(200, result);
     }catch(error){
       attemptErrors.push({
@@ -1103,8 +1174,24 @@ exports.handler = async (event) => {
     }
   }
 
-  return json(200, {
-    ...buildLocalFallback(fields, fallbackReasonFor(targetLanguage, targetLanguageCode)),
+  // Total failure is reported as a failure (non-2xx) with no translated card
+  // fields, so no client can render it as a translated card. The client keeps
+  // and shows the user's Korean original and may retry.
+  return json(502, {
+    error: "Medical card translation failed",
+    translationStatus: "FAILED",
+    requestedLanguageCode: normalizeLanguageTag(targetLanguageCode),
+    deliveredLanguageCode: null,
+    languageMatched: false,
+    languageVerified: false,
+    translatedItems: [],
+    failedItems: fieldsNeedingTranslation(fields, targetLanguageCode),
+    preservedItems: preservedValueKeys(fields),
+    fallbackUsed: false,
+    fallbackReason: fallbackReasonFor(targetLanguage, targetLanguageCode),
+    reviewNeeded: true,
+    reviewReasons: ["ALL_TRANSLATION_ATTEMPTS_FAILED"],
+    retryable: true,
     attemptErrors
   });
 };
