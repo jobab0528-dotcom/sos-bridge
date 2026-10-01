@@ -2,5 +2,8 @@
   "name": "travel-doctor-gpt-ai-care",
   "version": "1.0.0",
   "type": "module",
-  "private": true
+  "private": true,
+  "scripts": {
+    "test": "node --test \"tests/p0/*.test.cjs\" \"tests/facility-index/repository.test.js\" \"tests/contract/*.test.mjs\""
+  }
 }
