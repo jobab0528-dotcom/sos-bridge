@@ -73,12 +73,60 @@ function isHeadacheSymptomKo(value){
   return normalized === "머리가아픕니다";
 }
 
+const DEFAULT_ENGLISH_PHRASE = "I need help. Please call medical staff or an ambulance.";
+const LOCAL_PHRASE_STATUS = Object.freeze({
+  VERIFIED_LOCAL: "VERIFIED_LOCAL",
+  UNVERIFIED: "UNVERIFIED",
+  FAILED: "FAILED"
+});
+
+function comparablePhrase(value){
+  return String(value || "").toLowerCase().replace(/[\s.,!?;:'"’“”()\-]+/g, "");
+}
+
+// Fail-closed: English text is never promoted into localPhraseLocal.
+// No language-verification mechanism exists in this function, so any local
+// phrase returned by the model stays UNVERIFIED and must not be presented as
+// a confirmed local-language sentence by the client.
 function normalizeLocalPhraseLocal(value, context){
   const localLanguage = String(context.localLanguage || "").toLowerCase().split("-")[0];
   if(localLanguage === "ms" && isHeadacheSymptomKo(context.symptom)){
     return "Saya sakit kepala.";
   }
-  return String(value || "I need help. Please call medical staff or an ambulance.").trim();
+  return String(value || "").trim();
+}
+
+function buildLocalPhraseMetadata(raw, context){
+  const requestedLanguageCode = String(context.localLanguage || "").trim();
+  const requestedBase = requestedLanguageCode.toLowerCase().split("-")[0];
+  const aiEnglish = String(raw.localPhraseEn || "").trim();
+  const englishPhrase = aiEnglish || DEFAULT_ENGLISH_PHRASE;
+  let localPhrase = normalizeLocalPhraseLocal(raw.localPhraseLocal || raw.localPhraseNative, context);
+  let failureReason = localPhrase ? "" : "LOCAL_PHRASE_MISSING";
+
+  if(localPhrase && requestedBase !== "en" &&
+    (comparablePhrase(localPhrase) === comparablePhrase(aiEnglish) ||
+     comparablePhrase(localPhrase) === comparablePhrase(DEFAULT_ENGLISH_PHRASE))){
+    localPhrase = "";
+    failureReason = "LOCAL_PHRASE_IDENTICAL_TO_ENGLISH";
+  }
+
+  return {
+    localPhraseLocal: localPhrase,
+    localPhraseRequestedLanguageCode: requestedLanguageCode,
+    localPhraseLanguageCode: null,
+    localPhraseStatus: localPhrase ? LOCAL_PHRASE_STATUS.UNVERIFIED : LOCAL_PHRASE_STATUS.FAILED,
+    localPhraseVerified: false,
+    localPhraseReviewNeeded: true,
+    localPhraseReviewReason: localPhrase
+      ? "현지어 문장의 실제 언어를 확인하지 못했습니다. 현지어로 표시하지 않습니다."
+      : "현지어 문장을 확인하지 못했습니다.",
+    localPhraseFailureReason: failureReason || null,
+    localPhraseFallbackUsed: false,
+    localPhraseEn: englishPhrase,
+    localPhraseEnLanguageCode: "en",
+    localPhraseEnIsDefault: !aiEnglish
+  };
 }
 
 function normalizeResult(raw, context){
@@ -88,6 +136,7 @@ function normalizeResult(raw, context){
   const localLanguageName = context.localLanguageName || "현지어";
   const sanitizedSteps = sanitizeCareInstructions(raw.steps);
   const localPhraseKo = normalizeLocalPhraseKo(raw.localPhraseKo, context);
+  const localPhraseMetadata = buildLocalPhraseMetadata(raw, context);
 
   return {
     level,
@@ -107,8 +156,7 @@ function normalizeResult(raw, context){
     monitor: asArray(raw.monitor, ["호흡곤란", "의식 저하", "심한 통증", "출혈", "고열"]),
     questions: asArray(raw.questions, ["언제 시작됐나요?", "통증은 어느 부위인가요?", "복용 중인 약이나 알레르기가 있나요?"]),
     localPhraseKo,
-    localPhraseEn: String(raw.localPhraseEn || "I need help. Please call medical staff or an ambulance."),
-    localPhraseLocal: normalizeLocalPhraseLocal(raw.localPhraseLocal || raw.localPhraseNative || raw.localPhraseEn, context),
+    ...localPhraseMetadata,
     recommendedAction: normalizeAction(raw.recommendedAction || (needsAmbulance ? "emergency" : "hospital")),
     recommendedDepartment: String(raw.recommendedDepartment || (needsAmbulance ? "응급의학과" : "가까운 병원 또는 클리닉")),
     needsAmbulance,

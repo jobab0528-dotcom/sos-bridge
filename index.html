@@ -11532,6 +11532,7 @@ async function runAi(){
   showFlowScreen("screen-ai-result");
 
   try{
+    const requestedLocalLanguageCode = getCountryLanguageCode(localLangId) || "en";
     const res = await fetch("/.netlify/functions/ai-care", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -11540,7 +11541,7 @@ async function runAi(){
         travelCountry: tripCountryName || (getTripOption().countryKo || getTripOption().country || ""),
         travelCity: tripCityName || "",
         userLanguage: "ko",
-        localLanguage: getCountryLanguageCode(localLangId) || "en",
+        localLanguage: requestedLocalLanguageCode,
         localLanguageName: getLocalOption().languageNameEn || getLocalOption().native || "",
         emergencyNumber: getTripEmergencyNumber ? getTripEmergencyNumber() : getEmergencyNumber(selected)
       })
@@ -11549,37 +11550,7 @@ async function runAi(){
     const data = await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(data.error || data.detail || "증상 안내 요청 실패");
 
-    const localPhraseKo = normalizeAiCareKoreanPhrase(data.localPhraseKo, symptom);
-    const localPhraseReviewNeeded = !!(data.localPhraseReviewNeeded || data.translationReviewNeeded);
-    const rawLocalPhrase = String(data.localPhraseLocal || data.localPhraseNative || "").trim();
-    const safeLocalPhrase = localPhraseReviewNeeded
-      ? ""
-      : (rawLocalPhrase || data.localPhraseEn || "I need help. Please call medical staff or an ambulance.");
-
-    triage = {
-      level: data.level || "urgent",
-      title: data.title || "증상 및 행동 안내 결과",
-      summary: data.summary || "입력된 증상을 기준으로 의료 상담을 권장합니다.",
-      category: data.category || "ai-care",
-      reasons: Array.isArray(data.reasons) ? data.reasons : [],
-      steps: Array.isArray(data.steps) ? data.steps : [],
-      avoid: Array.isArray(data.avoid) ? data.avoid : [],
-      monitor: Array.isArray(data.monitor) ? data.monitor : [],
-      questions: Array.isArray(data.questions) ? data.questions : [],
-      phrase: {
-        ko: localPhraseKo,
-        en: data.localPhraseEn || "I need help. Please call medical staff or an ambulance.",
-        local: safeLocalPhrase,
-        reviewNeeded: localPhraseReviewNeeded,
-        reviewMessage: data.localPhraseReviewReason || "현지어 번역을 확인할 수 없습니다. 한국어 원문을 유지합니다."
-      },
-      recommended: data.recommendedAction || "hospital",
-      recommendedDepartment: data.recommendedDepartment || "",
-      needsAmbulance: !!data.needsAmbulance,
-      confidence: typeof data.confidence === "number" ? data.confidence : 85,
-      severityScore: typeof data.severityScore === "number" ? data.severityScore : 65,
-      source: "openai"
-    };
+    triage = buildAiCareTriageFromResponse(data, symptom, requestedLocalLanguageCode);
 
     renderTriage();
     renderLocalPhraseCard();
@@ -11608,12 +11579,91 @@ function normalizeAiCareKoreanPhrase(value, symptom){
   return String(symptom || "").trim() || "도움이 필요합니다. 가까운 의료진이나 구급차를 불러 주세요.";
 }
 
+function normalizeAiCareLanguageCode(value){
+  return String(value || "").trim().toLowerCase().replace(/_/g, "-");
+}
+
+// Fail-closed: an AI Care local phrase is shown as the requested local language
+// only when the server explicitly marks it VERIFIED_LOCAL for the same language.
+// A non-empty string alone is never treated as a successful local translation.
+function resolveAiCareLocalPhrase(data, requestedLanguageCode){
+  const source = data && typeof data === "object" ? data : {};
+  const requested = normalizeAiCareLanguageCode(requestedLanguageCode);
+  const rawLocal = String(source.localPhraseLocal || "").trim();
+  const reportedLanguage = normalizeAiCareLanguageCode(source.localPhraseLanguageCode);
+  const verified = source.localPhraseVerified === true &&
+    source.localPhraseStatus === "VERIFIED_LOCAL" &&
+    !!rawLocal &&
+    !!requested &&
+    reportedLanguage === requested;
+  const aiEnglish = String(source.localPhraseEn || "").trim();
+  return {
+    local: verified ? rawLocal : "",
+    localVerified: verified,
+    localStatus: verified ? "VERIFIED_LOCAL" : (rawLocal ? "UNVERIFIED" : "FAILED"),
+    requestedLanguageCode: requested,
+    en: aiEnglish || "I need help. Please call medical staff or an ambulance.",
+    enIsDefault: !aiEnglish || source.localPhraseEnIsDefault === true,
+    reviewNeeded: !verified,
+    reviewMessage: verified
+      ? ""
+      : "현지어 문장을 확인하지 못했습니다. 한국어 원문을 보여주거나 아래 영어 문장을 참고하세요."
+  };
+}
+
+function buildAiCareTriageFromResponse(data, symptom, requestedLanguageCode){
+  const source = data && typeof data === "object" ? data : {};
+  const localPhrase = resolveAiCareLocalPhrase(source, requestedLanguageCode);
+  return {
+    level: source.level || "urgent",
+    title: source.title || "증상 및 행동 안내 결과",
+    summary: source.summary || "입력된 증상을 기준으로 의료 상담을 권장합니다.",
+    category: source.category || "ai-care",
+    reasons: Array.isArray(source.reasons) ? source.reasons : [],
+    steps: Array.isArray(source.steps) ? source.steps : [],
+    avoid: Array.isArray(source.avoid) ? source.avoid : [],
+    monitor: Array.isArray(source.monitor) ? source.monitor : [],
+    questions: Array.isArray(source.questions) ? source.questions : [],
+    phrase: Object.assign({ko: normalizeAiCareKoreanPhrase(source.localPhraseKo, symptom)}, localPhrase),
+    recommended: source.recommendedAction || "hospital",
+    recommendedDepartment: source.recommendedDepartment || "",
+    needsAmbulance: !!source.needsAmbulance,
+    confidence: typeof source.confidence === "number" ? source.confidence : 85,
+    severityScore: typeof source.severityScore === "number" ? source.severityScore : 65,
+    source: "openai"
+  };
+}
+
+function aiCareEnglishReferenceHtml(phrase){
+  const english = String(phrase && phrase.en || "").trim();
+  if(!english) return "";
+  return '<div class="notice amber" style="margin-top:12px;margin-bottom:8px;font-weight:950" data-phrase-heading="en">🇬🇧 영어로 보여줄 문장 · English (현지어 아님)</div>'+
+    '<div class="step"><span class="check">안내</span><span>현지어 확인이 되지 않아 영어 참고 문장을 따로 표시합니다. 상대가 영어를 이해하는 경우에만 보여주세요.</span></div>'+
+    '<div class="step" data-phrase-language="en"><span class="check">EN</span><span lang="en" style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(english)+'</span></div>';
+}
+
+function aiCarePhraseSectionHtml(phrase, localPhraseResult, localLanguageLabel){
+  const safePhrase = phrase || {};
+  const result = localPhraseResult || {text:"", untranslated:true, message:""};
+  const unavailable = !!safePhrase.reviewNeeded || result.untranslated === true || !String(result.text || "").trim();
+  if(unavailable){
+    return '<div class="notice amber" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지어 문장을 확인하지 못했습니다 · 번역되지 않은 한국어 원문</div>'+
+      '<div class="step"><span class="check">안내</span><span>'+escapeHtml(result.message || safePhrase.reviewMessage || "현지어 문장을 확인하지 못했습니다. 한국어 원문을 유지합니다.")+'</span></div>'+
+      '<div class="step"><span class="check">KO</span><span lang="ko" style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(safePhrase.ko || "도움이 필요합니다.")+'</span></div>'+
+      (safePhrase.reviewNeeded ? aiCareEnglishReferenceHtml(safePhrase) : "");
+  }
+  return '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지 의료진에게 보여줄 문장 · '+escapeHtml(localLanguageLabel)+'</div>'+
+    '<div class="step"><span class="check">안내</span><span>아래 문장을 현지 의료진에게 보여주세요.</span></div>'+
+    '<div class="step" data-phrase-language="local"><span class="check">현지</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(result.text)+'</span></div>'+
+    '<div class="step"><span class="check">KO</span><span class="small muted">한국어 뜻: '+escapeHtml(safePhrase.ko || "도움이 필요합니다.")+'</span></div>';
+}
+
 function localTriagePhrase(phrase){
   if(phrase && phrase.reviewNeeded){
     return {text:"", untranslated:true, message:phrase.reviewMessage || "현지어 번역을 확인할 수 없습니다. 한국어 원문을 유지합니다."};
   }
   const base=getBaseLang(localLangId);
-  if(phrase && phrase.local) return {text:phrase.local, untranslated:false, message:""};
+  if(phrase && phrase.local && phrase.localVerified !== false) return {text:phrase.local, untranslated:false, message:""};
   if(base==="ko" && phrase && phrase.ko) return {text:phrase.ko, untranslated:false, message:""};
   if(base==="en" && phrase && phrase.en) return {text:phrase.en, untranslated:false, message:""};
   const keys = ["help","ambulance","hospital"];
@@ -11628,7 +11678,10 @@ function localTriagePhrase(phrase){
     };
   }
   const text = [translated.pack.help, translated.pack.ambulance, translated.pack.hospital].filter(Boolean).join(" ");
-  return {text:text || (phrase && phrase.en) || "I need help. Please call medical staff or an ambulance.", untranslated:false, message:""};
+  if(!text){
+    return {text:(phrase && phrase.ko) || phrasePacks.ko.help, untranslated:true, message:"현지어 문장을 확인하지 못했습니다. 한국어 원문을 유지합니다."};
+  }
+  return {text, untranslated:false, message:""};
 }
 
 function triagePossibilityLabel(result){
@@ -11829,18 +11882,9 @@ function renderTriage(){
   const phrase = triage.phrase || {};
   const localOpt = getLocalOption();
   const localPhraseResult = localTriagePhrase(phrase);
-  const localText = localPhraseResult.text;
-  const localPhraseUnavailable = !!phrase.reviewNeeded || localPhraseResult.untranslated;
   const phraseHtml = localPhraseResult.helpPhraseResult
     ? helpPhraseDynamicContentHtml(localPhraseResult.helpPhraseKeys, localPhraseResult.helpPhraseResult, "triage")
-    : localPhraseUnavailable
-      ? '<div class="notice amber" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 번역되지 않은 한국어 원문</div>'+
-        '<div class="step"><span class="check">안내</span><span>'+escapeHtml(localPhraseResult.message || "현지어 번역을 확인할 수 없습니다. 한국어 원문을 유지합니다.")+'</span></div>'+
-        '<div class="step"><span class="check">KO</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>'
-      : '<div class="notice teal" style="margin-top:12px;margin-bottom:8px;font-weight:950">🗣️ 현지 의료진에게 보여줄 문장 · '+escapeHtml(localOpt.native)+'</div>'+
-        '<div class="step"><span class="check">안내</span><span>아래 문장을 현지 의료진에게 보여주세요.</span></div>'+
-        '<div class="step"><span class="check">현지</span><span style="font-size:18px;font-weight:950;color:var(--navy)">'+escapeHtml(localText)+'</span></div>'+
-        '<div class="step"><span class="check">KO</span><span class="small muted">한국어 뜻: '+escapeHtml(phrase.ko || "도움이 필요합니다.")+'</span></div>';
+    : aiCarePhraseSectionHtml(phrase, localPhraseResult, localOpt.native);
 
   const departmentText = triage.recommendedDepartment || (triage.recommended === "pharmacy" ? "약국 상담 또는 가까운 클리닉" : "가까운 병원 또는 클리닉");
   const departmentHtml =
