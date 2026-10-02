@@ -332,11 +332,14 @@ function retrySuccess(type, id){
 
 function loadAutoRetrySandbox(type, outcomes, waitAction = "none"){
   const statuses = [];
+  const delays = [];
   const sandbox = {
     outcomes:outcomes.slice(),
     statuses,
+    delays,
     waitAction,
-    setTimeout(callback){
+    setTimeout(callback, delayMs){
+      delays.push(delayMs);
       if(typeof sandbox.applyWaitAction === "function") sandbox.applyWaitAction();
       callback();
       return 1;
@@ -350,6 +353,7 @@ function loadAutoRetrySandbox(type, outcomes, waitAction = "none"){
   ];
   vm.runInNewContext(
     `const FACILITY_AUTO_RETRY_DELAY_MS = 0;
+     const FACILITY_RATE_LIMIT_RETRY_DELAY_MS = 1500;
      let calls = 0;
      let currentType = this.inputType;
      let currentFlowScreen = currentType === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results";
@@ -368,6 +372,7 @@ function loadAutoRetrySandbox(type, outcomes, waitAction = "none"){
          const error = new Error(outcome.code);
          error.code = outcome.code;
          error.status = outcome.status || 0;
+         if(typeof outcome.retryable === "boolean") error.retryable = outcome.retryable;
          throw error;
        }
        return outcome && outcome.value;
@@ -614,6 +619,7 @@ function loadFacilityOrdering(){
     "isEmergencyHospitalRecommendation",
     "facilityEmergencyTier",
     "compareFacilityResults",
+    "isSameFacilitySite",
     "finalizeFacilityResults"
   ];
   vm.runInNewContext(
@@ -644,4 +650,365 @@ test("P0 emergency results preserve confirmed emergency-facility priority", () =
     {id:"far-emergency", type:"hospital", nameKo:"응급 병원", latitude:37.58, longitude:127.02, distanceKm:3.5, isHospital:true, emergencyCareConfirmed:true}
   ], {type:"hospital", emergencyContext:true});
   assert.deepEqual(orderedIds(result), ["far-emergency", "near-clinic"]);
+});
+
+// ---------- P1 first-search reliability through the real HTTP response path ----------
+// Runs the real fetchFacilityProxy + retry decision with scripted Function
+// replies (no network). Synthetic coordinates only.
+function loadHttpRetrySandbox(type, replies, waitAction = "none"){
+  const calls = [];
+  const delays = [];
+  const sandbox = {
+    inputType:type,
+    replies:replies.slice(),
+    calls,
+    delays,
+    waitAction,
+    AbortController,
+    clearTimeout(){},
+    setTimeout(callback, delayMs){
+      if(delayMs === 60000) return 0;
+      delays.push(delayMs);
+      if(typeof sandbox.applyWaitAction === "function") sandbox.applyWaitAction();
+      callback();
+      return 0;
+    }
+  };
+  const names = [
+    "createFacilitySearchError",
+    "normalizeFacilityProxyErrorCode",
+    "validateFacilityProxySuccess",
+    "fetchFacilityProxy",
+    "isFacilityAutoRetryEligible",
+    "isFacilitySearchResultContextCurrent",
+    "waitForFacilityAutoRetry",
+    "fetchNearbyFacilitiesWithSingleAutoRetry"
+  ];
+  vm.runInNewContext(
+    `const FACILITY_PROXY_URL = "/.netlify/functions/nearby-facilities";
+     const FACILITY_PROXY_MAX_RADIUS_METERS = 50000;
+     const FACILITY_PROXY_REQUEST_TIMEOUT_MS = 60000;
+     const FACILITY_PROXY_ALLOWED_RADII = new Set([5000, 10000, 20000, 50000]);
+     const FACILITY_PROXY_ERROR_CODES = new Set([
+       "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", "FACILITY_QUERY_ERROR", "FACILITY_TIMEOUT",
+       "FACILITY_INVALID_RESPONSE", "FACILITY_RATE_LIMITED", "FACILITY_INVALID_REQUEST"
+     ]);
+     const FACILITY_AUTO_RETRY_DELAY_MS = 250;
+     const FACILITY_RATE_LIMIT_RETRY_DELAY_MS = 1500;
+     let currentType = this.inputType;
+     let currentFlowScreen = currentType === "pharmacy" ? "screen-pharmacy-results" : "screen-hospital-results";
+     let activeRequest = {type:currentType, generation:1, autoRetrying:false};
+     const originalRequest = activeRequest;
+     const replyQueue = this.replies;
+     const callLog = this.calls;
+     function isAppOffline(){ return false; }
+     function isFacilitySearchCurrent(request){ return request === activeRequest && request.type === currentType; }
+     function setStatus(){}
+     function renderFacilityList(){}
+     async function fetch(url, options){
+       callLog.push({url, body:JSON.parse(options.body)});
+       const reply = replyQueue.shift();
+       if(!reply) throw new Error("unexpected extra Function call");
+       if(reply.networkError) throw new TypeError("Failed to fetch");
+       return {
+         ok:reply.status >= 200 && reply.status < 300,
+         status:reply.status,
+         async text(){ return typeof reply.body === "string" ? reply.body : JSON.stringify(reply.body); }
+       };
+     }
+     async function fetchNearbyFacilities(type, loc, recommendation, searchRequest){
+       const data = await fetchFacilityProxy(type, loc, searchRequest);
+       if(data === null) return null;
+       return Object.assign(data.elements.slice(), {complete:data.complete, code:data.code || ""});
+     }
+     ${names.map((name) => extractNamedFunction(indexSource, name)).join("\n")}
+     this.applyWaitAction = () => {
+       if(this.waitAction === "home") currentFlowScreen = "screen-home";
+       if(this.waitAction === "new-hospital"){
+         activeRequest = {type:"hospital", generation:2, autoRetrying:false};
+         currentFlowScreen = "screen-hospital-results";
+       }
+       if(this.waitAction === "pharmacy"){
+         activeRequest = {type:"pharmacy", generation:2, autoRetrying:false};
+         currentType = "pharmacy";
+         currentFlowScreen = "screen-pharmacy-results";
+       }
+     };
+     this.run = () => fetchNearbyFacilitiesWithSingleAutoRetry(
+       originalRequest.type,
+       {latitude:48.8566, longitude:2.3522, source:"gps"},
+       null,
+       originalRequest
+     );`,
+    sandbox,
+    {filename:INDEX_PATH}
+  );
+  return sandbox;
+}
+
+function functionFailure(status, code, retryable){
+  return {status, body:{ok:false, schemaVersion:"1", code, retryable, attemptsUsed:4}};
+}
+function functionSuccess(elements, overrides = {}){
+  return {status:200, body:success({elements, ...overrides})};
+}
+const GATEWAY_HTML = "<html><body>Gateway error</body></html>";
+const ONE_ELEMENT = [{type:"node", id:1, lat:48.857, lon:2.352, tags:{amenity:"hospital", name:"P1"}}];
+
+test("P1 RETRY a retryable 429 rate limit is retried once after a short backoff and succeeds", async () => {
+  const sandbox = loadHttpRetrySandbox("hospital", [
+    functionFailure(429, "FACILITY_RATE_LIMITED", true),
+    functionSuccess(ONE_ELEMENT)
+  ]);
+  const result = await sandbox.run();
+  assert.equal(sandbox.calls.length, 2);
+  assert.equal(result.length, 1);
+  assert.deepEqual(Array.from(sandbox.delays), [1500]);
+});
+
+test("P1 RETRY non-JSON gateway 502/503/504 responses are transient and retried once", async () => {
+  for(const status of [502, 503, 504]){
+    const sandbox = loadHttpRetrySandbox("hospital", [{status, body:GATEWAY_HTML}, functionSuccess(ONE_ELEMENT)]);
+    const result = await sandbox.run();
+    assert.equal(sandbox.calls.length, 2, `status ${status}`);
+    assert.equal(result.length, 1, `status ${status}`);
+    assert.deepEqual(Array.from(sandbox.delays), [250], `status ${status}`);
+  }
+});
+
+test("P1 RETRY a browser-to-Function transport failure is retried once", async () => {
+  const sandbox = loadHttpRetrySandbox("hospital", [{networkError:true}, functionSuccess(ONE_ELEMENT)]);
+  assert.equal((await sandbox.run()).length, 1);
+  assert.equal(sandbox.calls.length, 2);
+});
+
+test("P1 RETRY two transient failures stop at exactly two Function calls with the final safe error", async () => {
+  const cases = [
+    [[functionFailure(429, "FACILITY_RATE_LIMITED", true), functionFailure(429, "FACILITY_RATE_LIMITED", true)], "FACILITY_RATE_LIMITED"],
+    [[{status:502, body:GATEWAY_HTML}, {status:504, body:GATEWAY_HTML}], "FACILITY_TIMEOUT"],
+    [[{networkError:true}, functionFailure(503, "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", true)], "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE"],
+    // v4: a TIMEOUT that did not exhaust both providers (attemptsUsed 1) is still retried once.
+    [[{status:504, body:{ok:false, schemaVersion:"1", code:"FACILITY_TIMEOUT", retryable:true, attemptsUsed:1}}, functionFailure(429, "FACILITY_RATE_LIMITED", true)], "FACILITY_RATE_LIMITED"]
+  ];
+  for(const [replies, finalCode] of cases){
+    const sandbox = loadHttpRetrySandbox("hospital", replies.concat([functionSuccess(ONE_ELEMENT)]));
+    await assert.rejects(sandbox.run(), (error) => error.code === finalCode);
+    assert.equal(sandbox.calls.length, 2, finalCode);
+    assert.equal(sandbox.replies.length, 1, "the queued third reply is never requested");
+  }
+});
+
+test("P1 RETRY non-retryable outcomes are surfaced after one Function call", async () => {
+  const cases = [
+    [functionFailure(400, "FACILITY_INVALID_REQUEST", false), "FACILITY_INVALID_REQUEST"],
+    [functionFailure(422, "FACILITY_INVALID_REQUEST", false), "FACILITY_INVALID_REQUEST"],
+    [functionFailure(502, "FACILITY_QUERY_ERROR", false), "FACILITY_QUERY_ERROR"],
+    [functionFailure(502, "FACILITY_INVALID_RESPONSE", false), "FACILITY_INVALID_RESPONSE"],
+    [functionFailure(503, "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", false), "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE"],
+    [{status:200, body:GATEWAY_HTML}, "FACILITY_INVALID_RESPONSE"],
+    [{status:200, body:{ok:true, schemaVersion:"2", elements:[]}}, "FACILITY_INVALID_RESPONSE"]
+  ];
+  for(const [reply, code] of cases){
+    const sandbox = loadHttpRetrySandbox("hospital", [reply, functionSuccess(ONE_ELEMENT)]);
+    await assert.rejects(sandbox.run(), (error) => error.code === code);
+    assert.equal(sandbox.calls.length, 1, `${reply.status} ${code}`);
+    assert.equal(sandbox.delays.length, 0);
+  }
+});
+
+test("P1 RETRY successful empty and partial hospital results are data, not retry triggers", async () => {
+  const empty = loadHttpRetrySandbox("hospital", [functionSuccess([]), functionSuccess(ONE_ELEMENT)]);
+  const emptyResult = await empty.run();
+  assert.equal(emptyResult.length, 0);
+  assert.equal(emptyResult.complete, true);
+  assert.equal(empty.calls.length, 1);
+
+  const partial = loadHttpRetrySandbox("hospital", [
+    functionSuccess(ONE_ELEMENT, {complete:false, code:"FACILITY_PARTIAL_RESULTS", incompleteReason:"FACILITY_TIMEOUT", searchRadiusMeters:10000}),
+    functionSuccess([])
+  ]);
+  const partialResult = await partial.run();
+  assert.equal(partialResult.length, 1, "valid partial results survive a later expansion failure");
+  assert.equal(partialResult.complete, false);
+  assert.equal(partialResult.code, "FACILITY_PARTIAL_RESULTS");
+  assert.equal(partial.calls.length, 1);
+});
+
+test("P1 RETRY pharmacy keeps its single-call behavior for every transient class", async () => {
+  const transientReplies = [
+    functionFailure(429, "FACILITY_RATE_LIMITED", true),
+    {status:502, body:GATEWAY_HTML},
+    {status:504, body:GATEWAY_HTML},
+    {networkError:true},
+    functionFailure(503, "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", true)
+  ];
+  for(const reply of transientReplies){
+    const sandbox = loadHttpRetrySandbox("pharmacy", [reply, functionSuccess(ONE_ELEMENT)]);
+    await assert.rejects(sandbox.run());
+    assert.equal(sandbox.calls.length, 1);
+    assert.equal(sandbox.calls[0].body.type, "pharmacy");
+  }
+  const success = loadHttpRetrySandbox("pharmacy", [functionSuccess(ONE_ELEMENT)]);
+  assert.equal((await success.run()).length, 1);
+  assert.equal(success.calls.length, 1);
+});
+
+test("P1 RETRY a new generation, leaving the screen, or a pharmacy search during backoff cancels the retry", async () => {
+  for(const waitAction of ["new-hospital", "home", "pharmacy"]){
+    const sandbox = loadHttpRetrySandbox("hospital", [
+      functionFailure(429, "FACILITY_RATE_LIMITED", true),
+      functionSuccess(ONE_ELEMENT)
+    ], waitAction);
+    assert.equal(await sandbox.run(), null, waitAction);
+    assert.equal(sandbox.calls.length, 1, waitAction);
+  }
+});
+
+test("P1 RETRY client maps non-JSON gateway statuses to transient codes and keeps the Function retryable flag", async () => {
+  const expected = {429:"FACILITY_RATE_LIMITED", 502:"FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", 503:"FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", 504:"FACILITY_TIMEOUT", 200:"FACILITY_INVALID_RESPONSE", 500:"FACILITY_INVALID_RESPONSE"};
+  for(const [status, code] of Object.entries(expected)){
+    const sandbox = loadClient(async () => response(GATEWAY_HTML, Number(status)));
+    assert.equal(await rejectedCode(sandbox.run("hospital", {latitude:1, longitude:2})), code, `status ${status}`);
+  }
+  const flagged = loadClient(async () => response({ok:false, schemaVersion:"1", code:"FACILITY_RATE_LIMITED", retryable:true, attemptsUsed:2}, 429));
+  await assert.rejects(flagged.run("hospital", {latitude:1, longitude:2}), (error) => error.code === "FACILITY_RATE_LIMITED" && error.retryable === true && error.status === 429);
+});
+
+test("P1 ORDER equal distance and name fall back to a stable id tie-break in both modes", () => {
+  const finalize = loadFacilityOrdering();
+  const twins = [
+    {id:"twin-b", type:"hospital", nameKo:"같은 병원", latitude:1, longitude:1, distanceKm:1, isHospital:true},
+    {id:"twin-a", type:"hospital", nameKo:"같은 병원", latitude:2, longitude:2, distanceKm:1, isHospital:true}
+  ];
+  for(const recommendation of [null, {type:"hospital", emergencyContext:true}]){
+    assert.deepEqual(orderedIds(finalize(twins, recommendation)), ["twin-a", "twin-b"]);
+    assert.deepEqual(orderedIds(finalize(twins.slice().reverse(), recommendation)), ["twin-a", "twin-b"]);
+  }
+});
+
+test("P1 ORDER narrow specialty-only facilities are removed only from emergency results", () => {
+  const finalize = loadFacilityOrdering();
+  const list = [
+    {id:"dentist", type:"hospital", nameKo:"치과", latitude:1, longitude:1, distanceKm:0.1, isClinic:true, emergencyNarrowSpecialty:true},
+    {id:"hospital-no-er", type:"hospital", nameKo:"병원 무응급", latitude:2, longitude:2, distanceKm:0.5, isHospital:true, emergencyStatus:"explicit-no"},
+    {id:"hospital", type:"hospital", nameKo:"병원", latitude:3, longitude:3, distanceKm:0.9, isHospital:true},
+    {id:"er", type:"hospital", nameKo:"응급 병원", latitude:4, longitude:4, distanceKm:2.5, isHospital:true, emergencyCareConfirmed:true},
+    {id:"dental-er", type:"hospital", nameKo:"치과 응급", latitude:5, longitude:5, distanceKm:0.3, isHospital:true, emergencyCareConfirmed:true, emergencyNarrowSpecialty:true}
+  ];
+  assert.deepEqual(orderedIds(finalize(list, {type:"hospital", emergencyContext:true})), ["er", "hospital", "hospital-no-er"]);
+  assert.deepEqual(orderedIds(finalize(list, {type:"hospital", triageContext:{level:"emergency"}})), ["er", "hospital", "hospital-no-er"]);
+  assert.deepEqual(orderedIds(finalize(list, {type:"hospital"})), ["dentist", "dental-er", "hospital-no-er", "hospital", "er"]);
+  assert.deepEqual(orderedIds(finalize(list)), ["dentist", "dental-er", "hospital-no-er", "hospital", "er"]);
+});
+
+// ---------- V4 exhausted-provider timeout is not repeated by the browser ----------
+const PREVIEW_TIMEOUT_BODY = {ok:false, schemaVersion:"1", code:"FACILITY_TIMEOUT", retryable:true, attemptsUsed:2};
+const PREVIEW_TIMEOUT_MESSAGE = "병원 검색 서비스 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요. 주변에 시설이 없다는 의미가 아닙니다. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+
+test("V4 RETRY the verified Preview FACILITY_TIMEOUT (attemptsUsed 2) is not repeated as an identical second Function call", async () => {
+  const sandbox = loadHttpRetrySandbox("hospital", [
+    {status:504, body:PREVIEW_TIMEOUT_BODY},
+    {status:504, body:PREVIEW_TIMEOUT_BODY}
+  ]);
+  await assert.rejects(sandbox.run(), (error) => error.code === "FACILITY_TIMEOUT" && error.attemptsUsed === 2);
+  assert.equal(sandbox.calls.length, 1);
+  assert.equal(sandbox.delays.length, 0);
+  assert.equal(sandbox.replies.length, 1, "the second Preview request is no longer made");
+});
+
+test("V4 RETRY timeouts that did not exhaust the provider path keep one automatic retry", async () => {
+  const cases = [
+    ["Function TIMEOUT after one provider attempt", {status:504, body:{...PREVIEW_TIMEOUT_BODY, attemptsUsed:1}}],
+    ["non-JSON gateway 504", {status:504, body:GATEWAY_HTML}],
+    ["Function TIMEOUT body without attemptsUsed", {status:504, body:{ok:false, schemaVersion:"1", code:"FACILITY_TIMEOUT", retryable:true}}]
+  ];
+  for(const [label, first] of cases){
+    const sandbox = loadHttpRetrySandbox("hospital", [first, functionSuccess(ONE_ELEMENT)]);
+    assert.equal((await sandbox.run()).length, 1, label);
+    assert.equal(sandbox.calls.length, 2, label);
+  }
+});
+
+test("V4 RETRY rate limit and service-unavailable stay bounded at two calls even when all providers were tried", async () => {
+  for(const reply of [functionFailure(429, "FACILITY_RATE_LIMITED", true), functionFailure(503, "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", true)]){
+    const sandbox = loadHttpRetrySandbox("hospital", [reply, reply, functionSuccess(ONE_ELEMENT)]);
+    await assert.rejects(sandbox.run(), (error) => error.code === reply.body.code);
+    assert.equal(sandbox.calls.length, 2, reply.body.code);
+  }
+});
+
+test("V4 RETRY pharmacy exhausted timeout stays a single call", async () => {
+  const sandbox = loadHttpRetrySandbox("pharmacy", [{status:504, body:PREVIEW_TIMEOUT_BODY}, functionSuccess(ONE_ELEMENT)]);
+  await assert.rejects(sandbox.run(), (error) => error.code === "FACILITY_TIMEOUT");
+  assert.equal(sandbox.calls.length, 1);
+});
+
+function loadHttpApplyLocationSandbox(replies){
+  const calls = [];
+  const sandbox = {
+    replies:replies.slice(),
+    calls,
+    AbortController,
+    clearTimeout(){},
+    setTimeout(callback, delayMs){ if(delayMs === 60000) return 0; callback(); return 0; },
+    elements:{facilityCard:{classList:{remove(){}}}, facilityList:{innerHTML:""}}
+  };
+  const names = [
+    "createFacilitySearchError", "normalizeFacilityProxyErrorCode", "validateFacilityProxySuccess", "fetchFacilityProxy",
+    "isFacilityAutoRetryEligible", "isFacilitySearchResultContextCurrent", "waitForFacilityAutoRetry",
+    "fetchNearbyFacilitiesWithSingleAutoRetry", "snapshotFacilityLocation", "applyLocation"
+  ];
+  vm.runInNewContext(
+    `const FACILITY_PROXY_URL = "/.netlify/functions/nearby-facilities";
+     const FACILITY_PROXY_MAX_RADIUS_METERS = 50000;
+     const FACILITY_PROXY_REQUEST_TIMEOUT_MS = 60000;
+     const FACILITY_PROXY_ALLOWED_RADII = new Set([5000, 10000, 20000, 50000]);
+     const FACILITY_PROXY_ERROR_CODES = new Set([
+       "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", "FACILITY_QUERY_ERROR", "FACILITY_TIMEOUT",
+       "FACILITY_INVALID_RESPONSE", "FACILITY_RATE_LIMITED", "FACILITY_INVALID_REQUEST"
+     ]);
+     const FACILITY_AUTO_RETRY_DELAY_MS = 250;
+     const FACILITY_RATE_LIMIT_RETRY_DELAY_MS = 1500;
+     const FACILITY_PARTIAL_RESULTS_MESSAGE = "partial";
+     let facilityType = "hospital", facilityRecommendation = null, locationData = null, facilities = [];
+     let facilitySearchErrorMessage = "", facilitySearchErrorCode = "", isLoading = false;
+     let currentFlowScreen = "screen-hospital-results";
+     const request = {type:"hospital", generation:1, recommendation:null};
+     const replyQueue = this.replies;
+     const callLog = this.calls;
+     function isFacilitySearchCurrent(value){ return value === request; }
+     function isAppOffline(){ return false; }
+     function moveFacilityCardToScreen(){}
+     function showFlowScreen(){}
+     function renderFacilityList(){}
+     function setStatus(){}
+     function t(){ return {userGps:"GPS", travelPlace:"여행지"}; }
+     function $(id){ return this.elements[id] || {classList:{remove(){}}}; }
+     function showDebug(){}
+     function renderOfflineFacilityState(){}
+     function showOfflineFeatureNotice(){}
+     function commitFacilitySearchResults(){ return true; }
+     async function fetch(url, options){
+       callLog.push(url);
+       const reply = replyQueue.shift();
+       return {ok:reply.status < 300, status:reply.status, async text(){ return JSON.stringify(reply.body); }};
+     }
+     async function fetchNearbyFacilities(type, loc, recommendation, searchRequest){
+       const data = await fetchFacilityProxy(type, loc, searchRequest);
+       return data && data.elements.slice();
+     }
+     ${names.map((name) => extractNamedFunction(indexSource, name)).join("\n")}
+     this.run = () => applyLocation(request, {latitude:48.8566, longitude:2.3522, source:"gps"}, "GPS OK.");
+     this.state = () => ({code:facilitySearchErrorCode, message:facilitySearchErrorMessage, isLoading});`,
+    sandbox,
+    {filename:INDEX_PATH}
+  );
+  return sandbox;
+}
+
+test("V4 RETRY one click on the verified Preview timeout ends with the exact safe message after one Function call", async () => {
+  const sandbox = loadHttpApplyLocationSandbox([{status:504, body:PREVIEW_TIMEOUT_BODY}, {status:504, body:PREVIEW_TIMEOUT_BODY}]);
+  await sandbox.run();
+  assert.deepEqual(JSON.parse(JSON.stringify(sandbox.state())), {code:"FACILITY_TIMEOUT", message:PREVIEW_TIMEOUT_MESSAGE, isLoading:false});
+  assert.equal(sandbox.calls.length, 1);
 });

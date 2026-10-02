@@ -4315,6 +4315,7 @@ const FACILITY_PROXY_URL = "/.netlify/functions/nearby-facilities";
 const FACILITY_PROXY_MAX_RADIUS_METERS = 50000;
 const FACILITY_PROXY_REQUEST_TIMEOUT_MS = 30000;
 const FACILITY_AUTO_RETRY_DELAY_MS = 250;
+const FACILITY_RATE_LIMIT_RETRY_DELAY_MS = 1500;
 const FACILITY_PROXY_ALLOWED_RADII = new Set([5000, 10000, 20000, 50000]);
 const FACILITY_PROXY_ERROR_CODES = new Set([
   "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE",
@@ -4371,9 +4372,46 @@ function isAllowedFacilityCategory(type, tags){
     return amenity === "pharmacy" || healthcare === "pharmacy" || ["chemist", "pharmacy", "drugstore"].includes(shop);
   }
 
+  // Hospital discovery only: a commercial or non-patient-care primary feature
+  // tag outweighs an erroneous medical amenity/healthcare tag on the same object.
+  if(shop) return false;
+  const office = String(tag(tags, ["office"]) || "").toLowerCase();
+  const medicalOfficeValues = ["physician", "doctor", "doctors", "healthcare", "medical", "therapist"];
+  if(office && !medicalOfficeValues.includes(office)) return false;
+  if(tag(tags, ["craft"]) || tag(tags, ["industrial"])) return false;
+  const nonPatientCareAmenities = [
+    "funeral_hall", "funeral_directors", "crematorium", "mortuary", "veterinary",
+    "car_wash", "car_rental", "vehicle_inspection", "fuel"
+  ];
+  if(nonPatientCareAmenities.includes(amenity)) return false;
+
   const allowedAmenities = ["hospital", "clinic", "doctors", "doctor"];
   const allowedHealthcare = ["hospital", "clinic", "doctor", "doctors", "centre", "center"];
   return allowedAmenities.includes(amenity) || allowedHealthcare.includes(healthcare);
+}
+
+// Hospital discovery only, conservative name fallback for objects whose
+// structured tags claim a medical facility but whose own name states a
+// non-patient-care business. Only the names are checked (never the address),
+// and generic words such as hospital or medical never reject on their own.
+function isNonPatientCareFacilityName(tags){
+  const names = [tag(tags, ["name"]), tag(tags, ["name:ko"]), tag(tags, ["name:en"])]
+    .filter(Boolean).join(" ").toLowerCase();
+  if(!names) return false;
+  const patterns = [
+    // funeral hall / funeral service
+    /장례/, /\bfuneral\b/, /\bmortuary\b/,
+    // automotive repair or service named as a vehicle "hospital"
+    /(?:자동차|차량|수입차|외제차|타이어|오토바이|바이크|자전거)\s*병원/,
+    // landscaping business
+    /조경(?:\s*(?:\(주\)|주식회사))?\s*$/, /조경\s*(?:건설|공사|산업|설계|디자인|개발|자재|회사|업체)/, /\blandscap(?:e|ing)\b/,
+    // interior / construction business
+    /실내\s*건축/, /인테리어/, /건축\s*(?:사무소|설계)/, /종합\s*건설/, /건설\s*(?:\(주\)|주식회사|회사|산업)/,
+    /\binterior\s+(?:design|architecture|construction)\b/, /\bconstruction\s+(?:company|co)\b/,
+    // medical or industrial gas supplier
+    /의료\s*가스/, /산업\s*가스/, /가스\s*(?:\(주\)|주식회사|상사|산업)/, /\b(?:medical|industrial|oxygen)\s+gas(?:es)?\b/
+  ];
+  return patterns.some(pattern => pattern.test(names));
 }
 
 function normalizedOsmTagTokens(value){
@@ -4382,6 +4420,61 @@ function normalizedOsmTagTokens(value){
     .split(/[;,|]/)
     .map(item => item.trim().replace(/[\s/-]+/g, "_"))
     .filter(Boolean);
+}
+
+// Emergency hospital search only: decides whether a facility is identified by
+// the map data as a narrow, non-emergency specialty (dental, urology,
+// plastic/cosmetic, dermatology, ophthalmology, traditional/alternative
+// medicine) and so is not a first-line emergency destination. Precedence:
+// 1. Facility identity amenity=dentist, healthcare=dentist or
+//    healthcare=alternative is narrow; no specialty, emergency tag or name
+//    rescues it (OSM lists general dentistry as a dentist speciality).
+// 2. Structured specialty metadata, when present, decides alone: all-narrow
+//    specialties are narrow; any other listed discipline keeps the facility.
+//    Neither a generic name nor a generic emergency tag overrides it, because a
+//    generic emergency tag cannot tell dental emergency care from a general ED.
+// 3. Without specialty metadata, an emergency-tagged hospital is kept.
+// 4. Name fallback: a narrow specialty word in the name is narrow unless the name
+//    also states a general hospital or another department.
+// OSM documents no Korean-medicine specialty value; Korean medicine is matched
+// through documented traditional/alternative values or, without specialty
+// metadata, through the name only.
+function isEmergencyNarrowSpecialtyFacility(tags, amenity, healthcare, specialty, emergencyCareConfirmed){
+  const amenityValue = String(amenity || "").toLowerCase();
+  const healthcareValue = String(healthcare || "").toLowerCase();
+  if(amenityValue === "dentist" || healthcareValue === "dentist" || healthcareValue === "alternative") return true;
+
+  const narrowSpecialtyTokens = new Set([
+    // OSM wiki healthcare:speciality values for dental, urology, plastic surgery,
+    // dermatology and ophthalmology.
+    "orthodontics", "stomatology", "dental_oral_maxillo_facial_surgery", "implantology", "endodontics",
+    "paediatric_dentistry", "denturist", "periodontics", "dental_radiology",
+    "urology", "plastic_surgery", "dermatology", "dermatovenereology", "venereology", "ophthalmology",
+    // OSM wiki values listed for healthcare=alternative (traditional and alternative medicine).
+    "acupuncture", "anthroposophical", "applied_kinesiology", "aromatherapy", "ayurveda", "body_stress_release",
+    "chiropractic", "halotherapy", "herbalism", "hirudotherapy", "homeopathy", "hydrotherapy", "hypnosis",
+    "intravenous_therapy", "nasal_irrigation", "naturopathy", "osteopathy", "reflexology", "reiki", "shiatsu",
+    "traditional_chinese_medicine", "tuina", "unani", "animal_assisted",
+    // Common spelling variants not listed on the wiki.
+    "dentistry", "dentist", "dental", "oral_surgery", "prosthodontics", "pediatric_dentistry",
+    "andrology", "cosmetic_surgery", "aesthetic_surgery", "aesthetic_medicine", "cosmetic", "optometry"
+  ]);
+  const specialtyTokens = normalizedOsmTagTokens(specialty);
+  if(specialtyTokens.length) return specialtyTokens.every(token => narrowSpecialtyTokens.has(token));
+  if(emergencyCareConfirmed === true) return false;
+
+  const names = [tag(tags, ["name"]), tag(tags, ["name:ko"]), tag(tags, ["name:en"])]
+    .filter(Boolean).join(" ").toLowerCase();
+  const narrowNamePatterns = [
+    /성형외과/g, /성형/g, /치과/g, /비뇨의학과/g, /비뇨기과/g, /비뇨/g, /피부과/g, /안과/g, /한의원/g, /한방병원/g,
+    /\bplastic\s+surgery\b/g, /\bcosmetic\w*/g, /\baesthetic\w*/g, /\bdent(?:al|ist|istry)\b/g, /\borthodont\w*/g,
+    /\burolog\w*/g, /\bdermatolog\w*/g, /\bskin\s+clinic\b/g, /\bophthalmolog\w*/g, /\beye\s+(?:clinic|hospital|center|centre)\b/g
+  ];
+  if(!narrowNamePatterns.some(pattern => { pattern.lastIndex = 0; return pattern.test(names); })) return false;
+  if(/종합병원|\bgeneral\s+hospital\b/.test(names)) return false;
+  const remainingNames = narrowNamePatterns.reduce((text, pattern) => text.replace(pattern, " "), names);
+  const otherDepartmentEvidence = /외과|내과|가정의학|정형|신경|소아|이비인후|재활|\bsurg(?:ery|ical)\b|\borthop\w*|\binternal\s+medicine\b|\bfamily\s+medicine\b|\bgeneral\s+practice\b|\bp(?:a)?ediatric\w*|\bneurolog\w*/;
+  return !otherDepartmentEvidence.test(remainingNames);
 }
 
 function getFacilityEmergencyMetadata(tags, amenity, healthcare, specialty, openingHours){
@@ -4411,6 +4504,7 @@ function getFacilityEmergencyMetadata(tags, amenity, healthcare, specialty, open
     isClinic,
     emergencyStatus: emergencyCareConfirmed ? "confirmed" : (hasNegativeEmergencyTag ? "explicit-no" : "unknown"),
     emergencyCareConfirmed,
+    emergencyNarrowSpecialty: isEmergencyNarrowSpecialtyFacility(tags, amenity, healthcare, specialty, emergencyCareConfirmed),
     emergencyTag,
     emergencyDepartmentTag,
     emergencyWardTag,
@@ -4456,12 +4550,18 @@ function isEmergencyHospitalRecommendation(recommendation){
   ));
 }
 
+// Emergency ordering tiers (lower first; distance ascending inside a tier):
+// 3 narrow specialty-only facility: excluded from emergency results, checked
+//   first so a generic emergency tag cannot promote it,
+// 0 confirmed emergency care, 1 hospital without confirmed emergency care,
+// 2 other medical facility or hospital explicitly tagged without emergency care.
 function facilityEmergencyTier(f){
+  if(f && f.emergencyNarrowSpecialty === true) return 3;
   if(f && f.emergencyCareConfirmed === true) return 0;
   const amenity = String(f && f.amenity || "").toLowerCase();
   const healthcare = String(f && f.healthcare || "").toLowerCase();
-  if(f && f.isHospital === true) return 1;
-  if(amenity === "hospital" || healthcare === "hospital") return 1;
+  const hospitalLevel = (f && f.isHospital === true) || amenity === "hospital" || healthcare === "hospital";
+  if(hospitalLevel && !(f && f.emergencyStatus === "explicit-no")) return 1;
   return 2;
 }
 
@@ -4473,27 +4573,70 @@ function compareFacilityResults(a, b, recommendation=null){
   const ad = facilityDistanceValue(a && a.distanceKm);
   const bd = facilityDistanceValue(b && b.distanceKm);
   if(ad !== bd) return ad - bd;
-  return String((a && (a.nameKo || a.nameEn)) || "").localeCompare(String((b && (b.nameKo || b.nameEn)) || ""), "ko");
+  return String((a && (a.nameKo || a.nameEn)) || "").localeCompare(String((b && (b.nameKo || b.nameEn)) || ""), "ko") ||
+    String((a && a.id) || "").localeCompare(String((b && b.id) || ""));
+}
+
+// Hospital results only (pharmacy keeps the exact shared dedupe keys alone).
+// Same real facility mapped twice (e.g. an OSM node and a building way):
+// requires the same facility type and class, a shared normalized name across
+// name/name:ko/name:en, and an actual distance of at most 80 m. Similar but
+// different names, or the same name farther apart, stay separate.
+function isSameFacilitySite(a, b){
+  if(!a || !b || a.type !== "hospital" || b.type !== "hospital") return false;
+  if((a.facilityClass || "") !== (b.facilityClass || "")) return false;
+  if(a.osmType && a.osmType === b.osmType && String(a.osmId) === String(b.osmId)) return true;
+  const aliases = f => new Set([f.nameKo, f.nameEn].concat(Array.isArray(f.nameAliases) ? f.nameAliases : [])
+    .map(normalizedFacilityName).filter(Boolean));
+  const bAliases = aliases(b);
+  if(!Array.from(aliases(a)).some(name => bAliases.has(name))) return false;
+  const lat1 = Number(a.latitude), lng1 = Number(a.longitude), lat2 = Number(b.latitude), lng2 = Number(b.longitude);
+  if(![lat1, lng1, lat2, lng2].every(Number.isFinite)) return false;
+  const rad = Math.PI / 180;
+  const h = Math.sin((lat2 - lat1) * rad / 2) ** 2 +
+    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin((lng2 - lng1) * rad / 2) ** 2;
+  const distanceMeters = 2 * 6371000 * Math.asin(Math.sqrt(h));
+  return distanceMeters <= 80;
 }
 
 function finalizeFacilityResults(list, recommendation=null){
   const seen = new Set();
   const finalized = [];
+  const emergencySearch = isEmergencyHospitalRecommendation(recommendation);
 
   (list || []).forEach(f => {
     if(!f) return;
+    if(emergencySearch && facilityEmergencyTier(f) === 3) return;
     const keys = facilityDedupeKeys(f);
     if(keys.some(key => seen.has(key))) return;
     keys.forEach(key => seen.add(key));
-    finalized.push(Object.assign({}, f, {
-      distanceKm: facilityDistanceValue(f.distanceKm)
-    }));
+    const candidate = Object.assign({}, f, {distanceKm: facilityDistanceValue(f.distanceKm)});
+    const sameSiteIndex = finalized.findIndex(existing => isSameFacilitySite(existing, candidate));
+    if(sameSiteIndex >= 0){
+      // Keep one record per real facility; prefer the one with emergency metadata.
+      if(candidate.emergencyCareConfirmed === true && finalized[sameSiteIndex].emergencyCareConfirmed !== true){
+        finalized[sameSiteIndex] = candidate;
+      }
+      return;
+    }
+    finalized.push(candidate);
   });
 
   finalized.sort((a, b) => compareFacilityResults(a, b, recommendation));
 
-  finalized.searchRadiusMeters = list && list.searchRadiusMeters;
-  return finalized.slice(0, MAX_FACILITY_RESULTS);
+  let ordered = finalized;
+  if(emergencySearch){
+    // Emergency fallback: hospital-level tiers 0 and 1 first. Tier 2 (clinics,
+    // doctors, hospitals tagged without emergency care) only fills a shortage
+    // below five hospital-level results, and only up to five results in total.
+    const emergencyHospitalLevelMinimum = 5;
+    const hospitalLevel = finalized.filter(f => facilityEmergencyTier(f) <= 1);
+    const fallback = finalized.filter(f => facilityEmergencyTier(f) === 2);
+    ordered = hospitalLevel.concat(fallback.slice(0, Math.max(0, emergencyHospitalLevelMinimum - hospitalLevel.length)));
+  }
+
+  ordered.searchRadiusMeters = list && list.searchRadiusMeters;
+  return ordered.slice(0, MAX_FACILITY_RESULTS);
 }
 
 function hasRealPlaceName(tags){
@@ -4589,6 +4732,7 @@ function mapOverpass(elements, type, base){
       if(isBlockedNonMedicalCategory(tags)) return null;
       if(isObviouslyNonMedicalPlace(combinedText)) return null;
       if(!isAllowedFacilityCategory(type, tags)) return null;
+      if(type === "hospital" && isNonPatientCareFacilityName(tags)) return null;
 
       const distanceKm = getDistanceKm(base, { latitude, longitude });
       const emergencyMetadata = getFacilityEmergencyMetadata(tags, amenity, healthcare, specialty, openingHours);
@@ -4616,6 +4760,7 @@ function mapOverpass(elements, type, base){
         healthcare,
         distanceKm,
         nameMissing: !rawName,
+        nameAliases: [tag(tags, ["name"]), tag(tags, ["name:ko"]), tag(tags, ["name:en"])].filter(Boolean),
         ...emergencyMetadata
       };
     })
@@ -4679,18 +4824,27 @@ async function fetchFacilityProxy(type, loc, searchRequest=null){
       throw createFacilitySearchError("FACILITY_INVALID_RESPONSE");
     }
 
+    const status = Number(response.status || 0);
     let data;
     try{
       const bodyText = await response.text();
       data = JSON.parse(bodyText);
     }catch(error){
+      // The Function always answers in JSON. A non-JSON 429/502/503/504 comes
+      // from the hosting gateway (e.g. a function crash or platform timeout),
+      // so it is a transient service state, not an invalid Function response.
+      if(status === 504) throw createFacilitySearchError("FACILITY_TIMEOUT", {status, cause:error});
+      if(status === 502 || status === 503) throw createFacilitySearchError("FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", {status, cause:error});
+      if(status === 429) throw createFacilitySearchError("FACILITY_RATE_LIMITED", {status, cause:error});
       throw createFacilitySearchError("FACILITY_INVALID_RESPONSE", {cause:error});
     }
 
-    const status = Number(response.status || 0);
     const responseOk = response.ok === true || (status >= 200 && status < 300);
     if(!responseOk || data.ok !== true){
-      throw createFacilitySearchError(normalizeFacilityProxyErrorCode(data && data.code), {status});
+      const details = {status};
+      if(data && typeof data.retryable === "boolean") details.retryable = data.retryable;
+      if(data && Number.isInteger(data.attemptsUsed)) details.attemptsUsed = data.attemptsUsed;
+      throw createFacilitySearchError(normalizeFacilityProxyErrorCode(data && data.code), details);
     }
     if(!validateFacilityProxySuccess(data)){
       throw createFacilitySearchError("FACILITY_INVALID_RESPONSE");
@@ -4739,8 +4893,14 @@ function isFacilityAutoRetryEligible(type, error){
   if(type !== "hospital") return false;
   const status = Number(error && error.status || 0);
   if(status === 400 || status === 422) return false;
+  if(error && error.retryable === false) return false;
   const code = String(error && error.code || "");
-  return code === "FACILITY_TIMEOUT" || code === "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE";
+  // A Function FACILITY_TIMEOUT that already used both providers (primary and
+  // secondary) spent its whole search deadline; repeating the identical
+  // sequence immediately was shown in Preview not to recover.
+  const functionProviderCount = 2;
+  if(code === "FACILITY_TIMEOUT" && Number.isInteger(error && error.attemptsUsed) && error.attemptsUsed >= functionProviderCount) return false;
+  return code === "FACILITY_TIMEOUT" || code === "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE" || code === "FACILITY_RATE_LIMITED";
 }
 
 function isFacilityExternalFallbackEligible(code){
@@ -4753,8 +4913,11 @@ function isFacilitySearchResultContextCurrent(searchRequest){
   return currentFlowScreen === expectedScreen;
 }
 
-function waitForFacilityAutoRetry(){
-  return new Promise(resolve => setTimeout(resolve, FACILITY_AUTO_RETRY_DELAY_MS));
+function waitForFacilityAutoRetry(error){
+  const delayMs = error && error.code === "FACILITY_RATE_LIMITED"
+    ? FACILITY_RATE_LIMIT_RETRY_DELAY_MS
+    : FACILITY_AUTO_RETRY_DELAY_MS;
+  return new Promise(resolve => setTimeout(resolve, delayMs));
 }
 
 async function fetchNearbyFacilitiesWithSingleAutoRetry(type, loc, recommendation, searchRequest){
@@ -4766,7 +4929,7 @@ async function fetchNearbyFacilitiesWithSingleAutoRetry(type, loc, recommendatio
     searchRequest.autoRetrying = true;
     setStatus("병원 정보를 다시 확인하고 있습니다...");
     renderFacilityList();
-    await waitForFacilityAutoRetry();
+    await waitForFacilityAutoRetry(error);
 
     if(!isFacilitySearchResultContextCurrent(searchRequest)){
       searchRequest.autoRetrying = false;
@@ -5128,6 +5291,14 @@ function renderFacilityList(){
   $("facilityTitle").textContent = rec && rec.label
     ? rec.label
     : (facilityType==="hospital" ? "증상 맞춤 병원 추천" : "가장 가까운 약국 50개");
+  const emergencyOrder = facilityType === "hospital" && isEmergencyHospitalRecommendation(rec);
+  const orderLabel = emergencyOrder ? "응급 우선·거리순" : "거리순";
+  if(typeof document !== "undefined" && document && typeof document.querySelector === "function"){
+    const orderPill = document.querySelector("#facilityCard > .between > .distance");
+    if(orderPill) orderPill.textContent = orderLabel;
+    const hospitalResultsDescription = document.querySelector("#screen-hospital-results > .flow-screen-header p.small");
+    if(hospitalResultsDescription && facilityType === "hospital") hospitalResultsDescription.textContent = orderLabel+" 병원 결과를 확인하세요.";
+  }
 
   if(isAppOffline()){
     isLoading=false;
@@ -5196,8 +5367,11 @@ function renderFacilityList(){
 
   const displayFacilities = finalizeFacilityResults(facilities, rec);
   const radiusKm = facilities.searchRadiusMeters ? Math.round(facilities.searchRadiusMeters/1000) : null;
+  const emergencyOrderNotice = emergencyOrder
+    ? '<br>※ 정렬: ① 지도 데이터에 응급 진료 표시가 있는 병원 ② 응급 여부 정보가 없는 병원 순서로 병원급 결과를 먼저 보여주며, 같은 단계 안에서는 가까운 순입니다. 의원·진료소(응급 진료 없음으로 표시된 병원 포함)는 병원급 결과가 5곳 미만일 때만 부족한 수만큼 뒤에 표시합니다. 응급 표시는 지도 데이터 기준이며 실제 응급실 운영을 보장하지 않습니다. 지도 데이터에서 치과·비뇨의학과·성형외과·피부과·안과·한방·대체의학 전문으로 식별된 곳은 응급 추천 목록에서 제외했습니다.'
+    : '';
   const recNotice = rec && rec.reason
-    ? '<div class="notice amber small"><strong>추천 기준:</strong> '+escapeHtml(rec.label)+'<br>'+escapeHtml(rec.reason)+'<br>※ 지도 데이터에 진료과 정보가 부족한 지역에서는 가까운 병원 순서가 더 크게 반영됩니다.</div>'
+    ? '<div class="notice amber small"><strong>추천 기준:</strong> '+escapeHtml(rec.label)+'<br>'+escapeHtml(rec.reason)+'<br>※ 지도 데이터에 진료과 정보가 부족한 지역에서는 가까운 병원 순서가 더 크게 반영됩니다.'+emergencyOrderNotice+'</div>'
     : '<div class="notice amber small"><strong>약국 검색:</strong> 사용자를 기준으로 원을 넓혔을 때 먼저 만나는 약국 순서로 최대 50개를 보여줍니다.</div>';
   const partialNotice = facilities.complete === false
     ? '<div class="notice amber small"><strong>부분 검색 결과</strong><br>'+escapeHtml(FACILITY_PARTIAL_RESULTS_MESSAGE)+'</div>'
@@ -5214,7 +5388,8 @@ function renderFacilityList(){
     '<br>자동차 정비소/카센터 등 의료기관이 아닌 장소는 제외했습니다.</div>'+
     '<div class="grid">'+
     displayFacilities.map((f,i)=>{
-      const badge = rec && f.matchScore > 0 ? '<span class="distance" style="background:#fef3c7;color:#92400e">증상 관련</span>' : '';
+      const badge = (rec && facilitySymptomBadgeMatch(f, rec) ? '<span class="distance" style="background:#fef3c7;color:#92400e">증상 관련</span>' : '')+
+        (emergencyOrder && f.emergencyCareConfirmed === true ? ' <span class="distance" style="background:#fee2e2;color:#991b1b">지도상 응급 표시</span>' : '');
       const missingNameLine = f.nameMissing ? '<p class="small" style="color:#b45309;font-weight:900">지도 데이터에 이름이 없어 실제 장소명을 Google Maps에서 한 번 더 확인하세요.</p>' : '';
       const specialtyLine = f.specialty ? '<p class="small muted">진료/분야: '+escapeHtml(f.specialty)+'</p>' : '';
       const distanceText = Number.isFinite(f.distanceKm) ? f.distanceKm.toFixed(2)+' km' : '거리 확인 필요';
@@ -9011,6 +9186,37 @@ function facilityMatchScore(f, recommendation){
   });
 
   return score;
+}
+
+// "증상 관련" only for non-emergency recommendations, and only when the facility
+// name or specialty matches a specific department/symptom keyword of the
+// recommendation. Emergency recommendations never show it: their keywords
+// (ER, emergency, trauma) describe the facility, not the symptom, and the
+// separate "지도상 응급 표시" badge already covers emergency metadata. Generic facility-type words
+// and the own amenity/healthcare tags of the facility never count; English keywords
+// match whole words only (so "er" never matches "center" or "interior").
+function facilitySymptomBadgeMatch(f, recommendation){
+  if(!f || !recommendation || !Array.isArray(recommendation.keywords)) return false;
+  if(isEmergencyHospitalRecommendation(recommendation)) return false;
+  const genericKeywords = new Set([
+    "hospital", "clinic", "병원", "의원", "종합병원", "university", "medical center", "medicine", "medical", "center", "centre"
+  ]);
+  const nameText = [f.nameKo, f.nameEn].concat(Array.isArray(f.nameAliases) ? f.nameAliases : [])
+    .filter(Boolean).join(" ").toLowerCase();
+  const text = [nameText, String(f.specialty || "").toLowerCase()].filter(Boolean).join(" ");
+  if(!text) return false;
+  const matchesIn = (haystack, keyword) => {
+    const key = String(keyword || "").trim().toLowerCase();
+    if(!key || genericKeywords.has(key)) return false;
+    if(/^[a-z0-9 ]+$/.test(key)){
+      return new RegExp("(?:^|[^a-z0-9])" + key.replace(/\s+/g, "[\\s_-]+") + "(?:$|[^a-z0-9])").test(haystack);
+    }
+    return haystack.includes(key);
+  };
+  // Avoid keywords cancel the badge only when the facility name itself states the
+  // avoided specialty; a multi-specialty list (e.g. emergency;plastic_surgery) does not.
+  if((recommendation.avoidKeywords || []).some(keyword => matchesIn(nameText, keyword))) return false;
+  return recommendation.keywords.some(keyword => matchesIn(text, keyword));
 }
 
 function rankFacilitiesForRecommendation(list, recommendation){
