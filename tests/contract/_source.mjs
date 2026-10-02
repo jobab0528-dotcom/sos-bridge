@@ -136,12 +136,17 @@ export function extractConst(source, name){
   return `const ${name} = ${source.slice(valueStart, valueEnd + 1)};`;
 }
 
-// The main application script in index.html (the large inline IIFE).
+// The main application script loaded by index.html: an inline IIFE or a local
+// external classic script (src/app/legacy-app.js). Exactly one must exist.
 export function mainAppScript(indexSource){
-  const scripts = [...indexSource.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
-  const main = scripts.find((script) => script.includes("PRIORITY_COUNTRY_CODES"));
-  if(!main) throw new Error("main application script not found in index.html");
-  return main;
+  const inlineScripts = [...indexSource.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  const externalScripts = [...indexSource.matchAll(/<script\b[^>]*\bsrc="\.\/([^"?#]+\.js)"[^>]*><\/script>/g)]
+    .map((match) => match[1])
+    .filter((relativePath) => repoFileExists(relativePath))
+    .map((relativePath) => readRepoFile(relativePath));
+  const mains = [...inlineScripts, ...externalScripts].filter((script) => script.includes("PRIORITY_COUNTRY_CODES"));
+  if(mains.length !== 1) throw new Error(`expected exactly one main application script loaded by index.html, found ${mains.length}`);
+  return mains[0];
 }
 
 export function loadCountries(){

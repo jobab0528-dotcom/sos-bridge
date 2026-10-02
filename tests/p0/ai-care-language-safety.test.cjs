@@ -13,8 +13,10 @@ const vm = require("node:vm");
 
 const ROOT = path.resolve(__dirname, "../..");
 const INDEX_PATH = path.join(ROOT, "index.html");
+const LEGACY_APP_PATH = path.join(ROOT, "src", "app", "legacy-app.js");
 const AI_CARE_PATH = path.join(ROOT, "netlify", "functions", "ai-care.js");
-const indexSource = fs.readFileSync(INDEX_PATH, "utf8");
+// Production front-end source: the HTML shell plus the app script it loads.
+const indexSource = fs.readFileSync(INDEX_PATH, "utf8") + "\n" + fs.readFileSync(LEGACY_APP_PATH, "utf8");
 const aiCareSource = fs.readFileSync(AI_CARE_PATH, "utf8");
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 

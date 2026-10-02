@@ -8,7 +8,9 @@ const vm = require("node:vm");
 
 const ROOT = path.resolve(__dirname, "../..");
 const INDEX_PATH = path.join(ROOT, "index.html");
-const indexSource = fs.readFileSync(INDEX_PATH, "utf8");
+const LEGACY_APP_PATH = path.join(ROOT, "src", "app", "legacy-app.js");
+// Production front-end source: the HTML shell plus the app script it loads.
+const indexSource = fs.readFileSync(INDEX_PATH, "utf8") + "\n" + fs.readFileSync(LEGACY_APP_PATH, "utf8");
 
 function extractNamedFunction(source, name){
   const start = source.indexOf(`function ${name}(`);
@@ -80,6 +82,25 @@ test("initial markup shields both application screens before bootstrap", () => {
   assert.match(indexSource, /<body class="sos-modern-ui app-booting" aria-busy="true">/);
   assert.match(indexSource, /<main id="languagePage" class="page">/);
   assert.match(indexSource, /<main id="appPage" class="page hidden content-pad">/);
+});
+
+test("app script runs as a classic parser-blocking script after countries.js and before the trailing inline scripts", () => {
+  const shellSource = fs.readFileSync(INDEX_PATH, "utf8");
+  const appSource = fs.readFileSync(LEGACY_APP_PATH, "utf8");
+  const scripts = [...shellSource.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].map((match) => ({attributes:match[1].trim(), body:match[2]}));
+  assert.equal(scripts.length, 4);
+  assert.equal(scripts[0].attributes, 'src="./countries.js"');
+  assert.equal(scripts[1].attributes, 'src="./src/app/legacy-app.js"');
+  assert.equal(scripts[1].body, "");
+  assert.equal(scripts[2].attributes, "");
+  assert.match(scripts[2].body, /navigator\.serviceWorker\.register\("\.\/service-worker\.js"\)/);
+  assert.equal(scripts[3].attributes, "");
+  assert.match(scripts[3].body, /sosTest/);
+  assert.ok(scripts.every((script) => !script.body.includes("PRIORITY_COUNTRY_CODES")), "no inline copy of the app script remains");
+  assert.match(appSource, /^\(function\(\)\{\r?\n"use strict";\r?\n/);
+  assert.match(appSource, /\r?\n\}\)\(\);\r?\n$/);
+  assert.doesNotMatch(appSource, /<\/?script\b/i);
+  assert.doesNotMatch(appSource, /^\s*(?:import|export)\b/m);
 });
 
 test("missing stored country resolves to the country-selection render", () => {

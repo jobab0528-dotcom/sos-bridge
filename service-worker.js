@@ -1,6 +1,6 @@
 const CACHE_PREFIX = "sos-bridge-";
-// Increment the cache version whenever a core offline file such as index.html or countries.js changes.
-const CACHE_NAME = "sos-bridge-korean-traveler-v72";
+// Increment the cache version whenever a core offline file such as index.html, src/app/legacy-app.js or countries.js changes.
+const CACHE_NAME = "sos-bridge-korean-traveler-v73";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const ASSETS = [
   "./emergency-sources.html",
   "./install.html",
   "./countries.js",
+  "./src/app/legacy-app.js",
   "./manifest.json",
   "./icon.svg"
 ];

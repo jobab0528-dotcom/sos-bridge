@@ -8,7 +8,9 @@ const vm = require("node:vm");
 
 const ROOT = path.resolve(__dirname, "../..");
 const INDEX_PATH = path.join(ROOT, "index.html");
-const indexSource = fs.readFileSync(INDEX_PATH, "utf8");
+const LEGACY_APP_PATH = path.join(ROOT, "src", "app", "legacy-app.js");
+// Production front-end source: the HTML shell plus the app script it loads.
+const indexSource = fs.readFileSync(INDEX_PATH, "utf8") + "\n" + fs.readFileSync(LEGACY_APP_PATH, "utf8");
 
 function extractNamedFunction(source, name){
   const start = source.indexOf(`function ${name}(`);

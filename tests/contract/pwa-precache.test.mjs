@@ -22,7 +22,7 @@ const ORIGIN = "https://sos-bridge.test";
 const CONDITIONAL_DEV_TOOLS = ["./developer-test.js"];
 const DEV_ONLY = ["./dev-all-languages-test.js"];
 
-function loadServiceWorker(){
+function loadServiceWorker(overrides = {}){
   const listeners = {};
   const cacheStore = {added:[], deleted:[], keys:[]};
   const sandbox = {
@@ -41,7 +41,8 @@ function loadServiceWorker(){
       delete:async (key) => { cacheStore.deleted.push(key); return true; },
       match:async () => undefined
     },
-    fetch:async (request) => { throw new Error(`network disabled in test: ${request && request.url || request}`); }
+    fetch:async (request) => { throw new Error(`network disabled in test: ${request && request.url || request}`); },
+    ...overrides
   };
   vm.runInNewContext(
     `${readRepoFile("service-worker.js")}\n;this.__ASSETS = ASSETS; this.__CACHE_NAME = CACHE_NAME;`,
@@ -121,7 +122,8 @@ test("all CORE OFFLINE ASSETS of the app shell and its linked pages are precache
   // Characterization of today's core set.
   assert.deepEqual([...core].sort(), [
     "./", "./countries.js", "./disclaimer.html", "./emergency-sources.html", "./icon.svg",
-    "./index.html", "./install.html", "./manifest.json", "./privacy.html", "./terms.html"
+    "./index.html", "./install.html", "./manifest.json", "./privacy.html",
+    "./src/app/legacy-app.js", "./terms.html"
   ]);
 });
 
@@ -185,4 +187,115 @@ test("core assets and navigations are served by the service worker (offline fall
     listeners.fetch(event);
     assert.equal(event.responded, true, `${event.request.mode} ${event.request.url}`);
   }
+});
+
+// ---------- Offline shell and update transition ----------
+// The app logic now lives in src/app/legacy-app.js, a separate file the shell
+// cannot run without. These tests drive the real worker against an in-memory
+// model of Cache Storage and the network. As in browsers, cache.addAll is
+// atomic: one failed fetch stores nothing.
+
+function repoAssetFiles(){
+  const files = {};
+  for(const asset of loadServiceWorker().assets){
+    if(asset === "./") continue;
+    files[asset.slice(2)] = readRepoFile(asset.slice(2));
+  }
+  return files;
+}
+
+function makeBrowser(files){
+  const network = {online:true, files:{...files}};
+  const store = new Map();
+  const absolute = (input) => new URL(typeof input === "string" ? input : input.url, `${ORIGIN}/service-worker.js`).href;
+  const fetchImpl = async (input) => {
+    const url = new URL(absolute(input));
+    if(!network.online) throw new TypeError("Failed to fetch (offline)");
+    const key = url.pathname === "/" ? "index.html" : url.pathname.slice(1);
+    if(!Object.hasOwn(network.files, key)) return {ok:false, status:404, url:url.href, body:""};
+    return {ok:true, status:200, url:url.href, body:network.files[key]};
+  };
+  const caches = {
+    open:async (name) => {
+      if(!store.has(name)) store.set(name, new Map());
+      const cache = store.get(name);
+      return {
+        addAll:async (assets) => {
+          const responses = await Promise.all(assets.map(async (asset) => {
+            const response = await fetchImpl(asset);
+            if(!response.ok) throw new TypeError(`addAll failed: ${asset} -> ${response.status}`);
+            return [absolute(asset), response];
+          }));
+          for(const [url, response] of responses) cache.set(url, response);
+        }
+      };
+    },
+    keys:async () => [...store.keys()],
+    delete:async (name) => store.delete(name),
+    match:async (input) => {
+      const url = absolute(input);
+      for(const cache of store.values()) if(cache.has(url)) return cache.get(url);
+      return undefined;
+    }
+  };
+  return {network, store, fetch:fetchImpl, caches};
+}
+
+function runLifecycle(sw, type){
+  let pending;
+  sw.listeners[type]({waitUntil(promise){ pending = promise; }});
+  return pending;
+}
+
+function dispatchFetch(sw, url, mode = "cors"){
+  let response;
+  const event = {request:{url, method:"GET", mode}, respondWith(promise){ response = promise; }};
+  sw.listeners.fetch(event);
+  assert.ok(response, `service worker must answer ${mode} ${url}`);
+  return response;
+}
+
+test("offline reload after an update serves the new shell and every local script it loads from the new precache", async () => {
+  const files = repoAssetFiles();
+  const browser = makeBrowser(files);
+  // A previous version's cache (inline app script, no legacy-app.js) exists.
+  browser.store.set("sos-bridge-korean-traveler-v72", new Map([
+    [`${ORIGIN}/`, {ok:true, status:200, body:"<!doctype html><script>/* previous inline app */</script>"}],
+    [`${ORIGIN}/index.html`, {ok:true, status:200, body:"<!doctype html><script>/* previous inline app */</script>"}]
+  ]));
+  const sw = loadServiceWorker({fetch:browser.fetch, caches:browser.caches});
+  await runLifecycle(sw, "install");
+  await runLifecycle(sw, "activate");
+  assert.deepEqual([...browser.store.keys()], [sw.cacheName], "only the new cache remains after activation");
+
+  browser.network.online = false;
+  const shell = await dispatchFetch(sw, `${ORIGIN}/`, "navigate");
+  assert.equal(shell.body, files["index.html"]);
+  const scripts = [...shell.body.matchAll(/<script\b[^>]*\bsrc="\.\/([^"?#]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(scripts, ["countries.js", "src/app/legacy-app.js"]);
+  for(const script of scripts){
+    const response = await dispatchFetch(sw, `${ORIGIN}/${script}`);
+    assert.equal(response.body, files[script], `${script} is served offline from the precache`);
+  }
+  const deepLink = await dispatchFetch(sw, `${ORIGIN}/index.html?sosTest=all-languages`, "navigate");
+  assert.equal(deepLink.body, files["index.html"]);
+});
+
+test("online, legacy-app.js is network-first, so a fresh shell never runs a stale cached app script", async () => {
+  const browser = makeBrowser(repoAssetFiles());
+  const sw = loadServiceWorker({fetch:browser.fetch, caches:browser.caches});
+  await runLifecycle(sw, "install");
+  await runLifecycle(sw, "activate");
+  browser.network.files["src/app/legacy-app.js"] = "/* next deploy */";
+  const response = await dispatchFetch(sw, `${ORIGIN}/src/app/legacy-app.js`);
+  assert.equal(response.body, "/* next deploy */");
+});
+
+test("install fails as a whole when legacy-app.js cannot be precached, so no incomplete offline shell is activated", async () => {
+  const files = repoAssetFiles();
+  delete files["src/app/legacy-app.js"];
+  const browser = makeBrowser(files);
+  const sw = loadServiceWorker({fetch:browser.fetch, caches:browser.caches});
+  await assert.rejects(runLifecycle(sw, "install"), /legacy-app\.js/);
+  assert.equal((browser.store.get(sw.cacheName) || new Map()).size, 0, "nothing from the failed install is cached");
 });
