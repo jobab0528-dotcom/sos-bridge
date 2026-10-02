@@ -113,7 +113,9 @@ const proxyFunctionNames = [
   "isEmergencyHospitalRecommendation",
   "facilityEmergencyTier",
   "compareFacilityResults",
+  "isSameFacilitySite",
   "finalizeFacilityResults",
+  "isNonPatientCareFacilityName",
   "mapOverpass",
   "createFacilitySearchError",
   "normalizeFacilityProxyErrorCode",
@@ -192,7 +194,9 @@ function renderFacilities(facilities, type, recommendation = null){
     "isEmergencyHospitalRecommendation",
     "facilityEmergencyTier",
     "compareFacilityResults",
+    "isSameFacilitySite",
     "finalizeFacilityResults",
+    "facilitySymptomBadgeMatch",
     "renderFacilityList"
   ];
   vm.runInNewContext(
@@ -752,7 +756,7 @@ test("P1 emergency search excludes standalone dentist, urology and cosmetic-only
 test("P1 emergency search keeps emergency and general hospitals that also list specialty departments", async () => {
   const result = await p1Search(P1_EMERGENCY_RECOMMENDATION);
   const ids = p1Ids(result);
-  for(const kept of ["A-er-hospital", "B-er-hospital", "G-large-er-hospital", "C-general-hospital", "K2-university-hospital-mixed", "N-general-medical-center", "L-ortho-derm-clinic"]){
+  for(const kept of ["A-er-hospital", "B-er-hospital", "G-large-er-hospital", "C-general-hospital", "K2-university-hospital-mixed", "N-general-medical-center"]){
     assert.ok(ids.includes(kept), `${kept} must remain eligible`);
   }
   const large = result.find((facility) => facility.osmId === "G-large-er-hospital");
@@ -764,12 +768,11 @@ test("P1 emergency search orders confirmed emergency tier, then hospital fallbac
   const result = await p1Search(P1_EMERGENCY_RECOMMENDATION);
   assert.deepEqual(p1Ids(result), [
     "A-er-hospital", "G-large-er-hospital", "B-er-hospital",
-    "C-general-hospital", "N-general-medical-center", "K2-university-hospital-mixed",
-    "L-ortho-derm-clinic", "I-family-clinic", "J-hospital-no-er"
+    "C-general-hospital", "N-general-medical-center", "K2-university-hospital-mixed"
   ]);
   p1AssertAscending(result.slice(0, 3), "confirmed emergency tier");
   p1AssertAscending(result.slice(3, 6), "hospital fallback tier");
-  p1AssertAscending(result.slice(6), "other facility tier");
+  // v4 fallback rule: six hospital-level results, so no clinic/doctor filler (L, I, J).
 });
 
 test("P1 emergency ordering is deterministic for any provider order", async () => {
@@ -879,7 +882,8 @@ function renderFacilitiesWithOrderLabels(facilities, type, recommendation){
   };
   const names = [
     "facilityDistanceValue", "normalizedFacilityName", "facilityDedupeKeys", "isEmergencyHospitalRecommendation",
-    "facilityEmergencyTier", "compareFacilityResults", "finalizeFacilityResults", "renderFacilityList"
+    "facilityEmergencyTier", "compareFacilityResults", "isSameFacilitySite", "finalizeFacilityResults",
+    "facilitySymptomBadgeMatch", "renderFacilityList"
   ];
   vm.runInNewContext(
     `const MAX_FACILITY_RESULTS = 50;
@@ -916,7 +920,8 @@ test("P1 result label states emergency priority only when the order is emergency
   const emergencyView = renderFacilitiesWithOrderLabels(emergency, "hospital", P1_EMERGENCY_RECOMMENDATION);
   assert.equal(emergencyView.pill, "응급 우선·거리순");
   assert.equal(emergencyView.header, "응급 우선·거리순 병원 결과를 확인하세요.");
-  assert.ok(emergencyView.html.includes("※ 정렬: ① 지도 데이터에 응급 진료 표시가 있는 병원 ② 응급 여부 정보가 없는 병원 ③ 기타 의료기관(응급 진료 없음으로 표시된 병원 포함) 순서이며, 같은 단계 안에서는 가까운 순입니다. 응급 표시는 지도 데이터 기준이며 실제 응급실 운영을 보장하지 않습니다. 지도 데이터에서 치과·비뇨의학과·성형외과·피부과·안과·한방·대체의학 등 전문 진료 기관으로 식별된 곳은 응급 추천 목록에서 제외했습니다."));
+  assert.ok(emergencyView.html.includes("※ 정렬: ① 지도 데이터에 응급 진료 표시가 있는 병원 ② 응급 여부 정보가 없는 병원 순서로 병원급 결과를 먼저 보여주며, 같은 단계 안에서는 가까운 순입니다. 의원·진료소(응급 진료 없음으로 표시된 병원 포함)는 병원급 결과가 5곳 미만일 때만 부족한 수만큼 뒤에 표시합니다. 응급 표시는 지도 데이터 기준이며 실제 응급실 운영을 보장하지 않습니다. 지도 데이터에서 치과·비뇨의학과·성형외과·피부과·안과·한방·대체의학 전문으로 식별된 곳은 응급 추천 목록에서 제외했습니다."));
+  assert.doesNotMatch(emergencyView.html, /등 전문 진료 기관으로 식별된 곳/);
   assert.equal((emergencyView.html.match(/>지도상 응급 표시<\/span>/g) || []).length, 3);
   // The data only shows emergency metadata on the map; never claim a verified emergency room.
   assert.doesNotMatch(emergencyView.html, /응급실 확인|응급실이 확인된/);
@@ -938,4 +943,239 @@ test("P1 the rendered card order is exactly the committed result order", async (
     const view = renderFacilitiesWithOrderLabels(committed, "hospital", recommendation);
     assert.deepEqual(view.renderedIds, Array.from(committed, (facility) => facility.id));
   }
+});
+
+// ---------- V4 non-patient-care contamination (synthetic names and tag shapes) ----------
+test("V4 FILTER commercial or non-patient-care objects do not pass as hospitals", async () => {
+  const rejected = [
+    p1Element("X-car-hospital", 0.2, {name:"한빛자동차병원", amenity:"hospital"}),
+    p1Element("X-car-hospital-en", 0.21, {name:"Tire Clinic Garage", amenity:"clinic"}),
+    p1Element("X-gas-office", 0.3, {name:"대한의료가스", office:"company", healthcare:"clinic"}),
+    p1Element("X-gas-name", 0.31, {name:"대한의료가스", amenity:"clinic"}),
+    p1Element("X-medical-supply", 0.32, {name:"Medisupply", shop:"medical_supply", amenity:"clinic"}),
+    p1Element("X-interior-craft", 0.4, {name:"Studio Forty", craft:"carpenter", amenity:"clinic"}),
+    p1Element("X-interior-name", 0.41, {name:"누리실내건축", amenity:"doctors"}),
+    p1Element("X-construction", 0.42, {name:"한결종합건설", amenity:"clinic"}),
+    p1Element("X-industrial", 0.43, {name:"Plant 7", industrial:"factory", healthcare:"clinic"}),
+    p1Element("X-landscaping", 0.5, {name:"푸른조경", amenity:"doctors"}),
+    p1Element("X-landscaping-en", 0.51, {name:"Green Landscaping", amenity:"clinic"}),
+    p1Element("X-funeral-name", 0.6, {name:"새솔병원장례식장", amenity:"hospital"}),
+    p1Element("X-funeral-tag", 0.61, {name:"Hall 9", amenity:"funeral_hall", healthcare:"hospital"}),
+    p1Element("X-veterinary", 0.62, {name:"Pet Care", amenity:"veterinary", healthcare:"hospital"})
+  ];
+  for(const recommendation of [P1_EMERGENCY_RECOMMENDATION, P1_ORDINARY_RECOMMENDATION, null]){
+    assert.deepEqual(p1Ids(await p1Search(recommendation, rejected)), [], "no non-patient-care object survives");
+  }
+});
+
+test("V4 FILTER legitimate hospitals and clinics survive the stronger filters", async () => {
+  const kept = [
+    p1Element("K-samyook", 0.2, {name:"삼육서울병원", amenity:"hospital", emergency:"yes"}),
+    p1Element("K-snuh", 0.3, {name:"서울대학교병원", amenity:"hospital"}),
+    p1Element("K-nmc", 0.4, {name:"국립중앙의료원", amenity:"hospital"}),
+    p1Element("K-smc", 0.5, {name:"Seoul Medical Center", amenity:"hospital"}),
+    p1Element("K-general", 0.6, {name:"Riverside General Hospital", amenity:"hospital"}),
+    p1Element("K-person-name", 0.7, {name:"조경희내과의원", amenity:"clinic"}),
+    p1Element("K-gastro", 0.8, {name:"가스트로내과의원", amenity:"clinic"}),
+    p1Element("K-america", 0.9, {name:"아메리카병원", amenity:"hospital"}),
+    p1Element("K-office-physician", 1.0, {name:"Dr. Kim Practice", amenity:"doctors", office:"physician"}),
+    p1Element("K-street-address", 1.1, {name:"OO정형외과의원", amenity:"clinic", "addr:street":"조경로", "addr:full":"인테리어거리 1"})
+  ];
+  const ids = p1Ids(await p1Search(P1_ORDINARY_RECOMMENDATION, kept));
+  assert.deepEqual(ids, kept.map((element) => element.id));
+});
+
+test("V4 FILTER pharmacy discovery keeps its existing category rules", async () => {
+  const sandbox = loadProxySandbox(async () => p1Success([
+    p1Element("P-office", 0.2, {name:"Pharmacy Office", amenity:"pharmacy", office:"company"}),
+    p1Element("P-chemist", 0.3, {name:"Corner Chemist", shop:"chemist"}),
+    p1Element("P-gas-name", 0.4, {name:"대한의료가스 약국", amenity:"pharmacy"})
+  ]));
+  const result = await sandbox.fetchNearbyFacilities("pharmacy", P1_BASE, null);
+  assert.deepEqual(p1Ids(result), ["P-office", "P-chemist", "P-gas-name"]);
+});
+
+// ---------- V4 emergency hospital/clinic fallback ----------
+const V4_CLINICS = [
+  p1Element("c1", 0.1, {name:"Clinic One", amenity:"clinic"}),
+  p1Element("c2", 0.2, {name:"Clinic Two", amenity:"doctors"}),
+  p1Element("c3", 0.3, {name:"Clinic Three", amenity:"clinic"}),
+  p1Element("c4", 0.4, {name:"Clinic Four", amenity:"clinic"}),
+  p1Element("c5", 0.45, {name:"Hospital No ER", amenity:"hospital", emergency:"no"}),
+  p1Element("c6", 0.5, {name:"Clinic Six", amenity:"clinic"})
+];
+function v4Hospitals(count){
+  return Array.from({length:count}, (_, index) => p1Element(`h${index + 1}`, 1 + index * 0.3, {name:`Hospital ${index + 1}`, amenity:"hospital", ...(index === 0 ? {emergency:"yes"} : {})}));
+}
+
+test("V4 FALLBACK five or more hospital-level results get no clinic filler in an emergency search", async () => {
+  for(const count of [5, 7]){
+    const result = await p1Search(P1_EMERGENCY_RECOMMENDATION, V4_CLINICS.concat(v4Hospitals(count)));
+    assert.deepEqual(p1Ids(result), v4Hospitals(count).map((element) => element.id));
+    p1AssertAscending(result.slice(1), "hospital tier");
+  }
+});
+
+test("V4 FALLBACK fewer than five hospital-level results are filled by the nearest fallback facilities only up to five", async () => {
+  assert.deepEqual(p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION, V4_CLINICS.concat(v4Hospitals(2)))), ["h1", "h2", "c1", "c2", "c3"]);
+  assert.deepEqual(p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION, V4_CLINICS.concat(v4Hospitals(4)))), ["h1", "h2", "h3", "h4", "c1"]);
+  assert.deepEqual(p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION, V4_CLINICS)), ["c1", "c2", "c3", "c4", "c5"]);
+  assert.deepEqual(p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION, [])), []);
+});
+
+test("V4 FALLBACK ordinary search still returns every facility in pure distance order", async () => {
+  const result = await p1Search(P1_ORDINARY_RECOMMENDATION, V4_CLINICS.concat(v4Hospitals(7)));
+  assert.equal(result.length, 13);
+  p1AssertAscending(result, "ordinary");
+  assert.deepEqual(p1Ids(result).slice(0, 6), ["c1", "c2", "c3", "c4", "c5", "c6"]);
+});
+
+// ---------- V4 "증상 관련" badge truthfulness ----------
+function loadSymptomBadge(){
+  const sandbox = {};
+  vm.runInNewContext(
+    `${extractNamedFunction(indexSource, "isEmergencyHospitalRecommendation")}
+     ${extractNamedFunction(indexSource, "facilitySymptomBadgeMatch")}
+     this.match = facilitySymptomBadgeMatch;`,
+    sandbox,
+    {filename:INDEX_PATH}
+  );
+  return sandbox.match;
+}
+
+const V4_1_EMERGENCY_KEYWORDS = ["응급","응급실","emergency","er","trauma","외상","외과","hospital","종합병원","university","medical center"];
+const V4_1_EMERGENCY_AVOID = ["치과","dental","dentist","안과","ophthalmology","피부과","dermatology","성형","plastic","cosmetic"];
+
+test("V4.1 BADGE an emergency recommendation never shows 증상 관련, whatever the facility says about itself", () => {
+  const match = loadSymptomBadge();
+  const emergencyRecommendations = [
+    {type:"hospital", keywords:V4_1_EMERGENCY_KEYWORDS, avoidKeywords:V4_1_EMERGENCY_AVOID, emergencyContext:true},
+    {type:"hospital", keywords:V4_1_EMERGENCY_KEYWORDS, avoidKeywords:V4_1_EMERGENCY_AVOID, triageContext:{level:"emergency"}},
+    {type:"hospital", keywords:V4_1_EMERGENCY_KEYWORDS, avoidKeywords:V4_1_EMERGENCY_AVOID, triageContext:{level:"urgent", needsAmbulance:true}}
+  ];
+  const facilities = [
+    {nameKo:"Mercy ER", amenity:"clinic"},
+    {nameKo:"Grand Hopital", specialty:"emergency"},
+    {nameKo:"Grand Hopital", specialty:"general;emergency;plastic_surgery;dentistry"},
+    {nameKo:"Regional Trauma Center", amenity:"hospital"},
+    {nameKo:"OO외상센터", amenity:"hospital"},
+    {nameKo:"OO응급의학과의원", amenity:"clinic"},
+    {nameKo:"OO정형외과의원", amenity:"clinic"},
+    {nameKo:"Hopital A", amenity:"hospital"}
+  ];
+  for(const recommendation of emergencyRecommendations){
+    for(const facility of facilities){
+      assert.equal(match(facility, recommendation), false, `${facility.nameKo} / ${JSON.stringify(recommendation.triageContext || "emergencyContext")}`);
+    }
+  }
+});
+
+test("V4.1 BADGE non-emergency recommendations keep specific matching and never badge generic identity", () => {
+  const match = loadSymptomBadge();
+  const abdominal = {type:"hospital", keywords:["내과","소화기","gastro","internal","medicine","가정의학","family medicine","clinic","hospital"], avoidKeywords:["안과","치과","피부과","성형","dental","dentist","ophthalmology","dermatology","plastic"]};
+  assert.equal(match({nameKo:"OO내과의원", amenity:"clinic"}, abdominal), true);
+  assert.equal(match({nameKo:"Gastro Care", amenity:"clinic"}, abdominal), true);
+  assert.equal(match({nameKo:"Family Clinic", specialty:"internal"}, abdominal), true, "internal medicine specialty");
+  assert.equal(match({nameKo:"City Clinic", amenity:"clinic", healthcare:"clinic"}, abdominal), false, "generic clinic");
+  assert.equal(match({nameKo:"한국종합병원", amenity:"hospital"}, abdominal), false, "generic hospital");
+  assert.equal(match({nameKo:"Riverside Medical Center", amenity:"hospital"}, abdominal), false);
+  assert.equal(match({nameKo:"Seoul International Clinic", amenity:"clinic"}, abdominal), false, "internal must not match international");
+  assert.equal(match({nameKo:"OO내과·피부과의원", amenity:"clinic"}, abdominal), false, "an avoided specialty in the name cancels the badge");
+  const injury = {type:"hospital", keywords:["정형","외과","orthopedic","surgery","trauma","emergency","hospital","clinic"], avoidKeywords:["안과","치과"]};
+  assert.equal(match({nameKo:"Interior Design Center", amenity:"clinic"}, {...injury, keywords:injury.keywords.concat(["er"])}), false, "er never matches inside center/interior");
+  assert.equal(match({nameKo:"OO정형외과의원", amenity:"clinic"}, injury), true);
+});
+
+test("V4.1 BADGE rendered emergency results show 지도상 응급 표시 but no 증상 관련", async () => {
+  const committed = await p1Search(P1_EMERGENCY_RECOMMENDATION);
+  const view = renderFacilitiesWithOrderLabels(committed, "hospital", P1_EMERGENCY_RECOMMENDATION);
+  assert.equal(view.renderedIds.length, 6);
+  assert.equal((view.html.match(/>증상 관련<\/span>/g) || []).length, 0);
+  assert.equal((view.html.match(/>지도상 응급 표시<\/span>/g) || []).length, 3);
+});
+
+test("V4.1 BADGE rendered ordinary results badge only specific matches", async () => {
+  const abdominal = {type:"hospital", label:"내과·소화기내과 추천", reason:"복통", keywords:["내과","소화기","gastro","internal","medicine","clinic","hospital"], avoidKeywords:["치과"]};
+  const committed = await p1Search(abdominal, [
+    p1Element("o1", 0.2, {name:"City Clinic", amenity:"clinic"}),
+    p1Element("o2", 0.3, {name:"OO내과의원", amenity:"clinic"}),
+    p1Element("o3", 0.4, {name:"General Hospital", amenity:"hospital"})
+  ]);
+  const view = renderFacilitiesWithOrderLabels(committed, "hospital", abdominal);
+  assert.deepEqual(view.renderedIds, ["hospital-node-o1", "hospital-node-o2", "hospital-node-o3"]);
+  assert.equal((view.html.match(/>증상 관련<\/span>/g) || []).length, 1);
+  assert.match(view.html, /OO내과의원<\/h3>/);
+});
+
+// ---------- V4 conservative duplicate collapse ----------
+test("V4 DEDUPE a node and building way of one facility with a shared name alias collapse to one result", async () => {
+  const pairs = [
+    [p1Element("n-green", 1.0, {name:"원진녹색병원", amenity:"hospital"}), {type:"way", id:"w-green", center:{lat:P1_BASE.latitude + 1.04 / 111.19492664455873, lon:P1_BASE.longitude}, tags:{name:"원진 녹색병원", amenity:"hospital"}}],
+    [p1Element("n-edge", 1.11605, {name:"Edge Hospital", amenity:"hospital"}), {type:"way", id:"w-edge", center:{lat:P1_BASE.latitude + 1.12105 / 111.19492664455873, lon:P1_BASE.longitude}, tags:{name:"Edge Hospital", amenity:"hospital"}}],
+    [p1Element("n-bilingual", 2.0, {name:"동부제일병원", "name:en":"Dongbujeil Hospital", amenity:"hospital"}), {type:"way", id:"w-bilingual", center:{lat:P1_BASE.latitude + 2.03 / 111.19492664455873, lon:P1_BASE.longitude}, tags:{name:"Dongbujeil Hospital", amenity:"hospital"}}]
+  ];
+  for(const pair of pairs){
+    for(const recommendation of [P1_ORDINARY_RECOMMENDATION, P1_EMERGENCY_RECOMMENDATION]){
+      assert.equal((await p1Search(recommendation, pair)).length, 1, pair[0].id);
+    }
+  }
+});
+
+test("V4 DEDUPE the emergency-tagged record wins when two records of one facility collapse", async () => {
+  const result = await p1Search(P1_EMERGENCY_RECOMMENDATION, [
+    p1Element("n-plain", 1.0, {name:"Union Hospital", amenity:"hospital"}),
+    {type:"way", id:"w-er", center:{lat:P1_BASE.latitude + 1.03 / 111.19492664455873, lon:P1_BASE.longitude}, tags:{name:"Union Hospital", amenity:"hospital", emergency:"yes"}}
+  ]);
+  assert.deepEqual(p1Ids(result), ["w-er"]);
+  assert.equal(result[0].emergencyCareConfirmed, true);
+});
+
+test("V4 DEDUPE similar or same-name facilities that are materially apart or differ in kind stay separate", async () => {
+  const cases = [
+    ["same name 300 m apart", [p1Element("s1", 1.0, {name:"연세내과의원", amenity:"clinic"}), p1Element("s2", 1.3, {name:"연세내과의원", amenity:"clinic"})]],
+    ["different departments next door", [p1Element("d1", 1.0, {name:"OO내과의원", amenity:"clinic"}), p1Element("d2", 1.01, {name:"OO외과의원", amenity:"clinic"})]],
+    ["hospital and a separately named annex", [p1Element("a1", 1.0, {name:"Union Hospital", amenity:"hospital"}), p1Element("a2", 1.02, {name:"Union Hospital Annex", amenity:"hospital"})]],
+    ["same name, clinic vs hospital class", [p1Element("k1", 1.0, {name:"Bright Care", amenity:"clinic"}), p1Element("k2", 1.02, {name:"Bright Care", amenity:"hospital"})]]
+  ];
+  for(const [label, elements] of cases){
+    assert.equal((await p1Search(P1_ORDINARY_RECOMMENDATION, elements)).length, 2, label);
+  }
+});
+
+test("V4 DEDUPE a Korean-only record matches the Korean name alias of a bilingual record", async () => {
+  const pair = [
+    p1Element("n-bilingual-alias", 2.0, {name:"동부제일병원", "name:en":"Dongbujeil Hospital", amenity:"hospital"}),
+    {type:"way", id:"w-korean-only", center:{lat:P1_BASE.latitude + 2.03 / 111.19492664455873, lon:P1_BASE.longitude}, tags:{name:"동부제일병원", amenity:"hospital"}}
+  ];
+  assert.equal((await p1Search(P1_ORDINARY_RECOMMENDATION, pair)).length, 1);
+});
+
+test("V4 DEDUPE an excluded narrow-specialty record never absorbs a same-name hospital before emergency filtering", async () => {
+  const result = await p1Search(P1_EMERGENCY_RECOMMENDATION, [
+    p1Element("n-dental-tagged", 1.0, {name:"Union Hospital", amenity:"hospital", healthcare:"dentist"}),
+    {type:"way", id:"w-hospital", center:{lat:P1_BASE.latitude + 1.03 / 111.19492664455873, lon:P1_BASE.longitude}, tags:{name:"Union Hospital", amenity:"hospital"}}
+  ]);
+  assert.deepEqual(p1Ids(result), ["w-hospital"]);
+});
+
+test("V4.1 DEDUPE site-level alias collapse applies to hospitals only; pharmacy keeps the exact shared keys", async () => {
+  const near = (id, km, tags, type = "node") => type === "node"
+    ? p1Element(id, km, tags)
+    : {type, id, center:{lat:P1_BASE.latitude + km / 111.19492664455873, lon:P1_BASE.longitude}, tags};
+  // Hospital: node + way, same alias, about 30 m apart -> one; same name 300 m apart -> two.
+  assert.equal((await p1Search(P1_ORDINARY_RECOMMENDATION, [near("hn", 1.0, {name:"Union Hospital", amenity:"hospital"}), near("hw", 1.03, {name:"Union Hospital", amenity:"hospital"}, "way")])).length, 1);
+  assert.equal((await p1Search(P1_ORDINARY_RECOMMENDATION, [near("hs1", 1.0, {name:"Union Hospital", amenity:"hospital"}), near("hs2", 1.3, {name:"Union Hospital", amenity:"hospital"})])).length, 2);
+
+  const pharmacySearch = async (elements) => {
+    const sandbox = loadProxySandbox(async () => p1Success(elements));
+    return sandbox.fetchNearbyFacilities("pharmacy", P1_BASE, null);
+  };
+  // Two different OSM objects with the same pharmacy name 40 m apart: distinct under the old exact keys -> stay two.
+  const separate = await pharmacySearch([near("pn", 1.0, {name:"Corner Pharmacy", amenity:"pharmacy"}), near("pw", 1.04, {name:"Corner Pharmacy", amenity:"pharmacy"}, "way")]);
+  assert.deepEqual(p1Ids(separate), ["pn", "pw"]);
+  // Existing exact duplicate handling still works for pharmacy: same name and same coordinates, or the same OSM object.
+  const exactCoordinates = await pharmacySearch([near("pe1", 1.0, {name:"Corner Pharmacy", amenity:"pharmacy"}), near("pe2", 1.0, {name:"Corner Pharmacy", amenity:"pharmacy"})]);
+  assert.equal(exactCoordinates.length, 1);
+  const sameObject = await pharmacySearch([near("ps", 1.0, {name:"Corner Pharmacy", amenity:"pharmacy"}), near("ps", 1.0, {name:"Corner Pharmacy", "name:en":"Corner Pharmacy", amenity:"pharmacy"})]);
+  assert.equal(sameObject.length, 1);
 });

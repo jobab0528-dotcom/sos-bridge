@@ -683,3 +683,99 @@ test("P0 pharmacy complete zero result remains successful data", async () => {
   assert.deepEqual(result.json.elements, []);
   assert.equal(calls, 4);
 });
+
+// ---------- V4 provider timeout budget (virtual clock, no real waiting) ----------
+function virtualClockHandler(providerBehavior, options = {}){
+  let now = 0;
+  const timers = [];
+  const upstream = [];
+  const handler = loadFunction()._test.createNearbyFacilitiesHandler({
+    ...options,
+    now: () => now,
+    setTimeoutImpl: (callback, ms) => { const timer = {at: now + ms, callback}; timers.push(timer); return timer; },
+    clearTimeoutImpl: (timer) => { const index = timers.indexOf(timer); if(index >= 0) timers.splice(index, 1); },
+    fetchImpl: (url, fetchOptions) => new Promise((resolve, reject) => {
+      const provider = url.includes("private.coffee") ? "secondary" : "primary";
+      const behavior = providerBehavior(provider, upstream.length);
+      upstream.push({provider, startedAt: now});
+      fetchOptions.signal.addEventListener("abort", () => {
+        upstream[upstream.length - 1].abortedAt = upstream[upstream.length - 1].abortedAt ?? now;
+        const error = new Error("aborted");
+        error.name = "AbortError";
+        reject(error);
+      }, {once: true});
+      if(behavior) timers.push({at: now + behavior.latencyMs, callback: () => resolve(upstreamResponse(200, {elements: elements(behavior.count)}))});
+    })
+  });
+  return async (payload = validRequest({maxRadiusMeters: 5000})) => {
+    let result;
+    handler({httpMethod: "POST", body: JSON.stringify(payload)}).then((value) => { result = value; });
+    while(result === undefined){
+      await new Promise((resolve) => setImmediate(resolve));
+      if(result !== undefined) break;
+      timers.sort((a, b) => a.at - b.at);
+      const next = timers.shift();
+      if(!next) continue;
+      now = Math.max(now, next.at);
+      next.callback();
+    }
+    return {statusCode: result.statusCode, json: JSON.parse(result.body), elapsedMs: now, upstream};
+  };
+}
+
+test("V4 BUDGET a primary attempt with failover available gets the deadline share not reserved for the secondary", () => {
+  const {providerAttemptTimeoutMs, OVERPASS_QUERY_TIMEOUT_MS, FAILOVER_START_MARGIN_MS, PROVIDER_TIMEOUT_MS, TOTAL_SEARCH_DEADLINE_MS} = loadFunction()._test;
+  assert.equal(PROVIDER_TIMEOUT_MS, 10000);
+  assert.equal(TOTAL_SEARCH_DEADLINE_MS, 25000);
+  assert.equal(OVERPASS_QUERY_TIMEOUT_MS, 18000);
+  assert.equal(FAILOVER_START_MARGIN_MS, 500);
+  assert.equal(providerAttemptTimeoutMs(10000, 25000, true), 14500, "primary at the start of the default deadline");
+  assert.equal(providerAttemptTimeoutMs(5, 100, true), 5, "tiny test budgets keep the secondary start slack instead of consuming it");
+  assert.equal(providerAttemptTimeoutMs(10000, 10000, false), 10000, "secondary keeps the bounded reserve");
+  assert.equal(providerAttemptTimeoutMs(10000, 13000, true), 10000, "later primary attempts never drop below the base timeout");
+  assert.equal(providerAttemptTimeoutMs(10000, 60000, true), 18000, "never longer than the Overpass server budget");
+  assert.equal(providerAttemptTimeoutMs(10000, 4000, true), 4000, "never longer than the remaining deadline");
+  assert.equal(providerAttemptTimeoutMs(10000, 4000, false), 4000);
+});
+
+test("V4 BUDGET silent providers use 14.5s primary + 10s secondary and stop inside the 25s deadline with attemptsUsed 2", async () => {
+  const run = virtualClockHandler(() => null);
+  const result = await run();
+  assert.equal(result.statusCode, 504);
+  assert.deepEqual(result.json, {ok:false, schemaVersion:"1", code:"FACILITY_TIMEOUT", retryable:true, attemptsUsed:2});
+  assert.deepEqual(result.upstream.map((attempt) => [attempt.provider, attempt.startedAt, attempt.abortedAt]), [
+    ["primary", 0, 14500],
+    ["secondary", 14500, 24500]
+  ]);
+  assert.equal(result.elapsedMs, 24500);
+});
+
+test("V4 BUDGET a primary answer at 12s now succeeds in one attempt instead of being aborted at 10s", async () => {
+  const run = virtualClockHandler((provider) => provider === "primary" ? {latencyMs: 12000, count: 25} : {latencyMs: 1000, count: 25});
+  const result = await run();
+  assert.equal(result.statusCode, 200);
+  assert.equal(result.json.provider, "primary");
+  assert.equal(result.json.attemptsUsed, 1);
+  assert.equal(result.elapsedMs, 12000);
+});
+
+test("V4 BUDGET a primary still silent at 14.5s fails over to a secondary that answers within its 10s reserve", async () => {
+  const run = virtualClockHandler((provider) => provider === "primary" ? null : {latencyMs: 8000, count: 25});
+  const result = await run();
+  assert.equal(result.statusCode, 200);
+  assert.equal(result.json.provider, "secondary");
+  assert.equal(result.json.attemptsUsed, 2);
+  assert.equal(result.elapsedMs, 22500);
+});
+
+test("V4 BUDGET every query carries the same Overpass server timeout the budget is capped by", () => {
+  const api = loadFunction()._test;
+  const seconds = api.OVERPASS_QUERY_TIMEOUT_MS / 1000;
+  for(const query of [
+    api.buildHospitalCoreQuery(1, 2, 5000),
+    api.buildHospitalExtendedQuery(1, 2, 5000),
+    api.buildOverpassQuery("pharmacy", 1, 2, 5000)
+  ]){
+    assert.match(query, new RegExp(`\\[timeout:${seconds}\\]`));
+  }
+});

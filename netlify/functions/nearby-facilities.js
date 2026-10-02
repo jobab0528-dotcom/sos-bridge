@@ -44,6 +44,23 @@ const TOTAL_SEARCH_DEADLINE_MS = positiveIntegerEnvironment(
   3000,
   60000
 );
+// Server-side budget written into every Overpass query as [timeout:18].
+const OVERPASS_QUERY_TIMEOUT_MS = 18000;
+// Slack kept between the end of a primary attempt and the deadline-reserved
+// secondary attempt (timer/abort latency and request setup), so the secondary
+// always starts with its full reserve.
+const FAILOVER_START_MARGIN_MS = 500;
+
+// Per-attempt provider timeout. A primary attempt that can still fail over may
+// use the part of the remaining deadline that is not reserved for one bounded
+// secondary attempt (providerTimeoutMs plus the start margin), capped by the
+// Overpass server budget and never below the base provider timeout.
+// Defaults: 25s deadline -> primary 14.5s, secondary 10s (previously 10s + 10s).
+function providerAttemptTimeoutMs(providerTimeoutMs, remainingMs, failoverAvailable){
+  if(!failoverAvailable) return Math.min(providerTimeoutMs, remainingMs);
+  const primaryShare = Math.min(OVERPASS_QUERY_TIMEOUT_MS, remainingMs - providerTimeoutMs - FAILOVER_START_MARGIN_MS);
+  return Math.min(remainingMs, Math.max(providerTimeoutMs, primaryShare));
+}
 
 const jsonHeaders = Object.freeze({
   "Content-Type": "application/json; charset=utf-8",
@@ -245,7 +262,7 @@ function publicFailureStatus(code){
   return 503;
 }
 
-async function fetchProvider(provider, query, dependencies, deadlineAt){
+async function fetchProvider(provider, query, dependencies, deadlineAt, failoverAvailable = false){
   const remainingMs = deadlineAt - dependencies.now();
   if(remainingMs <= 0){
     throw providerError("FACILITY_TIMEOUT", {
@@ -255,7 +272,7 @@ async function fetchProvider(provider, query, dependencies, deadlineAt){
     });
   }
 
-  const timeoutMs = Math.max(1, Math.min(dependencies.providerTimeoutMs, remainingMs));
+  const timeoutMs = Math.max(1, providerAttemptTimeoutMs(dependencies.providerTimeoutMs, remainingMs, failoverAvailable));
   const Controller = dependencies.AbortControllerImpl;
   const controller = typeof Controller === "function" ? new Controller() : null;
   let timeoutId;
@@ -349,8 +366,10 @@ async function fetchRadiusWithFailover(query, state, dependencies, deadlineAt){
 
     const provider = PROVIDERS[providerIndex];
     state.attemptsUsed += 1;
+    const failoverAvailable = providerIndex === 0 && providerIndexes.includes(1) &&
+      state.attemptsUsed < MAX_UPSTREAM_ATTEMPTS;
     try{
-      const result = await fetchProvider(provider, query, dependencies, deadlineAt);
+      const result = await fetchProvider(provider, query, dependencies, deadlineAt, failoverAvailable);
       state.preferredProviderIndex = providerIndex;
       return result;
     }catch(error){
@@ -544,7 +563,9 @@ exports.handler = createNearbyFacilitiesHandler();
 exports._test = Object.freeze({
   ALLOWED_REQUEST_FIELDS,
   EARLY_EXIT_RAW_CANDIDATE_COUNT,
+  FAILOVER_START_MARGIN_MS,
   MAX_UPSTREAM_ATTEMPTS,
+  OVERPASS_QUERY_TIMEOUT_MS,
   PROVIDERS,
   PROVIDER_TIMEOUT_MS,
   SEARCH_RADII_METERS,
@@ -554,5 +575,6 @@ exports._test = Object.freeze({
   buildOverpassQuery,
   createNearbyFacilitiesHandler,
   mergeOverpassElements,
-  parseRequest
+  parseRequest,
+  providerAttemptTimeoutMs
 });

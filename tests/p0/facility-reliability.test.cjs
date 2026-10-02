@@ -619,6 +619,7 @@ function loadFacilityOrdering(){
     "isEmergencyHospitalRecommendation",
     "facilityEmergencyTier",
     "compareFacilityResults",
+    "isSameFacilitySite",
     "finalizeFacilityResults"
   ];
   vm.runInNewContext(
@@ -786,7 +787,8 @@ test("P1 RETRY two transient failures stop at exactly two Function calls with th
     [[functionFailure(429, "FACILITY_RATE_LIMITED", true), functionFailure(429, "FACILITY_RATE_LIMITED", true)], "FACILITY_RATE_LIMITED"],
     [[{status:502, body:GATEWAY_HTML}, {status:504, body:GATEWAY_HTML}], "FACILITY_TIMEOUT"],
     [[{networkError:true}, functionFailure(503, "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", true)], "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE"],
-    [[functionFailure(504, "FACILITY_TIMEOUT", true), functionFailure(429, "FACILITY_RATE_LIMITED", true)], "FACILITY_RATE_LIMITED"]
+    // v4: a TIMEOUT that did not exhaust both providers (attemptsUsed 1) is still retried once.
+    [[{status:504, body:{ok:false, schemaVersion:"1", code:"FACILITY_TIMEOUT", retryable:true, attemptsUsed:1}}, functionFailure(429, "FACILITY_RATE_LIMITED", true)], "FACILITY_RATE_LIMITED"]
   ];
   for(const [replies, finalCode] of cases){
     const sandbox = loadHttpRetrySandbox("hospital", replies.concat([functionSuccess(ONE_ELEMENT)]));
@@ -897,4 +899,116 @@ test("P1 ORDER narrow specialty-only facilities are removed only from emergency 
   assert.deepEqual(orderedIds(finalize(list, {type:"hospital", triageContext:{level:"emergency"}})), ["er", "hospital", "hospital-no-er"]);
   assert.deepEqual(orderedIds(finalize(list, {type:"hospital"})), ["dentist", "dental-er", "hospital-no-er", "hospital", "er"]);
   assert.deepEqual(orderedIds(finalize(list)), ["dentist", "dental-er", "hospital-no-er", "hospital", "er"]);
+});
+
+// ---------- V4 exhausted-provider timeout is not repeated by the browser ----------
+const PREVIEW_TIMEOUT_BODY = {ok:false, schemaVersion:"1", code:"FACILITY_TIMEOUT", retryable:true, attemptsUsed:2};
+const PREVIEW_TIMEOUT_MESSAGE = "병원 검색 서비스 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요. 주변에 시설이 없다는 의미가 아닙니다. 긴급한 경우 현지 응급기관이나 숙소에 도움을 요청하세요.";
+
+test("V4 RETRY the verified Preview FACILITY_TIMEOUT (attemptsUsed 2) is not repeated as an identical second Function call", async () => {
+  const sandbox = loadHttpRetrySandbox("hospital", [
+    {status:504, body:PREVIEW_TIMEOUT_BODY},
+    {status:504, body:PREVIEW_TIMEOUT_BODY}
+  ]);
+  await assert.rejects(sandbox.run(), (error) => error.code === "FACILITY_TIMEOUT" && error.attemptsUsed === 2);
+  assert.equal(sandbox.calls.length, 1);
+  assert.equal(sandbox.delays.length, 0);
+  assert.equal(sandbox.replies.length, 1, "the second Preview request is no longer made");
+});
+
+test("V4 RETRY timeouts that did not exhaust the provider path keep one automatic retry", async () => {
+  const cases = [
+    ["Function TIMEOUT after one provider attempt", {status:504, body:{...PREVIEW_TIMEOUT_BODY, attemptsUsed:1}}],
+    ["non-JSON gateway 504", {status:504, body:GATEWAY_HTML}],
+    ["Function TIMEOUT body without attemptsUsed", {status:504, body:{ok:false, schemaVersion:"1", code:"FACILITY_TIMEOUT", retryable:true}}]
+  ];
+  for(const [label, first] of cases){
+    const sandbox = loadHttpRetrySandbox("hospital", [first, functionSuccess(ONE_ELEMENT)]);
+    assert.equal((await sandbox.run()).length, 1, label);
+    assert.equal(sandbox.calls.length, 2, label);
+  }
+});
+
+test("V4 RETRY rate limit and service-unavailable stay bounded at two calls even when all providers were tried", async () => {
+  for(const reply of [functionFailure(429, "FACILITY_RATE_LIMITED", true), functionFailure(503, "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", true)]){
+    const sandbox = loadHttpRetrySandbox("hospital", [reply, reply, functionSuccess(ONE_ELEMENT)]);
+    await assert.rejects(sandbox.run(), (error) => error.code === reply.body.code);
+    assert.equal(sandbox.calls.length, 2, reply.body.code);
+  }
+});
+
+test("V4 RETRY pharmacy exhausted timeout stays a single call", async () => {
+  const sandbox = loadHttpRetrySandbox("pharmacy", [{status:504, body:PREVIEW_TIMEOUT_BODY}, functionSuccess(ONE_ELEMENT)]);
+  await assert.rejects(sandbox.run(), (error) => error.code === "FACILITY_TIMEOUT");
+  assert.equal(sandbox.calls.length, 1);
+});
+
+function loadHttpApplyLocationSandbox(replies){
+  const calls = [];
+  const sandbox = {
+    replies:replies.slice(),
+    calls,
+    AbortController,
+    clearTimeout(){},
+    setTimeout(callback, delayMs){ if(delayMs === 60000) return 0; callback(); return 0; },
+    elements:{facilityCard:{classList:{remove(){}}}, facilityList:{innerHTML:""}}
+  };
+  const names = [
+    "createFacilitySearchError", "normalizeFacilityProxyErrorCode", "validateFacilityProxySuccess", "fetchFacilityProxy",
+    "isFacilityAutoRetryEligible", "isFacilitySearchResultContextCurrent", "waitForFacilityAutoRetry",
+    "fetchNearbyFacilitiesWithSingleAutoRetry", "snapshotFacilityLocation", "applyLocation"
+  ];
+  vm.runInNewContext(
+    `const FACILITY_PROXY_URL = "/.netlify/functions/nearby-facilities";
+     const FACILITY_PROXY_MAX_RADIUS_METERS = 50000;
+     const FACILITY_PROXY_REQUEST_TIMEOUT_MS = 60000;
+     const FACILITY_PROXY_ALLOWED_RADII = new Set([5000, 10000, 20000, 50000]);
+     const FACILITY_PROXY_ERROR_CODES = new Set([
+       "FACILITY_SERVICE_TEMPORARILY_UNAVAILABLE", "FACILITY_QUERY_ERROR", "FACILITY_TIMEOUT",
+       "FACILITY_INVALID_RESPONSE", "FACILITY_RATE_LIMITED", "FACILITY_INVALID_REQUEST"
+     ]);
+     const FACILITY_AUTO_RETRY_DELAY_MS = 250;
+     const FACILITY_RATE_LIMIT_RETRY_DELAY_MS = 1500;
+     const FACILITY_PARTIAL_RESULTS_MESSAGE = "partial";
+     let facilityType = "hospital", facilityRecommendation = null, locationData = null, facilities = [];
+     let facilitySearchErrorMessage = "", facilitySearchErrorCode = "", isLoading = false;
+     let currentFlowScreen = "screen-hospital-results";
+     const request = {type:"hospital", generation:1, recommendation:null};
+     const replyQueue = this.replies;
+     const callLog = this.calls;
+     function isFacilitySearchCurrent(value){ return value === request; }
+     function isAppOffline(){ return false; }
+     function moveFacilityCardToScreen(){}
+     function showFlowScreen(){}
+     function renderFacilityList(){}
+     function setStatus(){}
+     function t(){ return {userGps:"GPS", travelPlace:"여행지"}; }
+     function $(id){ return this.elements[id] || {classList:{remove(){}}}; }
+     function showDebug(){}
+     function renderOfflineFacilityState(){}
+     function showOfflineFeatureNotice(){}
+     function commitFacilitySearchResults(){ return true; }
+     async function fetch(url, options){
+       callLog.push(url);
+       const reply = replyQueue.shift();
+       return {ok:reply.status < 300, status:reply.status, async text(){ return JSON.stringify(reply.body); }};
+     }
+     async function fetchNearbyFacilities(type, loc, recommendation, searchRequest){
+       const data = await fetchFacilityProxy(type, loc, searchRequest);
+       return data && data.elements.slice();
+     }
+     ${names.map((name) => extractNamedFunction(indexSource, name)).join("\n")}
+     this.run = () => applyLocation(request, {latitude:48.8566, longitude:2.3522, source:"gps"}, "GPS OK.");
+     this.state = () => ({code:facilitySearchErrorCode, message:facilitySearchErrorMessage, isLoading});`,
+    sandbox,
+    {filename:INDEX_PATH}
+  );
+  return sandbox;
+}
+
+test("V4 RETRY one click on the verified Preview timeout ends with the exact safe message after one Function call", async () => {
+  const sandbox = loadHttpApplyLocationSandbox([{status:504, body:PREVIEW_TIMEOUT_BODY}, {status:504, body:PREVIEW_TIMEOUT_BODY}]);
+  await sandbox.run();
+  assert.deepEqual(JSON.parse(JSON.stringify(sandbox.state())), {code:"FACILITY_TIMEOUT", message:PREVIEW_TIMEOUT_MESSAGE, isLoading:false});
+  assert.equal(sandbox.calls.length, 1);
 });
