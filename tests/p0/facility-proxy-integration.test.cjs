@@ -105,6 +105,7 @@ const proxyFunctionNames = [
   "isBlockedNonMedicalCategory",
   "isAllowedFacilityCategory",
   "normalizedOsmTagTokens",
+  "isEmergencyNarrowSpecialtyFacility",
   "getFacilityEmergencyMetadata",
   "facilityDistanceValue",
   "normalizedFacilityName",
@@ -270,6 +271,7 @@ function renderFacilityFailure(type, errorCode){
      function escapeHtml(value){ return String(value || ""); }
      function finalizeFacilityResults(value){ return value; }
      function openDirections(){}
+     ${extractNamedFunction(indexSource, "isEmergencyHospitalRecommendation")}
      ${extractNamedFunction(indexSource, "isFacilityExternalFallbackEligible")}
      ${extractNamedFunction(indexSource, "buildFacilityGoogleMapsFallbackUrl")}
      ${extractNamedFunction(indexSource, "openFacilityGoogleMapsFallback")}
@@ -673,4 +675,267 @@ test("P0 client source keeps discovery on the strict same-origin five-field cont
   assert.match(finalizerSource, /slice\(0, MAX_FACILITY_RESULTS\)/);
   assert.match(indexSource, /const MAX_FACILITY_RESULTS = 50/);
   assert.doesNotMatch(indexSource, /overpass-api\.de|overpass\.private\.coffee|function\s+buildOverpassQuery/);
+});
+
+// ---------- P1 hospital emergency relevance and ordering ----------
+// Synthetic fixture coordinates only (no real user location). Distances are
+// produced by the real getDistanceKm from latitude offsets north of the base.
+const P1_BASE = {latitude:48.8566, longitude:2.3522};
+
+function p1Element(id, distanceKm, tags){
+  return {type:"node", id, lat:P1_BASE.latitude + distanceKm / 111.19492664455873, lon:P1_BASE.longitude, tags};
+}
+
+const P1_EMERGENCY_FIXTURE = [
+  p1Element("A-er-hospital", 1.2, {name:"Hopital A", amenity:"hospital", emergency:"yes"}),
+  p1Element("B-er-hospital", 2.0, {name:"Hopital B", amenity:"hospital", healthcare:"hospital", emergency:"yes"}),
+  p1Element("C-general-hospital", 0.7, {name:"Hopital General C", amenity:"hospital"}),
+  p1Element("D-dentist", 0.2, {name:"Cabinet D", amenity:"doctors", healthcare:"dentist"}),
+  p1Element("D2-dental-hospital", 0.25, {name:"서울 치과병원", amenity:"hospital"}),
+  p1Element("E-urology", 0.3, {name:"Centre E", amenity:"clinic", healthcare:"clinic", "healthcare:speciality":"urology"}),
+  p1Element("F-cosmetic", 0.4, {name:"강남 성형외과", amenity:"hospital", "healthcare:speciality":"plastic_surgery"}),
+  p1Element("G-large-er-hospital", 1.5, {name:"Grand Hopital G", amenity:"hospital", emergency:"yes", "healthcare:speciality":"general;emergency;plastic_surgery;dentistry"}),
+  p1Element("H-dermatology", 0.5, {name:"맑은 피부과의원", amenity:"clinic"}),
+  p1Element("I-family-clinic", 0.6, {name:"Family Clinic I", amenity:"clinic"}),
+  p1Element("J-hospital-no-er", 0.9, {name:"Hospital J", amenity:"hospital", emergency:"no"}),
+  // Generic name with all-narrow structured specialties: structured metadata wins (excluded).
+  p1Element("K-university-hospital", 3.0, {name:"한국대학교병원", amenity:"hospital", "healthcare:speciality":"dentistry;plastic_surgery"}),
+  p1Element("K2-university-hospital-mixed", 3.2, {name:"한국대학교병원", amenity:"hospital", "healthcare:speciality":"dentistry;plastic_surgery;internal_medicine"}),
+  p1Element("L-ortho-derm-clinic", 0.35, {name:"튼튼 정형외과피부과의원", amenity:"clinic"}),
+  p1Element("M-dental-medical-center", 0.45, {name:"ABC Dental Medical Center", amenity:"hospital", "healthcare:speciality":"dentistry"}),
+  p1Element("N-general-medical-center", 2.6, {name:"General Medical Center", amenity:"hospital"}),
+  // Generic emergency=yes on an all-dental facility cannot prove a general ED (excluded).
+  p1Element("O-dental-emergency-yes", 0.8, {name:"Clinique O", amenity:"hospital", emergency:"yes", "healthcare:speciality":"dentistry"})
+];
+
+const P1_EMERGENCY_RECOMMENDATION = {
+  type:"hospital",
+  label:"응급실·응급의학과 우선 추천",
+  reason:"응급 위험 신호가 있어 특정 진료과보다 가까운 응급실 또는 종합병원을 우선 추천합니다.",
+  keywords:["응급","응급실","emergency"],
+  avoidKeywords:["치과","dental"],
+  emergencyContext:true
+};
+const P1_ORDINARY_RECOMMENDATION = {
+  type:"hospital",
+  label:"가까운 병원·의원 추천",
+  reason:"증상 정보가 부족하거나 판단이 애매해 가까운 병원 또는 의원 상담을 추천합니다.",
+  keywords:["clinic","hospital"],
+  avoidKeywords:["치과"]
+};
+
+function p1Success(elements){
+  return proxyResponse({ok:true, schemaVersion:"1", provider:"primary", attemptsUsed:1, searchRadiusMeters:5000, complete:true, elements});
+}
+
+async function p1Search(recommendation, elements = P1_EMERGENCY_FIXTURE){
+  const sandbox = loadProxySandbox(async () => p1Success(elements));
+  return sandbox.fetchNearbyFacilities("hospital", P1_BASE, recommendation);
+}
+
+function p1Ids(list){ return Array.from(list, (facility) => String(facility.osmId)); }
+function p1Distances(list){ return Array.from(list, (facility) => facility.distanceKm); }
+function p1AssertAscending(list, label){
+  const distances = p1Distances(list);
+  for(let index = 1; index < distances.length; index += 1){
+    assert.ok(distances[index - 1] <= distances[index], `${label}: ${distances.join(", ")}`);
+  }
+}
+
+test("P1 emergency search excludes standalone dentist, urology and cosmetic-only facilities", async () => {
+  const ids = p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION));
+  for(const excluded of ["D-dentist", "D2-dental-hospital", "E-urology", "F-cosmetic", "H-dermatology", "K-university-hospital", "M-dental-medical-center", "O-dental-emergency-yes"]){
+    assert.equal(ids.includes(excluded), false, `${excluded} must not be an emergency recommendation`);
+  }
+});
+
+test("P1 emergency search keeps emergency and general hospitals that also list specialty departments", async () => {
+  const result = await p1Search(P1_EMERGENCY_RECOMMENDATION);
+  const ids = p1Ids(result);
+  for(const kept of ["A-er-hospital", "B-er-hospital", "G-large-er-hospital", "C-general-hospital", "K2-university-hospital-mixed", "N-general-medical-center", "L-ortho-derm-clinic"]){
+    assert.ok(ids.includes(kept), `${kept} must remain eligible`);
+  }
+  const large = result.find((facility) => facility.osmId === "G-large-er-hospital");
+  assert.equal(large.emergencyCareConfirmed, true);
+  assert.equal(large.emergencyNarrowSpecialty, false);
+});
+
+test("P1 emergency search orders confirmed emergency tier, then hospital fallback, then other facilities, by distance inside each tier", async () => {
+  const result = await p1Search(P1_EMERGENCY_RECOMMENDATION);
+  assert.deepEqual(p1Ids(result), [
+    "A-er-hospital", "G-large-er-hospital", "B-er-hospital",
+    "C-general-hospital", "N-general-medical-center", "K2-university-hospital-mixed",
+    "L-ortho-derm-clinic", "I-family-clinic", "J-hospital-no-er"
+  ]);
+  p1AssertAscending(result.slice(0, 3), "confirmed emergency tier");
+  p1AssertAscending(result.slice(3, 6), "hospital fallback tier");
+  p1AssertAscending(result.slice(6), "other facility tier");
+});
+
+test("P1 emergency ordering is deterministic for any provider order", async () => {
+  const expected = p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION));
+  const reversed = P1_EMERGENCY_FIXTURE.slice().reverse();
+  const rotated = P1_EMERGENCY_FIXTURE.slice(5).concat(P1_EMERGENCY_FIXTURE.slice(0, 5));
+  const interleaved = P1_EMERGENCY_FIXTURE.filter((_, index) => index % 2).concat(P1_EMERGENCY_FIXTURE.filter((_, index) => !(index % 2)));
+  for(const order of [reversed, rotated, interleaved, P1_EMERGENCY_FIXTURE]){
+    assert.deepEqual(p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION, order)), expected);
+  }
+});
+
+test("P1 ordinary hospital search keeps every facility in strict distance order", async () => {
+  const result = await p1Search(P1_ORDINARY_RECOMMENDATION);
+  assert.equal(result.length, P1_EMERGENCY_FIXTURE.length);
+  assert.deepEqual(p1Ids(result), [
+    "D-dentist", "D2-dental-hospital", "E-urology", "L-ortho-derm-clinic", "F-cosmetic", "M-dental-medical-center",
+    "H-dermatology", "I-family-clinic", "C-general-hospital", "O-dental-emergency-yes", "J-hospital-no-er",
+    "A-er-hospital", "G-large-er-hospital", "B-er-hospital", "N-general-medical-center", "K-university-hospital",
+    "K2-university-hospital-mixed"
+  ]);
+  p1AssertAscending(result, "ordinary search");
+  const withoutRecommendation = await p1Search(null);
+  p1AssertAscending(withoutRecommendation, "no recommendation");
+});
+
+test("P1 v2 structured specialty metadata takes precedence over generic names and generic emergency tags", async () => {
+  const fixtures = [
+    // [element, emergency-eligible, expected tier when eligible]
+    [p1Element("R1", 0.5, {name:"ABC Dental Medical Center", amenity:"hospital", "healthcare:speciality":"dentistry"}), false],
+    [p1Element("R2", 0.6, {name:"한국대학교병원", amenity:"hospital", "healthcare:speciality":"dentistry;plastic_surgery"}), false],
+    [p1Element("R3", 0.7, {name:"한국대학교병원", amenity:"hospital", "healthcare:speciality":"dentistry;plastic_surgery;internal_medicine"}), true],
+    [p1Element("R4", 0.8, {name:"General Medical Center", amenity:"hospital"}), true],
+    [p1Element("R5", 0.9, {name:"Grand Hopital", amenity:"hospital", emergency:"yes", "healthcare:speciality":"general;emergency;plastic_surgery;dentistry"}), true],
+    [p1Element("R6", 1.0, {name:"Clinique R6", amenity:"hospital", emergency:"yes", "healthcare:speciality":"dentistry"}), false]
+  ];
+  const emergency = await p1Search(P1_EMERGENCY_RECOMMENDATION, fixtures.map(([element]) => element));
+  assert.deepEqual(p1Ids(emergency), ["R5", "R3", "R4"]);
+  assert.equal(emergency[0].emergencyCareConfirmed, true);
+
+  const ordinary = await p1Search(P1_ORDINARY_RECOMMENDATION, fixtures.map(([element]) => element));
+  assert.deepEqual(p1Ids(ordinary), ["R1", "R2", "R3", "R4", "R5", "R6"], "ordinary search keeps every facility");
+  const byId = Object.fromEntries(ordinary.map((facility) => [String(facility.osmId), facility]));
+  for(const [element, eligible] of fixtures){
+    assert.equal(byId[element.id].emergencyNarrowSpecialty, !eligible, element.id);
+  }
+  // emergency=yes on an all-dental facility keeps the existing metadata flag but is still narrow.
+  assert.equal(byId.R6.emergencyCareConfirmed, true);
+  assert.equal(byId.R6.emergencyNarrowSpecialty, true);
+});
+
+test("P1 v2 without specialty metadata a narrow name is not rescued by generic hospital wording", async () => {
+  const elements = [
+    p1Element("U1", 0.3, {name:"ABC Dental Medical Center", amenity:"hospital"}),
+    p1Element("U2", 0.4, {name:"한국대학교치과병원", amenity:"hospital"}),
+    p1Element("U3", 0.5, {name:"강남 성형외과 의료원", amenity:"hospital"}),
+    p1Element("U4", 0.6, {name:"Seoul General Hospital", amenity:"hospital"}),
+    p1Element("U5", 0.7, {name:"서울 종합병원 치과센터", amenity:"hospital"}),
+    p1Element("U6", 0.8, {name:"Ville Medical Centre", amenity:"hospital"})
+  ];
+  assert.deepEqual(p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION, elements)), ["U4", "U5", "U6"]);
+});
+
+test("P1 v3 dentist and alternative-medicine facility identity is never rescued by a specialty token", async () => {
+  const elements = [
+    p1Element("DA", 0.2, {name:"Practice DA", amenity:"doctors", healthcare:"dentist", "healthcare:speciality":"general"}),
+    p1Element("DB", 0.3, {name:"Practice DB", amenity:"dentist", healthcare:"clinic", "healthcare:speciality":"general"}),
+    p1Element("DC", 0.4, {name:"Practice DC", amenity:"clinic", healthcare:"dentist", "healthcare:speciality":"dentistry;general"}),
+    p1Element("DD", 0.5, {name:"Practice DD", amenity:"hospital", healthcare:"dentist", emergency:"yes", "healthcare:speciality":"general"}),
+    p1Element("AL", 0.6, {name:"Practice AL", amenity:"clinic", healthcare:"alternative", "healthcare:speciality":"general"}),
+    p1Element("GP", 0.7, {name:"Practice GP", amenity:"clinic", healthcare:"clinic", "healthcare:speciality":"general"}),
+    p1Element("ER", 0.8, {name:"Practice ER", amenity:"hospital", emergency:"yes"})
+  ];
+  assert.deepEqual(p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION, elements)), ["ER", "GP"]);
+  assert.deepEqual(p1Ids(await p1Search(P1_ORDINARY_RECOMMENDATION, elements)), ["DA", "DB", "DC", "DD", "AL", "GP", "ER"]);
+});
+
+test("P1 v3 documented traditional and alternative medicine specialty values are excluded from emergency results", async () => {
+  const elements = [
+    p1Element("T1", 0.2, {name:"Clinic T1", amenity:"clinic", "healthcare:speciality":"acupuncture"}),
+    p1Element("T2", 0.3, {name:"Clinic T2", amenity:"clinic", "healthcare:speciality":"traditional_chinese_medicine;herbalism"}),
+    p1Element("T3", 0.4, {name:"Clinic T3", amenity:"doctors", "healthcare:speciality":"tuina"}),
+    p1Element("T4", 0.5, {name:"경희 한의원", amenity:"clinic"}),
+    p1Element("T5", 0.6, {name:"Hospital T5", amenity:"hospital", "healthcare:speciality":"general;acupuncture"}),
+    p1Element("T6", 0.7, {name:"Clinic T6", amenity:"clinic", "healthcare:speciality":"internal"})
+  ];
+  assert.deepEqual(p1Ids(await p1Search(P1_EMERGENCY_RECOMMENDATION, elements)), ["T5", "T6"]);
+  assert.deepEqual(p1Ids(await p1Search(P1_ORDINARY_RECOMMENDATION, elements)), ["T1", "T2", "T3", "T4", "T5", "T6"]);
+});
+
+function renderFacilitiesWithOrderLabels(facilities, type, recommendation){
+  const elements = {facilityList:{innerHTML:""}, facilityTitle:{textContent:""}};
+  const labels = {pill:{textContent:"거리순"}, hospitalHeader:{textContent:"거리순 병원 결과를 확인하세요."}};
+  const sandbox = {
+    document:{
+      querySelectorAll(){ return []; },
+      querySelector(selector){
+        if(selector === "#facilityCard > .between > .distance") return labels.pill;
+        if(selector === "#screen-hospital-results > .flow-screen-header p.small") return labels.hospitalHeader;
+        return null;
+      }
+    },
+    inputFacilities:facilities,
+    inputType:type,
+    inputRecommendation:recommendation,
+    elements
+  };
+  const names = [
+    "facilityDistanceValue", "normalizedFacilityName", "facilityDedupeKeys", "isEmergencyHospitalRecommendation",
+    "facilityEmergencyTier", "compareFacilityResults", "finalizeFacilityResults", "renderFacilityList"
+  ];
+  vm.runInNewContext(
+    `const MAX_FACILITY_RESULTS = 50;
+     const FACILITY_PARTIAL_RESULTS_MESSAGE = "partial";
+     let facilities = this.inputFacilities;
+     let facilityType = this.inputType;
+     let facilityRecommendation = this.inputRecommendation;
+     let activeFacilitySearchRequest = {type:facilityType, generation:1};
+     let facilitySearchErrorMessage = "";
+     let isLoading = false;
+     let locationData = {latitude:${P1_BASE.latitude}, longitude:${P1_BASE.longitude}, source:"gps"};
+     function $(id){ return this.elements[id] || {classList:{remove(){}}, innerHTML:"", textContent:""}; }
+     function t(){ return {hospital:"병원", pharmacy:"약국", userGps:"사용자 GPS", travelPlace:"여행지"}; }
+     function isAppOffline(){ return false; }
+     function isFacilitySearchCurrent(){ return true; }
+     function facilityResultsMatchRequest(){ return true; }
+     function on(){}
+     function requestGps(){}
+     function renderOfflineFacilityState(){}
+     function safe(fn){ return fn(); }
+     function openDirections(){}
+     function escapeHtml(value){ return String(value || ""); }
+     ${names.map((name) => extractNamedFunction(indexSource, name)).join("\n")}
+     renderFacilityList();`,
+    sandbox,
+    {filename: INDEX_PATH}
+  );
+  const renderedIds = [...elements.facilityList.innerHTML.matchAll(/data-facility-card="([^"]+)"/g)].map((match) => match[1]);
+  return {html:elements.facilityList.innerHTML, pill:labels.pill.textContent, header:labels.hospitalHeader.textContent, renderedIds};
+}
+
+test("P1 result label states emergency priority only when the order is emergency-first", async () => {
+  const emergency = await p1Search(P1_EMERGENCY_RECOMMENDATION);
+  const emergencyView = renderFacilitiesWithOrderLabels(emergency, "hospital", P1_EMERGENCY_RECOMMENDATION);
+  assert.equal(emergencyView.pill, "응급 우선·거리순");
+  assert.equal(emergencyView.header, "응급 우선·거리순 병원 결과를 확인하세요.");
+  assert.ok(emergencyView.html.includes("※ 정렬: ① 지도 데이터에 응급 진료 표시가 있는 병원 ② 응급 여부 정보가 없는 병원 ③ 기타 의료기관(응급 진료 없음으로 표시된 병원 포함) 순서이며, 같은 단계 안에서는 가까운 순입니다. 응급 표시는 지도 데이터 기준이며 실제 응급실 운영을 보장하지 않습니다. 지도 데이터에서 치과·비뇨의학과·성형외과·피부과·안과·한방·대체의학 등 전문 진료 기관으로 식별된 곳은 응급 추천 목록에서 제외했습니다."));
+  assert.equal((emergencyView.html.match(/>지도상 응급 표시<\/span>/g) || []).length, 3);
+  // The data only shows emergency metadata on the map; never claim a verified emergency room.
+  assert.doesNotMatch(emergencyView.html, /응급실 확인|응급실이 확인된/);
+
+  const ordinary = await p1Search(P1_ORDINARY_RECOMMENDATION);
+  const ordinaryView = renderFacilitiesWithOrderLabels(ordinary, "hospital", P1_ORDINARY_RECOMMENDATION);
+  assert.equal(ordinaryView.pill, "거리순");
+  assert.equal(ordinaryView.header, "거리순 병원 결과를 확인하세요.");
+  assert.doesNotMatch(ordinaryView.html, /응급 우선|지도상 응급 표시|응급실 확인|응급실이 확인된/);
+
+  const pharmacyView = renderFacilitiesWithOrderLabels([{id:"p1", type:"pharmacy", nameKo:"약국", nameEn:"Pharmacy", latitude:48.86, longitude:2.35, distanceKm:0.4}], "pharmacy", null);
+  assert.equal(pharmacyView.pill, "거리순");
+  assert.equal(pharmacyView.header, "거리순 병원 결과를 확인하세요.", "pharmacy never rewrites the hospital screen header");
+});
+
+test("P1 the rendered card order is exactly the committed result order", async () => {
+  for(const recommendation of [P1_EMERGENCY_RECOMMENDATION, P1_ORDINARY_RECOMMENDATION]){
+    const committed = await p1Search(recommendation);
+    const view = renderFacilitiesWithOrderLabels(committed, "hospital", recommendation);
+    assert.deepEqual(view.renderedIds, Array.from(committed, (facility) => facility.id));
+  }
 });

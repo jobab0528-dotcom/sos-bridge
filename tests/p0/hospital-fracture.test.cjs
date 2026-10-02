@@ -59,3 +59,38 @@ test("fractured leg keeps the orthopedics and surgery recommendation", () => {
   assert.equal(result.label, "정형외과·외과 추천");
   assert.doesNotMatch(result.label, /안과|치과|피부과|산부인과/);
 });
+
+function loadSymptomToHospitalRecommendation(){
+  const sandbox = {};
+  vm.runInNewContext(
+    `${extractNamedFunction(indexSource, "analyzeSymptoms")}
+     ${extractNamedFunction(indexSource, "hasAnyText")}
+     ${extractNamedFunction(indexSource, "makeHospitalRecommendation")}
+     ${extractNamedFunction(indexSource, "getHospitalRecommendationFromTriage")}
+     ${extractNamedFunction(indexSource, "getBodyPartHospitalRecommendation")}
+     ${extractNamedFunction(indexSource, "isEmergencyHospitalRecommendation")}
+     this.recommendFromInput = (input) => {
+       const triage = analyzeSymptoms(input);
+       const recommendation = getBodyPartHospitalRecommendation(input, triage);
+       return {triage, recommendation, emergencySearch:isEmergencyHospitalRecommendation(recommendation)};
+     };`,
+    sandbox,
+    {filename: INDEX_PATH}
+  );
+  return sandbox.recommendFromInput;
+}
+
+test("traffic accident input stays on the emergency-room hospital recommendation path", () => {
+  const recommendFromInput = loadSymptomToHospitalRecommendation();
+  for(const input of ["교통사고 당했어", "교통사고를 당했어요", "교통사고로 다리 다쳤어"]){
+    const {triage, recommendation, emergencySearch} = recommendFromInput(input);
+    assert.equal(triage.category, "vehicle-trauma", input);
+    assert.equal(triage.recommended, "emergency", input);
+    assert.equal(recommendation.label, "응급실·응급의학과 우선 추천", input);
+    assert.equal(recommendation.emergencyContext, true, input);
+    assert.equal(emergencySearch, true, input);
+  }
+  const fracture = recommendFromInput("다리가 부러졌어");
+  assert.equal(fracture.recommendation.label, "정형외과·외과 추천");
+  assert.equal(fracture.emergencySearch, false);
+});
