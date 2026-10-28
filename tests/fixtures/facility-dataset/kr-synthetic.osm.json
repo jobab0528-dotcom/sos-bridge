@@ -1,0 +1,59 @@
+{
+  "version": 0.6,
+  "generator": "SOS Bridge synthetic test fixture (not real OpenStreetMap data)",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-20T00:00:00Z",
+    "copyright": "Synthetic fixture for generator tests. Names and coordinates are invented."
+  },
+  "elements": [
+    {"type": "node", "id": 1001, "lat": 37.55, "lon": 126.98},
+    {"type": "node", "id": 1002, "lat": 37.55, "lon": 126.9806},
+    {"type": "node", "id": 1003, "lat": 37.5504, "lon": 126.9806},
+    {"type": "node", "id": 1004, "lat": 37.5504, "lon": 126.98},
+    {"type": "node", "id": 1005, "lat": 37.56, "lon": 126.99},
+    {"type": "node", "id": 1006, "lat": 37.56, "lon": 126.991},
+    {"type": "node", "id": 1007, "lat": 37.561, "lon": 126.991},
+    {"type": "node", "id": 1008, "lat": 37.561, "lon": 126.99},
+    {"type": "node", "id": 1009, "lat": 37.57, "lon": 126.97},
+
+    {"type": "node", "id": 1, "lat": 37.5501, "lon": 126.9802, "tags": {
+      "amenity": "hospital", "name": "테스트 종합병원", "name:en": "Test General Hospital",
+      "emergency": "yes", "addr:city": "서울", "addr:street": "테스트로", "addr:housenumber": "1",
+      "phone": "+82-2-000-0000", "wheelchair": "yes", "website": "https://example.invalid/"
+    }},
+    {"type": "way", "id": 2001, "nodes": [1001, 1002, 1003, 1004, 1001], "tags": {
+      "amenity": "hospital", "building": "hospital", "name": "테스트 종합병원"
+    }},
+    {"type": "way", "id": 2002, "nodes": [1005, 1006, 1007, 1008, 1005]},
+    {"type": "relation", "id": 3001, "members": [{"type": "way", "ref": 2002, "role": "outer"}], "tags": {
+      "type": "multipolygon", "amenity": "hospital", "name": "테스트 대학병원",
+      "emergency": "yes", "healthcare": "hospital", "healthcare:speciality": "emergency;general"
+    }},
+    {"type": "way", "id": 2003, "nodes": [1009, 9999], "tags": {"amenity": "hospital", "name": "테스트 불완전 병원"}},
+
+    {"type": "node", "id": 2, "lat": 37.552, "lon": 126.975, "tags": {"amenity": "clinic", "healthcare": "clinic", "name": "테스트 내과의원"}},
+    {"type": "node", "id": 3, "lat": 37.545, "lon": 126.985, "tags": {"healthcare": "centre", "name": "테스트 보건소"}},
+    {"type": "node", "id": 4, "lat": 37.553, "lon": 126.979, "tags": {"amenity": "dentist", "healthcare": "dentist", "name": "테스트 치과"}},
+    {"type": "node", "id": 5, "lat": 37.548, "lon": 126.977, "tags": {"shop": "car_repair", "healthcare": "clinic", "name": "테스트 자동차 병원"}},
+    {"type": "node", "id": 6, "lat": 37.549, "lon": 126.981, "tags": {"amenity": "restaurant", "name": "테스트 식당"}},
+    {"type": "node", "id": 7, "lat": 37.551, "lon": 126.99, "tags": {"amenity": "hospital", "name": "테스트 장례식장"}},
+    {"type": "node", "id": 8, "lat": 37.5505, "lon": 126.9795, "tags": {"amenity": "pharmacy", "name": "테스트 약국", "opening_hours": "Mo-Fr 09:00-18:00"}},
+    {"type": "node", "id": 8, "lat": 37.5505, "lon": 126.9795, "tags": {"amenity": "pharmacy", "name": "테스트 약국", "opening_hours": "Mo-Fr 09:00-18:00"}},
+    {"type": "node", "id": 9, "lat": 37.546, "lon": 126.976, "tags": {"healthcare": "pharmacy", "shop": "chemist", "name": "테스트 드럭스토어"}},
+    {"type": "node", "id": 10, "lat": 37.5515, "lon": 126.9815, "tags": {"amenity": "hospital", "healthcare:speciality": "dentistry", "name": "테스트 치과병원"}},
+    {"type": "node", "id": 11, "lat": 95, "lon": 126.98, "tags": {"amenity": "hospital", "name": "테스트 잘못된 좌표"}},
+    {"type": "node", "id": 12, "lat": 37.55, "tags": {"amenity": "hospital", "name": "테스트 경도 없음"}},
+    {"type": "node", "id": 13, "lat": 37.55, "lon": 126.98, "tags": {"amenity": 5}},
+    {"type": "node", "id": 14, "lat": 37.5, "lon": 127.0, "tags": {"amenity": "doctors", "name": "테스트 경계 의원"}},
+    {"type": "node", "id": 15, "lat": 35.1, "lon": 129.03, "tags": {"amenity": "hospital", "emergency": "no", "name": "테스트 남부 병원"}},
+    {"type": "node", "id": 16, "lat": 33.5, "lon": 126.53, "tags": {"amenity": "hospital", "emergency": "yes", "name": "테스트 섬 병원"}},
+    {"type": "node", "id": 17, "lat": 34.4, "lon": 129.3, "tags": {"amenity": "hospital", "name": "Test Strait Island Hospital"}},
+    {"type": "node", "id": 18, "lat": 35.68, "lon": 139.76, "tags": {"amenity": "hospital", "name": "Test Outside Hospital"}},
+    {"type": "node", "id": 19, "lat": 37.547, "lon": 126.983, "tags": {"healthcare": "yes", "name": "테스트 건강센터"}},
+    {"type": "node", "id": 20, "lat": 37.553, "lon": 126.983, "tags": {"amenity": "pharmacy", "healthcare": "clinic", "name": "테스트 의원 약국"}},
+    {"type": "node", "id": 21, "lat": 37.554, "lon": 126.984, "tags": {"amenity": "hospital", "name": "가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가"}},
+    {"type": "node", "id": 22, "lat": 37.5525, "lon": 126.9805, "tags": {"amenity": "Hospital", "name": "테스트 대문자 태그"}},
+    {"type": "area", "id": 5, "tags": {"amenity": "hospital"}},
+    {"type": "node", "id": -3, "lat": 37.55, "lon": 126.98, "tags": {"amenity": "hospital"}}
+  ]
+}
