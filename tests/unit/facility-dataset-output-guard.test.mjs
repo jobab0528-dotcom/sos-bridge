@@ -12,7 +12,7 @@ import path from "node:path";
 import test from "node:test";
 import {isPathInside, assertOutsideRepository, defaultCaseInsensitive, OutputGuardError} from "../../scripts/facility-dataset/lib/output-guard.mjs";
 import {forbidNetwork} from "../contract/_source.mjs";
-import {ROOT, FIXTURE_PATH, GENERATOR_DIR} from "./facility-dataset-helpers.mjs";
+import {ROOT, FIXTURE_PATH, FIXTURE_QUALITY_GATES_PATH, GENERATOR_DIR} from "./facility-dataset-helpers.mjs";
 
 const restoreNetwork = forbidNetwork();
 test.after(() => restoreNetwork());
@@ -20,7 +20,8 @@ test.after(() => restoreNetwork());
 const CLI = path.join(GENERATOR_DIR, "build-dataset.mjs");
 
 function runCli(out, cwd = ROOT){
-  return spawnSync(process.execPath, [CLI, "--input", FIXTURE_PATH, "--region", "KR", "--out", out], {cwd, encoding: "utf8"});
+  // S2-a v2: --quality-gates is needed for a candidate to be written.
+  return spawnSync(process.execPath, [CLI, "--input", FIXTURE_PATH, "--region", "KR", "--out", out, "--quality-gates", FIXTURE_QUALITY_GATES_PATH], {cwd, encoding: "utf8"});
 }
 
 function listTree(directory){

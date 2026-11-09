@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1",
+  "regionCode": "KR",
+  "description": "SYNTHETIC TEST VALUES for tests/fixtures/facility-dataset/kr-synthetic.osm.json and .osm.opl only. Not a decision for real KR data: the KR thresholds are not set yet.",
+  "maxRejectedRatio": 0.5,
+  "allowIncompleteGeometry": [
+    {"object": "way/2003", "reason": "Synthetic fixture: way/2003 deliberately references node 9999, which is not in the fixture, to test that an explicitly allowed object is excluded and counted."}
+  ]
+}

@@ -14,6 +14,7 @@ import {forbidNetwork} from "../contract/_source.mjs";
 import {
   ROOT,
   FIXTURE_PATH,
+  FIXTURE_QUALITY_GATES_PATH,
   GENERATOR_DIR,
   loadFixture,
   buildFixture,
@@ -88,7 +89,11 @@ test("2: invalid or missing coordinates, malformed tags and malformed elements n
     {type: "node", id: 3, lat: Number.NaN, lon: 126.98, tags: {amenity: "hospital"}},
     {type: "node", id: 4, lat: "37.5", lon: 126.98, tags: {amenity: "hospital"}},
     {type: "node", id: 5, lat: 37.5, lon: 181, tags: {amenity: "hospital"}},
-    {type: "node", id: 6, lat: 37.5, lon: 126.9, tags: {amenity: "hospital", name: ""}},
+    // S2-a v4: an EMPTY tag value is valid OSM data (osmium writes "name="),
+    // so node/6 now uses an empty KEY, which OSM does not allow, to stay a
+    // malformed-tags case; node/10 checks that an empty value is accepted.
+    {type: "node", id: 6, lat: 37.5, lon: 126.9, tags: {amenity: "hospital", "": "x"}},
+    {type: "node", id: 10, lat: 37.5, lon: 126.9, tags: {amenity: "hospital", name: ""}},
     {type: "node", id: 7, lat: 37.5, lon: 126.9, tags: ["amenity", "hospital"]},
     {type: "way", id: 8, nodes: [1], tags: {amenity: "hospital"}},
     {type: "relation", id: 9, members: [{type: "node"}], tags: {amenity: "hospital"}},
@@ -96,6 +101,7 @@ test("2: invalid or missing coordinates, malformed tags and malformed elements n
   ]}, DATA_AS_OF).report;
   assert.deepEqual(report.rejected.byReason.invalid_coordinates.sample, ["node/4", "node/5"]);
   assert.deepEqual(report.rejected.byReason.malformed_tags.sample, ["node/6", "node/7"]);
+  assert.equal(report.accepted.hospital, 2, "HOSPITAL_NODE and node/10 (empty name value)");
   assert.equal(report.rejected.byReason.malformed_element.count, 6, "3 labelled + null, 42 and a string");
   assert.deepEqual(report.rejected.byReason.malformed_element.sample, ["node/3", "relation/9", "way/8"]);
 });
@@ -155,14 +161,22 @@ test("6: ways and relations get the bounding-box center; records use the Overpas
     const keys = Object.keys(element).sort();
     assert.deepEqual(keys, element.type === "node" ? ["id", "lat", "lon", "tags", "type"] : ["center", "id", "tags", "type"]);
   }
-  const subrelation = build({elements: [
+  // S2-a v2 (review FINDING 2): sub-relations are resolved recursively. A
+  // missing sub-relation is no longer ignored (S1 placed relation/1 at its
+  // remaining node); it stops the build and names every affected object.
+  assert.throws(() => build({elements: [
     HOSPITAL_NODE, PHARMACY_NODE,
     {type: "node", id: 10, lat: 37.5, lon: 126.5},
     {type: "relation", id: 1, members: [{type: "node", ref: 10, role: ""}, {type: "relation", ref: 99, role: ""}], tags: {amenity: "hospital"}},
     {type: "relation", id: 2, members: [{type: "relation", ref: 1, role: ""}], tags: {amenity: "hospital"}}
-  ]}, DATA_AS_OF);
-  assert.equal(subrelation.report.geometry.subrelationMembersIgnored, 2);
-  assert.deepEqual(subrelation.report.rejected.byReason.incomplete_geometry.sample, ["relation/2"]);
+  ]}, DATA_AS_OF), (error) => {
+    assert.equal(error.code, "REFERENTIAL_INTEGRITY_FAILED");
+    assert.deepEqual(error.details.objects.map((item) => [item.object, item.problems[0].code, item.problems[0].missingRef]), [
+      ["relation/1", "MISSING_RELATION", 99],
+      ["relation/2", "MISSING_RELATION", 99]
+    ]);
+    return true;
+  });
 });
 
 test("7: hospitals and pharmacies are separate tile sets; an object matching both appears in both", () => {
@@ -309,7 +323,9 @@ test("15: CLI writes an immutable candidate version outside the repository and r
   const cli = path.join(GENERATOR_DIR, "build-dataset.mjs");
   const outRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sos-facility-dataset-"));
   try{
-    const run = (out) => spawnSync(process.execPath, [cli, "--input", FIXTURE_PATH, "--region", "KR", "--out", out], {encoding: "utf8"});
+    // S2-a v2: the CLI refuses a candidate whose gates are not configured, so
+    // the fixture's synthetic gate file is passed.
+    const run = (out) => spawnSync(process.execPath, [cli, "--input", FIXTURE_PATH, "--region", "KR", "--out", out, "--quality-gates", FIXTURE_QUALITY_GATES_PATH], {encoding: "utf8"});
     const first = run(outRoot);
     assert.equal(first.status, 0, first.stderr);
     const summary = JSON.parse(first.stdout);

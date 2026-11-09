@@ -1,0 +1,37 @@
+# SOS Bridge synthetic OPL fixture: the OPL-representable part of kr-synthetic.osm.json, written like osmium cat -f opl (libosmium 2.23.1 writer, with metadata). Not real OpenStreetMap data.
+n1001 v1 dV c1000 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.98 y37.55
+n1002 v2 dV c1001 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.9806 y37.55
+n1003 v3 dV c1002 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.9806 y37.5504
+n1004 v1 dV c1003 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.98 y37.5504
+n1005 v2 dV c1004 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.99 y37.56
+n1006 v3 dV c1005 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.991 y37.56
+n1007 v1 dV c1006 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.991 y37.561
+n1008 v2 dV c1007 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.99 y37.561
+n1009 v3 dV c1008 t2026-10-19T12:00:00Z i42 usynthetic%20%user T x126.97 y37.57
+n1 v1 dV c1009 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,name=%d14c%%c2a4%%d2b8%%20%%c885%%d569%%bcd1%%c6d0%,name:en=Test%20%General%20%Hospital,emergency=yes,addr:city=%c11c%%c6b8%,addr:street=%d14c%%c2a4%%d2b8%%b85c%,addr:housenumber=1,phone=+82-2-000-0000,wheelchair=yes,website=https://example.invalid/ x126.9802 y37.5501
+w2001 v2 dV c1010 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,building=hospital,name=%d14c%%c2a4%%d2b8%%20%%c885%%d569%%bcd1%%c6d0% Nn1001,n1002,n1003,n1004,n1001
+w2002 v3 dV c1011 t2026-10-19T12:00:00Z i42 usynthetic%20%user T Nn1005,n1006,n1007,n1008,n1005
+r3001 v1 dV c1012 t2026-10-19T12:00:00Z i42 usynthetic%20%user Ttype=multipolygon,amenity=hospital,name=%d14c%%c2a4%%d2b8%%20%%b300%%d559%%bcd1%%c6d0%,emergency=yes,healthcare=hospital,healthcare:speciality=emergency;general Mw2002@outer
+w2003 v2 dV c1013 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,name=%d14c%%c2a4%%d2b8%%20%%bd88%%c644%%c804%%20%%bcd1%%c6d0% Nn1009,n9999
+n2 v3 dV c1014 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=clinic,healthcare=clinic,name=%d14c%%c2a4%%d2b8%%20%%b0b4%%acfc%%c758%%c6d0% x126.975 y37.552
+n3 v1 dV c1015 t2026-10-19T12:00:00Z i42 usynthetic%20%user Thealthcare=centre,name=%d14c%%c2a4%%d2b8%%20%%bcf4%%ac74%%c18c% x126.985 y37.545
+n4 v2 dV c1016 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=dentist,healthcare=dentist,name=%d14c%%c2a4%%d2b8%%20%%ce58%%acfc% x126.979 y37.553
+n5 v3 dV c1017 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tshop=car_repair,healthcare=clinic,name=%d14c%%c2a4%%d2b8%%20%%c790%%b3d9%%cc28%%20%%bcd1%%c6d0% x126.977 y37.548
+n6 v1 dV c1018 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=restaurant,name=%d14c%%c2a4%%d2b8%%20%%c2dd%%b2f9% x126.981 y37.549
+n7 v2 dV c1019 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,name=%d14c%%c2a4%%d2b8%%20%%c7a5%%b840%%c2dd%%c7a5% x126.99 y37.551
+n8 v3 dV c1020 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=pharmacy,name=%d14c%%c2a4%%d2b8%%20%%c57d%%ad6d%,opening_hours=Mo-Fr%20%09:00-18:00 x126.9795 y37.5505
+n8 v1 dV c1021 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=pharmacy,name=%d14c%%c2a4%%d2b8%%20%%c57d%%ad6d%,opening_hours=Mo-Fr%20%09:00-18:00 x126.9795 y37.5505
+n9 v2 dV c1022 t2026-10-19T12:00:00Z i42 usynthetic%20%user Thealthcare=pharmacy,shop=chemist,name=%d14c%%c2a4%%d2b8%%20%%b4dc%%b7ed%%c2a4%%d1a0%%c5b4% x126.976 y37.546
+n10 v3 dV c1023 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,healthcare:speciality=dentistry,name=%d14c%%c2a4%%d2b8%%20%%ce58%%acfc%%bcd1%%c6d0% x126.9815 y37.5515
+n11 v1 dV c1024 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,name=%d14c%%c2a4%%d2b8%%20%%c798%%babb%%b41c%%20%%c88c%%d45c% x126.98 y95
+n12 v2 dV c1025 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,name=%d14c%%c2a4%%d2b8%%20%%acbd%%b3c4%%20%%c5c6%%c74c% x y
+n14 v3 dV c1026 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=doctors,name=%d14c%%c2a4%%d2b8%%20%%acbd%%acc4%%20%%c758%%c6d0% x127 y37.5
+n15 v1 dV c1027 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,emergency=no,name=%d14c%%c2a4%%d2b8%%20%%b0a8%%bd80%%20%%bcd1%%c6d0% x129.03 y35.1
+n16 v2 dV c1028 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,emergency=yes,name=%d14c%%c2a4%%d2b8%%20%%c12c%%20%%bcd1%%c6d0% x126.53 y33.5
+n17 v3 dV c1029 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,name=Test%20%Strait%20%Island%20%Hospital x129.3 y34.4
+n18 v1 dV c1030 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,name=Test%20%Outside%20%Hospital x139.76 y35.68
+n19 v2 dV c1031 t2026-10-19T12:00:00Z i42 usynthetic%20%user Thealthcare=yes,name=%d14c%%c2a4%%d2b8%%20%%ac74%%ac15%%c13c%%d130% x126.983 y37.547
+n20 v3 dV c1032 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=pharmacy,healthcare=clinic,name=%d14c%%c2a4%%d2b8%%20%%c758%%c6d0%%20%%c57d%%ad6d% x126.983 y37.553
+n21 v1 dV c1033 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital,name=%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00%%b098%%b2e4%%b77c%%b9c8%%bc14%%c0ac%%c544%%c790%%cc28%%ce74%%d0c0%%d30c%%d558%%ac00% x126.984 y37.554
+n22 v2 dV c1034 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=Hospital,name=%d14c%%c2a4%%d2b8%%20%%b300%%bb38%%c790%%20%%d0dc%%adf8% x126.9805 y37.5525
+n-3 v3 dV c1035 t2026-10-19T12:00:00Z i42 usynthetic%20%user Tamenity=hospital x126.98 y37.55

@@ -16,9 +16,17 @@ import {readRepoFile, extractFunction} from "../contract/_source.mjs";
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 export const FIXTURE_PATH = path.join(ROOT, "tests", "fixtures", "facility-dataset", "kr-synthetic.osm.json");
 export const GENERATOR_DIR = path.join(ROOT, "scripts", "facility-dataset");
+// S2-a v2: synthetic gate values for the fixture only. They explicitly allow
+// way/2003 (a deliberately missing node); without them the fail-closed
+// generator stops on that object, as it must for real data.
+export const FIXTURE_QUALITY_GATES_PATH = path.join(ROOT, "tests", "fixtures", "facility-dataset", "kr-synthetic.quality-gates.json");
 
 export function loadFixture(){
   return JSON.parse(fs.readFileSync(FIXTURE_PATH, "utf8"));
+}
+
+export function loadFixtureQualityGates(){
+  return JSON.parse(fs.readFileSync(FIXTURE_QUALITY_GATES_PATH, "utf8"));
 }
 
 export function buildFixture(overrides = {}){
@@ -27,6 +35,7 @@ export function buildFixture(overrides = {}){
     region: overrides.region || KR_REGION,
     generator: overrides.generator || generatorInfo(),
     sourceLabel: "kr-synthetic.osm.json",
+    qualityGates: loadFixtureQualityGates(),
     ...(overrides.options || {})
   });
 }

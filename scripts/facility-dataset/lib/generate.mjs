@@ -6,6 +6,27 @@
 // a validation report, an attribution notice and a manifest with SHA-256
 // checksums. Publishing is a separate, later step; the generator never marks
 // a dataset as published.
+//
+// Safety policy (fail-closed):
+// - A facility way or relation whose referenced geometry does not fully
+//   resolve (lib/integrity.mjs) stops the build with
+//   REFERENTIAL_INTEGRITY_FAILED, unless that exact object is listed in an
+//   explicit allowance with a reason (lib/quality-gates.mjs); allowed objects
+//   are excluded, never placed approximately.
+// - A hospital object carrying affirmative OSM emergency evidence is never
+//   dropped silently: if it would be rejected for invalid coordinates or
+//   unresolved geometry the build stops (EMERGENCY_EVIDENCE_REJECTED, no
+//   allowance possible). If it lies outside the region's data bounds the build
+//   stops (EMERGENCY_EVIDENCE_OUTSIDE_DATA_BOUNDS) unless that exact object is
+//   acknowledged in the quality-gates file (acknowledgeEmergencyOutsideDataBounds,
+//   with a written reason); acknowledged exclusions are listed with their
+//   coordinates and reasons in the report and the manifest and add a
+//   PENDING_REVIEW publish gate.
+// - Gates report PASSED only for checks that were configured and evaluated.
+//   A required build gate without a configured threshold is NOT_CONFIGURED and
+//   the candidate is NOT accepted (report/manifest "acceptance"); the writer
+//   refuses to write it. Gates that need people or a previous version are
+//   PENDING_REVIEW and keep the candidate unpublishable.
 
 import {canonicalJson, canonicalJsonBytes, sha256Hex, isPlainObject} from "./canonical-json.mjs";
 import {
@@ -17,7 +38,10 @@ import {
   facilityScope,
   preservedTags
 } from "./selectors.mjs";
-import {recordComparatorFor} from "./evidence.mjs";
+import {recordComparatorFor, facilityEvidenceRank} from "./evidence.mjs";
+import {DatasetBuildError} from "./errors.mjs";
+import {createGeometryResolver, INTEGRITY_CODES, MAX_RELATION_DEPTH, MAX_GEOMETRY_POINTS, MAX_FACILITY_EXTENT_E7} from "./integrity.mjs";
+import {normalizeQualityGates} from "./quality-gates.mjs";
 import {analyzeClientCollapse} from "./collisions.mjs";
 import {
   isValidLatitude,
@@ -30,10 +54,12 @@ import {
 } from "./geo.mjs";
 
 export const GENERATOR_NAME = "sos-bridge-facility-dataset";
-export const GENERATOR_VERSION = "0.1.0";
+export const GENERATOR_VERSION = "0.4.0";
 export const MANIFEST_SCHEMA_VERSION = "1";
 export const TILE_SCHEMA_VERSION = "1";
-export const REPORT_SCHEMA_VERSION = "1";
+export const REPORT_SCHEMA_VERSION = "3";
+export const INTEGRITY_ERROR_LIMIT = 1000;
+export const SOURCE_FORMATS = Object.freeze(["osm-json", "osm-opl"]);
 export const MAX_TAG_TEXT_LENGTH = 255;
 export const REJECTED_SAMPLE_LIMIT = 100;
 
@@ -71,14 +97,7 @@ const EMERGENCY_TAG_KEYS = Object.freeze([
 const DATA_AS_OF_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
-export class DatasetBuildError extends Error{
-  constructor(code, message, details = {}){
-    super(`${code}: ${message}`);
-    this.name = "DatasetBuildError";
-    this.code = code;
-    this.details = details;
-  }
-}
+export {DatasetBuildError};
 
 function hasOwn(object, key){
   return Object.prototype.hasOwnProperty.call(object, key);
@@ -132,15 +151,43 @@ function textLength(value){
   return Array.from(value).length;
 }
 
+// OSM tag rules: a key is 1..255 characters, a value is a string of 0..255
+// characters. An EMPTY value (for example `name=`) is valid OSM data (osmium
+// writes it as "key="); the client tag() treats it as absent, exactly as it
+// does for the live Function. S2-a v3 wrongly treated it as malformed, which
+// excluded the whole object before any safety check ran (review of v3).
 function validTags(tags){
   if(tags === undefined) return true;
   if(!isPlainObject(tags)) return false;
   for(const key of Object.keys(tags)){
     const value = tags[key];
     if(key === "" || textLength(key) > MAX_TAG_TEXT_LENGTH) return false;
-    if(typeof value !== "string" || value === "" || textLength(value) > MAX_TAG_TEXT_LENGTH) return false;
+    if(typeof value !== "string" || textLength(value) > MAX_TAG_TEXT_LENGTH) return false;
   }
   return true;
+}
+
+// The string-valued tags of an object, even when other tags are malformed,
+// so selector scope and emergency evidence can be judged BEFORE an object is
+// rejected for its tags. Own data properties (any key, including "__proto__").
+// null when the tags are not an object at all.
+function readableTags(tags){
+  if(tags === undefined) return {};
+  if(!isPlainObject(tags)) return null;
+  const readable = {};
+  for(const key of Object.keys(tags)){
+    if(typeof tags[key] === "string"){
+      Object.defineProperty(readable, key, {value: tags[key], enumerable: true, writable: true, configurable: true});
+    }
+  }
+  return readable;
+}
+
+// True when an object is in hospital selector scope with affirmative OSM
+// emergency evidence, judged from its readable tags.
+function hasEmergencyEvidence(element){
+  const tags = isPlainObject(element) ? readableTags(element.tags) : null;
+  return !!tags && facilityScope(tags).hospital && facilityEvidenceRank(tags) === 0;
 }
 
 function isPositiveId(value){
@@ -179,58 +226,6 @@ function reject(rejections, reason, element){
   if(label) rejections[reason].labels.push(label);
 }
 
-function boxCenter(points){
-  let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
-  for(const point of points){
-    minLat = Math.min(minLat, point.latE7);
-    maxLat = Math.max(maxLat, point.latE7);
-    minLon = Math.min(minLon, point.lonE7);
-    maxLon = Math.max(maxLon, point.lonE7);
-  }
-  // Center of the bounding box, as Overpass "out center" reports it.
-  return {latE7: Math.round((minLat + maxLat) / 2), lonE7: Math.round((minLon + maxLon) / 2)};
-}
-
-function wayPoints(way, nodeCoordinates){
-  const points = [];
-  for(const ref of way.nodes){
-    const point = nodeCoordinates.get(ref);
-    if(!point) return null;
-    points.push(point);
-  }
-  return points;
-}
-
-// Position of a facility object, or a rejection reason. Ways and relations
-// use the bounding-box center of their member geometry; an object with any
-// missing member geometry is rejected instead of being placed approximately.
-function positionOf(element, nodeCoordinates, ways, geometryStats){
-  if(element.type === "node"){
-    if(!isValidLatitude(element.lat) || !isValidLongitude(element.lon)) return {reason: "invalid_coordinates"};
-    return {latE7: toE7(element.lat), lonE7: toE7(element.lon)};
-  }
-  if(element.type === "way"){
-    const points = wayPoints(element, nodeCoordinates);
-    return points ? boxCenter(points) : {reason: "incomplete_geometry"};
-  }
-  const points = [];
-  for(const member of element.members){
-    if(member.type === "node"){
-      const point = nodeCoordinates.get(member.ref);
-      if(!point) return {reason: "incomplete_geometry"};
-      points.push(point);
-    }else if(member.type === "way"){
-      const way = ways.get(member.ref);
-      const memberPoints = way ? wayPoints(way, nodeCoordinates) : null;
-      if(!memberPoints) return {reason: "incomplete_geometry"};
-      points.push(...memberPoints);
-    }else{
-      geometryStats.subrelationMembersIgnored += 1;
-    }
-  }
-  return points.length ? boxCenter(points) : {reason: "incomplete_geometry"};
-}
-
 function attributionText(datasetVersionId, regionCode, dataAsOf){
   return [
     `SOS Bridge static facility dataset ${datasetVersionId}`,
@@ -260,10 +255,57 @@ function tileStats(entries){
   };
 }
 
+function validateUpstream(upstream){
+  if(upstream === undefined) return;
+  const ok = isPlainObject(upstream) && Object.keys(upstream).every((key) => key === "url" || key === "sha256") &&
+    typeof upstream.url === "string" && /^https:\/\/[^\s]{1,500}$/.test(upstream.url) &&
+    typeof upstream.sha256 === "string" && SHA256_PATTERN.test(upstream.sha256);
+  if(!ok) throw new DatasetBuildError("INVALID_UPSTREAM", "upstream must be {url: https URL, sha256: 64 lowercase hex}");
+}
+
+function compareLabels(a, b){
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+function gate(id, stage, status, threshold, observed){
+  const entry = {id, stage, status};
+  if(threshold !== undefined) entry.threshold = threshold;
+  if(observed !== undefined) entry.observed = observed;
+  return entry;
+}
+
+function integritySummary(unresolved){
+  const byCode = {};
+  for(const code of INTEGRITY_CODES) byCode[code] = 0;
+  for(const item of unresolved){
+    for(const problem of item.problems) byCode[problem.code] += 1;
+  }
+  const sorted = unresolved.slice().sort((a, b) => compareLabels(a.object, b.object));
+  return {
+    objectCount: unresolved.length,
+    problemCountByCode: byCode,
+    objects: sorted.slice(0, INTEGRITY_ERROR_LIMIT).map((item) => ({
+      object: item.object,
+      facilityTypes: item.facilityTypes,
+      problemCount: item.problemCount,
+      problems: item.problems
+    })),
+    truncated: sorted.length > INTEGRITY_ERROR_LIMIT
+  };
+}
+
 export function buildDataset(input, options = {}){
-  const {region, generator, dataAsOf: explicitDataAsOf, sourceLabel = "unspecified", rawInputSha256} = options;
+  const {
+    region, generator, dataAsOf: explicitDataAsOf, sourceLabel = "unspecified", rawInputSha256,
+    sourceFormat, upstream, qualityGates
+  } = options;
   validateRegion(region);
   validateGenerator(generator);
+  if(sourceFormat !== undefined && !SOURCE_FORMATS.includes(sourceFormat)){
+    throw new DatasetBuildError("INVALID_SOURCE_FORMAT", `sourceFormat must be one of ${SOURCE_FORMATS.join(", ")}`);
+  }
+  validateUpstream(upstream);
+  const gates = normalizeQualityGates(qualityGates, region.regionCode);
   if(typeof sourceLabel !== "string" || sourceLabel === "" || sourceLabel.length > 200){
     throw new DatasetBuildError("INVALID_SOURCE_LABEL", "sourceLabel must be a short non-empty string");
   }
@@ -283,9 +325,23 @@ export function buildDataset(input, options = {}){
   // Pass 1: shape validation and duplicate object IDs. Identical duplicates
   // are collapsed; conflicting duplicates stop the build because the correct
   // version cannot be chosen safely.
+  // Labels of objects present in the input but malformed: a facility that
+  // references one is unresolvable, not "missing".
+  const malformed = new Set();
+  // Malformed objects that carry hospital emergency evidence: never dropped
+  // silently; they stop the build with EMERGENCY_EVIDENCE_REJECTED.
+  const emergencyMalformed = [];
+  const noteMalformedEmergency = (element) => {
+    if(hasEmergencyEvidence(element)){
+      emergencyMalformed.push({object: elementLabel(element) || "unlabelled-object", reason: "malformed_element"});
+    }
+  };
   for(const element of input.elements){
     if(!validShape(element)){
       reject(rejections, "malformed_element", element);
+      const label = elementLabel(element);
+      if(label) malformed.add(label);
+      noteMalformedEmergency(element);
       continue;
     }
     let canonical;
@@ -293,6 +349,7 @@ export function buildDataset(input, options = {}){
       canonical = canonicalJson(element);
     }catch(error){
       reject(rejections, "malformed_element", element);
+      noteMalformedEmergency(element);
       continue;
     }
     const identity = `${element.type}/${element.id}`;
@@ -308,50 +365,109 @@ export function buildDataset(input, options = {}){
   }
 
   const nodeCoordinates = new Map();
+  const nodeIds = new Set();
   const ways = new Map();
+  const relations = new Map();
   const byType = {node: 0, way: 0, relation: 0};
   for(const element of uniqueElements){
     byType[element.type] += 1;
-    if(element.type === "node" && isValidLatitude(element.lat) && isValidLongitude(element.lon)){
-      nodeCoordinates.set(element.id, {latE7: toE7(element.lat), lonE7: toE7(element.lon)});
+    if(element.type === "node"){
+      nodeIds.add(element.id);
+      if(isValidLatitude(element.lat) && isValidLongitude(element.lon)){
+        nodeCoordinates.set(element.id, {latE7: toE7(element.lat), lonE7: toE7(element.lon)});
+      }
     }
     if(element.type === "way") ways.set(element.id, element);
+    if(element.type === "relation") relations.set(element.id, element);
   }
+  const resolver = createGeometryResolver({nodeCoordinates, nodeIds, ways, relations, malformed});
+  const unresolved = [];
+  const allowedExclusions = [];
+  const emergencyRejected = [...emergencyMalformed];
+  // Emergency-evidence hospitals outside the data bounds: acknowledged
+  // (excluded, listed) or not (the build stops).
+  const emergencyOutsideAcknowledged = [];
+  const emergencyOutsideUnacknowledged = [];
 
   // Pass 2: selector scope, geometry, bounds and tile assignment.
   const buckets = {};
   for(const type of FACILITY_TYPES) buckets[type] = new Map();
   const accepted = {hospital: 0, pharmacy: 0, inBothTypes: 0, hospitalCoreScope: 0, hospitalExtendedOnlyScope: 0};
   const emergencyTagPresent = {hospital: 0, pharmacy: 0};
-  const geometryStats = {subrelationMembersIgnored: 0};
+  const geometryStats = {wayFacilities: 0, relationFacilities: 0};
   let untagged = 0;
   let outOfScope = 0;
   let droppedTagEntries = 0;
 
+  // Validation ORDER (S2-a v4): selector scope and emergency evidence are
+  // judged from the readable (string-valued) tags first; then position,
+  // referential integrity and data bounds are checked; malformed tags are
+  // rejected LAST. So a malformed tag can never hide a facility from the
+  // integrity, bounds or emergency checks: those still stop the build.
   for(const element of uniqueElements){
-    if(!validTags(element.tags)){
+    const tagsValid = validTags(element.tags);
+    const tags = readableTags(element.tags);
+    if(tags === null){
       reject(rejections, "malformed_tags", element);
       continue;
     }
-    const tags = element.tags || {};
-    if(!Object.keys(tags).length){
+    if(tagsValid && !Object.keys(tags).length){
       untagged += 1;
       continue;
     }
     const scope = facilityScope(tags);
     if(!scope.hospital && !scope.pharmacy){
-      outOfScope += 1;
+      if(tagsValid) outOfScope += 1;
+      else reject(rejections, "malformed_tags", element);
       continue;
     }
-    const position = positionOf(element, nodeCoordinates, ways, geometryStats);
-    if(position.reason){
-      reject(rejections, position.reason, element);
-      continue;
+    const label = `${element.type}/${element.id}`;
+    const facilityTypes = FACILITY_TYPES.filter((type) => scope[type]);
+    const emergencyEvidence = scope.hospital && facilityEvidenceRank(tags) === 0;
+    let position;
+    if(element.type === "node"){
+      if(!isValidLatitude(element.lat) || !isValidLongitude(element.lon)){
+        reject(rejections, "invalid_coordinates", element);
+        if(emergencyEvidence) emergencyRejected.push({object: label, reason: "invalid_coordinates"});
+        continue;
+      }
+      position = {latE7: toE7(element.lat), lonE7: toE7(element.lon)};
+    }else{
+      geometryStats[element.type === "way" ? "wayFacilities" : "relationFacilities"] += 1;
+      position = resolver.resolve(element);
+      if(position.problems){
+        reject(rejections, "incomplete_geometry", element);
+        const item = {object: label, facilityTypes, problemCount: position.problemCount, problems: position.problems};
+        if(emergencyEvidence){
+          emergencyRejected.push({object: label, reason: "incomplete_geometry", problems: position.problems});
+        }else if(gates.allowIncompleteGeometry.has(label)){
+          allowedExclusions.push({...item, reason: gates.allowIncompleteGeometry.get(label)});
+        }else{
+          unresolved.push(item);
+        }
+        continue;
+      }
     }
     const latitude = fromE7(position.latE7);
     const longitude = fromE7(position.lonE7);
     if(!boundsContain(region.dataBounds, latitude, longitude)){
       reject(rejections, "outside_data_bounds", element);
+      if(emergencyEvidence){
+        const item = {object: label, reason: "outside_data_bounds", latitude, longitude};
+        if(gates.acknowledgeEmergencyOutsideDataBounds.has(label)){
+          emergencyOutsideAcknowledged.push({...item, acknowledgement: gates.acknowledgeEmergencyOutsideDataBounds.get(label)});
+        }else{
+          emergencyOutsideUnacknowledged.push(item);
+        }
+      }
+      continue;
+    }
+    if(!tagsValid){
+      // Facility position, integrity and bounds were fine; only its tags are
+      // malformed (for example a value over 255 characters, a non-string
+      // value or an empty key). Counted; with emergency evidence it stops.
+      reject(rejections, "malformed_tags", element);
+      if(emergencyEvidence) emergencyRejected.push({object: label, reason: "malformed_tags"});
       continue;
     }
     const kept = preservedTags(tags);
@@ -377,7 +493,8 @@ export function buildDataset(input, options = {}){
     if(accepted[type] === 0){
       throw new DatasetBuildError("EMPTY_DATASET", `no ${type} objects accepted; refusing to build an empty dataset`, {
         hospital: accepted.hospital,
-        pharmacy: accepted.pharmacy
+        pharmacy: accepted.pharmacy,
+        unresolvedGeometryObjects: unresolved.length + emergencyRejected.length
       });
     }
   }
@@ -422,6 +539,48 @@ export function buildDataset(input, options = {}){
     }
   }
 
+  // Integrity gates. Evaluated after every object was examined (and after
+  // the tile size check, a hard resource limit), so a failure reports every
+  // affected object at once. Nothing has been written at this point.
+  if(emergencyRejected.length){
+    const sorted = emergencyRejected.slice().sort((a, b) => compareLabels(a.object, b.object));
+    throw new DatasetBuildError("EMERGENCY_EVIDENCE_REJECTED",
+      `${sorted.length} hospital object(s) with affirmative OSM emergency evidence would be dropped (first: ${sorted[0].object}, ${sorted[0].reason}); allowances cannot exclude them`, {
+        objectCount: sorted.length,
+        objects: sorted.slice(0, INTEGRITY_ERROR_LIMIT),
+        allowanceRefused: sorted.filter((item) => gates.allowIncompleteGeometry.has(item.object)).map((item) => item.object)
+      });
+  }
+  if(emergencyOutsideUnacknowledged.length){
+    const sorted = emergencyOutsideUnacknowledged.slice().sort((a, b) => compareLabels(a.object, b.object));
+    throw new DatasetBuildError("EMERGENCY_EVIDENCE_OUTSIDE_DATA_BOUNDS",
+      `${sorted.length} hospital object(s) with affirmative OSM emergency evidence lie outside the region data bounds (first: ${sorted[0].object} at ${sorted[0].latitude},${sorted[0].longitude}); review each and list it in acknowledgeEmergencyOutsideDataBounds, or change the data bounds`, {
+        objectCount: sorted.length,
+        objects: sorted.slice(0, INTEGRITY_ERROR_LIMIT)
+      });
+  }
+  const acknowledgedOutside = new Set(emergencyOutsideAcknowledged.map((item) => item.object));
+  const staleAcknowledgements = [...gates.acknowledgeEmergencyOutsideDataBounds.keys()].filter((label) => !acknowledgedOutside.has(label)).sort(compareLabels);
+  if(staleAcknowledgements.length){
+    throw new DatasetBuildError("STALE_EMERGENCY_ACKNOWLEDGEMENT",
+      `acknowledgement(s) match no emergency-evidence hospital outside the data bounds: ${staleAcknowledgements.slice(0, 20).join(", ")}`,
+      {objects: staleAcknowledgements.slice(0, INTEGRITY_ERROR_LIMIT), objectCount: staleAcknowledgements.length});
+  }
+  if(unresolved.length){
+    const summary = integritySummary(unresolved);
+    const first = summary.objects[0];
+    throw new DatasetBuildError("REFERENTIAL_INTEGRITY_FAILED",
+      `${unresolved.length} facility object(s) reference geometry that does not resolve (first: ${first.object} ${first.problems[0].code} ${first.problems[0].missingType}/${first.problems[0].missingRef}); nothing was built`,
+      {...summary, allowedExclusionCount: allowedExclusions.length});
+  }
+  const matchedAllowances = new Set(allowedExclusions.map((item) => item.object));
+  const staleAllowances = [...gates.allowIncompleteGeometry.keys()].filter((label) => !matchedAllowances.has(label)).sort(compareLabels);
+  if(staleAllowances.length){
+    throw new DatasetBuildError("STALE_GEOMETRY_ALLOWANCE",
+      `allowance(s) match no facility with unresolved geometry: ${staleAllowances.slice(0, 20).join(", ")}`,
+      {objects: staleAllowances.slice(0, INTEGRITY_ERROR_LIMIT), objectCount: staleAllowances.length});
+  }
+
   const contentSha256 = sha256Hex(Buffer.from(
     tileFiles.slice().sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
       .map((file) => `${file.path} ${file.sha256}\n`).join(""),
@@ -438,6 +597,55 @@ export function buildDataset(input, options = {}){
     rejectedTotal += rejections[reason].count;
     rejectedReport[reason] = {count: rejections[reason].count, sample: labels.slice(0, REJECTED_SAMPLE_LIMIT)};
   }
+
+  const acceptedObjectCount = accepted.hospital + accepted.pharmacy - accepted.inBothTypes;
+  const rejectedRatio = rejectedTotal + acceptedObjectCount === 0 ? 0 : rejectedTotal / (rejectedTotal + acceptedObjectCount);
+  let rejectedRatioStatus = "NOT_CONFIGURED";
+  if(gates.maxRejectedRatio !== null){
+    rejectedRatioStatus = rejectedRatio <= gates.maxRejectedRatio ? "PASSED" : "FAILED";
+  }
+  const maxTileBytes = Math.max(tileStats(tiles.hospital).maxBytes, tileStats(tiles.pharmacy).maxBytes);
+  const gateTable = [
+    gate("non_empty_hospital", "build", "PASSED", {minAccepted: 1}, accepted.hospital),
+    gate("non_empty_pharmacy", "build", "PASSED", {minAccepted: 1}, accepted.pharmacy),
+    gate("referential_integrity", "build", "PASSED", {maxUnresolvedObjects: 0, allowanceRequired: "explicit per object"},
+      {unresolvedObjects: 0, allowedExclusions: allowedExclusions.length}),
+    gate("emergency_evidence_preserved", "build", "PASSED",
+      {maxSilentlyDroppedObjects: 0, outsideDataBoundsRequires: "explicit per-object acknowledgement"},
+      {silentlyDropped: 0, acknowledgedOutsideDataBounds: emergencyOutsideAcknowledged.length}),
+    gate("max_rejected_ratio", "build", rejectedRatioStatus,
+      gates.maxRejectedRatio === null ? null : gates.maxRejectedRatio,
+      {rejected: rejectedTotal, acceptedObjects: acceptedObjectCount, ratio: Number(rejectedRatio.toFixed(6))}),
+    gate("tile_max_bytes", "build", "PASSED", region.tileMaxBytes, maxTileBytes),
+    gate("tile_membership", "build", "PASSED", "every element inside its tile", "checked per element"),
+    gate("data_bounds", "build", "PASSED", region.dataBounds, {outsideRejected: rejections.outside_data_bounds.count}),
+    gate("service_area_review", "publish", "PENDING_REVIEW", "authoritative boundary check", region.serviceAreaStatus || "unspecified"),
+    gate("count_delta_vs_previous_version", "publish", "PENDING_REVIEW", "needs the previously published version"),
+    gate("known_facility_sample", "publish", "PENDING_REVIEW", "needs a human sample review"),
+    gate("nonmedical_contamination_sample", "publish", "PENDING_REVIEW", "needs a human sample review")
+  ];
+  if(emergencyOutsideAcknowledged.length){
+    gateTable.push(gate("emergency_evidence_exclusions_review", "publish", "PENDING_REVIEW",
+      "every excluded emergency-evidence object reviewed before publishing", {excludedObjects: emergencyOutsideAcknowledged.length}));
+  }
+  if(rejectedRatioStatus === "FAILED"){
+    throw new DatasetBuildError("QUALITY_GATE_FAILED",
+      `rejected ratio ${rejectedRatio.toFixed(6)} exceeds maxRejectedRatio ${gates.maxRejectedRatio}`, {gates: gateTable});
+  }
+  const buildGates = gateTable.filter((entry) => entry.stage === "build");
+  const notConfigured = buildGates.filter((entry) => entry.status === "NOT_CONFIGURED").map((entry) => entry.id);
+  const emergencyEvidenceExclusions = {
+    count: emergencyOutsideAcknowledged.length,
+    objects: emergencyOutsideAcknowledged.slice().sort((a, b) => compareLabels(a.object, b.object)).slice(0, INTEGRITY_ERROR_LIMIT)
+  };
+  const acceptance = {
+    status: notConfigured.length ? "NOT_ACCEPTED" : "BUILD_GATES_PASSED",
+    notConfigured,
+    emergencyEvidenceExclusions: emergencyEvidenceExclusions.count,
+    pendingReview: gateTable.filter((entry) => entry.status === "PENDING_REVIEW").map((entry) => entry.id),
+    publishable: false,
+    note: "BUILD_GATES_PASSED means every automated build gate was configured and passed. Publishing additionally needs every PENDING_REVIEW gate; this generator never marks a dataset publishable."
+  };
 
   const report = {
     reportSchemaVersion: REPORT_SCHEMA_VERSION,
@@ -456,7 +664,22 @@ export function buildDataset(input, options = {}){
     excluded: {outOfSelectorScope: outOfScope},
     rejected: {total: rejectedTotal, byReason: rejectedReport},
     tags: {preservedTagKeyCount: PRESERVED_TAG_KEYS.length, droppedTagEntryCount: droppedTagEntries},
-    geometry: geometryStats,
+    geometry: {
+      ...geometryStats,
+      duplicateMemberReferences: resolver.stats.duplicateMemberReferences,
+      maxRelationDepthSeen: resolver.stats.maxRelationDepth,
+      limits: {maxRelationDepth: MAX_RELATION_DEPTH, maxGeometryPoints: MAX_GEOMETRY_POINTS, maxFacilityExtentE7: MAX_FACILITY_EXTENT_E7}
+    },
+    integrity: {
+      policy: "fail-closed: every facility way/relation must resolve every referenced node, way and relation; only objects listed in allowIncompleteGeometry (with a reason) may be excluded instead of stopping the build; objects with OSM emergency evidence are never excluded",
+      unresolvedObjectCount: 0,
+      allowedExclusionCount: allowedExclusions.length,
+      allowedExclusions: allowedExclusions.slice().sort((a, b) => compareLabels(a.object, b.object)).slice(0, INTEGRITY_ERROR_LIMIT)
+    },
+    emergencyEvidenceExclusions: {
+      policy: "hospital objects with affirmative OSM emergency evidence are excluded only when outside the data bounds AND acknowledged per object in the quality-gates file; every such exclusion is listed here and in the manifest and adds a PENDING_REVIEW publish gate",
+      ...emergencyEvidenceExclusions
+    },
     clientCollapse: {
       scope: "hospital records only; potential, before client category filters",
       ...analyzeClientCollapse([...buckets.hospital.values()].flat(), REJECTED_SAMPLE_LIMIT)
@@ -466,17 +689,9 @@ export function buildDataset(input, options = {}){
       hospital: tileStats(tiles.hospital),
       pharmacy: tileStats(tiles.pharmacy)
     },
-    gates: [
-      {id: "non_empty_hospital", status: "PASSED"},
-      {id: "non_empty_pharmacy", status: "PASSED"},
-      {id: "tile_max_bytes", status: "PASSED"},
-      {id: "tile_membership", status: "PASSED"},
-      {id: "data_bounds", status: "PASSED"},
-      {id: "max_rejected_ratio", status: "NOT_CONFIGURED"},
-      {id: "count_delta_vs_previous_version", status: "NOT_CONFIGURED"},
-      {id: "known_facility_sample", status: "NOT_CONFIGURED"},
-      {id: "nonmedical_contamination_sample", status: "NOT_CONFIGURED"}
-    ]
+    qualityGates: {configured: gates.configured, description: gates.description},
+    gates: gateTable,
+    acceptance
   };
   const reportBytes = canonicalJsonBytes(report);
   const attributionBytes = Buffer.from(attributionText(datasetVersionId, region.regionCode, dataAsOf), "utf8");
@@ -488,11 +703,15 @@ export function buildDataset(input, options = {}){
     canonicalInputSha256Method: "sha256 of the sorted, de-duplicated canonical JSON of each input element joined by newlines"
   };
   if(rawInputSha256) source.rawInputSha256 = rawInputSha256;
+  if(sourceFormat) source.format = sourceFormat;
+  if(upstream) source.upstream = {url: upstream.url, sha256: upstream.sha256};
 
   const manifest = {
     manifestSchemaVersion: MANIFEST_SCHEMA_VERSION,
     datasetVersionId,
     status: "candidate",
+    acceptance: {status: acceptance.status, notConfigured: acceptance.notConfigured, pendingReview: acceptance.pendingReview, publishable: false},
+    emergencyEvidenceExclusions,
     regionCode: region.regionCode,
     dataAsOf,
     source,
